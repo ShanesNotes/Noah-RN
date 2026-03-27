@@ -23,11 +23,11 @@ Options:
   --help       Show this help and exit
 
 Score ranges:
-  3-8   Severe TBI
-  9-12  Moderate TBI
-  13-15 Mild TBI
+  3-8   Severe
+  9-12  Moderate
+  13-15 Mild
 
-Clinical note: Per facility protocol for intubation and ICP monitoring thresholds."
+Clinical note: GCS is mechanism-agnostic. Per facility protocol for intubation and ICP monitoring thresholds."
 
 EYE=""
 VERBAL=""
@@ -60,7 +60,7 @@ done
 
 # Require all three components
 if [[ -z "$EYE" || -z "$VERBAL" || -z "$MOTOR" ]]; then
-    json_error "invalid_input" "All three components required: --eye, --verbal, --motor"
+    json_error "missing_args" "All three components required: --eye, --verbal, --motor"
     exit 1
 fi
 
@@ -74,13 +74,13 @@ SCORE=$(( EYE + VERBAL + MOTOR ))
 
 if (( SCORE <= 8 )); then
     CATEGORY="severe"
-    INTERPRETATION="Severe TBI — not following commands, significant neurological compromise"
+    INTERPRETATION="Severe — not following commands, significant neurological compromise"
 elif (( SCORE <= 12 )); then
     CATEGORY="moderate"
-    INTERPRETATION="Moderate TBI — not fully oriented, may follow simple commands"
+    INTERPRETATION="Moderate — not fully oriented, may follow simple commands"
 else
     CATEGORY="mild"
-    INTERPRETATION="Mild TBI — following commands, oriented, likely alert"
+    INTERPRETATION="Mild — following commands, oriented, likely alert"
 fi
 
 jq -n \

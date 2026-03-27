@@ -1,7 +1,7 @@
 # Noah RN — Tasks
 
 ## Current Phase
-Phase 1 complete. Review fixes applied. Phase 2 (Tools + Intelligence) next per ARCHITECTURE.md.
+Phase 2 in progress. Clinical calculators and I&O tracker complete. Agent routing and cross-skill awareness remaining.
 
 ## Review Backlog (from Phase 0+1 code review, 2026-03-26)
 
@@ -33,8 +33,9 @@ Phase 1 complete. Review fixes applied. Phase 2 (Tools + Intelligence) next per 
 ## Codex Integration
 - [x] **Fix Codex MCP filesystem scope** — Fixed. Launcher symlinks auth.json, local config.toml, filesystem MCP points to noah-rn. *(fixed 2026-03-27)*
 
-## Phase 2 Queue (from ARCHITECTURE.md)
-- [ ] Clinical calculators (GCS, NIHSS, APACHE II, Wells, CURB-65, Braden, RASS, CPOT)
-- [ ] Unit conversion tool (weight-based dosing, drip rate calculations, I&O totals)
+## Phase 2 Progress
+- [x] Clinical calculators — 8 tools + unified skill + 249 tests passing *(2026-03-27)*
+- [x] I&O tracker skill — free-text parsing, categorization, dual-mode *(2026-03-27)*
+- [ ] Unit conversion tool (weight-based dosing, drip rate calculations)
 - [ ] Agent routing — dispatch skill for nursing context
 - [ ] Cross-skill awareness (assessment findings trigger relevant protocol suggestions)

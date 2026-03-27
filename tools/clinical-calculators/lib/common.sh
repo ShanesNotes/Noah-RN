@@ -2,6 +2,15 @@
 # Noah RN — Clinical Calculators shared helper library
 # Source this file from sibling calculator scripts, do not execute directly.
 
+# json_result — Build success JSON from key=value jq args.
+# Caller passes --arg/--argjson pairs and a jq expression.
+# Usage: json_result --arg category "$CAT" '{ status: "ok", category: $category }'
+json_result() {
+    local expr="${@: -1}"
+    local args=("${@:1:$#-1}")
+    jq -n "${args[@]}" "$expr"
+}
+
 json_error() {
     local error_type="$1"
     local message="$2"

@@ -87,8 +87,8 @@ category=$(echo "$result" | jq -r '.category')
 assert_eq "score is 3.0" "3.0" "$score"
 assert_eq "category is moderate probability" "moderate probability" "$category"
 
-# Test 6: Boundary — score 1.5 (heartrate only) → low probability
-echo "Test 6: Boundary 1.5 — low probability"
+# Test 6: Boundary — score 1.5 (heartrate only) → moderate probability (>1 per Wells 2000)
+echo "Test 6: Boundary 1.5 — moderate probability"
 result=$("$TOOL" --dvt 0 --heartrate 1 --immobilization 0 --prior 0 --hemoptysis 0 --malignancy 0 --alternative 0)
 score=$(echo "$result" | jq -r '.score')
 category=$(echo "$result" | jq -r '.category')

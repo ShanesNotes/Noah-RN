@@ -177,6 +177,7 @@ PTS_RR=$(awk "BEGIN {
     else if (r >= 12) print 0
     else if (r >= 10) print 1
     else if (r >= 6) print 2
+    else if (r >= 1) print 3
     else print 4
 }")
 

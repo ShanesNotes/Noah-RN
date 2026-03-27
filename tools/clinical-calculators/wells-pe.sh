@@ -32,7 +32,7 @@ Options:
 
 Score range: 0.0-12.5
   Traditional three-tier:
-    0-1    Low probability
+    ≤1     Low probability
     2-6    Moderate probability
     >6     High probability
   Simplified two-tier:
