@@ -2,18 +2,6 @@
 # Noah RN — Clinical Calculators shared helper library
 # Source this file from sibling calculator scripts, do not execute directly.
 
-# json_result — Build a success JSON payload.
-# Usage: json_result "calculator_name" key1=val1 key2=val2 ...
-# The first argument is the calculator name; remaining arguments are jq --argjson
-# or --arg pairs expressed as "key=value".  Values that look like integers are
-# passed with --argjson so they remain numbers in the output; everything else is
-# passed with --arg (strings).
-#
-# Callers that need structured sub-objects (components, etc.) should pipe the
-# output of this function through a second jq call, or build the JSON directly
-# with jq -n inside the calculator and use json_result only for flat fields.
-# For GCS and similar calculators we expose json_result_raw for full control.
-
 json_error() {
     local error_type="$1"
     local message="$2"
