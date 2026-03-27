@@ -31,7 +31,7 @@ Source: AHA ACLS Guidelines 2020/2025
 
 ---
 
-## BRADYCARDIA (HR < 50 with symptoms)
+## BRADYCARDIA (HR < 60 with symptoms)
 
 1. ATROPINE 1mg IV q3-5min, max 3mg
 2. If atropine ineffective: transcutaneous pacing OR
@@ -64,8 +64,8 @@ Source: AHA ACLS Guidelines 2020/2025
 
 **Stable wide irregular:**
 - DO NOT USE AV nodal blockers
-- Expert consult
-- Consider amiodarone
+- Expert consult IMMEDIATELY
+- Do NOT give amiodarone empirically (danger in pre-excited A-fib/WPW)
 
 ---
 
@@ -73,7 +73,7 @@ Source: AHA ACLS Guidelines 2020/2025
 
 1. 12-lead ECG — STEMI → cath lab
 2. Target: SBP > 90, MAP > 65
-3. Targeted Temperature Management 32-36°C for 24h
+3. Temperature management — prevent fever (target ≤ 37.5°C). Active cooling 32-36°C no longer routine (TTM2 trial). Follow local protocol.
 4. Avoid hyperoxia — titrate O2 to SpO2 92-98%
 5. Avoid hypotension — vasopressors/fluids PRN
 6. Blood glucose target 144-180 mg/dL

@@ -83,7 +83,7 @@ Only include systems with reported data. Flag critical findings with `[!]` prefi
 The assessment in a report includes the nurse's clinical judgment and emphasis — "checking fem pulses on his left", "its been positional". This is not just objective findings — it's "pay attention here."
 
 #### 4. LINES & ACCESS
-All lines with location, gauge, and what's running through each. Site-specific.
+All lines with location, gauge, and what's running through each. Site-specific. This is the detailed line map — ASSESSMENT system 12 (IV/ACCESS SITES) should list lines briefly; this section details what's running through each port. Do not duplicate the same info in both places.
 
 Format:
 ```

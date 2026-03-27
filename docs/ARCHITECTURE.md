@@ -20,7 +20,7 @@ noah-rn/
 │   │   │   └── SKILL.md
 │   │   ├── drug-reference/
 │   │   │   └── SKILL.md
-│   │   ├── protocol-checklist/
+│   │   ├── protocol-reference/
 │   │   │   └── SKILL.md
 │   │   └── shift-report/
 │   │       └── SKILL.md

@@ -31,7 +31,7 @@ Use the Read tool to load the matched protocol file. The file contains the compl
 
 **Default — full algorithm.** When the nurse asks for a protocol by name, present the entire algorithm from the knowledge file. Do not summarize or distill — they're in it, they need the steps.
 
-If the protocol has sub-sections (e.g., ACLS has VF/pVT, PEA/Asystole, Bradycardia, Tachycardia, Post-ROSC), present only the relevant sub-section if the nurse's question specifies one. If they just say "ACLS" or "code blue", present Cardiac Arrest — VF/pVT as the primary algorithm (most common code scenario) and note the other sub-sections are available.
+If the protocol has sub-sections (e.g., ACLS has VF/pVT, PEA/Asystole, Bradycardia, Tachycardia, Post-ROSC), present only the relevant sub-section if the nurse's question specifies one. If they just say "ACLS" or "code blue" without specifying a rhythm, present BOTH arrest algorithms (VF/pVT AND PEA/Asystole) — the first step in any code is rhythm identification, not assuming shockable. Note the other sub-sections (Bradycardia, Tachycardia, Post-ROSC) are available.
 
 **Focused — specific data point.** If the nurse asks a specific question within a protocol, give just the answer:
 - "Epi dose in a code?" → `EPINEPHRINE 1mg IV/IO q3-5min`

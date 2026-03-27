@@ -25,7 +25,11 @@ Source: AHA/ASA Guidelines 2019, updated 2024
 - Active internal bleeding
 - Platelet count < 100,000
 - INR > 1.7 or PT > 15 seconds
+- DOAC use within 48 hours (or therapeutic anti-Xa level)
+- LMWH (therapeutic dose) within 24 hours
 - Recent (< 3 months) head trauma, stroke, or intracranial surgery
+- Prior intracranial hemorrhage
+- Known AVM or aneurysm
 - SBP > 185 or DBP > 110 (must be controlled BEFORE tPA)
 - Blood glucose < 50
 

@@ -83,7 +83,7 @@ Example:
 ```
 Metoprolol (Lopressor) — beta-blocker, antihypertensive
 Routes: PO, IV push (IV: give over 1 min)
-Check HR and SBP before admin. Hold HR <60, SBP <100 per facility protocol.
+Check HR and BP before admin. Hold parameters per facility protocol.
 Monitor: bradycardia, hypotension, dizziness.
 ```
 

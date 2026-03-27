@@ -8,7 +8,7 @@ Source: Walls & Murphy, Manual of Emergency Airway Management; EMCRIT
 
 - **S**uction — Yankauer at HOB, working
 - **O**xygen — BVM connected, NRB preoxygenating, nasal cannula at 15L (apneic oxygenation)
-- **A**irway equipment — laryngoscope (check light), blade size, ETT (7.0-7.5F, 8.0M), stylet, bougie
+- **A**irway equipment — laryngoscope (check light), blade size, ETT 7.0-7.5mm (female), 7.5-8.0mm (male), stylet, bougie
 - **P**harma — RSI meds drawn up, labeled, flushes ready
 - **M**onitoring — continuous SpO2, waveform capnography ready, BP cycling q1min
 - **E**scape plan — supraglottic airway (LMA/King) at bedside, surgical airway kit accessible
@@ -24,7 +24,7 @@ Source: Walls & Murphy, Manual of Emergency Airway Management; EMCRIT
 3. **INDUCTION** (push, not drip):
    - **Etomidate** 0.3 mg/kg IV — hemodynamically neutral. First-line in unstable patients.
    - **Ketamine** 1-2 mg/kg IV — bronchodilator, maintains BP. Good for asthma, sepsis.
-   - **Propofol** 1-2 mg/kg IV — drops BP. Only in hemodynamically stable patients.
+   - **Propofol** 1.5 mg/kg IV (range 1-2) — drops BP. Only in hemodynamically stable patients.
 4. **PARALYTIC** (immediately after induction):
    - **Succinylcholine** 1.5 mg/kg IV — onset 45-60 sec, duration 6-10 min. Contraindicated: hyperK, burns > 48h, crush, neuromuscular disease.
    - **Rocuronium** 1.2 mg/kg IV — onset 60 sec, duration 45-60 min. Safe in hyperK. Sugammadex reversal available.
