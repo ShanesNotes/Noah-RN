@@ -145,6 +145,8 @@ Verify all findings against your assessment and facility policies.
 
 Select ONE disclaimer randomly per invocation. Do not repeat the same one consecutively.
 
+**IMPORTANT:** Always include the disclaimer in your response — even when presenting the gap prompt. The disclaimer appears AFTER all other content (structured systems + gap prompt) in every response. Never omit it.
+
 ## Important Rules
 
 - Preserve the nurse's clinical shorthand. Do not expand abbreviations unless ambiguous.
