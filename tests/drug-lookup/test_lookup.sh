@@ -87,10 +87,10 @@ done
 
 # Test 6: Nonexistent drug returns error
 echo "Test 6: Nonexistent drug"
-result=$("$TOOL" "zzzznotadrug12345")
+result=$("$TOOL" "zzzznotadrug12345" || true)
 status=$(echo "$result" | jq -r '.status')
 error=$(echo "$result" | jq -r '.error')
-assert_eq "status is error" "error" "$status"
+assert_eq "status is ok for valid JSON" "error" "$status"
 assert_eq "error type is no_match" "no_match" "$error"
 
 # Test 7: No argument returns error
@@ -98,6 +98,18 @@ echo "Test 7: No argument"
 result=$("$TOOL" 2>&1 || true)
 status=$(echo "$result" | jq -r '.status' 2>/dev/null || echo "parse_error")
 assert_eq "status is error" "error" "$status"
+
+# Test 9: Special characters in drug name don't break JSON
+echo "Test 9: Special characters in drug name"
+result=$("$TOOL" 'test"drug&name' || true)
+status=$(echo "$result" | jq -r '.status' 2>/dev/null || echo "parse_error")
+if [[ "$status" != "parse_error" ]]; then
+    echo "  PASS: special chars produce valid JSON"
+    PASS=$((PASS + 1))
+else
+    echo "  FAIL: special chars broke JSON output"
+    FAIL=$((FAIL + 1))
+fi
 
 # Test 8: Drug with boxed warning
 echo "Test 8: Boxed warning (amiodarone)"

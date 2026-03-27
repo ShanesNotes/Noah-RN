@@ -9,14 +9,14 @@ ENDPOINT="https://api.fda.gov/drug/label.json"
 
 if [[ $# -lt 1 || -z "${1:-}" ]]; then
     echo '{"status":"error","error":"no_input","message":"Usage: lookup.sh <drug_name>"}'
-    exit 0
+    exit 1
 fi
 
 DRUG="$1"
-DRUG_ENCODED=$(echo "$DRUG" | sed 's/ /+/g')
+DRUG_ENCODED=$(jq -rn --arg d "$DRUG" '$d|@uri')
 
-# Search both brand and generic name fields
-SEARCH="(openfda.brand_name:\"${DRUG_ENCODED}\"+openfda.generic_name:\"${DRUG_ENCODED}\")"
+# Search both brand and generic name fields (OpenFDA grouped OR query)
+SEARCH="(openfda.brand_name:%22${DRUG_ENCODED}%22+openfda.generic_name:%22${DRUG_ENCODED}%22)"
 URL="${ENDPOINT}?search=${SEARCH}&limit=1"
 
 # Fetch from OpenFDA
@@ -27,20 +27,20 @@ HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -1)
 # Handle HTTP errors
 if [[ "$HTTP_CODE" == "000" ]]; then
     echo '{"status":"error","error":"api_error","message":"OpenFDA is unreachable. Check network connection."}'
-    exit 0
+    exit 2
 fi
 
 if [[ "$HTTP_CODE" == "429" ]]; then
     echo '{"status":"error","error":"rate_limit","message":"OpenFDA rate limit hit. Wait a few seconds and retry."}'
-    exit 0
+    exit 2
 fi
 
 # Check for results
 RESULT_COUNT=$(echo "$HTTP_BODY" | jq -r '.results | length' 2>/dev/null || echo "0")
 
 if [[ "$RESULT_COUNT" == "0" || "$RESULT_COUNT" == "null" ]]; then
-    echo "{\"status\":\"error\",\"error\":\"no_match\",\"message\":\"No FDA label found for '${DRUG}'.\"}"
-    exit 0
+    jq -n --arg d "$DRUG" '{"status":"error","error":"no_match","message":"No FDA label found for \u0027\($d)\u0027."}'
+    exit 1
 fi
 
 # Extract structured fields from first result
