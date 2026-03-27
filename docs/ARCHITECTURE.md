@@ -79,6 +79,20 @@ noah-rn/
    - The disclaimer is the design philosophy, not legal decoration. "You're the nurse,
      I'm the clipboard" is literal. Noah organizes, suggests, and reminds. The nurse
      assesses, decides, and acts.
+   - **"Why we care" one-liners.** A single sentence connecting a task to its clinical
+     meaning is a huge moat. "Lactate = global tissue hypoperfusion" plants a seed that
+     sticks. Every protocol step and reference should carry this where it adds value.
+
+7. **Clinical clipboard — three tiers of confidence.** Noah RN is a clinical clipboard.
+   It organizes nurse-provided information, surfaces exact facts from curated references,
+   and offers bounded anticipatory guidance. It does not diagnose, place orders, or
+   silently convert local practice into universal protocol.
+   - **Tier 1 — Standardized national guidance** (AHA, SSC, AHA/ASA): presented exactly
+     as published. Hard numbers, hard timelines, exact doses.
+   - **Tier 2 — Context-dependent bedside suggestions**: labeled as such. Practical
+     ranges, "anticipate this order," clinical reasoning. The charge nurse voice.
+   - **Tier 3 — Institution-specific rules**: require explicit local configuration.
+     Noah does not guess facility policy. "Per facility protocol" until configured.
 
 ---
 
