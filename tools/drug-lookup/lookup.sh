@@ -15,8 +15,8 @@ fi
 DRUG="$1"
 DRUG_ENCODED=$(jq -rn --arg d "$DRUG" '$d|@uri')
 
-# Search both brand and generic name fields (OpenFDA grouped OR query)
-SEARCH="(openfda.brand_name:%22${DRUG_ENCODED}%22+openfda.generic_name:%22${DRUG_ENCODED}%22)"
+# Search both brand and generic name fields (explicit OR)
+SEARCH="(openfda.brand_name:%22${DRUG_ENCODED}%22+OR+openfda.generic_name:%22${DRUG_ENCODED}%22)"
 URL="${ENDPOINT}?search=${SEARCH}&limit=1"
 
 # Fetch from OpenFDA

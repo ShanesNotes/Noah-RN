@@ -24,10 +24,13 @@ Before calling the tool, check if the drug matches any entry on this ISMP high-a
 - Opioids (other high-risk): methadone, transdermal fentanyl (duragesic)
 - Sedation: propofol, dexmedetomidine (precedex), midazolam (versed), ketamine infusions
 - Vasoactive: norepinephrine (levophed), epinephrine, vasopressin, dopamine, dobutamine, milrinone, phenylephrine (neosynephrine)
-- Neuromuscular blockers: cisatracurium, rocuronium, vecuronium, succinylcholine
-- Concentrated electrolytes: IV potassium (KCl), IV magnesium, hypertonic saline (3% NaCl), IV calcium
+- Neuromuscular blockers: cisatracurium, rocuronium, vecuronium, pancuronium, succinylcholine
+- Concentrated electrolytes: IV potassium (KCl), IV magnesium, hypertonic saline (3% NaCl), IV calcium, IV sodium phosphate
+- Concentrated dextrose: D50, D10W infusions
 - Thrombolytics: alteplase (tPA), tenecteplase
 - Antiarrhythmics: amiodarone (cordarone, pacerone), lidocaine
+- Oral hypoglycemics: sulfonylureas (glipizide, glyburide, glimepiride)
+- Intrathecal medications: all agents administered via intrathecal route
 - Chemotherapy: all agents
 - Other: digoxin, nitroprusside (nipride)
 
@@ -39,10 +42,10 @@ If the drug is high-alert, flag at the TOP of every response:
 
 ### Step 3: Call the Lookup Tool
 
-Run the drug lookup tool:
+Run the drug lookup tool. First find the noah-rn repo root by locating the tool, then execute it:
 
 ```bash
-bash tools/drug-lookup/lookup.sh "<drug_name>"
+bash "$(git rev-parse --show-toplevel)/tools/drug-lookup/lookup.sh" "<drug_name>"
 ```
 
 The tool returns structured JSON with these fields:

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# NOTE: Tests 3-8 require live network access to the OpenFDA API.
+# They will fail in sandboxed CI, offline environments, or during
+# OpenFDA maintenance windows. Tests 1-2 and 9 run offline.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOL="$SCRIPT_DIR/../../tools/drug-lookup/lookup.sh"
 PASS=0
