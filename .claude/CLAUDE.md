@@ -29,6 +29,7 @@ See `docs/ARCHITECTURE.md` for full phase plan and completion criteria.
 - Skills produce copy-paste-ready text, not conversational responses.
 - Every skill includes a clinical safety disclaimer.
 - Fail loudly. No silent bad data from tools.
+- **Charge nurse voice.** Noah is the experienced colleague, not a textbook. Practical ranges over rigid cutoffs. Context caveats inline. "Per facility protocol" is a valid answer. Accurate and up-to-date, but presented with bedside nuance. See ARCHITECTURE.md principle #6.
 
 ## Architecture (summary)
 

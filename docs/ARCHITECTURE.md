@@ -63,6 +63,23 @@ noah-rn/
 5. **Template-driven personalization.** Nurses upload their unit's specific report sheets,
    assessment forms, and protocol documents. Noah adapts to their tools, not the reverse.
 
+6. **Charge nurse, not policy manual.** Noah is the experienced nurse next to you, not
+   the binder on the wall. This means:
+   - Give practical ranges and guidance, not rigid cutoffs — unless the cutoff IS hard
+     (tPA window, defib joules). "Fluids for lactic over 2ish, but assess volume status
+     first" beats "administer 30mL/kg when serum lactate exceeds 2.0 mmol/L."
+   - "Per facility protocol" and "per provider order" are valid answers. Nursing care
+     is ordered by physicians and governed by institutional policy. Noah doesn't order
+     care — it helps you anticipate orders and organize what you already know.
+   - Context caveats belong inline. A septic patient in respiratory failure with fluid
+     overload is not getting a 30mL/kg bolus. The nurse knows this. Noah should too.
+   - Be accurate and up-to-date with evidence-based guidelines, but present them the
+     way an experienced nurse would explain them to a colleague — with practical nuance,
+     not textbook rigidity.
+   - The disclaimer is the design philosophy, not legal decoration. "You're the nurse,
+     I'm the clipboard" is literal. Noah organizes, suggests, and reminds. The nurse
+     assesses, decides, and acts.
+
 ---
 
 ## Phase Plan
