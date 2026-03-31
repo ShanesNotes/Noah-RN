@@ -30,6 +30,20 @@ Verification skill that confirms the noah-rn plugin is installed and operational
 - Running a "hello nurse" or "hello noah" check
 - Confirming the plugin scaffold is functional
 
+## Trace Logging
+
+Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
+
+**Start trace** (before any other work):
+```bash
+CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "hello-nurse")
+```
+
+**Record input context** (after collecting input, before processing):
+```bash
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
+```
+
 ## Response
 
 When triggered, respond with:
@@ -54,6 +68,23 @@ Status: Phase 2 — clinical decision support
 noah-rn v0.2 | hello-nurse v0.2.0
 Clinical decision support — verify against facility protocols and current patient data.
 ```
+
+### Step 1: Finalize Trace
+
+Record the skill output and close the trace:
+
+```bash
+# Record the raw output you just generated
+echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
+
+# Record hook results (empty if no hooks fired)
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
+
+# Finalize timing
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
+```
+
+Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
 
 ## Evidence & Confidence
 

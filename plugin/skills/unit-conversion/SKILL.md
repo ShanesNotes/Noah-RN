@@ -56,6 +56,20 @@ nurse's input, then collect the right inputs.
 | **drip** | IV infusion rate from dose + concentration | dose, concentration, optional weight |
 | **unit** | Direct unit conversion (kg↔lbs, F↔C, etc.) | value, from-unit, to-unit |
 
+## Trace Logging
+
+Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
+
+**Start trace** (before any other work):
+```bash
+CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "unit-conversion")
+```
+
+**Record input context** (after collecting input, before processing):
+```bash
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
+```
+
 ## Workflow
 
 ### Step 1: Detect Mode
@@ -230,6 +244,23 @@ Verify all findings against your assessment and facility policies.
 Noah RN — I organize, you validate. Your assessment > my output.
 Verify all findings against your assessment and facility policies.
 ```
+
+### Step 6: Finalize Trace
+
+Record the skill output and close the trace:
+
+```bash
+# Record the raw output you just generated
+echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
+
+# Record hook results (empty if no hooks fired)
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
+
+# Finalize timing
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
+```
+
+Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
 
 ## Cross-Skill Suggestions
 
