@@ -300,7 +300,41 @@ bash tools/fhir/mimic-loinc-query.sh 2524-7 <patient-id>
 
 ---
 
-## 6. Data Regeneration Playbook
+## 6. End-to-End Smoke Test Results (2026-03-31)
+
+Validated the complete FHIR pipeline from `mimic-loinc-query.sh` through skill-level data consumption.
+
+### Test Suite
+
+- `tests/fhir/test_mimic_loinc_query.sh`: **23/23 passed** against live HAPI at `http://10.0.0.184:8080/fhir`.
+
+### Skill Smoke Tests (sample patient `28dcf33b-0c52-587f-83ad-2a3270976719`)
+
+| Skill | Query | Result | Notes |
+|-------|-------|--------|-------|
+| **clinical-calculator** | Creatinine (2160-0) | 0.4–0.5 mg/dL, multiple draws | Shim resolves to itemID 50912. Feedable to CrCl calc. |
+| **clinical-calculator** | Potassium (2823-3) | 3.8 mEq/L | Shim resolves to itemID 50971. Feedable to electrolyte checks. |
+| **clinical-calculator** | Heart rate (220045 direct) | 106–112 bpm | Direct itemID query works. |
+| **protocol-reference** | Lactate (2524-7 alias) | 1.1 mmol/L | Shim resolves alias → itemID 50813. Below sepsis trigger (>2). |
+| **drug-reference** | Insulin (from MIMIC formulary code) | Lookup returns INSULIN LISPRO (ADMELOG) via OpenFDA | Pipeline: MIMIC MedicationRequest → formulary code → drug-lookup tool. |
+
+### Medication Data Gap
+
+MIMIC-IV `Medication` resources use `medicationReference` rather than inline `medicationCodeableConcept`. Most referenced `Medication` resources have **empty `code.text` and `code.coding`** — medication display names are not populated in the MIMIC-IV FHIR IG. A subset carries NDC codes under `http://mimic.mit.edu/fhir/mimic/CodeSystem/mimic-medication-ndc`, and one carries a formulary code (`INSULIN`). Cross-referencing medication history with the drug-lookup tool requires resolving NDC → drug name externally or using the formulary display code when present.
+
+### Verified Data Pipeline
+
+```
+Nurse query (LOINC) → mimic-loinc-query.sh (alias resolution)
+  → mimic-mappings.json (LOINC → itemID)
+  → HAPI FHIR /Observation?code={itemID}
+  → JSON Bundle with valueQuantity
+  → Skill consumption (calculator input, protocol trigger, etc.)
+```
+
+---
+
+## 7. Data Regeneration Playbook
 
 The canonical flow is `download -> decompress -> load -> verify`. Use this for a fresh import or a full reset.
 
