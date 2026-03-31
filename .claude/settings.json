@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $(git rev-parse --show-toplevel)/plugin/hooks/scripts/sanitize-input.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $(git rev-parse --show-toplevel)/plugin/hooks/scripts/validate-calculator.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash $(git rev-parse --show-toplevel)/plugin/hooks/scripts/validate-dosage.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash $(git rev-parse --show-toplevel)/plugin/hooks/scripts/validate-units.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
