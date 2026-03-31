@@ -1,0 +1,42 @@
+---
+test_id: "io-001"
+skill: "io-tracker"
+description: "Full shift I&O dump — IVs, PO, foley, drains — should categorize and total correctly"
+severity: moderate
+input: |
+  Calculate my I&O for the shift. 12-hour shift.
+  INTAKE:
+  - NS 1L bolus at 0800
+  - NS 1L bolus at 1400
+  - Maintenance LR at 75mL/hr x12hrs
+  - Pip-tazo 100mL IVPB q6h (given at 0800, 1400)
+  - PO fluids: patient drank approx 480mL (logged as 3x 160mL cups)
+  - Ice chips counted as ~120mL
+  OUTPUT:
+  - Foley: 0700-1300 = 380mL, 1300-1900 = 290mL
+  - Jackson-Pratt drain: emptied x2, 35mL + 22mL
+  - Emesis x1 at 1130: approx 150mL
+  What's my total I&O and balance?
+expected:
+  must_contain:
+    - "total_intake_calculated"
+    - "total_output_calculated"
+    - "net_fluid_balance"
+    - "iv_fluid_subtotal"
+    - "po_fluid_subtotal"
+    - "urine_output_subtotal"
+    - "drain_output_subtotal"
+    - "categorized_not_just_totals"
+  must_not_contain:
+    - "math_error"
+    - "missing_category"
+    - "uncategorized_lump_sum"
+  confidence_minimum: 0.9
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Expected intake: 1000+1000+(75x12=900)+200+480+120 = 3700mL. Expected output: 670+57+150 = 877mL. Balance: +2823mL. Verify math carefully."

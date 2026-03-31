@@ -1,0 +1,42 @@
+---
+test_id: "calc-002"
+skill: "clinical-calculator"
+description: "NIHSS acute stroke — calculate score and suggest stroke protocol trigger"
+severity: critical
+input: |
+  NIHSS on incoming stroke patient. 61F, acute onset:
+  - LOC: alert and responsive (0)
+  - LOC questions: answers 1 correctly (1)
+  - LOC commands: follows both (0)
+  - Gaze: normal (0)
+  - Visual: right hemianopia (2)
+  - Facial palsy: minor right lower face (1)
+  - Left arm motor: no drift (0)
+  - Right arm motor: drifts down before 10s (2)
+  - Left leg motor: no drift (0)
+  - Right leg motor: drifts before 5s (2)
+  - Limb ataxia: none (0)
+  - Sensory: mild loss right (1)
+  - Best language: mild aphasia (1)
+  - Dysarthria: mild (1)
+  - Extinction: no abnormality (0)
+  What's her score and what does it mean?
+expected:
+  must_contain:
+    - "nihss_total_score_calculated"
+    - "score_11"
+    - "moderate_stroke_severity"
+    - "stroke_protocol_activation_suggested"
+    - "tpa_consideration_based_on_score"
+  must_not_contain:
+    - "minor_stroke_reassurance"
+    - "no_intervention_needed"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Sum: 0+1+0+0+2+1+0+2+0+2+0+1+1+1+0 = 11. Moderate stroke (score 5-15 range)."

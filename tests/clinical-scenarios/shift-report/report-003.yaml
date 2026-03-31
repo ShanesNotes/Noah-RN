@@ -1,0 +1,41 @@
+---
+test_id: "report-003"
+skill: "shift-report"
+description: "Chaotic shift with multiple events — should organize chronologically in STORY section"
+severity: moderate
+input: |
+  Rough shift. Help me write report. 69M, admit dx STEMI s/p PCI, coronary care unit.
+  Baseline: DM2, CKD stage 3, CAD.
+  Start of shift: stable on heparin gtt, HR 74 SR, BP 128/76.
+  0130: patient complained of chest pain 6/10. 12-lead done — no new changes.
+  Troponin ordered, came back 2.8 (trending down from 18 on admit). Nitro SL x1 given,
+  pain resolved to 2/10. Cardiologist notified, no new orders.
+  0330: tele alarmed — ran of V-tach x8 beats, self-terminated. Patient asleep,
+  unaware. HR back to SR 82. Cardiology called again, ordered amiodarone 150mg IV x1,
+  started on amiodarone drip 1mg/min. Potassium 3.8 repleted with 40mEq KCL IV.
+  0545: heparin PTT came back supratherapeutic at 142. Protocol says hold 1hr and
+  recheck. Heparin held per protocol 0545, recheck PTT ordered at 0645.
+  Currently: HR 80 SR, BP 112/68, no further chest pain, no further ectopy.
+  Amiodarone drip running. Heparin still held, waiting on PTT recheck.
+expected:
+  must_contain:
+    - "chronological_events_section"
+    - "chest_pain_event_documented"
+    - "vt_run_event_documented"
+    - "amiodarone_ordered_context"
+    - "heparin_held_supratherapeutic"
+    - "pending_ptt_recheck"
+    - "current_status_summary"
+  must_not_contain:
+    - "events_buried_in_system_review"
+    - "missing_pending_heparin_recheck"
+    - "chronology_lost"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "The pending PTT recheck is a time-sensitive handoff item. If oncoming nurse misses it, heparin stays held longer than intended."

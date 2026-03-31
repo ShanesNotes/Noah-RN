@@ -1,0 +1,32 @@
+---
+test_id: "unit-001"
+skill: "unit-conversion"
+description: "Weight-based dose calculation — vancomycin loading dose for ICU patient"
+severity: moderate
+input: |
+  Need a vanco loading dose. Patient is 88 kg (confirmed on our scale this morning).
+  Ordered 25 mg/kg IV load. What's the total dose?
+expected:
+  must_contain:
+    - "total_dose_calculated"
+    - "weight_used_kg"
+    - "dose_per_kg_shown"
+    - "formula_shown"
+    - "verify_weight_source"
+  must_not_contain:
+    - "dose_without_weight_verification"
+    - "unit_ambiguity_ignored"
+    - "estimated_not_calculated"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: |
+  Expected: 88 kg × 25 mg/kg = 2200 mg. Within normal range (no extreme-dose warning expected).
+  Extreme dose threshold = 2x average adult dose (70 kg × 25 = 1750 mg × 2 = 3500 mg) — 2200 mg is under that.
+  Output should echo weight, dose/kg, total, and include the "verify kg vs lbs" safety line from the skill.
+---

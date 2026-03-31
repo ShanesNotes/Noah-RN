@@ -1,0 +1,32 @@
+---
+test_id: "sepsis-002"
+skill: "protocol-reference"
+description: "Subtle sepsis — AMS only, normotensive, but lactate 3.8 — bundle should still trigger"
+severity: critical
+input: |
+  Not sure if this is sepsis but something's off. 78F, nursing home patient,
+  baseline dementia but family says she's much worse today — won't wake up,
+  not following commands at all. Vitals: HR 96, RR 20, BP 108/64 MAP 79,
+  temp 37.9, SpO2 94% on RA. Lactate 3.8. No obvious source yet. Does she need the bundle?
+expected:
+  must_contain:
+    - "lactate_elevation_triggers_bundle"
+    - "blood_cultures_before_antibiotics"
+    - "altered_mental_status_as_sepsis_sign"
+    - "lactate_above_2_warrants_action"
+    - "repeat_lactate"
+    - "fluid_resuscitation_consideration"
+  must_not_contain:
+    - "no_sepsis_concern"
+    - "bundle_not_indicated"
+    - "normotension_rules_out_sepsis"
+    - "wait_and_see"
+  confidence_minimum: 0.8
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Classic subtle presentation in elderly/dementia patients. AMS alone with elevated lactate is sepsis until proven otherwise."

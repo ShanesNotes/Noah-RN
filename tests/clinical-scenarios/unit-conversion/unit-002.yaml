@@ -1,0 +1,33 @@
+---
+test_id: "unit-002"
+skill: "unit-conversion"
+description: "Drip rate calculation — dopamine at 5 mcg/kg/min with standard bag concentration"
+severity: moderate
+input: |
+  Running dopamine on a 78 kg patient. Bag is 400 mg in 250 mL. Doctor wants 5 mcg/kg/min.
+  What rate do I set the pump to?
+expected:
+  must_contain:
+    - "rate_ml_hr_provided"
+    - "concentration_echoed_back"
+    - "formula_shown"
+    - "dose_unit_mcg_kg_min"
+    - "weight_used_in_calculation"
+  must_not_contain:
+    - "rate_without_concentration_verification"
+    - "estimated_not_calculated"
+    - "concentration_assumed_not_stated"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: |
+  Manual check: 400 mg / 250 mL = 1.6 mg/mL = 1600 mcg/mL.
+  Dose = 5 mcg/kg/min × 78 kg = 390 mcg/min.
+  Rate = (390 mcg/min) / (1600 mcg/mL) × 60 min/hr ≈ 14.6 mL/hr.
+  Skill SKILL.md rule: "always echo back the concentration you used" — this is load-bearing for safety.
+---

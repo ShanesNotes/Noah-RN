@@ -1,0 +1,34 @@
+---
+test_id: "assess-002"
+skill: "shift-assessment"
+description: "Med-surg patient with minimal findings — should simplify and not pad"
+severity: moderate
+input: |
+  Help me write up my assessment. 34F, admitted for appendectomy, post-op day 1.
+  Alert and oriented x4. VSS: HR 76, BP 122/78, Temp 37.1, SpO2 98% RA, RR 16.
+  Pain 3/10 managed with PO oxycodone. Tolerating clears, advancing to regular diet.
+  Incision x3 laparoscopic sites all intact, no drainage, no redness. Voiding without difficulty.
+  Ambulated to bathroom twice this shift. No complaints. Plan is discharge tomorrow if
+  pain controlled and tolerating diet.
+expected:
+  must_contain:
+    - "vitals_summary"
+    - "pain_management_noted"
+    - "wound_assessment"
+    - "diet_tolerance"
+    - "mobility_activity"
+    - "discharge_plan_noted"
+  must_not_contain:
+    - "fabricated_abnormal_findings"
+    - "icu_level_complexity_language"
+    - "unnecessary_system_padding"
+    - "critical_flag_on_stable_patient"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Simple patient should produce simple output. Adding systems that are WNL without findings is noise."

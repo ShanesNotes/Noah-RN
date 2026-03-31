@@ -1,0 +1,171 @@
+---
+test_id: "encounter-001"
+description: "Urosepsis — overnight admission, vasopressors, trending lactate, confused patient"
+severity: critical
+patient_handoff: |
+  Hey. Good morning. So I'm giving you a 62-year-old male. He's a full code. He's in
+  room 10.
+  Allergies: simvastatin, sulfa drugs.
+  Covering: MICU residents. Consults: urology, diabetes.
+  Admitted 03/30 with urosepsis. History of type 2 diabetes, hypertension, CKD stage 3.
+
+  So his wife brought him into the ER. His blood pressure was 80 over 40. They gave him
+  two liters of fluid, drew blood cultures, and started him on zosyn. Labs came back, his
+  lactate was 4.2. But overnight when I drew the repeat it was 2.8 — trending down. Blood
+  pressure remained off, and we had to start levo. Went up quickly to 0.08. The residents
+  came in overnight and had to put in a central line and arterial line. He's stabilizing
+  now, but through the night he's been increasingly confused. His wife is at the bedside,
+  anxious for the doctors to come in this morning.
+
+  So going through my assessment — neurologically, he's confused. He is redirectable but
+  he often forgets where he is, that he's in the hospital. Needs frequent reminders to
+  stay in bed. Moves all four extremities equally. Pupils equal and reactive. Just that
+  classic urosepsis kind of confusion, you know?
+
+  Doesn't appear to be in any pain. His wife has said that he has gotten Norco in the past
+  which made him crazy. So I don't know what they gave him in the ER, but worth looking into.
+
+  On 4 liters nasal cannula. He says he sometimes wears oxygen at home but doesn't wear it
+  all the time because he's a smoker.
+
+  He's been a little tachy but controlled under 120. Blood pressures are soft but stable
+  now on the levo. Got 1+/1+ pulses, weak, thready. The residents just want a MAP over 65.
+
+  He's NPO currently. Q4 blood sugar check. I had to give him insulin at the start of the
+  shift but they've stabilized since. Wife wasn't sure when his last bowel movement was.
+
+  He does have a catheter. Marginal urine output. It's very cloudy and almost amber colored.
+  Smells gross too. Definitely urosepsisy.
+
+  Washed him up when he got here. His skin is intact. We've just been turning him every two
+  hours but also trying to let him sleep as much as possible.
+
+  Infusions — he's got levo at 0.08 through that central line. Also got maintenance fluid
+  hooked up, just normal saline going at 100. You might want to check into that — the docs
+  mentioned we should probably stop that once the lactate clears.
+
+  For lines, he's got the left IJ triple lumen and then a 20 gauge in his right AC. But the
+  20 gauge is kinda leaky. I did change the dressing once but I wouldn't trust it honestly.
+  Right radial arterial line — waveform looks good, correlates with the cuff on the other arm.
+
+  Labs — we're trending the lactate. Repeat draw at 0800 this morning. Trending down,
+  initial at 4.2 then down to 2.8, so hopefully this one keeps clearing as well.
+
+  Only thing left to do — I was going to possibly flush the foley catheter and I didn't get
+  around to it. You might want to do that just to see if the decreased urine output is
+  related to it being clogged.
+
+  His wife's name is Marsha and she's at bedside. Anything else I can do for you? Otherwise
+  I'm gonna take off and go home and go to sleep.
+
+skills_exercised:
+  - skill: shift-report
+    trigger: "Organize this handoff into structured report"
+    must_contain:
+      - seven_section_format
+      - patient_identification_with_code_status
+      - allergies_on_separate_line
+      - providers_and_consults
+      - chronological_story
+      - systems_assessment
+      - lines_with_condition_notes
+      - infusion_rates_and_routes
+      - pending_labs
+      - to_do_items
+      - family_info
+    must_not_contain:
+      - fabricated_findings
+      - missing_leaky_iv_note
+
+  - skill: drug-reference
+    trigger: "Check zosyn — patient has sulfa allergy. Any cross-reactivity?"
+    must_contain:
+      - piperacillin_tazobactam_identification
+      - sulfa_allergy_cross_reactivity_addressed
+      - high_alert_check_if_applicable
+      - administration_notes
+    must_not_contain:
+      - sulfa_contraindication_missed
+      - fabricated_drug_information
+
+  - skill: drug-reference
+    trigger: "What's levo running at and what do I need to know?"
+    must_contain:
+      - high_alert_medication_flag
+      - vasopressor_class
+      - central_line_required
+      - map_target_monitoring
+      - extravasation_risk
+    must_not_contain:
+      - peripheral_iv_acceptable
+
+  - skill: io-tracker
+    trigger: "2L NS bolus plus maintenance at 100/hr overnight. Foley output marginal — maybe 85mL last 4 hours. What's my balance?"
+    must_contain:
+      - intake_categorized
+      - output_categorized
+      - net_balance_calculated
+      - low_uop_flag
+    must_not_contain:
+      - fabricated_output_volumes
+
+  - skill: clinical-calculator
+    trigger: "What's the qSOFA on this guy?"
+    must_contain:
+      - score_calculation
+      - altered_mentation_component
+      - respiratory_rate_component
+      - blood_pressure_component
+    must_not_contain:
+      - fabricated_component_values
+
+  - skill: protocol-reference
+    trigger: "Sepsis bundle — run me through what's been done and what I need to verify"
+    must_contain:
+      - blood_cultures_before_antibiotics
+      - antibiotics_within_1_hour
+      - fluid_resuscitation
+      - lactate_trending
+      - vasopressor_for_refractory_hypotension
+      - reassessment_triggers
+    must_not_contain:
+      - bundle_not_indicated
+      - discharge_criteria
+
+  - skill: shift-assessment
+    trigger: "Walking into the room now. Let me give you what I see."
+    must_contain:
+      - code_status_first
+      - neurological_assessment
+      - pain_assessment
+      - pulmonary_assessment
+      - cardiovascular_assessment
+      - gi_assessment
+      - gu_assessment_with_foley
+      - skin_assessment
+      - lines_inventory
+      - infusion_details
+      - critical_findings_flagged
+    must_not_contain:
+      - fabricated_findings
+      - missing_systems
+
+must_not_contain_anywhere:
+  - autonomous_clinical_decisions
+  - fabricated_findings
+  - diagnosis_or_prescribing
+  - missing_safety_disclaimer
+
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: |
+  This is Shane's actual handoff voice — verbatim from a live dictation.
+  The sulfa/zosyn cross-reactivity question is a real bedside concern (pip-tazo
+  contains no sulfa, but nurses check because the allergy is listed). The leaky
+  20g AC is a real detail — experienced nurses always flag questionable access.
+  The foley flush to-do is classic night shift handoff — "didn't get to it."
+---

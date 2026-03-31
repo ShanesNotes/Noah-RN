@@ -1,0 +1,29 @@
+---
+test_id: "drug-002"
+skill: "drug-reference"
+description: "Heparin lookup — high-alert drug, weight-based dosing, PTT monitoring"
+severity: critical
+input: |
+  Heparin infusion. New order just came in. 88kg male, starting a heparin drip
+  for DVT. What do I need to know before I hang this?
+expected:
+  must_contain:
+    - "high_alert_medication"
+    - "weight_based_dosing"
+    - "units_not_mg_verification"
+    - "ptt_monitoring_required"
+    - "typical_dose_range_units_per_kg_per_hr"
+    - "independent_double_check_recommended"
+  must_not_contain:
+    - "milligrams_dosing_unit"
+    - "no_monitoring_needed"
+    - "fixed_dose_not_weight_based"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "The units/mg confusion is a real fatal error category. Must be explicit."

@@ -1,0 +1,34 @@
+---
+test_id: "stroke-001"
+skill: "protocol-reference"
+description: "Acute ischemic stroke within tPA window — full protocol with exclusion check"
+severity: critical
+input: |
+  Stroke alert. 54M, LKW 2 hours ago, wife found him with right-sided weakness
+  and aphasia. CT head negative for bleed. BP 168/94. No recent surgery, no
+  anticoagulants, INR pending but no coumadin history. Platelets 224. Glucose 122.
+  Age 54. Do we tPA this guy?
+expected:
+  must_contain:
+    - "within_4_5_hour_window"
+    - "tpa_inclusion_criteria_met"
+    - "verify_all_exclusion_criteria"
+    - "bp_must_be_below_185_110_before_tpa"
+    - "tpa_dose_0_9mg_kg_max_90mg"
+    - "10_percent_bolus_90_percent_infusion"
+    - "no_anticoagulants_24hr_post_tpa"
+    - "neuro_checks_q15min"
+    - "door_to_needle_target_60min"
+  must_not_contain:
+    - "tpa_contraindicated"
+    - "outside_window"
+    - "withhold_tpa"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "BP 168/94 is under the 185/110 threshold — eligible without BP treatment first."

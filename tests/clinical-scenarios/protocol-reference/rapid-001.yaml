@@ -1,0 +1,32 @@
+---
+test_id: "rapid-001"
+skill: "protocol-reference"
+description: "Deteriorating patient clearly meeting MEWS criteria — rapid response activation"
+severity: critical
+input: |
+  Floor patient going south. 72M, admitted for CHF. Was fine this morning.
+  Now HR 128, BP 88/54, RR 30, SpO2 88% on 4L NC, temp 38.7. Getting confused,
+  pulling at lines. Normally alert and oriented. Should I call rapid response?
+expected:
+  must_contain:
+    - "rapid_response_activation_indicated"
+    - "multiple_activation_criteria_met"
+    - "sbar_communication_framework"
+    - "hr_above_130_criterion"
+    - "sbp_below_90_criterion"
+    - "rr_above_28_criterion"
+    - "spo2_below_90_criterion"
+    - "acute_mental_status_change_criterion"
+  must_not_contain:
+    - "wait_and_reassess"
+    - "criteria_not_met"
+    - "no_rapid_response_needed"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Five separate activation criteria met. This should be an unambiguous call."

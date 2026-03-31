@@ -1,0 +1,29 @@
+---
+test_id: "drug-003"
+skill: "drug-reference"
+description: "Warfarin drug interactions — major interaction categories"
+severity: moderate
+input: |
+  What interacts with warfarin? Patient is on warfarin for A-fib, INR was 4.2 on
+  last draw. Trying to figure out if anything new we started is affecting it.
+  She's been on metronidazole for 3 days and just started fluconazole yesterday.
+expected:
+  must_contain:
+    - "narrow_therapeutic_index"
+    - "inr_monitoring_required"
+    - "azole_antifungals_increase_inr"
+    - "metronidazole_increases_inr"
+    - "drug_interaction_potentiates_warfarin"
+    - "notify_provider_supratherapeutic_inr"
+  must_not_contain:
+    - "no_significant_interactions"
+    - "safe_to_continue_without_monitoring"
+  confidence_minimum: 0.8
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Fluconazole + metronidazole both inhibit CYP2C9, the primary warfarin metabolism pathway. INR 4.2 with both new = predictable."

@@ -1,0 +1,35 @@
+---
+test_id: "io-003"
+skill: "io-tracker"
+description: "Incremental I&O entries across conversation — running total should update correctly each time"
+severity: moderate
+input: |
+  I'm going to give you I&O entries as the shift goes on. Start tracking.
+  Entry 1 (0730 start of shift): Previous shift balance was +1200mL. Starting fresh for day shift.
+  Entry 2 (0800): Hung NS 1L maintenance, running at 125mL/hr.
+  Entry 3 (0900): Patient drank 240mL juice with breakfast.
+  Entry 4 (1000): Foley emptied — 320mL since 0730.
+  Entry 5 (1200): Vancomycin 250mL IVPB given over 1hr (done at 1300).
+  Entry 6 (1300): Foley emptied — 280mL (1000-1300).
+  Entry 7 (1400): Emesis 180mL.
+  What's the running total intake and output right now, and what's the balance since 0730?
+expected:
+  must_contain:
+    - "running_intake_total"
+    - "running_output_total"
+    - "current_net_balance"
+    - "incremental_update_from_each_entry"
+    - "previous_shift_balance_noted_separately"
+  must_not_contain:
+    - "previous_shift_balance_included_in_current_shift_total"
+    - "missing_any_entry"
+    - "math_error"
+  confidence_minimum: 0.9
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Intake by 1400: (125x6=750 NS maintenance) + 240 PO + 250 vanc = 1240mL. Output: 320 + 280 + 180 = 780mL. Balance this shift: +460mL. Prior shift balance tracked separately."

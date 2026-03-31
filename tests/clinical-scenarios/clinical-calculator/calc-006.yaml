@@ -1,0 +1,31 @@
+---
+test_id: "calc-006"
+skill: "clinical-calculator"
+description: "RASS -4 on sedation drip — deep sedation flag, SAT consideration"
+severity: moderate
+input: |
+  RASS score. Patient is on propofol 25 mcg/kg/min and fentanyl 100 mcg/hr.
+  No eye opening to voice, no response to verbal, does open eyes briefly to
+  sternal rub then immediately closes them. No movement. What's his RASS and
+  what should I be thinking about?
+expected:
+  must_contain:
+    - "rass_negative_4_deep_sedation"
+    - "deep_sedation_flag"
+    - "sat_spontaneous_awakening_trial_consideration"
+    - "daily_sedation_interruption"
+    - "light_sedation_target_preferred"
+    - "propofol_infusion_syndrome_risk_prolonged"
+  must_not_contain:
+    - "rass_appropriate_no_action"
+    - "deep_sedation_is_goal"
+    - "no_sat_needed"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "RASS -4: brief eye opening to physical stim, no eye opening to voice, no purposeful movement. Deep sedation evidence strongly favors lighter target unless specific indication (e.g. ARDS prone, ICP management)."

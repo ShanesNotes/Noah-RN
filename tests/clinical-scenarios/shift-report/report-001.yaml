@@ -1,0 +1,44 @@
+---
+test_id: "report-001"
+skill: "shift-report"
+description: "Full ICU handoff narrative — should structure into 7 sections with clinical precision"
+severity: moderate
+input: |
+  Help me write handoff report. 61M, MICU day 5. Admit dx: ARDS secondary to aspiration.
+  Baseline: former smoker, HTN, DM2.
+  Neuro: sedated on propofol 20 mcg/kg/min + fentanyl 75 mcg/hr. RASS -2, CPOT 2.
+  Brief wakeup at 0800 — followed commands, RASS 0 x20min, then resedated per order.
+  CV: SR, HR 88. BP running 118-132/64-74 on lopressor 5mg IV q6h. No pressors since yesterday.
+  CVP 8. Peripheral edema 2+ bilateral LE.
+  Resp: AC/VC TV 380 (6ml/kg IBW 63kg), RR 18, PEEP 12, FiO2 55%, Ppeak 36 Pplat 28.
+  SpO2 97%. Bilateral crackles. Prone trial last night x16h, SpO2 improved from 89 to 97.
+  Back supine since 0600.
+  GI/GU: TF Osmolite 1.5 at 50mL/hr via NGT, residuals <100mL. No BM x3 days, senna ordered.
+  UO 65-90mL/hr, foley intact. BMP pending.
+  ID: Aspiration PNA — on pip-tazo day 5. Temp max 38.3 today. Cultures x3 days NGTD.
+  Lines: RIJ triple lumen day 4, art line L radial day 5. Both sites intact. L radial dampened
+  this AM, repositioned wrist, improved.
+  Plan: wean FiO2 if ABG good at 1200. Consider SAT/SBT tomorrow if tolerating.
+expected:
+  must_contain:
+    - "patient_identifier_and_diagnosis"
+    - "neurological_sedation_status"
+    - "cardiovascular_summary"
+    - "respiratory_vent_settings"
+    - "gi_gu_section"
+    - "infectious_disease_antibiotics"
+    - "lines_access_section"
+    - "plan_next_shift"
+  must_not_contain:
+    - "unstructured_paragraph_dump"
+    - "missing_vent_settings"
+    - "missing_plan"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: ""

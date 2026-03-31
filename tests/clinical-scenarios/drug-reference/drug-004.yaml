@@ -1,0 +1,31 @@
+---
+test_id: "drug-004"
+skill: "drug-reference"
+description: "tPA (alteplase) lookup — high-alert, exclusion criteria, irreversible once given"
+severity: critical
+input: |
+  tPA. Stroke patient, doc ordered it, pharmacy is mixing it now. What are
+  the nursing considerations before I hang this?
+expected:
+  must_contain:
+    - "high_alert_medication"
+    - "verify_exclusion_criteria_before_administration"
+    - "irreversible_once_administered"
+    - "tpa_dose_0_9mg_kg_max_90mg"
+    - "10_percent_bolus_remainder_infusion"
+    - "no_antiplatelets_or_anticoagulants_24hr"
+    - "neuro_monitoring_post_tpa"
+    - "bp_monitoring_during_infusion"
+  must_not_contain:
+    - "exclusions_not_important"
+    - "routine_medication"
+    - "no_special_monitoring"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Irreversibility is the key point. Once the bolus is in, you can't undo it. Exclusion check is nursing responsibility, not just the doc's."

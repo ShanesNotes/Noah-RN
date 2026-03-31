@@ -1,0 +1,186 @@
+---
+test_id: "encounter-012"
+description: "Hypertensive emergency — BP 218/134, nicardipine drip, suspected hypertensive encephalopathy, stroke workup pending"
+severity: critical
+patient_handoff: |
+  Good morning. Room 2, MICU. 58-year-old male. Full code. Allergies: NKDA.
+  Covering is Dr. Ramanujan, neurology is consulting.
+
+  He came up from the ER at 0300. His wife called 911 because he was confused
+  and complaining of a severe headache — the worst headache of his life, she said.
+  That got them worried about subarachnoid, so the ER did a stat CT head. That
+  came back negative for bleed. LP was done, also negative for blood or xanthochromia.
+  So they're not calling it SAH. The working picture is hypertensive encephalopathy —
+  his blood pressure in the ER was 218 over 134. He takes three blood pressure
+  medications at home but he ran out of all of them about a week ago and hasn't
+  been able to get to the pharmacy.
+
+  We started nicardipine here, which is what neuro recommended — they want a calcium
+  channel blocker for this picture, not nitroprusside. He's currently on 5mg per hour.
+  The order says titrate by 2.5mg/hr every 15 minutes to goal MAP less than 130 —
+  and this is important — do NOT drop the pressure too fast or too much. In
+  hypertensive encephalopathy we're targeting a 20 to 25 percent reduction in MAP
+  over the first hour, not normalizing it. Overcorrection can cause a stroke in
+  the other direction.
+
+  His current blood pressure is 192 over 118. MAP right now is about 143. His
+  admission MAP was 162. We're making progress. Neuro is coming in this morning to
+  reassess. They want hourly blood pressure checks, Q2 neuro exams, and a follow-up
+  MRI when he's stable enough.
+
+  The confusion is improving. He was disoriented, not tracking conversation in the
+  ER. Now he's awake, oriented times 2 — knows his name and knows he's in a hospital,
+  doesn't know the date or year. Wife says that's not his baseline — he's sharp
+  normally. GCS right now is 14 — eyes 4, verbal 4, motor 6. The headache is still
+  there, 6 out of 10, it was 10 when he came in.
+
+  History: hypertension, CKD stage 3 — creatinine today was 2.1, which is above
+  his baseline of 1.4 per old records. The renal team may get involved as well.
+  Hypertensive emergency can cause acute kidney injury.
+
+  Vitals: BP 192/118, HR 88 sinus, RR 16, sats 97% on 2 liters nasal cannula,
+  temp 37.2. He's not tachycardic, which is somewhat reassuring.
+
+  Lines: 20 gauge right hand — nicardipine is running through it. I know calcium
+  channel blockers can be peripherally administered, and that's confirmed in the
+  orders. 18 gauge left AC — saline lock, good, patent. They tried to get an
+  arterial line but he wouldn't cooperate in the ER — he was too agitated. Neuro
+  may order one this morning. In the meantime we're doing cuff BPs every 15 minutes
+  on the right arm opposite the IV.
+
+  Labs: BMP from 0400 showed that creatinine of 2.1 I mentioned. K was 4.0, decent.
+  CBC was unremarkable. Troponin was mildly elevated at 0.08 — they'll repeat at
+  0800 to trend it. Urinalysis was sent, results pending.
+
+  To-do this morning: hourly blood pressure q15min until target then q1h, Q2 neuro
+  exams, repeat troponin at 0800, repeat BMP this afternoon for the creatinine,
+  neurology follow-up, and if he's cooperative enough they want a right radial a-line
+  placed. No food or water — he's NPO pending the neuro assessment of his swallow.
+
+  MAP math for you — goal is 20-25% reduction from 162. That's target MAP 122 to 130.
+  We're at 143 now. Almost there. Don't overshoot.
+
+skills_exercised:
+  - skill: unit-conversion
+    trigger: "MAP calculation — BP is 192/118. What's his MAP?"
+    must_contain:
+      - map_formula_used
+      - calculation_steps_shown
+      - correct_result_approximately_143
+      - clinical_interpretation
+    must_not_contain:
+      - fabricated_calculation
+      - map_without_showing_formula
+
+  - skill: drug-reference
+    trigger: "Nicardipine drip — 5mg/hr running peripherally. What do I need to know? Any concerns running it through a peripheral IV?"
+    must_contain:
+      - calcium_channel_blocker_class
+      - high_alert_medication_flag
+      - peripheral_administration_acceptable_noted
+      - hypotension_monitoring
+      - reflex_tachycardia_risk
+      - titration_frequency_noted
+      - blood_pressure_target_goal_context
+    must_not_contain:
+      - peripheral_iv_contraindicated_for_nicardipine
+      - fabricated_drug_information
+      - central_line_required_for_nicardipine
+
+  - skill: clinical-calculator
+    trigger: "GCS — eyes open spontaneously, oriented times 2, following commands. Walk me through his score."
+    must_contain:
+      - eyes_component_4
+      - verbal_component_4_or_5
+      - motor_component_6
+      - total_score_14_or_15
+      - clinical_interpretation_mild_impairment
+    must_not_contain:
+      - fabricated_component_values
+      - score_without_component_breakdown
+
+  - skill: protocol-reference
+    trigger: "He came in with worst-headache-of-his-life and confusion. CT was negative, LP negative. We're calling it hypertensive encephalopathy. Rapid response / stroke workup — what should I be watching for?"
+    must_contain:
+      - neurological_monitoring_priorities
+      - focal_deficits_as_stroke_flag
+      - bp_overcorrection_danger_noted
+      - neuro_change_escalation_criteria
+      - code_stroke_criteria_reference
+    must_not_contain:
+      - diagnosis_of_sah_without_confirmation
+      - bp_normalization_as_goal
+      - fabricated_protocol_steps
+
+  - skill: shift-assessment
+    trigger: "Walking into Room 2. Head-to-toe on this hypertensive emergency patient."
+    must_contain:
+      - code_status_first
+      - neurological_assessment_with_gcs
+      - orientation_status_noted
+      - headache_assessment
+      - pain_assessment
+      - pulmonary_assessment
+      - cardiovascular_assessment
+      - blood_pressure_both_values_and_map
+      - lines_inventory
+      - infusion_details_with_nicardipine
+      - critical_labs_pending
+    must_not_contain:
+      - fabricated_findings
+      - missing_systems
+      - map_calculation_error
+
+  - skill: shift-report
+    trigger: "Organize this handoff into structured report"
+    must_contain:
+      - seven_section_format
+      - patient_identification_with_code_status
+      - allergies_on_separate_line
+      - providers_and_consults
+      - hypertensive_emergency_admission_story
+      - nicardipine_rate_and_titration_goal
+      - map_reduction_target_documented
+      - neuro_exam_findings
+      - overcorrection_danger_noted
+      - lines_with_condition_notes
+      - pending_labs
+      - to_do_items
+    must_not_contain:
+      - fabricated_findings
+      - drip_rates_missing
+      - bp_goal_not_documented
+
+must_not_contain_anywhere:
+  - autonomous_clinical_decisions
+  - fabricated_findings
+  - diagnosis_or_prescribing
+  - missing_safety_disclaimer
+  - blood_pressure_normalized_as_target
+
+provenance:
+  author: "shane"
+  date: "2026-03-31"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: |
+  MAP calculation: MAP = DBP + (1/3)(SBP - DBP) = 118 + (1/3)(192-118) = 118 + 24.7 ≈ 143.
+  The 20-25% MAP reduction rule is critical — it's the most important clinical concept
+  in hypertensive encephalopathy management. The rationale: the cerebrovascular
+  autoregulation curve is shifted rightward in chronic hypertension, so a blood pressure
+  that looks "normal" is actually cerebral ischemia territory for this patient.
+  Aggressive BP reduction → watershed stroke.
+  Nicardipine is preferred over nitroprusside for hypertensive encephalopathy because:
+  1) predictable titration, 2) no cyanide toxicity risk (relevant for prolonged use),
+  3) does not cause reflex tachycardia as aggressively.
+  The peripheral IV for nicardipine is controversial — some institutions require
+  central access, others do not. The drug is generally considered peripherally safe
+  at standard rates. Noah should not mandate central access but should note it as
+  institution-specific.
+  Troponin elevation in hypertensive emergency is common (demand ischemia / type 2 MI)
+  and does NOT necessarily mean the patient needs to go to the cath lab. Context matters.
+  The "worst headache of his life" workup is the right place for a thunderclap headache
+  protocol — CT negative, LP negative rules out SAH with >99% sensitivity. The neuro
+  exam and blood pressure management are the clinical priorities now.
+---

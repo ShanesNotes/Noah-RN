@@ -1,0 +1,37 @@
+---
+test_id: "report-002"
+skill: "shift-report"
+description: "Med-surg handoff focused on discharge — plan section should lead or be emphasized"
+severity: moderate
+input: |
+  Handoff report for a discharge-ready patient. 48F, admitted for community acquired
+  pneumonia, day 4. Switched to PO levofloxacin this AM. Tolerating regular diet,
+  afebrile x36 hours, SpO2 96% on RA (was on 2L NC on admission).
+  Pain: 2/10, occasional pleuritic chest pain, managed with ibuprofen.
+  Baseline: HTN on amlodipine, no other significant hx.
+  VS today: HR 74, BP 126/78, Temp 36.9, RR 16, SpO2 96% RA.
+  Ambulating independently, no O2 requirement.
+  Discharge orders placed by hospitalist. Teaching done: antibiotic course (5 more days),
+  return precautions, PCP follow-up in 1 week. Waiting for pharmacy to fill the prescription.
+  Transportation arranged. Expected discharge 1400 this afternoon.
+expected:
+  must_contain:
+    - "discharge_plan_prominent"
+    - "pending_items_pharmacy_rx"
+    - "discharge_teaching_completed"
+    - "follow_up_plan"
+    - "return_precautions_taught"
+    - "current_clinical_status_stable"
+  must_not_contain:
+    - "discharge_buried_in_report"
+    - "icu_complexity_language"
+    - "missing_pending_items"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "For a discharge patient, the oncoming nurse needs to know: what's left to do, what time, who's picking them up. That should be front and center."

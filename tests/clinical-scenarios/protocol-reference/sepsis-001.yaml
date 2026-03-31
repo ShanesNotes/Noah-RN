@@ -1,0 +1,33 @@
+---
+test_id: "sepsis-001"
+skill: "protocol-reference"
+description: "Classic sepsis presentation — fever, tachycardia, hypotension, elevated lactate — full hour-1 bundle"
+severity: critical
+input: |
+  Sepsis, I'm sure of it. 62M, urosepsis vs pneumonia. Temp 39.4, HR 118, RR 24,
+  SBP 84/52 MAP 63, SpO2 96% on 4L. Lactate came back 4.2. Alert but confused,
+  baseline is sharp. What's the bundle?
+expected:
+  must_contain:
+    - "blood_cultures_before_antibiotics"
+    - "two_sets_blood_cultures"
+    - "broad_spectrum_antibiotics_within_1_hour"
+    - "lactate_repeat_if_elevated"
+    - "30_ml_kg_crystalloid_fluid_bolus"
+    - "norepinephrine_if_map_below_65"
+    - "map_target_65"
+    - "antibiotic_delay_increases_mortality"
+  must_not_contain:
+    - "antibiotics_before_cultures"
+    - "delay_fluids"
+    - "outpatient_management"
+    - "discharge_criteria"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: ""

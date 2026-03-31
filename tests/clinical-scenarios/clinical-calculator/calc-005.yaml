@@ -1,0 +1,33 @@
+---
+test_id: "calc-005"
+skill: "clinical-calculator"
+description: "Braden scale very high risk (score 9) — should trigger skin care and pressure injury prevention flags"
+severity: moderate
+input: |
+  Braden scale. 81F, admitted for hip fracture, non-surgical candidate. Bedbound,
+  incontinent of stool and urine, doesn't respond to verbal stimulation, on a vent,
+  no oral intake, malnourished — albumin 1.8. Skin turgor poor. What's her Braden
+  and what should I be doing?
+expected:
+  must_contain:
+    - "braden_score_very_low"
+    - "high_risk_pressure_injury"
+    - "score_9_or_below"
+    - "repositioning_q2hr"
+    - "pressure_redistributing_surface"
+    - "skin_assessment_frequency"
+    - "nutrition_intervention"
+    - "moisture_management"
+  must_not_contain:
+    - "low_risk"
+    - "no_intervention_needed"
+    - "standard_care_sufficient"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Score 9 or below is severe risk. All 6 subscales at minimum: sensory 1, moisture 1, activity 1, mobility 1, nutrition 1, friction 2 = 7. Interventions are not optional here."

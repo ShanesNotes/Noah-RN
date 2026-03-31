@@ -1,0 +1,38 @@
+---
+test_id: "assess-003"
+skill: "shift-assessment"
+description: "Multiple critical findings — should flag all with [!] or equivalent urgent markers"
+severity: critical
+input: |
+  Need to organize this — it's a lot. 74M, septic shock.
+  Neuro: GCS 9 this hour, was 13 two hours ago — significant drop.
+  CV: HR 138 ST, BP 78/44 MAP 55 — on norepi 0.28 mcg/kg/min and maxed, going up.
+  Resp: RR 34, SpO2 88% on NRB 15L, accessory muscle use, starting to talk about intubation.
+  Renal: UO 5mL last 2 hours, foley patent.
+  Skin: new mottling bilateral lower extremities to knees.
+  Labs 30min ago: lactate 9.2, pH 7.18, K 5.8, Cr 3.4 (baseline 1.0).
+  Temp 40.2. Blood cultures x2 drawn, antibiotics on board 3hrs.
+expected:
+  must_contain:
+    - "critical_flag_mental_status_change"
+    - "critical_flag_hypotension"
+    - "critical_flag_hypoxia"
+    - "critical_flag_oliguria"
+    - "critical_flag_elevated_lactate"
+    - "critical_flag_acidosis"
+    - "critical_flag_hyperkalemia"
+    - "mottling_as_perfusion_marker"
+    - "urgent_intervention_language"
+  must_not_contain:
+    - "all_findings_presented_equally"
+    - "no_urgency_flags"
+    - "stable_patient_language"
+  confidence_minimum: 0.9
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Every finding here is critical. Output that doesn't scream urgency is a fail."

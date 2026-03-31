@@ -1,0 +1,31 @@
+---
+test_id: "acls-001"
+skill: "protocol-reference"
+description: "VF cardiac arrest — shockable rhythm, first responder context"
+severity: critical
+input: |
+  VF arrest. 58M, found unresponsive by family, downtime unknown maybe 3 min.
+  CPR in progress. We're on cycle 2. Got IO in the right tib. No IV yet.
+  What's the sequence?
+expected:
+  must_contain:
+    - "defib_200j_biphasic"
+    - "immediate_cpr_after_shock"
+    - "epinephrine_1mg_q3_5min"
+    - "amiodarone_300mg_first_dose"
+    - "hs_and_ts_reversible_causes"
+    - "2_minute_cpr_cycles"
+    - "io_route_acceptable"
+  must_not_contain:
+    - "no_defibrillation"
+    - "adenosine"
+    - "atropine_for_vf"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: ""

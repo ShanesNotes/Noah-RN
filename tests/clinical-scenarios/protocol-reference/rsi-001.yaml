@@ -1,0 +1,33 @@
+---
+test_id: "rsi-001"
+skill: "protocol-reference"
+description: "Standard RSI for respiratory failure — full sequence, hemodynamically borderline"
+severity: critical
+input: |
+  Need to intubate. 48M COPD exacerbation, failing BiPAP, SpO2 82% on max settings,
+  RR 36, using accessory muscles. BP 102/68, HR 124. About 80kg. Walk me through RSI.
+expected:
+  must_contain:
+    - "soap_me_preparation_checklist"
+    - "preoxygenation"
+    - "apneic_oxygenation_nasal_cannula_15l"
+    - "etomidate_hemodynamically_unstable_preferred"
+    - "ketamine_alternative_bronchodilator"
+    - "succinylcholine_or_rocuronium_dose"
+    - "weight_based_dosing"
+    - "waveform_capnography_confirmation"
+    - "post_intubation_sedation"
+    - "do_not_leave_patient_paralyzed_without_sedation"
+  must_not_contain:
+    - "propofol_first_line_unstable"
+    - "no_weight_based_dosing"
+    - "skip_preoxygenation"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "BP 102/68 makes propofol risky — etomidate or ketamine preferred here."

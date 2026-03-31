@@ -1,0 +1,33 @@
+---
+test_id: "calc-004"
+skill: "clinical-calculator"
+description: "Wells PE score — high probability, should suggest CT-PA workup"
+severity: critical
+input: |
+  Wells score for PE. 44F, post-op day 3 after total hip replacement. Comes in
+  with pleuritic chest pain and dyspnea, HR 108. Unilateral left calf swelling
+  and tenderness present. No alternative diagnosis fits better. No prior DVT or PE.
+  Not immobilized more than 3 days before this admission (she was moving around post-op).
+  No hemoptysis. No active malignancy. What's her Wells and what does it mean?
+expected:
+  must_contain:
+    - "wells_score_calculated"
+    - "clinical_signs_dvt_points"
+    - "pe_likely_diagnosis_points"
+    - "heart_rate_above_100_points"
+    - "high_probability_or_elevated_score"
+    - "ct_pulmonary_angiography_recommended"
+    - "anticoagulation_consideration"
+  must_not_contain:
+    - "low_probability"
+    - "no_workup_needed"
+    - "d_dimer_alone_sufficient_high_prob"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "DVT signs (3pts) + PE most likely (3pts) + HR >100 (1.5pts) = 7.5. High probability (>6). CT-PA directly, D-dimer not appropriate."

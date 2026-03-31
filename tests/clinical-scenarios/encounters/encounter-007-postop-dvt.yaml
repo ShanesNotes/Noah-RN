@@ -1,0 +1,183 @@
+---
+test_id: "encounter-007"
+description: "Post-op colectomy with new unilateral leg swelling — DVT/PE workup, Wells scoring, missed prophylaxis dose"
+severity: moderate
+patient_handoff: |
+  Hey. So I'm handing off a 58-year-old female, full code, room 14.
+  Allergies: codeine — vomiting.
+  Covering: general surgery, Dr. Kim.
+
+  She's post-op day 3 from an open colectomy for colon cancer. History is the colon
+  cancer — just diagnosed — hypertension, obesity with a BMI of 38, and she's a former
+  smoker, quit about 5 years ago. Surgery apparently went well.
+
+  She's been recovering okay, passing gas, tolerating clears, vitals have been stable.
+  She started ambulating post-op day 1 but honestly she hasn't been great about getting
+  up. Incisional pain is her excuse and I get it, but she's been pretty bedbound.
+
+  She's been getting lovenox 40 milligrams subcutaneous daily for DVT prophylaxis, but
+  here's the thing — yesterday's dose got missed. She was down in CT for a follow-up
+  scan and it just fell through the cracks in the shuffle. Nobody caught it until today.
+
+  So this morning during my assessment — her left leg is noticeably more swollen than
+  the right. Calf is tender to palpation. Warm. She said it's been achy since yesterday
+  but she figured it was just from laying in bed and didn't say anything. I'm thinking
+  DVT. With her cancer, the missed dose, the immobility, the surgery — this fits. I
+  already paged Dr. Kim. He ordered a stat duplex ultrasound of the left leg and a
+  D-dimer. He wants us to hold the lovenox for now until we know what we're dealing
+  with. If it comes back positive they'll probably go to therapeutic heparin.
+
+  Assessment otherwise: she's alert and oriented, good spirits actually, a little
+  anxious now that I've explained why I'm worried about her leg. Pain is 5 out of 10
+  at the incision, controlled. She's on Tylenol and oxycodone 5 milligrams PO every 4
+  hours as needed. Got her last dose about 3 hours ago. Breathing fine, on room air,
+  sats 98%. No chest pain, no shortness of breath — and I asked specifically given
+  what I'm thinking.
+
+  Heart rate 92, BP 138 over 82. Abdomen is soft, incision is clean, dry, and intact
+  with staples, bowel sounds present. Voiding on her own.
+
+  Lines: 20 gauge right hand, saline lock.
+
+  Labs: H&H stable, platelets 342, INR 1.0. No recent coags. D-dimer is drawn and
+  pending. Duplex ultrasound is ordered stat.
+
+  Daughter is coming in this afternoon.
+
+  Heads up — if the duplex is positive, we're going to need to move fast on the heparin
+  drip order. Worth knowing where your heparin protocol is before that call comes in.
+
+skills_exercised:
+  - skill: clinical-calculator
+    trigger: "Run a Wells DVT score on her"
+    must_contain:
+      - score_calculation
+      - active_cancer_component_yes
+      - calf_tenderness_component_yes
+      - entire_leg_swollen_or_unilateral_component
+      - no_alternative_diagnosis_component
+      - immobility_component
+      - final_score_and_risk_category
+      - next_step_guidance_duplex_or_dimer
+    must_not_contain:
+      - missed_cancer_as_risk_factor
+      - fabricated_component_values
+      - score_as_low_risk_without_justification
+
+  - skill: clinical-calculator
+    trigger: "She has no respiratory symptoms but should I run a Wells PE score anyway given what we're thinking?"
+    must_contain:
+      - wells_pe_score_components
+      - dvt_signs_symptoms_component
+      - alternative_diagnosis_component
+      - heart_rate_component
+      - immobilization_surgery_component
+      - cancer_component
+      - risk_stratification
+      - clinical_context_caveat
+    must_not_contain:
+      - fabricated_component_values
+      - pe_ruled_out_without_workup
+
+  - skill: drug-reference
+    trigger: "Lovenox — she missed a dose yesterday. What do I need to know about the missed dose and the hold order?"
+    must_contain:
+      - enoxaparin_identification
+      - missed_dose_guidance
+      - hold_rationale_for_active_workup
+      - hit_monitoring_note
+      - renal_function_consideration
+    must_not_contain:
+      - double_dose_recommendation
+      - fabricated_protocol
+
+  - skill: drug-reference
+    trigger: "If DVT confirmed, Dr. Kim will go to therapeutic heparin. What's the nursing priority list for a new heparin drip?"
+    must_contain:
+      - high_alert_medication_flag
+      - weight_based_dosing_note
+      - ptt_monitoring_protocol
+      - bleeding_precautions
+      - hit_awareness
+      - no_im_injections
+    must_not_contain:
+      - heparin_as_low_alert
+      - ptt_monitoring_omitted
+      - fabricated_dosing
+
+  - skill: drug-reference
+    trigger: "Oxycodone — patient has codeine allergy. Is oxycodone safe?"
+    must_contain:
+      - oxycodone_class_identification
+      - codeine_allergy_cross_reactivity_addressed
+      - phenanthrene_opioid_discussion
+      - clinical_context_note
+    must_not_contain:
+      - oxycodone_contraindicated_based_on_codeine_allergy
+      - cross_reactivity_overstated
+      - fabricated_information
+
+  - skill: shift-report
+    trigger: "Organize this into a structured handoff"
+    must_contain:
+      - seven_section_format
+      - patient_identification_with_code_status
+      - allergies_on_separate_line
+      - providers_and_consults
+      - chronological_story
+      - systems_assessment
+      - lines_with_condition_notes
+      - infusion_rates_and_routes
+      - pending_labs
+      - to_do_items
+      - family_info
+      - missed_dose_documented
+      - dvt_concern_prominently_flagged
+    must_not_contain:
+      - fabricated_findings
+      - missed_lovenox_dose_omitted
+      - dvt_concern_buried_or_missing
+
+  - skill: shift-assessment
+    trigger: "Walk me through your assessment."
+    must_contain:
+      - code_status_first
+      - neurological_assessment
+      - pain_assessment
+      - pulmonary_assessment
+      - cardiovascular_assessment
+      - gi_assessment
+      - gu_assessment
+      - skin_assessment_with_incision
+      - extremity_assessment_with_left_leg_finding
+      - lines_inventory
+      - critical_findings_flagged
+    must_not_contain:
+      - fabricated_findings
+      - missing_leg_swelling_detail
+      - dvt_concern_omitted
+
+must_not_contain_anywhere:
+  - autonomous_clinical_decisions
+  - fabricated_findings
+  - diagnosis_or_prescribing
+  - missing_safety_disclaimer
+
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "constructed_scenario"
+result: null
+result_date: null
+notes: |
+  The missed lovenox dose is the crux — it's a real failure mode and Noah should
+  document it clearly without editorializing. Wells DVT score on this patient is
+  clinically high (cancer = 1, calf tenderness = 1, unilateral swelling = 1, no
+  alternative diagnosis = 1, recent surgery/immobility = 1 — total ~4-5 points, high
+  probability). Oxycodone/codeine allergy is a classic nursing question: phenanthrene
+  opioids have theoretical cross-reactivity but clinical cross-allergy to oxycodone
+  from codeine is low — Noah should not call it contraindicated but should flag the
+  class and recommend pharmacist/physician verification. Wells PE with no respiratory
+  symptoms tests whether Noah applies the tool with appropriate clinical context vs
+  mechanically ruling in/out PE.
+---

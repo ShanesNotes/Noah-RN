@@ -1,0 +1,37 @@
+---
+test_id: "io-002"
+skill: "io-tracker"
+description: "Blood products plus CBI irrigation — should handle standard unit volumes and irrigation math correctly"
+severity: moderate
+input: |
+  Complex I&O, post-TURP with CBI running. Need to figure out true urine output.
+  INTAKE this shift (8hr):
+  - PRBC x2 units (standard 250mL each)
+  - FFP x1 unit (standard 250mL)
+  - NS maintenance 50mL/hr x8h
+  - CBI irrigation (NS): 3 bags of 3L each hung, 8200mL returned in foley bag
+  FOLEY OUTPUT total bag: 9400mL (includes CBI return)
+  Any other output: none.
+  What's the true urine output and overall balance?
+expected:
+  must_contain:
+    - "cbi_irrigation_math"
+    - "true_urine_output_calculated"
+    - "irrigation_in_subtracted_from_foley_bag"
+    - "blood_products_volume_included_in_intake"
+    - "prbc_unit_volume"
+    - "ffp_unit_volume"
+    - "net_fluid_balance"
+  must_not_contain:
+    - "foley_total_reported_as_urine_without_cbi_subtraction"
+    - "blood_products_omitted_from_intake"
+    - "math_error"
+  confidence_minimum: 0.9
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "True UO = 9400 - 9000 (3 bags x 3000mL) = 400mL urine. Intake = 500 PRBC + 250 FFP + 400 maintenance = 1150mL. Balance: +750mL. The CBI subtraction is a classic nursing math trap."

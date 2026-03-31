@@ -1,0 +1,31 @@
+---
+test_id: "acls-002"
+skill: "protocol-reference"
+description: "PEA arrest — non-shockable rhythm, emphasize H's and T's workup"
+severity: critical
+input: |
+  PEA arrest. 71F, septic all week, just lost her pulse. Rhythm on monitor is
+  sinus-ish, rate 50s, no pulse. CPR going. What do I do and what am I looking for?
+expected:
+  must_contain:
+    - "no_defibrillation_pea_not_shockable"
+    - "epinephrine_1mg_iv_io_q3_5min"
+    - "early_epinephrine_improves_outcomes"
+    - "hs_and_ts_reversible_causes"
+    - "hypovolemia_as_reversible_cause"
+    - "tension_pneumo_as_reversible_cause"
+    - "tamponade_as_reversible_cause"
+    - "cpr_2min_cycles"
+  must_not_contain:
+    - "defibrillate"
+    - "shock_recommended"
+    - "amiodarone_first_line_pea"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: ""

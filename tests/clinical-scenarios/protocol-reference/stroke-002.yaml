@@ -1,0 +1,31 @@
+---
+test_id: "stroke-002"
+skill: "protocol-reference"
+description: "Stroke outside tPA window — should NOT recommend tPA, supportive care focus"
+severity: critical
+input: |
+  Stroke, but she woke up with symptoms so LKW is last night at 11pm — it's now 8am.
+  9-hour window. 67F, left-sided hemi, dysarthria. CT negative for bleed, BP 196/104.
+  No tPA right? What do we focus on?
+expected:
+  must_contain:
+    - "outside_tpa_window"
+    - "tpa_not_indicated"
+    - "permissive_hypertension_up_to_220_120"
+    - "do_not_aggressively_lower_bp_without_tpa"
+    - "npo_until_swallow_eval"
+    - "thrombectomy_consideration_up_to_24hr"
+    - "neuro_monitoring"
+  must_not_contain:
+    - "give_tpa"
+    - "tpa_indicated"
+    - "lower_bp_below_140"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Wake-up strokes are outside window by definition unless diffusion-perfusion mismatch on MRI qualifies for extended window — that's neuro's call, not bedside."

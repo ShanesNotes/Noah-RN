@@ -1,0 +1,32 @@
+---
+test_id: "drug-005"
+skill: "drug-reference"
+description: "Insulin drip — high-alert, units verification, concentration check, glucose monitoring"
+severity: critical
+input: |
+  Starting an insulin drip, diabetic ketoacidosis. 28M, glucose 542, bicarb 12,
+  pH 7.22. Got an order for regular insulin infusion. What do I need to triple
+  check before I start this?
+expected:
+  must_contain:
+    - "high_alert_medication"
+    - "verify_units_not_mg"
+    - "verify_concentration"
+    - "independent_double_check_required"
+    - "glucose_check_before_starting"
+    - "glucose_monitoring_frequency"
+    - "typical_dose_0_1_units_kg_hr"
+    - "hypoglycemia_risk"
+  must_not_contain:
+    - "no_special_precautions"
+    - "routine_drip"
+    - "milligrams"
+  confidence_minimum: 0.9
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Units vs mg confusion + concentration errors are the two main insulin drip fatal error modes."

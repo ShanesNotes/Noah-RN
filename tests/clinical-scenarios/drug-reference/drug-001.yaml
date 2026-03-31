@@ -1,0 +1,27 @@
+---
+test_id: "drug-001"
+skill: "drug-reference"
+description: "Metoprolol lookup — hold parameters, HR and BP monitoring thresholds"
+severity: moderate
+input: |
+  What are the hold parameters for metoprolol? Getting ready to give the 0600 dose
+  and patient's HR is 54, BP 98/60. Do I hold it?
+expected:
+  must_contain:
+    - "hr_hold_parameter"
+    - "bp_hold_parameter"
+    - "notify_provider_if_held"
+    - "bradycardia_risk"
+    - "hypotension_risk"
+  must_not_contain:
+    - "always_give_regardless_of_vitals"
+    - "no_hold_parameters"
+  confidence_minimum: 0.8
+  tier: 3
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Hold parameters are facility-protocol (tier 3). Noah should flag the concern and say hold parameters vary — check the order or facility policy."

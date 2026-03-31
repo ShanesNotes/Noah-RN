@@ -1,0 +1,33 @@
+---
+test_id: "calc-001"
+skill: "clinical-calculator"
+description: "GCS on intubated patient — verbal scored as 1 (numeric only), intubation context noted in output"
+severity: moderate
+input: |
+  GCS on my vent patient. 52M, intubated for ARDS. Eyes open to voice (3),
+  follows commands (6), can't assess verbal because of ETT. What's his GCS?
+expected:
+  must_contain:
+    - "verbal_score_1"
+    - "intubation_context_noted"
+    - "eye_score_3"
+    - "motor_score_6"
+    - "gcs_not_fully_comparable_to_non_intubated"
+  must_not_contain:
+    - "verbal_score_omitted_entirely"
+    - "score_without_clinical_caveat"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: |
+  Tool uses numeric scoring only (1-5 verbal). Intubated patient = verbal 1 (no response
+  is the safe floor). Total: E3 V1 M6 = 10.
+  Known limitation: GCS-T notation (verbal = 1T, total = 10T) is standard ICU convention
+  but the tool does not support it — scores are reported as plain integers. Skill output
+  should flag intubation context so the clinician knows the verbal component reflects
+  inability to assess, not true absence of response.

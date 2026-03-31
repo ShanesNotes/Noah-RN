@@ -1,0 +1,156 @@
+---
+test_id: "encounter-005"
+description: "Community-acquired pneumonia, med-surg floor — CURB-65 scoring, renal-adjusted abx, disposition question"
+severity: moderate
+patient_handoff: |
+  Morning. Okay so I've got a 79-year-old male for you. Full code. He's in room 22.
+  Allergies: amoxicillin — hives.
+  Covering: hospitalist Dr. Patel.
+
+  He came in from home yesterday. Wife noticed he'd been getting more short of breath
+  over about three days, productive cough with yellow-green sputum. Temp in the ED was
+  38.6. CXR showed a right lower lobe infiltrate. Procalcitonin came back at 1.8.
+  They admitted him for community-acquired pneumonia. Started him on levofloxacin 750
+  milligrams IV daily — that's already been adjusted for his kidneys. His history is
+  COPD on home O2 at 2 liters, CHF with an EF of 35%, and afib on Eliquis.
+
+  He had a rough overnight looking-wise but he's been stable. Didn't need anything
+  escalated. Cultures are pending — the 24-hour mark is this afternoon, so that's
+  something to keep an eye on.
+
+  Neurologically he's alert and oriented times four. Really pleasant man. No complaints
+  of confusion or anything like that.
+
+  He's got a productive cough, bringing up yellow sputum. O2 is at 3 liters nasal cannula —
+  his home baseline is 2 liters — and he's sitting 92 to 93 percent. Crackles at the
+  right base. Respiratory rate has been in the low twenties today. His RR in the ED was
+  24, which I documented.
+
+  Afib, rate controlled, running 82 to 88. BP is 128 over 74. Good peripheral pulses.
+  No significant edema beyond his baseline.
+
+  He's eating about half his meals. No nausea, bowel sounds present, regular BMs per him.
+  Voiding on his own, adequate output. I haven't been tracking strict I&O but he's
+  clearly not dry.
+
+  He's ambulating with a walker — PT cleared him for hall walks with assist yesterday.
+  Morse fall risk is 55 so moderate, fall precautions are up. Skin is intact. Thin skin
+  for his age — worth being mindful with tape and repositioning.
+
+  Labs: WBC 14.2, BUN 32, creatinine 1.4, sodium 138, potassium 4.1. Repeat CXR is
+  ordered for today, we'll see if that infiltrate is changing.
+
+  Lines: 22 gauge right forearm, running well.
+
+  Wife calls every morning at 8am. Her number is on the whiteboard.
+
+  The question on my mind — and Dr. Patel was asking about it last night — is where does
+  this guy fall on CURB-65. He's not confused, but BUN 32 is about 11.4 millimolar so
+  that counts. His RR was 24 in the ED. BP has been fine. And he's 79. So I count that
+  as a 3. Does he need to be stepped up?
+
+skills_exercised:
+  - skill: clinical-calculator
+    trigger: "Run a CURB-65 on this patient"
+    must_contain:
+      - score_calculation
+      - confusion_component_with_value
+      - urea_component_with_value
+      - respiratory_rate_component_with_value
+      - blood_pressure_component_with_value
+      - age_component_with_value
+      - final_score_3
+      - disposition_guidance_for_score_3
+      - icu_consideration_language
+    must_not_contain:
+      - score_below_3
+      - score_above_3
+      - missing_urea_conversion
+      - fabricated_component_values
+
+  - skill: clinical-calculator
+    trigger: "Give me a Braden on him"
+    must_contain:
+      - score_calculation
+      - sensory_perception_component
+      - moisture_component
+      - activity_component
+      - mobility_component
+      - nutrition_component
+      - friction_shear_component
+      - risk_category
+    must_not_contain:
+      - fabricated_component_values
+      - missing_risk_category
+
+  - skill: drug-reference
+    trigger: "Levofloxacin — patient has amoxicillin allergy. Safe?"
+    must_contain:
+      - fluoroquinolone_class_identification
+      - amoxicillin_allergy_cross_reactivity_addressed
+      - no_cross_reactivity_with_amox
+      - administration_notes
+      - qt_prolongation_warning
+    must_not_contain:
+      - contraindication_based_on_amox_allergy
+      - fabricated_drug_information
+
+  - skill: drug-reference
+    trigger: "He's on Eliquis at home. Any interaction with levofloxacin I need to know about?"
+    must_contain:
+      - apixaban_identification
+      - interaction_check_addressed
+      - bleeding_risk_monitoring_language
+    must_not_contain:
+      - interaction_missed
+      - fabricated_interaction_severity
+
+  - skill: io-tracker
+    trigger: "He's been drinking okay and voiding on his own. Track his oral intake and output this shift."
+    must_contain:
+      - intake_categorized
+      - output_categorized
+      - net_balance_noted
+    must_not_contain:
+      - fabricated_output_volumes
+      - foley_assumed_when_voiding_independently
+
+  - skill: shift-report
+    trigger: "Organize this into a structured handoff"
+    must_contain:
+      - seven_section_format
+      - patient_identification_with_code_status
+      - allergies_on_separate_line
+      - providers_and_consults
+      - chronological_story
+      - systems_assessment
+      - lines_with_condition_notes
+      - infusion_rates_and_routes
+      - pending_labs
+      - to_do_items
+      - family_info
+    must_not_contain:
+      - fabricated_findings
+      - missing_curb65_flag
+      - missing_pending_cultures_note
+
+must_not_contain_anywhere:
+  - autonomous_clinical_decisions
+  - fabricated_findings
+  - diagnosis_or_prescribing
+  - missing_safety_disclaimer
+
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "constructed_scenario"
+result: null
+result_date: null
+notes: |
+  Classic med-surg CAP with complicating comorbidities. CURB-65 of 3 sits in the
+  "consider ICU" range — this is the real bedside tension. BUN-to-mmol conversion
+  (divide by 2.8) is a common nursing stumble; the test validates Noah gets it right.
+  Levo/amoxicillin allergy question is a teaching moment — no cross-reactivity, but
+  the nurse appropriately checks. Eliquis interaction is real (modest bleeding risk
+  potentiation) and nurses on anticoagulated patients always ask.
+---

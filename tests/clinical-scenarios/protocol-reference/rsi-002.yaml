@@ -1,0 +1,29 @@
+---
+test_id: "rsi-002"
+skill: "protocol-reference"
+description: "RSI with hyperkalemia concern — succinylcholine contraindication must be flagged"
+severity: critical
+input: |
+  Intubating a dialysis patient, missed 2 sessions. K+ is 6.8 on the BMP we
+  just got back. Otherwise RSI indication is acute hypoxic respiratory failure.
+  75kg female. What paralytic and does anything change?
+expected:
+  must_contain:
+    - "succinylcholine_contraindicated_hyperkalemia"
+    - "rocuronium_safe_in_hyperkalemia"
+    - "rocuronium_1_2mg_kg"
+    - "sugammadex_available_for_reversal"
+    - "hyperkalemia_is_absolute_contraindication_succinylcholine"
+  must_not_contain:
+    - "succinylcholine_acceptable"
+    - "succinylcholine_first_line"
+    - "hyperkalemia_not_a_concern"
+  confidence_minimum: 0.95
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "This is a hard contraindication. Getting it wrong means potential lethal hyperK-induced arrest from succinylcholine-triggered K release."

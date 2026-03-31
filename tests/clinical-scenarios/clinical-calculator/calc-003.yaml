@@ -1,0 +1,32 @@
+---
+test_id: "calc-003"
+skill: "clinical-calculator"
+description: "APACHE II complex ICU patient — all 14 components, high score"
+severity: moderate
+input: |
+  APACHE II. 68M, septic shock, day 2 ICU. Here's what I have:
+  Temp 38.8°C, MAP 58 (on norepi), HR 118, RR 28 (vented AC/VC), FiO2 0.60 PaO2 72 (A-aDO2 use),
+  pH 7.28, Na 132, K 5.1, Cr 2.8, Hct 28%, WBC 22,
+  GCS 8 (sedated, using 15-GCS for calc), age 68.
+  Chronic health: hepatic cirrhosis, admitted non-electively.
+  What's his APACHE II?
+expected:
+  must_contain:
+    - "apache_ii_score_calculated"
+    - "all_acute_physiology_points_tallied"
+    - "age_points_included"
+    - "chronic_health_points_included"
+    - "high_score_high_mortality_correlation"
+    - "score_above_25_severe"
+  must_not_contain:
+    - "incomplete_calculation"
+    - "skip_chronic_health_component"
+  confidence_minimum: 0.8
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: "Expected score ~28-32 range depending on exact component mapping. Cirrhosis + non-elective adds chronic health points."

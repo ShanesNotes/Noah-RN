@@ -1,0 +1,42 @@
+---
+test_id: "assess-001"
+skill: "shift-assessment"
+description: "Dense ICU narrative with vent settings, drips, art line — should organize into system-by-system structure"
+severity: moderate
+input: |
+  Help me organize my assessment. 57M, post-op day 2 CABG x4. Vented on AC/VC:
+  TV 480, RR 14, PEEP 8, FiO2 40%, Ppeak 28, Pplat 22, SpO2 99%. Propofol 15 mcg/kg/min,
+  fentanyl 50 mcg/hr, precedex 0.4 mcg/kg/hr. Norepi 0.08 mcg/kg/min.
+  Art line R radial: BP 118/68 MAP 84. CVP 10. PA cath: CO 4.8 CI 2.3 SVR 1100 PAOP 14.
+  HR 82 SR on tele, occasional PACs. Temp 37.2 axillary.
+  Lasix 40mg IV q8h, UO last hour 62mL. BMP this AM: Na 138 K 4.0 Cr 0.9 Gluc 148.
+  Last ABG 0400: pH 7.42 pCO2 38 pO2 118 HCO3 24 BE 0.
+  Bilateral breath sounds clear anteriorly, diminished at bases. Sternal incision intact,
+  no drainage. Mediastinal drain 10mL last 4hrs. R leg SVG harvest site — mild ecchymosis,
+  no drainage. Pupils 3mm equal reactive. Moving all 4 extremities purposefully when propofol
+  lightened. Abd soft, NT, bowel sounds present. NGT to low intermittent suction, minimal
+  output. 2 peripheral IVs, 1 central (RIJ triple lumen), art line, foley.
+expected:
+  must_contain:
+    - "neurological_system_section"
+    - "cardiovascular_section"
+    - "respiratory_pulmonary_section"
+    - "renal_fluid_balance_section"
+    - "vent_settings_organized"
+    - "hemodynamic_values_organized"
+    - "drip_summary"
+    - "access_lines_summary"
+    - "wounds_incisions_section"
+  must_not_contain:
+    - "unstructured_narrative_dump"
+    - "missing_vent_settings"
+    - "missing_hemodynamics"
+  confidence_minimum: 0.8
+  tier: 2
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "lived_experience"
+result: null
+result_date: null
+notes: "Classic post-CABG ICU dump. Should produce something a relief nurse can use immediately for handoff."

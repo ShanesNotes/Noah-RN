@@ -1,0 +1,30 @@
+---
+test_id: "acls-004"
+skill: "protocol-reference"
+description: "Stable SVT HR 188 — tachycardia algorithm, narrow regular, adenosine sequence"
+severity: critical
+input: |
+  SVT, rate 188. 34F, palpitations x20min. BP 118/76, alert, denies CP or SOB.
+  Narrow complex, regular on 12-lead. Stable. Walk me through tachycardia algorithm.
+expected:
+  must_contain:
+    - "vagal_maneuvers_first"
+    - "adenosine_6mg_rapid_iv_push"
+    - "20ml_ns_flush_after_adenosine"
+    - "adenosine_12mg_second_dose"
+    - "adenosine_12mg_third_dose"
+    - "patient_is_stable_no_immediate_cardioversion"
+  must_not_contain:
+    - "immediate_cardioversion"
+    - "amiodarone_first_line_stable_svt"
+    - "atropine"
+    - "do_not_give_adenosine"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: ""

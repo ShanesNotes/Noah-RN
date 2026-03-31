@@ -1,0 +1,30 @@
+---
+test_id: "acls-003"
+skill: "protocol-reference"
+description: "Symptomatic bradycardia HR 38 — should present bradycardia algorithm with pacing prep"
+severity: critical
+input: |
+  HR 38, 3rd degree block on tele. 66M, post cath day 1. Diaphoretic, SBP 78,
+  complaining of chest pain. Already called the doc. What's the ACLS brady algorithm?
+expected:
+  must_contain:
+    - "atropine_1mg_iv"
+    - "atropine_max_3mg"
+    - "transcutaneous_pacing"
+    - "dopamine_infusion_option"
+    - "epinephrine_infusion_option"
+    - "prepare_transvenous_pacing"
+  must_not_contain:
+    - "adenosine"
+    - "cardioversion"
+    - "amiodarone_for_bradycardia"
+    - "no_treatment_needed"
+  confidence_minimum: 0.85
+  tier: 1
+provenance:
+  author: "shane"
+  date: "2026-03-30"
+  source: "knowledge_file"
+result: null
+result_date: null
+notes: ""
