@@ -122,7 +122,18 @@ Standard volumes are common clinical reference values. Actual volumes vary by pr
 
 ### Step 4: Calculate Totals
 
-Sum each category, then calculate grand totals and net balance. All arithmetic is straightforward addition -- no tool call needed.
+After the entries are normalized, call the deterministic I&O tool and use its
+output as the source of truth for category totals, grand totals, net balance,
+and running state:
+
+```bash
+bash "$(git rev-parse --show-toplevel)/tools/io-tracker/track.sh" <<'EOF'
+{"entries":[...],"prior_state":{"entries":[...]}}
+EOF
+```
+
+Do not total volumes in the model. All arithmetic and recomputation go through
+the tool.
 
 ### Step 5: Format Output
 
@@ -157,9 +168,9 @@ If there are Tier 2 estimates, include the caveat note below the table.
 ### Step 6: Incremental Mode
 
 If the nurse provides follow-up entries in the same conversation:
-- Include all previous entries from this conversation
+- Keep the prior normalized entries from the last `track.sh` output state
 - Add the new entries
-- Recalculate all totals
+- Re-run `track.sh` with the previous state plus the new entries
 - Re-render the full summary with updated totals
 - Mark new entries visually (prefix with `+` in the Details column)
 
@@ -168,7 +179,8 @@ Example follow-up:
 Nurse: "also had emesis 150cc coffee ground, and foley another 200"
 ```
 
-Updated summary includes the original entries plus the new ones, with recalculated totals.
+Updated summary includes the original entries plus the new ones, with totals
+recomputed by the deterministic tool.
 
 ### Step 7: Clinical Flags
 

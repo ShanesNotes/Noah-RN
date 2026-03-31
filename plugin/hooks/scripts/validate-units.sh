@@ -2,12 +2,15 @@
 # Tier 1 unit verification — detect mg/mcg, mL/L, kg/lbs mismatches
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+
 INPUT=$(cat)
 
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null) || exit 0
 [ "$TOOL_NAME" != "Bash" ] && exit 0
 
-OUTPUT=$(echo "$INPUT" | jq -r '.tool_result // empty' 2>/dev/null) || exit 0
+OUTPUT=$(get_tool_stdout "$INPUT") || exit 0
 [ -z "$OUTPUT" ] && exit 0
 
 WARNINGS=""
@@ -29,7 +32,8 @@ fi
 
 [ -z "$WARNINGS" ] && exit 0
 
-jq -n --arg msg "[Safety] Unit check: ${WARNINGS}" \
-  '{"systemMessage": $msg}'
+emit_posttool_block \
+  "[Safety] Unit check failed. ${WARNINGS}" \
+  "[Safety] Potential unit mismatch in tool output. ${WARNINGS}"
 
 exit 0

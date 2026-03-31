@@ -1,6 +1,48 @@
 ---
 name: shift-assessment
-description: This skill should be used when the user asks to "assess my patient", "organize my assessment", "shift assessment", "head to toe", "systems assessment", "structure my notes", or provides free-text clinical narrative that needs to be organized into a structured nursing assessment by body system.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks to "assess my patient", "organize my assessment",
+  "shift assessment", "head to toe", "systems assessment", "structure my notes", or provides
+  free-text clinical narrative that needs to be organized into a structured nursing assessment
+  by body system.
+scope:
+  - nursing_assessment
+  - head_to_toe
+  - systems_assessment
+  - clinical_documentation
+complexity_tier: complex
+required_context:
+  mandatory:
+    - clinical_narrative
+  optional:
+    - acuity_level
+    - patient_weight
+    - diagnosis
+knowledge_sources: []
+limitations:
+  - adult_patients_only
+  - does_not_replace_clinical_judgment
+  - does_not_diagnose
+  - does_not_fabricate_findings
+  - assessment_is_snapshot_not_trend
+completeness_checklist:
+  - code_status
+  - neurological
+  - pain
+  - pulmonary
+  - cardiovascular
+  - gastrointestinal
+  - genitourinary
+  - skin
+  - mobility
+  - fall_risk
+  - infusions
+  - iv_access
+  - drains
+  - labs
+  - procedures
+hitl_category: "II"
 ---
 
 # Shift Assessment Workflow
@@ -71,6 +113,11 @@ Map the nurse's input to the 15 assessment systems below. Use clinical knowledge
 14. **LABORATORY/TEST RESULTS** — Recent and pending labs, trending values.
 15. **SCHEDULED PROCEDURES** — Upcoming procedures, tests, consults with times if known.
 
+> **Framework**: 15-system nursing assessment based on standard head-to-toe assessment
+> structure used in acute/critical care settings (ANA Standards of Practice, institutional
+> nursing assessment frameworks). System ordering prioritizes life-threatening findings
+> first (code status, neuro, airway) per ABCDE assessment principles.
+
 ### Step 4: Flag Critical Findings
 
 Prefix any finding that warrants immediate clinical attention with `[!]`. This is a documentation marker only. Do NOT prompt the nurse about whether they've taken action — no "did you notify the provider?" questions.
@@ -83,6 +130,14 @@ Prefix any finding that warrants immediate clinical attention with `[!]`. This i
 - Active hemorrhage, hemodynamic instability requiring escalation
 - New skin breakdown over large area, suspected deep tissue injury
 - Acute change from baseline in any system
+
+**Why we care (one-liners for critical flags):**
+- **MAP < 65**: Below autoregulatory threshold — brain, kidneys, and gut are not getting perfused adequately.
+- **GCS drop**: Acute neurological decline = time-critical. Could be herniation, stroke, bleed, or metabolic.
+- **SpO2 < 90**: End-organ hypoxia is happening NOW. Verify device, then escalate O2 delivery.
+- **Lactate > 4**: Severe tissue hypoperfusion. This patient needs aggressive resuscitation.
+- **K+ > 6**: Cardiac arrest risk. Get a 12-lead, start cardiac monitoring, prepare for treatment.
+- **New skin breakdown**: Pressure injuries compound ICU morbidity. Document staging, notify wound care.
 
 ### Step 5: Detect Gaps
 
@@ -146,6 +201,23 @@ Verify all findings against your assessment and facility policies.
 Select ONE disclaimer randomly per invocation. Do not repeat the same one consecutively.
 
 **IMPORTANT:** Always include the disclaimer in your response — even when presenting the gap prompt. The disclaimer appears AFTER all other content (structured systems + gap prompt) in every response. Never omit it.
+
+## Evidence & Confidence
+
+- Nurse-reported objective findings (vitals, lab values) are Tier 1 (data as provided)
+- Clinical interpretations and critical finding flags are Tier 2 (bedside guidance — labeled with [!])
+- The assessment framework itself is Tier 1 (standard nursing practice)
+- Facility-specific thresholds (fall risk score cutoffs, pressure injury protocols) are Tier 3 — "per facility protocol"
+- Note: assessment is a point-in-time snapshot. Trends over time are more clinically meaningful than a single assessment.
+
+## Cross-Skill Suggestions
+If assessment findings map to a trigger in knowledge/templates/cross-skill-triggers.md, add up to 2 suggestions after the assessment output. Only if findings clearly warrant it.
+
+## Provenance Footer
+End every response with:
+---
+noah-rn v0.2 | shift-assessment v1.1.0 | nurse-provided assessment data
+Clinical decision support — verify against facility protocols and current patient data.
 
 ## Important Rules
 

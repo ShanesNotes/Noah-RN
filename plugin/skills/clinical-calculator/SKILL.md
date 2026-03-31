@@ -1,6 +1,38 @@
 ---
 name: clinical-calculator
-description: This skill should be used when the user asks to "calculate GCS", "GCS score", "Glasgow Coma Scale", "NIHSS", "stroke scale", "NIH stroke score", "APACHE", "APACHE II", "severity score", "Wells score", "PE risk", "pulmonary embolism", "CURB-65", "pneumonia severity", "Braden scale", "Braden score", "pressure injury risk", "skin risk", "RASS", "sedation score", "sedation level", "Richmond agitation", "CPOT", "pain score", "pain assessment tool", "critical care pain", "clinical calculator", "calculate score", or asks to score a patient using any standardized clinical assessment tool.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks to "calculate GCS", "GCS score", "Glasgow Coma Scale", "NIHSS", "stroke scale", "NIH stroke score", "APACHE", "APACHE II", "severity score", "Wells score", "PE risk", "pulmonary embolism", "Wells DVT", "DVT risk", "DVT score", "deep vein thrombosis", "CURB-65", "pneumonia severity", "Braden scale", "Braden score", "pressure injury risk", "skin risk", "RASS", "sedation score", "sedation level", "Richmond agitation", "CPOT", "pain score", "pain assessment tool", "critical care pain", "clinical calculator", "calculate score", or asks to score a patient using any standardized clinical assessment tool.
+scope:
+  - clinical_scoring
+  - consciousness
+  - stroke
+  - icu_severity
+  - pe_risk
+  - dvt_risk
+  - pneumonia
+  - pressure_injury
+  - sedation
+  - pain_assessment
+complexity_tier: simple
+required_context:
+  mandatory:
+    - component_values
+  optional:
+    - patient_weight
+    - baseline_scores
+knowledge_sources: []
+limitations:
+  - adult_patients_only
+  - does_not_replace_clinical_judgment
+  - standard_scoring_only
+  - no_facility_modified_scores
+completeness_checklist:
+  - score_calculation
+  - component_breakdown
+  - clinical_interpretation
+  - contextual_flags
+hitl_category: "II"
 ---
 
 # Clinical Calculator
@@ -13,8 +45,9 @@ Calculate standardized clinical assessment scores using deterministic tools. The
 |-----------|----------|--------|
 | **GCS** | Consciousness / TBI severity | Eye (1-4), Verbal (1-5), Motor (1-6) |
 | **NIHSS** | Stroke severity | 15 items (LOC, gaze, visual, facial, motor, ataxia, sensory, language, dysarthria, extinction) |
-| **APACHE II** | ICU severity / prognosis | 12 physiology values + GCS + age + chronic health |
+| **APACHE II** | ICU severity / prognosis | APACHE II requires all 15 inputs before calculation |
 | **Wells PE** | PE probability | 7 clinical criteria (yes/no) |
+| **Wells DVT** | DVT probability | 9 clinical criteria + alternative dx (yes/no) |
 | **CURB-65** | Pneumonia severity | 5 criteria (yes/no) |
 | **Braden** | Pressure injury risk | 6 subscales (sensory, moisture, activity, mobility, nutrition, friction) |
 | **RASS** | Sedation level | Single behavioral observation (-5 to +4) |
@@ -48,8 +81,9 @@ Walk through each component. Show the valid range and score descriptors.
 
 For complex calculators:
 - **NIHSS**: Present items in order (1a through 11). Show scoring criteria for each item.
-- **APACHE II**: Group by vital signs, then labs, then age/chronic. Offer to skip chronic health points if not applicable. Require FiO2 to determine oxygenation scoring path.
+- **APACHE II**: Group by vital signs, then labs, then age/chronic. APACHE II requires all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool. Require FiO2 to determine oxygenation scoring path.
 - **Wells PE**: Present each criterion as a yes/no question with clinical description.
+- **Wells DVT**: Present each criterion as a yes/no question with clinical description.
 
 ### Step 3: Call the Tool
 
@@ -64,6 +98,7 @@ bash "$(git rev-parse --show-toplevel)/tools/clinical-calculators/<calculator>.s
 - NIHSS: `nihss.sh --1a N --1b N --1c N --2 N --3 N --4 N --5a N --5b N --6a N --6b N --7 N --8 N --9 N --10 N --11 N`
 - APACHE II: `apache2.sh --temp N --map N --hr N --rr N --oxygenation N --fio2 N --ph N --sodium N --potassium N --creatinine N --hematocrit N --wbc N --gcs N --age N --chronic N [--arf 1]`
 - Wells PE: `wells-pe.sh --dvt N --heartrate N --immobilization N --prior N --hemoptysis N --malignancy N --alternative N`
+- Wells DVT: `wells-dvt.sh --cancer N --paralysis N --bedridden N --tenderness N --leg-swollen N --calf-swelling N --pitting-edema N --collateral-veins N --previous-dvt N --alternative-dx N`
 - CURB-65: `curb65.sh --confusion N --urea N --rr N --bp N --age N`
 - Braden: `braden.sh --sensory N --moisture N --activity N --mobility N --nutrition N --friction N`
 - RASS: `rass.sh --score N`
@@ -91,10 +126,36 @@ Present results in this format:
 - **NIHSS**: NIHSS quantifies stroke deficit and guides intervention thresholds. Serial scores track whether the patient is improving or worsening.
 - **APACHE II**: APACHE II estimates ICU mortality risk. It informs prognosis discussions and resource allocation, not treatment decisions.
 - **Wells PE**: Wells stratifies PE probability to guide workup -- D-dimer vs. CT angio. Clinical gestalt matters here too.
+- **Wells DVT**: Wells stratifies DVT probability to guide workup — duplex ultrasound vs. D-dimer. Unilateral leg swelling with risk factors needs an answer, not a wait-and-see.
 - **CURB-65**: CURB-65 guides disposition -- home vs. floor vs. ICU. It's a starting point, not a substitute for clinical judgment on the sick pneumonia patient.
 - **Braden**: Braden identifies pressure injury risk before skin breaks down. Lower score = higher risk = more aggressive prevention needed.
 - **RASS**: RASS quantifies sedation depth for titration targets. Compare to the ordered goal -- if there's a mismatch, it's a conversation with the provider.
 - **CPOT**: CPOT detects pain in patients who can't self-report. A score of 3+ means pain is likely present -- treat and reassess.
+
+### Evidence & Confidence
+
+- After the score table, cite the scoring system source: "(Source: [scoring system] — [original authors/body])"
+  - GCS: Teasdale & Jennett 1974
+  - NIHSS: NIH Stroke Study Group 1989, AHA/ASA
+  - APACHE II: Knaus et al. 1985
+  - Wells PE: Wells et al. 2001
+  - Wells DVT: Wells et al. 2003
+  - CURB-65: Lim et al. 2003, BTS
+  - Braden: Bergstrom et al. 1987
+  - RASS: Sessler et al. 2002
+  - CPOT: Gelinas et al. 2006
+- Score calculations are Tier 1 (deterministic math — exact published criteria)
+- Contextual flags are Tier 2 (bedside guidance — labeled as such)
+- Facility-specific activation criteria are Tier 3 — defer to "per facility protocol"
+
+### Provenance Footer
+
+End every response with:
+```
+---
+noah-rn v0.2 | clinical-calculator v1.1.0 | [scoring system] ([year])
+Clinical decision support — verify against facility protocols and current patient data.
+```
 
 ### Step 5: Add Contextual Flags
 
@@ -111,6 +172,7 @@ If the score hits a clinically significant threshold, add a flag after the table
 - NIHSS >=21: "Severe stroke -- high morbidity, assess for large vessel occlusion"
 - APACHE II >=20: "Estimated mortality >25% -- ensure goals of care are addressed"
 - Wells PE >6: "High probability -- CT angiography indicated, consider empiric anticoagulation"
+- Wells DVT >=3: "Moderate-high DVT probability -- duplex ultrasound indicated, consider empiric anticoagulation if high clinical suspicion"
 - CURB-65 >=3: "Consider ICU level of care -- mortality risk significant"
 - Braden <=12: "High risk -- implement full pressure injury prevention bundle"
 - Braden <=9: "Very high risk -- specialty mattress, nutrition consult, q2h repositioning minimum"
@@ -118,6 +180,16 @@ If the score hits a clinically significant threshold, add a flag after the table
 - CPOT >=3: "Pain likely present -- treat per protocol and reassess in 30-60 minutes"
 
 Only show flags that apply. Do not list inapplicable thresholds.
+
+### Cross-Skill Suggestions
+
+If a score hits a trigger threshold from knowledge/templates/cross-skill-triggers.md, add ONE suggestion:
+```
+---
+Based on [finding]: consider reviewing [protocol/skill]. [One-line clinical rationale.]
+```
+
+Maximum 1 suggestion per calculator output. Only suggest if clinically relevant.
 
 ### Step 6: Disclaimer
 
@@ -165,4 +237,4 @@ Select ONE randomly per invocation. Do not repeat the same one consecutively.
 - Tier 2 content (contextual flags, bedside guidance) is labeled as such.
 - Tier 3 content (facility-specific activation criteria, sedation targets) defers to "per facility protocol."
 - Output is copy-paste ready. No conversational preamble.
-- For APACHE II: this is a complex calculator with many inputs. Be patient with the nurse. Offer to calculate with available values and note which were missing.
+- For APACHE II: this is a complex calculator with many inputs. Be patient with the nurse, but APACHE II requires all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool.

@@ -1,0 +1,150 @@
+{
+  "provenance": {
+    "source": "MIT-LCP MIMIC-IV mapping tables",
+    "version": "mimic-code main / MIMIC IG 1.3.0",
+    "date": "2026-03-31",
+    "last_verified": "2026-03-31",
+    "scope": "MIMIC-IV demo itemID-to-LOINC translation layer for Noah RN FHIR queries",
+    "references": [
+      {
+        "name": "chartevents_to_loinc.csv",
+        "url": "https://raw.githubusercontent.com/MIT-LCP/mimic-code/main/mimic-iv/concepts/concept_map/chartevents_to_loinc.csv"
+      },
+      {
+        "name": "d_labitems_to_loinc.csv",
+        "url": "https://raw.githubusercontent.com/MIT-LCP/mimic-code/main/mimic-iv/mapping/d_labitems_to_loinc.csv"
+      }
+    ],
+    "compatibility_notes": [
+      "Noah query compatibility aliases are included when the repo currently expects a different LOINC than the official MIT-LCP mapping.",
+      "Lactate itemID 50813 is officially mapped to 32693-4; 2524-7 is retained as a query alias for current Noah workflows.",
+      "Arterial mean BP itemID 220052 is officially mapped to 8478-0; 76214-6 is retained as a query alias for current Noah workflows.",
+      "Pulse oximetry itemID 220277 is officially mapped to 59408-5; 2708-6 is retained as a query alias for current Noah workflows."
+    ]
+  },
+  "item_id_to_loinc": {
+    "220045": {
+      "loinc": "8867-4",
+      "name": "Heart rate",
+      "category": "vital"
+    },
+    "220050": {
+      "loinc": "8480-6",
+      "name": "Arterial systolic blood pressure",
+      "category": "vital"
+    },
+    "220051": {
+      "loinc": "8462-4",
+      "name": "Arterial diastolic blood pressure",
+      "category": "vital"
+    },
+    "220052": {
+      "loinc": "8478-0",
+      "name": "Arterial mean blood pressure",
+      "category": "vital",
+      "aliases": ["76214-6"]
+    },
+    "220179": {
+      "loinc": "76534-7",
+      "name": "Non-invasive systolic blood pressure",
+      "category": "vital"
+    },
+    "220180": {
+      "loinc": "76535-4",
+      "name": "Non-invasive diastolic blood pressure",
+      "category": "vital"
+    },
+    "220181": {
+      "loinc": "76536-2",
+      "name": "Non-invasive mean blood pressure",
+      "category": "vital"
+    },
+    "220210": {
+      "loinc": "9279-1",
+      "name": "Respiratory rate",
+      "category": "vital"
+    },
+    "220277": {
+      "loinc": "59408-5",
+      "name": "Pulse oximetry",
+      "category": "vital",
+      "aliases": ["2708-6"]
+    },
+    "223761": {
+      "loinc": "8310-5",
+      "name": "Temperature, Fahrenheit",
+      "category": "vital"
+    },
+    "223762": {
+      "loinc": "8310-5",
+      "name": "Temperature, Celsius",
+      "category": "vital"
+    },
+    "51300": {
+      "loinc": "6690-2",
+      "name": "White blood cells",
+      "category": "lab"
+    },
+    "51301": {
+      "loinc": "6690-2",
+      "name": "White blood cells",
+      "category": "lab"
+    },
+    "50912": {
+      "loinc": "2160-0",
+      "name": "Creatinine",
+      "category": "lab"
+    },
+    "50971": {
+      "loinc": "2823-3",
+      "name": "Potassium",
+      "category": "lab"
+    },
+    "51222": {
+      "loinc": "718-7",
+      "name": "Hemoglobin",
+      "category": "lab"
+    },
+    "50811": {
+      "loinc": "718-7",
+      "name": "Hemoglobin",
+      "category": "lab"
+    },
+    "51003": {
+      "loinc": "6598-7",
+      "name": "Troponin T",
+      "category": "lab"
+    },
+    "50820": {
+      "loinc": "11558-4",
+      "name": "Arterial pH",
+      "category": "lab"
+    },
+    "50818": {
+      "loinc": "11557-6",
+      "name": "Arterial pCO2",
+      "category": "lab"
+    },
+    "50821": {
+      "loinc": "11556-8",
+      "name": "Arterial pO2",
+      "category": "lab"
+    },
+    "50803": {
+      "loinc": "1959-6",
+      "name": "Bicarbonate",
+      "category": "lab"
+    },
+    "50802": {
+      "loinc": "11555-0",
+      "name": "Base excess",
+      "category": "lab"
+    },
+    "50813": {
+      "loinc": "32693-4",
+      "name": "Lactate",
+      "category": "lab",
+      "aliases": ["2524-7"]
+    }
+  }
+}

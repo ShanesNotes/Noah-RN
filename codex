@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+GLOBAL_HOME="${HOME}/.codex"
+export CODEX_HOME="${CODEX_HOME:-$REPO_ROOT/.codex-home}"
+
+mkdir -p "$CODEX_HOME"
+
+# Symlink auth from global config so we don't lose credentials
+if [[ -f "$GLOBAL_HOME/auth.json" && ! -e "$CODEX_HOME/auth.json" ]]; then
+  ln -s "$GLOBAL_HOME/auth.json" "$CODEX_HOME/auth.json"
+fi
+
+# Sync MCP filesystem server to point at this repo
+if [[ "${CODEX_SKIP_MCP_SYNC:-0}" != "1" ]]; then
+  codex mcp remove filesystem >/dev/null 2>&1 || true
+  codex mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem "$REPO_ROOT" >/dev/null
+fi
+
+exec codex "$@"

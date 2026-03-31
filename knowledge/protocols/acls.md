@@ -1,3 +1,14 @@
+---
+source: "AHA ACLS Guidelines"
+source_url: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines"
+version: "2020/2025"
+date: "2025-10-15"
+evidence_grade: "Class I / Level of Evidence A-C (varies by recommendation)"
+last_verified: "2026-03-30"
+next_review: "2026-09-30"
+scope: "adult_cardiac_arrest, bradycardia, tachycardia, post_arrest_care"
+limitations: ["not_applicable_to_pediatrics", "not_applicable_to_neonates", "national_guideline_not_facility_specific"]
+---
 # ACLS — Advanced Cardiovascular Life Support
 
 Source: AHA ACLS Guidelines 2020/2025

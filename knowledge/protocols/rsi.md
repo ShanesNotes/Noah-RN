@@ -1,3 +1,14 @@
+---
+source: "Walls & Murphy Manual of Emergency Airway Management, EMCRIT"
+source_url: "https://emcrit.org/ibcc/rsi/"
+version: "6th edition / 2024 EMCRIT update"
+date: "2024-01-01"
+evidence_grade: "Expert consensus / Evidence-based practice"
+last_verified: "2026-03-30"
+next_review: "2026-09-30"
+scope: "rapid_sequence_intubation, emergency_airway, intubation_medications"
+limitations: ["not_applicable_to_pediatrics", "medication_doses_may_vary_by_facility", "difficult_airway_management_requires_additional_training"]
+---
 # RSI — Rapid Sequence Intubation
 
 Source: Walls & Murphy, Manual of Emergency Airway Management; EMCRIT

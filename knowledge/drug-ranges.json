@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "source": "ISMP High-Alert Medication Dosage Ranges",
+    "version": "2026-03-31",
+    "date": "2026-03-31",
+    "last_verified": "2026-03-31"
+  },
+  "heparin": {
+    "alert": "Weight-based dosing. Verify units (units/hr, NOT mg). Typical IV range: 10-25 units/kg/hr. PTT monitoring required.",
+    "class": "anticoagulant",
+    "dose": {
+      "unit": "units/kg/hr",
+      "typical_min": 10,
+      "typical_max": 25,
+      "plausible_max": 50
+    }
+  },
+  "warfarin": {
+    "alert": "Narrow therapeutic index. Typical 2-10mg PO daily. INR monitoring required. Check for food/drug interactions.",
+    "class": "anticoagulant"
+  },
+  "insulin": {
+    "alert": "Verify units and concentration. Regular insulin IV: typical 0.1 units/kg/hr. Always check glucose before admin. Independent double-check required.",
+    "class": "insulin"
+  },
+  "norepinephrine": {
+    "alert": "Typical range 0.01-0.5 mcg/kg/min. Must run through central line (extravasation = tissue necrosis). Titrate to MAP target per order.",
+    "class": "vasopressor"
+  },
+  "epinephrine": {
+    "alert": "Cardiac arrest: 1mg IV push q3-5min. Infusion: 0.01-0.2 mcg/kg/min. Verify route (IV push vs infusion — very different dosing).",
+    "class": "vasopressor"
+  },
+  "vasopressin": {
+    "alert": "Fixed dose in septic shock: 0.03-0.04 units/min (NOT titrated). Cardiac arrest: 40 units IV push x1.",
+    "class": "vasopressor"
+  },
+  "propofol": {
+    "alert": "Sedation: 5-50 mcg/kg/min. Monitor for propofol infusion syndrome (triglycerides, metabolic acidosis) with prolonged use >48hr.",
+    "class": "sedation"
+  },
+  "fentanyl": {
+    "alert": "IV: 25-100 mcg q1-2hr PRN. Infusion: 25-200 mcg/hr. Patch: 12-100 mcg/hr (NOT for opioid-naive). Respiratory depression risk.",
+    "class": "opioid"
+  },
+  "morphine": {
+    "alert": "IV: 1-4mg q2-4hr PRN. Caution in renal impairment (active metabolite accumulates). Respiratory depression risk.",
+    "class": "opioid"
+  },
+  "hydromorphone": {
+    "alert": "IV: 0.2-1mg q2-3hr PRN. 5-7x more potent than morphine. Common dosing error: confusing with morphine doses.",
+    "class": "opioid"
+  },
+  "potassium_chloride": {
+    "alert": "IV: max 10 mEq/hr peripheral, 20 mEq/hr central (with cardiac monitoring). NEVER IV push. Verify concentration.",
+    "class": "electrolyte"
+  },
+  "alteplase": {
+    "alert": "Stroke: 0.9mg/kg (max 90mg), 10% bolus + 60min infusion. Verify ALL exclusion criteria before administration. Irreversible once given.",
+    "class": "thrombolytic"
+  },
+  "amiodarone": {
+    "alert": "Cardiac arrest: 300mg IV push, then 150mg. Infusion: 1mg/min x6hr, then 0.5mg/min x18hr. Monitor QTc. Multiple drug interactions.",
+    "class": "antiarrhythmic"
+  },
+  "rocuronium": {
+    "alert": "RSI: 1.2mg/kg IV push. Patient is PARALYZED — verify adequate sedation (RASS, BIS) before and during. Sugammadex for reversal.",
+    "class": "neuromuscular_blocker"
+  },
+  "succinylcholine": {
+    "alert": "RSI: 1-1.5mg/kg IV push. Contraindicated: hyperkalemia, burns >24hr, crush injuries, denervation. Shortest duration paralytic.",
+    "class": "neuromuscular_blocker"
+  },
+  "digoxin": {
+    "alert": "Narrow therapeutic index. Typical 0.125-0.25mg PO daily. Toxic level >2 ng/mL. Check K+ (hypokalemia potentiates toxicity).",
+    "class": "cardiac_glycoside"
+  }
+}

@@ -1,3 +1,14 @@
+---
+source: "AHA/ASA Guidelines for Early Management of Acute Ischemic Stroke"
+source_url: "https://www.ahajournals.org/doi/10.1161/STR.0000000000000211"
+version: "2019, updated 2024"
+date: "2024-01-01"
+evidence_grade: "Class I / Level of Evidence A-B (varies by recommendation)"
+last_verified: "2026-03-30"
+next_review: "2026-09-30"
+scope: "acute_ischemic_stroke, tpa_criteria, thrombectomy, hemorrhagic_stroke"
+limitations: ["not_applicable_to_pediatrics", "tpa_exclusions_require_current_review", "thrombectomy_criteria_evolving"]
+---
 # Acute Stroke Protocol
 
 Source: AHA/ASA Guidelines 2019, updated 2024

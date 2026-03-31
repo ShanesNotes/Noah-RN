@@ -1,3 +1,14 @@
+---
+source: "Institute for Healthcare Improvement (IHI), Modified Early Warning Score literature"
+source_url: "https://www.ihi.org/topics/rapidresponseteams"
+version: "2024"
+date: "2024-01-01"
+evidence_grade: "Consensus-based / Institutional best practice"
+last_verified: "2026-03-30"
+next_review: "2026-09-30"
+scope: "rapid_response_activation, early_warning_scoring, clinical_deterioration"
+limitations: ["activation_criteria_vary_by_facility", "mews_thresholds_are_screening_not_diagnostic"]
+---
 # Rapid Response / Early Warning
 
 Source: IHI, modified early warning score literature

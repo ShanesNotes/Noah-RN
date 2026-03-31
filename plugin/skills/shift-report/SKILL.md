@@ -1,6 +1,38 @@
 ---
 name: shift-report
-description: This skill should be used when the user asks to "organize my report", "shift report", "handoff report", "give report", "SBAR", "nurse report", "end of shift report", or provides a free-text nursing handoff that needs to be organized into a structured shift report format.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks to "organize my report", "shift report",
+  "handoff report", "give report", "SBAR", "nurse report", "end of shift report", or provides
+  a free-text nursing handoff that needs to be organized into a structured shift report format.
+scope:
+  - shift_handoff
+  - nursing_report
+  - sbar
+  - clinical_documentation
+complexity_tier: complex
+required_context:
+  mandatory:
+    - clinical_narrative
+  optional:
+    - acuity_level
+    - patient_history
+    - active_orders
+knowledge_sources: []
+limitations:
+  - adult_patients_only
+  - does_not_replace_clinical_judgment
+  - does_not_fabricate_findings
+  - does_not_replace_verbal_handoff_for_critical_items
+completeness_checklist:
+  - patient_identification
+  - clinical_story
+  - systems_assessment
+  - lines_and_access
+  - active_issues_and_plan
+  - housekeeping
+  - family
+hitl_category: "II"
 ---
 
 # Shift Report Generator
@@ -8,6 +40,11 @@ description: This skill should be used when the user asks to "organize my report
 Organize a nurse's verbal handoff into a structured, copy-paste-ready shift report. This skill is a clipboard — it organizes, it doesn't rewrite. The nurse's clinical voice, emphasis, and judgment are preserved.
 
 This is not an assessment (that's shift-assessment). This is the full handoff package — the story, the context, the "pay attention here" for the oncoming nurse's next 12 hours.
+
+> **Framework**: 7-section structured handoff combining elements of SBAR (Situation,
+> Background, Assessment, Recommendation) with systems-based assessment and operational
+> logistics. Designed for acute/critical care nursing handoff where clinical narrative,
+> active issues, and anticipatory guidance are essential for safe care continuity.
 
 ## Workflow
 
@@ -103,6 +140,8 @@ ACTIVE ISSUES & PLAN
 - Possible CRRT today — pending neph consult
 ```
 
+These flags carry forward the "pay attention here" emphasis. Critical handoff items that get missed during shift change are the #1 source of preventable adverse events in hospitals.
+
 #### 6. HOUSEKEEPING
 Offgoing nurse's status handoff — what's done, what's due.
 
@@ -171,6 +210,24 @@ Verify all findings against your assessment and facility policies.
 ```
 
 Select ONE randomly. **Always include — never omit, even when gap prompt is present.**
+
+## Evidence & Confidence
+
+- Patient identification, history, and objective data are Tier 1 (facts as reported)
+- Clinical narrative and nurse's interpretive emphasis are Tier 2 (clinical judgment — preserved as reported)
+- Active issues and anticipatory guidance are Tier 2 (bedside guidance)
+- Facility-specific items (team names, pending consults, unit practices) are Tier 3
+- Critical findings flagged with [!] in both ASSESSMENT and ACTIVE ISSUES sections
+- Handoff is a legal document. Verify oncoming nurse received critical information.
+
+## Cross-Skill Suggestions
+If report content reveals findings that map to knowledge/templates/cross-skill-triggers.md, add up to 1 suggestion after the report. Only if clearly relevant and not already addressed in the report.
+
+## Provenance Footer
+End every response with:
+---
+noah-rn v0.2 | shift-report v1.1.0 | nurse-provided handoff data
+Clinical decision support — verify against facility protocols and current patient data.
 
 ## Important Rules
 

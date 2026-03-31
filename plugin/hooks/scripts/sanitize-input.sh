@@ -3,8 +3,11 @@
 # Detects prompt injection patterns before input reaches skills
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+
 INPUT=$(cat)
-USER_TEXT=$(echo "$INPUT" | jq -r '.user_prompt // empty' 2>/dev/null) || exit 0
+USER_TEXT=$(get_user_prompt "$INPUT") || exit 0
 
 [ -z "$USER_TEXT" ] && exit 0
 
@@ -28,12 +31,11 @@ INJECTION_PATTERNS=(
   'remove the safety'
 )
 
-LOWER_TEXT=$(echo "$USER_TEXT" | tr '[:upper:]' '[:lower:]')
+NORMALIZED_TEXT=$(printf '%s' "$USER_TEXT" | normalize_text)
 
 for pattern in "${INJECTION_PATTERNS[@]}"; do
-  if echo "$LOWER_TEXT" | grep -qiF "$pattern"; then
-    jq -n --arg msg "[Safety] Input contains pattern resembling prompt injection: '$pattern'. Proceeding with standard safety protocols." \
-      '{"systemMessage": $msg}'
+  if printf '%s' "$NORMALIZED_TEXT" | grep -qF "$pattern"; then
+    emit_prompt_block "[Safety] Prompt injection attempt detected: '$pattern'. Rephrase the clinical request without instruction override language."
     exit 0
   fi
 done

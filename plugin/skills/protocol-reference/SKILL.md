@@ -1,6 +1,40 @@
 ---
 name: protocol-reference
-description: This skill should be used when the user asks about "ACLS", "code blue", "cardiac arrest", "bradycardia", "tachycardia", "v-fib", "PEA", "asystole", "sepsis bundle", "qSOFA", "hour-1 bundle", "SEP-1", "stroke protocol", "tPA criteria", "stroke window", "rapid response", "MEWS", "early warning", "when to call RRT", "RSI", "intubation meds", "intubation doses", "rapid sequence", or asks for any clinical practice guideline, protocol, or algorithm used in acute/critical care.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks about "ACLS", "code blue", "cardiac arrest", "bradycardia", "tachycardia", "v-fib", "PEA", "asystole", "sepsis bundle", "qSOFA", "hour-1 bundle", "SEP-1", "stroke protocol", "tPA criteria", "stroke window", "rapid response", "MEWS", "early warning", "when to call RRT", "RSI", "intubation meds", "intubation doses", "rapid sequence", or asks for any clinical practice guideline, protocol, or algorithm used in acute/critical care.
+scope:
+  - cardiac_arrest
+  - sepsis
+  - stroke
+  - rapid_response
+  - airway_management
+complexity_tier: moderate
+required_context:
+  mandatory: []
+  optional:
+    - rhythm
+    - vitals
+    - patient_weight
+    - time_of_onset
+knowledge_sources:
+  - "knowledge/protocols/acls.md"
+  - "knowledge/protocols/sepsis-bundle.md"
+  - "knowledge/protocols/acute-stroke.md"
+  - "knowledge/protocols/rapid-response.md"
+  - "knowledge/protocols/rsi.md"
+limitations:
+  - adult_patients_only
+  - five_protocols_only
+  - national_guidelines_not_facility_specific
+  - does_not_replace_clinical_judgment
+  - no_pediatric_protocols
+completeness_checklist:
+  - protocol_identification
+  - full_algorithm_presentation
+  - exact_doses_and_timings
+  - knowledge_source_citation
+hitl_category: "II"
 ---
 
 # Protocol Reference
@@ -13,13 +47,13 @@ Quick-recall of standardized clinical algorithms. Full steps with exact doses an
 
 Match the nurse's question to one of the 5 available protocols:
 
-| Trigger | File |
-|---------|------|
-| ACLS, code blue, cardiac arrest, v-fib, VF, pVT, PEA, asystole, bradycardia algorithm, tachycardia algorithm, post-ROSC | `knowledge/protocols/acls.md` |
-| Sepsis, sepsis bundle, qSOFA, hour-1 bundle, SEP-1, septic shock | `knowledge/protocols/sepsis-bundle.md` |
-| Stroke, tPA, alteplase, stroke window, LKW, thrombectomy, NIH stroke | `knowledge/protocols/acute-stroke.md` |
-| Rapid response, RRT, MEWS, early warning, when to call, escalation | `knowledge/protocols/rapid-response.md` |
-| RSI, intubation, rapid sequence, intubation meds, intubation doses, airway | `knowledge/protocols/rsi.md` |
+| Trigger | File | Source |
+|---------|------|--------|
+| ACLS, code blue, cardiac arrest, v-fib, VF, pVT, PEA, asystole, bradycardia algorithm, tachycardia algorithm, post-ROSC | `knowledge/protocols/acls.md` | AHA ACLS 2020/2025 |
+| Sepsis, sepsis bundle, qSOFA, hour-1 bundle, SEP-1, septic shock | `knowledge/protocols/sepsis-bundle.md` | SSC 2021, CMS SEP-1 |
+| Stroke, tPA, alteplase, stroke window, LKW, thrombectomy, NIH stroke | `knowledge/protocols/acute-stroke.md` | AHA/ASA 2019, updated 2024 |
+| Rapid response, RRT, MEWS, early warning, when to call, escalation | `knowledge/protocols/rapid-response.md` | IHI, MEWS literature |
+| RSI, intubation, rapid sequence, intubation meds, intubation doses, airway | `knowledge/protocols/rsi.md` | Walls & Murphy, EMCRIT |
 
 If the question doesn't match any protocol: "Protocol not available. Currently loaded: ACLS, Sepsis Bundle, Acute Stroke, Rapid Response, RSI."
 
@@ -76,6 +110,31 @@ Verify all findings against your assessment and facility policies.
 ```
 
 Select ONE randomly. Always include — never omit.
+
+## Evidence & Confidence
+
+- ACLS, Sepsis Bundle, Acute Stroke: Tier 1 (national evidence-based guidelines — AHA, SSC, AHA/ASA)
+- Rapid Response: Tier 2 (consensus-based / institutional best practice — IHI, MEWS literature)
+- RSI: Tier 2 (expert consensus — Walls & Murphy, EMCRIT)
+- Note: Tier 2 protocols are widely adopted standard of care. The label reflects evidence base (expert consensus vs. RCTs), not clinical validity.
+- Source citation is embedded in each knowledge file header — include in output: "(Source: [body] [year])"
+- Focused answers (specific data points) carry the same Tier 1 confidence as full algorithms
+- Facility-specific protocol variations are Tier 3 — note "per facility protocol" for:
+  - Code termination criteria
+  - Specific antibiotic choices for sepsis
+  - tPA consent requirements
+  - RRT activation criteria
+  - Post-intubation sedation protocols
+- If a nurse asks about a protocol element that varies by facility, say so explicitly
+
+## Cross-Skill Suggestions
+If the protocol context reveals a finding that maps to knowledge/templates/cross-skill-triggers.md, add ONE suggestion after the algorithm. Maximum 1 suggestion. Only if clearly relevant.
+
+## Provenance Footer
+End every response with:
+---
+noah-rn v0.2 | protocol-reference v1.1.0 | [guideline body] ([year])
+Clinical decision support — verify against facility protocols and current patient data.
 
 ## Important Rules
 

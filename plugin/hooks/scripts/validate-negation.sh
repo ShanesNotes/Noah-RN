@@ -3,12 +3,15 @@
 # Action: FLAG with [Safety] message — never block
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+
 INPUT=$(cat)
 
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null) || exit 0
 [ "$TOOL_NAME" != "Bash" ] && exit 0
 
-OUTPUT=$(echo "$INPUT" | jq -r '.tool_result // empty' 2>/dev/null) || exit 0
+OUTPUT=$(get_tool_stdout "$INPUT") || exit 0
 [ -z "$OUTPUT" ] && exit 0
 
 FINDINGS=""
@@ -45,7 +48,6 @@ fi
 
 [ -z "$FINDINGS" ] && exit 0
 
-jq -n --arg msg "[Safety] Negation integrity: ${FINDINGS}" \
-  '{"systemMessage": $msg}'
+emit_posttool_context "[Safety] Negation integrity: ${FINDINGS}"
 
 exit 0
