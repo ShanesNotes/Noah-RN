@@ -1,6 +1,33 @@
 ---
 name: io-tracker
-description: This skill should be used when the user asks to "track I&O", "intake and output", "fluid balance", "how much in and out", "I and O totals", "urine output", "fluid totals", "net balance", "document fluids", "organize my I&O", or provides free-text describing patient fluid intake and output that needs to be categorized and totaled.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks to "track I&O", "intake and output", "fluid balance", "how much in and out", "I and O totals", "urine output", "fluid totals", "net balance", "document fluids", "organize my I&O", or provides free-text describing patient fluid intake and output that needs to be categorized and totaled.
+scope:
+  - fluid_balance
+  - intake_output
+  - volume_status
+complexity_tier: moderate
+required_context:
+  mandatory:
+    - fluid_entries
+  optional:
+    - patient_weight
+    - diagnosis
+    - fluid_restriction
+knowledge_sources: []
+limitations:
+  - does_not_replace_clinical_judgment
+  - estimates_labeled_as_tier_2
+  - dietary_volumes_are_approximations
+  - no_insensible_losses
+completeness_checklist:
+  - intake_categorization
+  - output_categorization
+  - volume_totals
+  - net_balance
+  - tier_labels_on_estimates
+hitl_category: "II"
 ---
 
 # Intake & Output Tracker
@@ -91,6 +118,8 @@ Flag blood products separately in the Intake table. Standard unit volumes for re
 
 Use actual volume if the nurse provides it. Use standard estimates only if unit count is given without volume, and mark as Tier 2 estimate.
 
+Standard volumes are common clinical reference values. Actual volumes vary by product and manufacturer. (Source: institutional clinical practice — Tier 2 estimates, labeled as such)
+
 ### Step 4: Calculate Totals
 
 Sum each category, then calculate grand totals and net balance. All arithmetic is straightforward addition -- no tool call needed.
@@ -158,6 +187,11 @@ When clinical context is available, flag concerning patterns. These are Tier 2 (
 
 Only show flags when the data supports them. Do not speculate about diagnoses or fluid status beyond what the numbers show.
 
+**Why we care:**
+- **Low UOP**: Urine output < 0.5 mL/kg/hr = early sign of renal hypoperfusion. AKI prevention window.
+- **Large positive balance**: Fluid overload → pulmonary edema → respiratory failure. Especially dangerous in CHF/ESRD.
+- **Negative balance without diuretics**: Unexpected volume depletion — assess for third-spacing, bleeding, or inadequate resuscitation.
+
 ### Step 8: Disclaimer
 
 Append a randomly selected disclaimer:
@@ -193,6 +227,30 @@ Verify all findings against your assessment and facility policies.
 ```
 
 Select ONE randomly per invocation. Do not repeat the same one consecutively.
+
+## Evidence & Confidence
+
+- IV rate x time calculations are Tier 1 (deterministic math)
+- Dietary tray estimates (~300mL) are Tier 2 — always label with "(Tier 2 estimate — adjust per facility)"
+- Blood product standard volumes are Tier 2 — label with unit source
+- Ice chips 30% rule is Tier 2
+- Clinical flags (low UOP, large balance) are Tier 2 (bedside guidance)
+- Facility-specific concerning thresholds are Tier 3 — "per facility protocol"
+
+## Provenance Footer
+End every response with:
+---
+noah-rn v0.2 | io-tracker v1.1.0 | nurse-provided data
+Clinical decision support — verify against facility protocols and current patient data.
+
+## Cross-Skill Suggestions
+
+If I&O findings map to knowledge/templates/cross-skill-triggers.md, add up to 2 suggestions after the I&O summary. Only if clearly supported by the data.
+
+Key trigger mappings for I&O:
+- UOP < 0.5 mL/kg/hr x 6h → consider renal assessment, fluid status review
+- Net fluid balance > +3L → consider volume overload assessment
+- Significant negative balance without diuretics → consider fluid resuscitation review
 
 ## Important Rules
 

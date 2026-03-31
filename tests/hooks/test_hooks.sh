@@ -198,6 +198,87 @@ assert_eq "non-high-alert drug — no warning" "" "$OUT"
 OUT=$(echo "{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"bash tools/drug-lookup/lookup.sh unknown\"},\"tool_result\":\"{}\"}" | bash "$VALDOSE")
 assert_eq "missing generic_name — no crash" "" "$OUT"
 
+# ── validate-negation.sh ────────────────────────────────────────────────────
+
+echo ""
+echo "=== validate-negation.sh ==="
+
+VALNEG="$HOOKS_DIR/validate-negation.sh"
+
+# Non-Bash tool — exits 0, no output
+OUT=$(echo '{"tool_name": "Read", "tool_input": {}, "tool_result": "patient is DNR"}' | bash "$VALNEG")
+assert_eq "non-Bash tool — passthrough" "" "$OUT"
+
+# DNR detected
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient is DNR, comfort care only"}' | bash "$VALNEG")
+assert_contains "DNR detected — emits safety flag" "systemMessage" "$OUT"
+assert_contains "DNR — mentions code status" "Code status" "$OUT"
+
+# Full code detected
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient is full code, aggressive measures"}' | bash "$VALNEG")
+assert_contains "full code detected — emits safety flag" "Code status" "$OUT"
+
+# Do not resuscitate (full phrase)
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient has do not resuscitate order"}' | bash "$VALNEG")
+assert_contains "do not resuscitate phrase — emits safety flag" "Code status" "$OUT"
+
+# NKA / NKDA allergy negation
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"Allergies: NKA"}' | bash "$VALNEG")
+assert_contains "NKA detected — emits allergy flag" "Allergy negation" "$OUT"
+
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"NKDA documented in chart"}' | bash "$VALNEG")
+assert_contains "NKDA detected — emits allergy flag" "Allergy negation" "$OUT"
+
+# No known allergies (full phrase)
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"no known allergies per patient"}' | bash "$VALNEG")
+assert_contains "no known allergies phrase — emits flag" "Allergy negation" "$OUT"
+
+# Hold medication
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"hold metoprolol for HR < 60"}' | bash "$VALNEG")
+assert_contains "hold medication detected — emits flag" "Medication hold" "$OUT"
+
+# NPO
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient is NPO for surgery"}' | bash "$VALNEG")
+assert_contains "NPO detected — emits flag" "NPO status" "$OUT"
+
+# Nothing by mouth (full phrase)
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"nothing by mouth after midnight"}' | bash "$VALNEG")
+assert_contains "nothing by mouth phrase — emits flag" "NPO status" "$OUT"
+
+# DNI
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient is DNI per advance directive"}' | bash "$VALNEG")
+assert_contains "DNI detected — emits flag" "DNI status" "$OUT"
+
+# Do not intubate (full phrase)
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"do not intubate order active"}' | bash "$VALNEG")
+assert_contains "do not intubate phrase — emits flag" "DNI status" "$OUT"
+
+# Comfort care
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"transitioned to comfort care"}' | bash "$VALNEG")
+assert_contains "comfort care detected — emits flag" "Comfort care" "$OUT"
+
+# Comfort measures only
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"comfort measures only per family meeting"}' | bash "$VALNEG")
+assert_contains "comfort measures only — emits flag" "Comfort care" "$OUT"
+
+# Multiple findings in one output
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"patient is DNR/DNI, NPO, no known allergies"}' | bash "$VALNEG")
+assert_contains "multiple findings — mentions code status" "Code status" "$OUT"
+assert_contains "multiple findings — mentions NPO" "NPO status" "$OUT"
+assert_contains "multiple findings — mentions allergy" "Allergy negation" "$OUT"
+
+# Clean clinical output — no negation-critical phrases
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"BP 120/80, HR 72, temp 37.2C, SpO2 98%"}' | bash "$VALNEG")
+assert_eq "clean vitals output — no flag" "" "$OUT"
+
+# Empty output — no flag
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":""}' | bash "$VALNEG")
+assert_eq "empty output — no flag" "" "$OUT"
+
+# Case insensitive
+OUT=$(echo '{"tool_name":"Bash","tool_input":{},"tool_result":"Patient is dnr per family"}' | bash "$VALNEG")
+assert_contains "case insensitive DNR — emits flag" "Code status" "$OUT"
+
 # ── structural checks ────────────────────────────────────────────────────────
 
 echo ""
@@ -230,7 +311,7 @@ for cls in anticoagulant vasopressor opioid neuromuscular_blocker; do
 done
 
 # All scripts are executable
-for script in sanitize-input.sh validate-calculator.sh validate-units.sh validate-dosage.sh; do
+for script in sanitize-input.sh validate-calculator.sh validate-units.sh validate-dosage.sh validate-negation.sh; do
     if [ -x "$HOOKS_DIR/$script" ]; then
         echo "  PASS: $script is executable"
         PASS=$((PASS + 1))

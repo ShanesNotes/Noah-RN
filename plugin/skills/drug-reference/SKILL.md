@@ -1,6 +1,40 @@
 ---
 name: drug-reference
-description: This skill should be used when the user asks to "look up a drug", "drug reference", "what is [drug name]", "tell me about [medication]", "hold parameters", "side effects of", "black box warning", "high alert", or asks any question about a specific medication's dosing, administration, warnings, or interactions.
+skill_version: "1.1.0"
+description: >-
+  This skill should be used when the user asks to "look up a drug", "drug reference",
+  "what is [drug name]", "tell me about [medication]", "hold parameters", "side effects of",
+  "black box warning", "high alert", or asks any question about a specific medication's
+  dosing, administration, warnings, or interactions.
+scope:
+  - medication_reference
+  - drug_interactions
+  - high_alert_medications
+  - dosing
+  - administration
+complexity_tier: moderate
+required_context:
+  mandatory:
+    - medication_name
+  optional:
+    - clinical_context
+    - patient_weight
+    - renal_function
+knowledge_sources: []
+limitations:
+  - fda_labels_only
+  - no_off_label_guidance
+  - no_compounding
+  - single_source_interactions
+  - does_not_replace_pharmacist_consult
+  - does_not_replace_clinical_judgment
+completeness_checklist:
+  - drug_identification
+  - route_and_admin
+  - key_warnings
+  - monitoring_parameters
+  - high_alert_check
+hitl_category: "II"
 ---
 
 # Drug Reference
@@ -33,6 +67,15 @@ Before calling the tool, check if the drug matches any entry on this ISMP high-a
 - Intrathecal medications: all agents administered via intrathecal route
 - Chemotherapy: all agents
 - Other: digoxin, nitroprusside (nipride)
+
+**Why these matter (class-level bedside context):**
+- **Anticoagulants**: Bleeding kills quietly. Check for signs (stool, urine, neuro changes) and know your reversal agents.
+- **Insulins**: Hypoglycemia kills faster than hyperglycemia. Always verify units, concentration, and check glucose before admin.
+- **Opioids (IV)**: Respiratory depression is dose-dependent and cumulative. RASS and respiratory rate are your early warnings.
+- **Vasoactive drips**: Titrate to MAP target. Extravasation = tissue necrosis. Verify central line placement before infusing peripherally.
+- **Neuromuscular blockers**: Patient is awake but paralyzed if sedation is inadequate. Always verify sedation (RASS, BIS) before and during paralytic infusion.
+- **Concentrated electrolytes**: IV potassium > 10 mEq/hr requires cardiac monitoring. Rapid magnesium can cause flushing and hypotension.
+- **Thrombolytics**: Once it's in, you can't take it back. Verify all exclusion criteria before administration. Know your bleeding protocol.
 
 If the drug is high-alert, flag at the TOP of every response:
 
@@ -165,6 +208,32 @@ Verify all findings against your assessment and facility policies.
 ```
 
 Select ONE randomly. Always include — never omit, even on errors.
+
+## Evidence & Confidence
+
+- Cite source inline after clinical claims: "(Source: FDA drug label via OpenFDA)"
+- Drug identification and FDA label data are Tier 1 (published label — exact as printed)
+- Hold parameter suggestions and monitoring guidance are Tier 2 (bedside guidance — label as such)
+- Facility-specific dosing, titration protocols, and formulary restrictions are Tier 3 — always defer: "Per facility protocol"
+- Flag data freshness: FDA labels update periodically. If the label data looks incomplete or outdated, note: "[Check] Verify against current facility formulary"
+
+## Provenance Footer
+
+End every response with:
+```
+---
+noah-rn v0.2 | drug-reference v1.1.0 | FDA drug label via OpenFDA
+Clinical decision support — verify against facility protocols and current patient data.
+```
+
+## Cross-Skill Suggestions
+
+If the drug lookup reveals findings that map to knowledge/templates/cross-skill-triggers.md, add ONE suggestion after the drug reference output. Maximum 1 suggestion. Only if clearly relevant.
+
+Common trigger mappings for drug reference:
+- High-alert anticoagulant → consider reviewing relevant protocol (e.g., bleeding risk assessment)
+- Vasoactive drip → consider reviewing ACLS or sepsis protocol if hemodynamic context applies
+- Thrombolytic (tPA) → consider reviewing stroke protocol for exclusion criteria
 
 ## Important Rules
 
