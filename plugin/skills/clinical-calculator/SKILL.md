@@ -2,7 +2,7 @@
 name: clinical-calculator
 skill_version: "1.1.0"
 description: >-
-  This skill should be used when the user asks to "calculate GCS", "GCS score", "Glasgow Coma Scale", "NIHSS", "stroke scale", "NIH stroke score", "APACHE", "APACHE II", "severity score", "Wells score", "PE risk", "pulmonary embolism", "Wells DVT", "DVT risk", "DVT score", "deep vein thrombosis", "CURB-65", "pneumonia severity", "Braden scale", "Braden score", "pressure injury risk", "skin risk", "RASS", "sedation score", "sedation level", "Richmond agitation", "CPOT", "pain score", "pain assessment tool", "critical care pain", "clinical calculator", "calculate score", or asks to score a patient using any standardized clinical assessment tool.
+  This skill should be used when the user asks to "calculate GCS", "GCS score", "Glasgow Coma Scale", "NIHSS", "stroke scale", "NIH stroke score", "APACHE", "APACHE II", "severity score", "Wells score", "PE risk", "pulmonary embolism", "Wells DVT", "DVT risk", "DVT score", "deep vein thrombosis", "CURB-65", "pneumonia severity", "Braden scale", "Braden score", "pressure injury risk", "skin risk", "RASS", "sedation score", "sedation level", "Richmond agitation", "CPOT", "pain score", "pain assessment tool", "critical care pain", "NEWS2", "early warning score", "national early warning score", "clinical calculator", "calculate score", or asks to score a patient using any standardized clinical assessment tool.
 scope:
   - clinical_scoring
   - consciousness
@@ -14,6 +14,7 @@ scope:
   - pressure_injury
   - sedation
   - pain_assessment
+  - early_warning
 complexity_tier: simple
 required_context:
   mandatory:
@@ -52,6 +53,7 @@ Calculate standardized clinical assessment scores using deterministic tools. The
 | **Braden** | Pressure injury risk | 6 subscales (sensory, moisture, activity, mobility, nutrition, friction) |
 | **RASS** | Sedation level | Single behavioral observation (-5 to +4) |
 | **CPOT** | Pain in non-verbal patients | 4 behavioral indicators (0-2 each) |
+| **NEWS2** | Acute illness severity / track-and-trigger | RR, SpO2, O2 therapy, Temp, SBP, HR, AVPU |
 
 ## Trace Logging
 
@@ -98,6 +100,7 @@ For complex calculators:
 - **APACHE II**: Group by vital signs, then labs, then age/chronic. APACHE II requires all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool. Require FiO2 to determine oxygenation scoring path.
 - **Wells PE**: Present each criterion as a yes/no question with clinical description.
 - **Wells DVT**: Present each criterion as a yes/no question with clinical description.
+- **NEWS2**: Present all 7 vital sign parameters. Explain SpO2 scale selection (scale 1=standard, scale 2=hypercapnic risk/COPD).
 
 ### Step 3: Call the Tool
 
@@ -117,6 +120,7 @@ bash "$(git rev-parse --show-toplevel)/tools/clinical-calculators/<calculator>.s
 - Braden: `braden.sh --sensory N --moisture N --activity N --mobility N --nutrition N --friction N`
 - RASS: `rass.sh --score N`
 - CPOT: `cpot.sh --facial N --body N --muscle N --compliance N`
+- NEWS2: `news2.sh --rr N --spo2 N --o2 <yes|no> --temp N --sbp N --hr N --avpu <A|V|P|U> [--spo2-scale <1|2>]`
 
 If the tool returns an error, report it plainly. Do not apologize or add filler.
 
@@ -145,6 +149,7 @@ Present results in this format:
 - **Braden**: Braden identifies pressure injury risk before skin breaks down. Lower score = higher risk = more aggressive prevention needed.
 - **RASS**: RASS quantifies sedation depth for titration targets. Compare to the ordered goal -- if there's a mismatch, it's a conversation with the provider.
 - **CPOT**: CPOT detects pain in patients who can't self-report. A score of 3+ means pain is likely present -- treat and reassess.
+- **NEWS2**: NEWS2 is the standard track-and-trigger for acute deterioration. Serial scores reveal trajectory -- a rising NEWS2 is often the earliest sign of clinical decline.
 
 ### Evidence & Confidence
 
@@ -158,6 +163,7 @@ Present results in this format:
   - Braden: Bergstrom et al. 1987
   - RASS: Sessler et al. 2002
   - CPOT: Gelinas et al. 2006
+  - NEWS2: Royal College of Physicians 2017
 - Score calculations are Tier 1 (deterministic math — exact published criteria)
 - Contextual flags are Tier 2 (bedside guidance — labeled as such)
 - Facility-specific activation criteria are Tier 3 — defer to "per facility protocol"
@@ -192,6 +198,9 @@ If the score hits a clinically significant threshold, add a flag after the table
 - Braden <=9: "Very high risk -- specialty mattress, nutrition consult, q2h repositioning minimum"
 - RASS not at ordered target: "Current sedation level may not match ordered target -- verify orders"
 - CPOT >=3: "Pain likely present -- treat per protocol and reassess in 30-60 minutes"
+- NEWS2 >=5: "Urgent clinical review within 1 hour -- continuous monitoring, escalate per facility protocol"
+- NEWS2 >=7: "Emergency response -- immediate clinical review, consider rapid response team"
+- NEWS2 any single parameter scoring 3: "Single parameter at extreme -- emergency response even if total score is low"
 
 Only show flags that apply. Do not list inapplicable thresholds.
 
