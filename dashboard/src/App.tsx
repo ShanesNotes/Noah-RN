@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { formatHumanName } from '@medplum/core';
 import { MantineProvider, Text } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { theme, colors } from './theme';
@@ -75,7 +76,7 @@ function App() {
               }}>
                 <div style={{ flex: 1 }}>
                   <Text ff="monospace" fw={700} fz="sm">
-                    PT {selected.id?.slice(0, 8)}
+                    {formatHumanName(selected.name?.[0]) || `Patient ${selected.id?.slice(0, 8)}`}
                   </Text>
                   <Text fz={11} c={colors.textSecondary}>
                     {[selected.gender, selected.birthDate].filter(Boolean).join(' · ')}
