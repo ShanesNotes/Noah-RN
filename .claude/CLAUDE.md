@@ -32,6 +32,16 @@ REPO_ROOT=$(git rev-parse --show-toplevel) && bash "$REPO_ROOT/tools/drug-lookup
 bash tests/drug-lookup/test_lookup.sh
 ```
 
+## Git Workflow (Company Policy)
+
+All code changes MUST go through pull requests. Direct pushes to `main` are prohibited.
+
+1. **Branch**: Create a feature branch from `main`. Name it `<agent>/<short-description>` (e.g., `wiz/vitals-chart`, `scout/news2-skill`).
+2. **Commit**: Commit on your feature branch. Include `Co-Authored-By: Paperclip <noreply@paperclip.ing>`.
+3. **Push**: Push your feature branch and open a pull request against `main`.
+4. **Review**: PRs require review before merge. Do not self-merge.
+5. **Never push directly to main.** No exceptions.
+
 ## Session Rules
 
 - One phase at a time. One skill at a time. Finish completely before moving on.
