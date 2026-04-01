@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MantineProvider, Title, Tabs } from '@mantine/core';
+import { formatHumanName } from '@medplum/core';
 import '@mantine/core/styles.css';
 import { medplum } from './medplum';
 import { PatientList } from './components/PatientList';
@@ -23,7 +24,7 @@ function App() {
             {selected ? (
               <>
                 <Title order={4} mb="md">
-                  Patient {selected.id}
+                  {formatHumanName(selected.name?.[0]) || `Patient ${selected.id}`}
                 </Title>
                 <Tabs defaultValue="vitals">
                   <Tabs.List>

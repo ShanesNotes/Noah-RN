@@ -4,12 +4,11 @@ import { medplum } from '../medplum';
 
 type MedicationRequest = Awaited<ReturnType<typeof medplum.searchResources<'MedicationRequest'>>>[number];
 
+// Only handles inline CodeableConcept; MedicationReference requires async resolution (not implemented)
 function getMedName(med: MedicationRequest): string {
-  return (
-    med.medicationCodeableConcept?.text ??
-    med.medicationCodeableConcept?.coding?.[0]?.display ??
-    'Unknown'
-  );
+  return med.medicationCodeableConcept?.text
+    || med.medicationCodeableConcept?.coding?.[0]?.display
+    || 'Unknown';
 }
 
 interface MedsPanelProps {
@@ -27,7 +26,7 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
     setError(null);
     medplum.searchResources(
       'MedicationRequest',
-      `patient=${patientId}&_sort=-authoredOn&_count=30&_elements=medicationCodeableConcept,medicationReference,status,dosageInstruction,authoredOn`
+      `patient=${patientId}&_sort=-authoredOn&_count=30&_elements=medicationCodeableConcept,status,dosageInstruction,authoredOn`
     )
       .then(results => {
         if (!cancelled) setMeds([...results]);

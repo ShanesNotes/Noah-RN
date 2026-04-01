@@ -17,13 +17,25 @@ function getVitalName(obs: Observation): string {
   return VITAL_LABELS[code] ?? obs.code?.coding?.[0]?.display ?? obs.code?.text ?? 'Unknown';
 }
 
+type ObsComponent = NonNullable<Observation['component']>[number];
+type ObsCoding = NonNullable<NonNullable<ObsComponent['code']>['coding']>[number];
+
+function getBPValue(obs: Observation): string {
+  const systolic = obs.component?.find(
+    (c: ObsComponent) => c.code?.coding?.some((coding: ObsCoding) => coding.code === '8480-6')
+  );
+  const diastolic = obs.component?.find(
+    (c: ObsComponent) => c.code?.coding?.some((coding: ObsCoding) => coding.code === '8462-4')
+  );
+  const sys = systolic?.valueQuantity?.value;
+  const dia = diastolic?.valueQuantity?.value;
+  if (sys !== undefined && dia !== undefined) return `${sys}/${dia} mmHg`;
+  return '—';
+}
+
 function getVitalValue(obs: Observation): string {
   const code = obs.code?.coding?.[0]?.code ?? '';
-  if (code === '55284-4' && obs.component) {
-    const sys = obs.component[0]?.valueQuantity?.value;
-    const dia = obs.component[1]?.valueQuantity?.value;
-    if (sys != null && dia != null) return `${sys}/${dia} mmHg`;
-  }
+  if (code === '55284-4') return getBPValue(obs);
   if (obs.valueQuantity?.value != null) {
     return `${obs.valueQuantity.value} ${obs.valueQuantity.unit ?? ''}`.trim();
   }
