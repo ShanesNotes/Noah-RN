@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shell-tests:
+    name: Shell Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Install PyYAML
+        run: pip3 install pyyaml
+
+      - name: Clinical Calculator Tests
+        run: |
+          for test in tests/clinical-calculators/test_*.sh; do
+            echo "Running $test"
+            bash "$test"
+          done
+
+      - name: Integration Tests
+        run: bash tests/integration/test_tool_hook_integration.sh
+
+      - name: Clinical Golden Tests
+        run: bash tests/clinical/run-tests.sh
+
+      - name: Hook Tests
+        run: bash tests/hooks/test_hooks.sh
+
+      - name: Unit Conversion Tests
+        run: bash tests/unit-conversions/test_convert.sh
+
+      - name: I/O Tracker Tests
+        run: bash tests/io-tracker/test_track.sh
+
+      - name: Trace Tests
+        run: bash tests/trace/test_trace.sh
+
+      - name: Skills Tests
+        run: bash tests/skills/clinical-calculator/test_apache2_prompt_contract.sh
+
+      - name: Router Agent Tests
+        run: bash tests/agents/test_clinical_router.sh
+
+      - name: Knowledge Tests
+        run: bash tests/knowledge/test_sepsis_bundle.sh
+
+      - name: Drug Lookup Tests
+        run: bash tests/drug-lookup/test_lookup.sh
+
+      - name: FHIR Tests
+        run: bash tests/fhir/test_mimic_loinc_query.sh
+
+  dashboard-tests:
+    name: Dashboard Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
