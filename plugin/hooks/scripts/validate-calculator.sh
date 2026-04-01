@@ -35,6 +35,7 @@ case "$CALCULATOR" in
   braden)    score_in_range "$SCORE" 6 23 && IN_RANGE=1 ;;
   rass)      score_in_range "$SCORE" -5 4 && IN_RANGE=1 ;;
   cpot)      score_in_range "$SCORE" 0 8 && IN_RANGE=1 ;;
+  news2)     score_in_range "$SCORE" 0 20 && IN_RANGE=1 ;;
   *)         exit 0 ;;
 esac
 

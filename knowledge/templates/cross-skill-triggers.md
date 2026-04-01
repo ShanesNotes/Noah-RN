@@ -6,7 +6,7 @@ might also want to check..." prompts.
 
 ## Trigger Mappings
 
-20 trigger conditions mapping to 31 trigger→skill suggestion pairings (several triggers
+23 trigger conditions mapping to 35 trigger→skill suggestion pairings (several triggers
 suggest more than one skill).
 
 | Finding | Suggest | Why We Care |
