@@ -10,6 +10,7 @@ services:
       - hapi.fhir.bulk_import_enabled=true
       - hapi.fhir.enforce_referential_integrity_on_write=false
       - hapi.fhir.enforce_referential_integrity_on_delete=false
+      - hapi.fhir.cors.allowed_origin=*
       - spring.datasource.url=jdbc:postgresql://hapi-postgres:5432/hapi
       - spring.datasource.username=admin
       - spring.datasource.password=admin
