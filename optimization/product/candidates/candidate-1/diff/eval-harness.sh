@@ -129,14 +129,14 @@ import json, sys
 d = json.load(sys.stdin)
 expected = d.get('expected', {})
 mc = expected.get('must_contain', [])
-print('\n'.join(mc))
+print('\\n'.join(mc))
 ")"
   must_not_contain="$(echo "$case_json" | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 expected = d.get('expected', {})
 mnc = expected.get('must_not_contain', [])
-print('\n'.join(mnc))
+print('\\n'.join(mnc))
 ")"
   min_confidence="$(echo "$case_json" | python3 -c "
 import json, sys
@@ -248,7 +248,7 @@ invoke_skill() {
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d "{
-        \"model\": \"${OPENAI_EVAL_MODEL:-gpt-4o-mini}\",
+        \"model\": \"gpt-4o-mini\",
         \"messages\": [
           {\"role\": \"system\", \"content\": $(echo "$skill_prompt" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")},
           {\"role\": \"user\", \"content\": $(echo "$context" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")}
@@ -261,7 +261,7 @@ invoke_skill() {
       -H "anthropic-version: 2023-06-01" \
       -H "content-type: application/json" \
       -d "{
-        \"model\": \"${ANTHROPIC_EVAL_MODEL:-claude-3-haiku-20240307}\",
+        \"model\": \"claude-3-haiku-20240307\",
         \"max_tokens\": 4096,
         \"system\": $(echo "$skill_prompt" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))"),
         \"messages\": [
@@ -272,8 +272,8 @@ invoke_skill() {
     curl -s "${OLLAMA_BASE_URL}/api/generate" \
       -H "Content-Type: application/json" \
       -d "{
-        \"model\": \"${OLLAMA_EVAL_MODEL:-llama3}\",
-        \"prompt\": $(echo -e "${skill_prompt}\n\nUser: ${context}" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))"),
+        \"model\": \"llama3\",
+        \"prompt\": \"${skill_prompt}\\n\\nUser: ${context}\",
         \"stream\": false
       }" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('response', ''))"
   else
