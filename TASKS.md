@@ -73,6 +73,14 @@ Phase 2 complete. Phase 3 (Polish + Portfolio) next.
 - [x] Eval harness implementation (Phase B — requires golden test suite) *(2026-03-31)*
 - [x] Model calibration runs (Phase B) *(2026-03-31)*
 
+### Portfolio + Clinical Additions
+- [x] Architecture documentation for external audience — `docs/ARCHITECTURE-EXTERNAL.md` *(2026-03-31)*
+- [x] Demo walkthrough script — `docs/DEMO.md` *(2026-03-31)*
+- [x] Competitive and market analysis — `docs/competitive-analysis.md` *(2026-04-01)*
+- [x] SSC 2026 sepsis bundle update — `knowledge/protocols/sepsis-bundle.md` *(2026-04-01)*
+- [x] NEWS2 calculator — `tools/clinical-calculators/news2.sh`, 62 tests *(2026-04-01)*
+- [x] Distillation cross-reference analysis — `docs/distillation-cross-reference.md` *(2026-04-01)*
+
 ## Architectural Decisions
 
 ### Tier 2 Hooks — Converted to Prompt Instructions *(2026-03-29)*

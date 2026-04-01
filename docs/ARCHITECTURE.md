@@ -320,7 +320,7 @@ Each skill follows TDD: spec → implement → test with real clinical scenarios
 
 **Goal:** Deterministic tools, safety hooks, cross-skill intelligence, and knowledge provenance.
 
-- [x] Clinical calculators — 9 tools: GCS, NIHSS, APACHE II, Wells PE, Wells DVT, CURB-65, Braden, RASS, CPOT
+- [x] Clinical calculators — 9 tools: GCS, NIHSS, APACHE II, Wells PE, Wells DVT, CURB-65, Braden, RASS, CPOT (NEWS2 added Phase 3)
 - [x] Shared calculator library (`tools/clinical-calculators/lib/common.sh`) — output formatting, severity banding, disclaimer
 - [x] Unit conversion tool (`tools/unit-conversions/convert.sh`) — weight-based dosing (dose), drip rate calculation (drip), unit conversion (unit)
 - [x] I&O tracker skill (`plugin/skills/io-tracker/`) — fluid balance, shift totals, running 24h balance
@@ -342,10 +342,17 @@ Each skill follows TDD: spec → implement → test with real clinical scenarios
 
 **Goal:** Documentation, pitch materials, demonstration-ready state.
 
-- [ ] Architecture documentation (for ChartWell audience)
-- [ ] Skills catalog with clinical rationale
-- [ ] Demo walkthrough script
-- [ ] README that tells the story (nurse → engineer → this)
+- [x] Architecture documentation (for ChartWell audience) — `docs/ARCHITECTURE-EXTERNAL.md` *(2026-03-31)*
+- [x] Skills catalog with clinical rationale — `README.md` Skills Catalog section *(2026-03-31)*
+- [x] Demo walkthrough script — `docs/DEMO.md` *(2026-03-31)*
+- [x] README that tells the story (nurse → engineer → this) — `README.md` *(2026-03-31)*
+- [x] Competitive and market analysis — `docs/competitive-analysis.md` *(2026-04-01)*
+
+### Phase 3 Additions
+
+- [x] NEWS2 (National Early Warning Score 2) calculator — `tools/clinical-calculators/news2.sh`, 62 tests *(2026-04-01)*
+- [x] Distillation cross-reference analysis — `docs/distillation-cross-reference.md` *(2026-04-01)*
+- [x] SSC 2026 sepsis bundle update — `knowledge/protocols/sepsis-bundle.md` *(2026-04-01)*
 
 ---
 
