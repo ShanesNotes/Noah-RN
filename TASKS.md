@@ -57,11 +57,11 @@ Phase 2 complete. Phase 3 (Polish + Portfolio) next.
 - [x] App wiring — patient selection → tabbed detail view *(2026-03-31)*
 - [x] Build passes clean — TypeScript + Vite *(2026-03-31)*
 - [x] README replaced with project-specific docs *(2026-03-31)*
-- [ ] Vitals time-series charting (trend visualization)
-- [ ] Lab trend tracking with rate-of-change arrows
-- [ ] Medication administration timeline with drip rates
-- [ ] Multi-patient assignment view
-- [ ] SBAR handoff report generation from FHIR data
+- [x] Vitals time-series charting (trend visualization) *(2026-03-31)*
+- [x] Lab trend tracking with rate-of-change arrows *(2026-03-31)*
+- [x] Medication administration timeline with drip rates *(2026-03-31)*
+- [x] Multi-patient assignment view *(2026-03-31)*
+- [x] SBAR handoff report generation from FHIR data *(2026-03-31)*
 
 ### Trace Logging
 - [x] Trace logging tool (`tools/trace/trace.sh`) with init/input/output/hooks/complete *(2026-03-31)*
@@ -70,8 +70,8 @@ Phase 2 complete. Phase 3 (Polish + Portfolio) next.
 
 ### Meta-Harness Optimization
 - [x] Phase A infrastructure — filesystem structure, proposer prompts, safety constraints *(2026-03-31)*
-- [ ] Eval harness implementation (Phase B — requires golden test suite)
-- [ ] Model calibration runs (Phase B)
+- [x] Eval harness implementation (Phase B — requires golden test suite) *(2026-03-31)*
+- [x] Model calibration runs (Phase B) *(2026-03-31)*
 
 ## Architectural Decisions
 

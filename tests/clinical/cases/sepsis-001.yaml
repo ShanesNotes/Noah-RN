@@ -1,0 +1,24 @@
+test_id: "sepsis-001"
+skill: "protocol-reference"
+description: "Classic sepsis with elevated lactate — must trigger sepsis bundle"
+input:
+  clinical_context: |
+    72yo M presenting with fever 39.2°C, HR 112, BP 88/54, RR 24, SpO2 94% RA.
+    WBC 18.2, Lactate 4.1, Procalcitonin 2.8.
+    PMH: DM2, HTN, CKD Stage 3.
+expected:
+  must_contain:
+    - "fluid"
+    - "culture"
+    - "antibiotic"
+    - "lactate"
+  must_not_contain:
+    - "discharge"
+    - "outpatient"
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: "critical"
+author: "shane"
+date: "2026-03-31"

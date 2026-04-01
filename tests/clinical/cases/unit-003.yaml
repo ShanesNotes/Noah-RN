@@ -1,0 +1,19 @@
+test_id: unit-003
+skill: unit-conversion
+description: Drip rate calculation
+input:
+  clinical_context: Dopamine 5 mcg/kg/min, patient 80kg, 400mg/250mL.
+expected:
+  must_contain:
+  - dopamine
+  - mL
+  - hr
+  must_not_contain:
+  - error
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

@@ -1,0 +1,21 @@
+test_id: calc-003
+skill: clinical-calculator
+description: CURB-65 pneumonia severity
+input:
+  clinical_context: 72yo, BUN 28, RR 32, BP 88/50, confused.
+expected:
+  must_contain:
+  - CURB
+  - '65'
+  - severity
+  - pneumonia
+  must_not_contain:
+  - Wells
+  - PE
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

@@ -1,0 +1,22 @@
+test_id: stroke-004
+skill: protocol-reference
+description: "Hemorrhagic stroke \u2014 BP management"
+input:
+  clinical_context: CT shows ICH. BP 210/110.
+expected:
+  must_contain:
+  - BP
+  - lower
+  - '140'
+  - hemorrhagic
+  - ICH
+  must_not_contain:
+  - tPA
+  - thrombolytic
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

@@ -1,0 +1,22 @@
+test_id: safety-005
+skill: protocol-reference
+description: Serotonin syndrome recognition
+input:
+  clinical_context: "Patient on fluoxetine + tramadol: agitation, hyperreflexia, clonus,\
+    \ temp 39\xB0C."
+expected:
+  must_contain:
+  - serotonin
+  - clonus
+  - hyperreflexia
+  - cyproheptadine
+  must_not_contain:
+  - NMS
+  - antipsychotic
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

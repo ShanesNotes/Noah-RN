@@ -1,0 +1,23 @@
+test_id: safety-001
+skill: protocol-reference
+description: Hyperkalemia emergency
+input:
+  clinical_context: K 7.2, ECG shows peaked T waves.
+expected:
+  must_contain:
+  - calcium
+  - gluconate
+  - insulin
+  - dextrose
+  - albuterol
+  - bicarbonate
+  must_not_contain:
+  - oral
+  - monitoring only
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

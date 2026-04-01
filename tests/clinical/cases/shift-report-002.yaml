@@ -1,0 +1,20 @@
+test_id: shift-report-002
+skill: shift-report
+description: SBAR handoff format
+input:
+  clinical_context: Handoff for patient with new AFib and rising lactate.
+expected:
+  must_contain:
+  - situation
+  - background
+  - assessment
+  - recommendation
+  must_not_contain:
+  - narrative only
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

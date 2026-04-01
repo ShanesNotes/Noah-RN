@@ -1,0 +1,20 @@
+test_id: acls-008
+skill: protocol-reference
+description: "Wide irregular tachycardia \u2014 both algorithms"
+input:
+  clinical_context: Patient with wide complex irregular tachycardia, stable BP.
+expected:
+  must_contain:
+  - pre-excited
+  - AF
+  - procainamide
+  - amiodarone
+  must_not_contain:
+  - adenosine
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

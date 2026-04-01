@@ -1,0 +1,21 @@
+test_id: cross-002
+skill: protocol-reference
+description: "Stroke + drug reference \u2014 tPA + DOAC interaction"
+input:
+  clinical_context: Stroke patient on rivaroxaban, within tPA window.
+expected:
+  must_contain:
+  - rivaroxaban
+  - DOAC
+  - contraindication
+  - exclude
+  must_not_contain:
+  - tPA
+  - administer
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

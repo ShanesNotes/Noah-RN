@@ -19,9 +19,12 @@ EHR dashboard for Noah RN — connects to a local HAPI FHIR server with MIMIC-IV
 ## Features
 
 - **Patient List** — Browse all patients with name, birth date, and gender
-- **Vitals Panel** — Recent vital sign observations (HR, BP, RR, SpO2, Temp)
-- **Labs Panel** — Laboratory observations with reference ranges
-- **Medications Panel** — MedicationRequest history with status and dosing
+- **Vitals Panel** — Recent vital sign observations (HR, BP, RR, SpO2, Temp) with sparkline previews
+- **Vitals Trends** — Time-series line charts for each vital type with interactive tooltips
+- **Labs Panel** — Laboratory observations with reference ranges, trend charts, and rate-of-change arrows
+- **Medications Panel** — MedicationRequest history with status, dosing, and drip rate detection
+- **Assignment View** — Multi-patient overview showing latest vitals and active meds at a glance
+- **SBAR Handoff** — Structured Situation-Background-Assessment-Recommendation report with copy-to-clipboard
 
 ## Known Data Gaps
 

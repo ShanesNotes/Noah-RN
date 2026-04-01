@@ -1,0 +1,20 @@
+test_id: rsi-001
+skill: protocol-reference
+description: "RSI \u2014 induction agent selection"
+input:
+  clinical_context: Patient needs emergent intubation. BP 80/50, HR 130. Hemodynamically
+    unstable.
+expected:
+  must_contain:
+  - ketamine
+  - etomidate
+  - hemodynamic
+  must_not_contain:
+  - propofol
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

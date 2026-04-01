@@ -1,0 +1,20 @@
+test_id: calc-005
+skill: clinical-calculator
+description: BMI calculation
+input:
+  clinical_context: Patient 175cm, 95kg.
+expected:
+  must_contain:
+  - BMI
+  - '31'
+  - obese
+  must_not_contain:
+  - Wells
+  - CURB
+  confidence:
+    minimum_overall: 0.5
+  provenance:
+    must_cite_source: true
+severity: low
+author: shane
+date: '2026-03-31'

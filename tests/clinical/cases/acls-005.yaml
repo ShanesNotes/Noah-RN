@@ -1,0 +1,20 @@
+test_id: acls-005
+skill: protocol-reference
+description: "Unstable tachycardia \u2014 synchronized cardioversion"
+input:
+  clinical_context: Patient HR 190, wide complex, BP 70/40, altered.
+expected:
+  must_contain:
+  - synchronized
+  - cardioversion
+  - unstable
+  must_not_contain:
+  - vagal
+  - adenosine
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

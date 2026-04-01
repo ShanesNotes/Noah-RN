@@ -1,0 +1,21 @@
+test_id: rsi-004
+skill: protocol-reference
+description: "RSI \u2014 confirmation of placement"
+input:
+  clinical_context: Patient intubated. How to confirm?
+expected:
+  must_contain:
+  - ETCO2
+  - waveform
+  - capnography
+  - bilateral
+  must_not_contain:
+  - auscultation only
+  - gastric
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

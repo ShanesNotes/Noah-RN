@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { formatHumanName } from '@medplum/core';
 import { Loader, Text } from '@mantine/core';
 import { medplum } from '../medplum';
@@ -9,15 +9,22 @@ type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[nu
 
 interface PatientListProps {
   onSelect: (patient: Patient) => void;
+  onLoadAll?: (patients: Patient[]) => void;
   selectedId?: string;
 }
 
-export function PatientList({ onSelect, selectedId }: PatientListProps) {
+export function PatientList({ onSelect, onLoadAll, selectedId }: PatientListProps) {
   const [search, setSearch] = useState('');
   const { data: patients, loading, error } = useFhirSearch(
     'Patient',
     '_count=100&_elements=id,name,birthDate,gender',
   );
+
+  useEffect(() => {
+    if (patients.length > 0 && onLoadAll) {
+      onLoadAll(patients);
+    }
+  }, [patients, onLoadAll]);
 
   const filtered = useMemo(() => {
     if (!search) return patients;

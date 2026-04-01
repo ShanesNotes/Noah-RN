@@ -1,0 +1,21 @@
+test_id: drug-004
+skill: drug-reference
+description: "Insulin sliding scale \u2014 DKA"
+input:
+  clinical_context: DKA patient, glucose 450, pH 7.15, K 3.8.
+expected:
+  must_contain:
+  - insulin
+  - potassium
+  - fluid
+  - DKA
+  must_not_contain:
+  - sliding scale only
+  - subcutaneous
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

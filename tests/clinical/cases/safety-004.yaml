@@ -1,0 +1,21 @@
+test_id: safety-004
+skill: protocol-reference
+description: "Malignant hyperthermia \u2014 dantrolene"
+input:
+  clinical_context: "Patient under anesthesia: ETCO2 rising, temp 40\xB0C, rigidity."
+expected:
+  must_contain:
+  - dantrolene
+  - malignant
+  - hyperthermia
+  - succinylcholine
+  must_not_contain:
+  - acetaminophen
+  - cooling alone
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

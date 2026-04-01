@@ -1,0 +1,18 @@
+test_id: unit-002
+skill: unit-conversion
+description: Temperature conversion
+input:
+  clinical_context: "Convert 39.5\xB0C to \xB0F."
+expected:
+  must_contain:
+  - '103.1'
+  - '39.5'
+  must_not_contain:
+  - error
+  confidence:
+    minimum_overall: 0.5
+  provenance:
+    must_cite_source: true
+severity: low
+author: shane
+date: '2026-03-31'

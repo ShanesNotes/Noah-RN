@@ -1,0 +1,20 @@
+test_id: acls-003
+skill: protocol-reference
+description: "PEA \u2014 identify reversible causes"
+input:
+  clinical_context: Patient in cardiac arrest with organized rhythm but no pulse.
+expected:
+  must_contain:
+  - Hs and Ts
+  - reversible
+  - CPR
+  - epinephrine
+  must_not_contain:
+  - defibrillation
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

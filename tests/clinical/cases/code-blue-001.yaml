@@ -1,0 +1,22 @@
+test_id: code-blue-001
+skill: protocol-reference
+description: "Code blue \u2014 team roles"
+input:
+  clinical_context: Code blue called on 4W. Patient unresponsive, no pulse.
+expected:
+  must_contain:
+  - compressions
+  - airway
+  - medications
+  - defibrillation
+  - timer
+  must_not_contain:
+  - wait
+  - observe
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

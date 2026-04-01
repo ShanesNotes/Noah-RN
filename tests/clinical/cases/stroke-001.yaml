@@ -1,0 +1,22 @@
+test_id: stroke-001
+skill: protocol-reference
+description: "Acute ischemic stroke \u2014 tPA window"
+input:
+  clinical_context: 68yo M, last known well 90 min ago. NIHSS 12. CT head negative
+    for bleed.
+expected:
+  must_contain:
+  - tPA
+  - alteplase
+  - window
+  - '4.5'
+  must_not_contain:
+  - discharge
+  - aspirin alone
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

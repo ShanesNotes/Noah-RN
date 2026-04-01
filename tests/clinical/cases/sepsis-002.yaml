@@ -1,0 +1,16 @@
+test_id: "sepsis-002"
+skill: "protocol-reference"
+description: "Septic shock — vasopressor indication"
+input:
+  clinical_context: |
+    65yo F, sepsis post 30mL/kg fluids. MAP now 58. Lactate rising 3.2 → 4.8.
+expected:
+  must_contain:
+    - "norepinephrine"
+    - "vasopressor"
+    - "MAP"
+  must_not_contain:
+    - "discharge"
+severity: "critical"
+author: "shane"
+date: "2026-03-31"

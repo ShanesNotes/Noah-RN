@@ -1,0 +1,21 @@
+test_id: edge-003
+skill: protocol-reference
+description: Pregnancy considerations
+input:
+  clinical_context: Patient 28 weeks pregnant, needs CT scan for PE workup.
+expected:
+  must_contain:
+  - pregnancy
+  - radiation
+  - risk
+  - benefit
+  must_not_contain:
+  - routine
+  - no concern
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

@@ -1,0 +1,21 @@
+test_id: calc-001
+skill: clinical-calculator
+description: Wells PE score
+input:
+  clinical_context: Patient with HR 110, recent surgery, no hemoptysis, no DVT signs.
+    PE likely?
+expected:
+  must_contain:
+  - Wells
+  - PE
+  - score
+  - probability
+  must_not_contain:
+  - diagnosis
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: high
+author: shane
+date: '2026-03-31'

@@ -1,0 +1,21 @@
+test_id: code-blue-002
+skill: protocol-reference
+description: "Code blue \u2014 arrest algorithm selection"
+input:
+  clinical_context: Monitor shows pulseless VT. What algorithm?
+expected:
+  must_contain:
+  - shockable
+  - VF
+  - VT
+  - defibrillation
+  must_not_contain:
+  - asystole
+  - epinephrine first
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: critical
+author: shane
+date: '2026-03-31'

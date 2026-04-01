@@ -8,24 +8,33 @@ import { PatientList } from './components/PatientList';
 import { VitalsPanel } from './components/VitalsPanel';
 import { LabsPanel } from './components/LabsPanel';
 import { MedsPanel } from './components/MedsPanel';
+import { AssignmentView } from './components/AssignmentView';
+
+import { SBARReport } from './components/SBARReport';
 
 type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
 
-type TabKey = 'vitals' | 'labs' | 'meds';
+type TabKey = 'vitals' | 'labs' | 'meds' | 'sbar';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'vitals', label: 'VITALS' },
   { key: 'labs', label: 'LABS' },
   { key: 'meds', label: 'MEDS' },
+  { key: 'sbar', label: 'SBAR' },
 ];
 
 function App() {
   const [selected, setSelected] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('vitals');
+  const [allPatients, setAllPatients] = useState<Patient[]>([]);
 
   const handleSelect = useCallback((p: Patient) => {
     setSelected(p);
     setActiveTab('vitals');
+  }, []);
+
+  const handleLoadAll = useCallback((patients: Patient[]) => {
+    setAllPatients(patients);
   }, []);
 
   return (
@@ -57,7 +66,7 @@ function App() {
             </Text>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-            <PatientList onSelect={handleSelect} selectedId={selected?.id} />
+            <PatientList onSelect={handleSelect} selectedId={selected?.id} onLoadAll={handleLoadAll} />
           </div>
         </aside>
 
@@ -112,20 +121,27 @@ function App() {
                 {activeTab === 'vitals' && <VitalsPanel patientId={selected.id!} />}
                 {activeTab === 'labs' && <LabsPanel patientId={selected.id!} />}
                 {activeTab === 'meds' && <MedsPanel patientId={selected.id!} />}
+                {activeTab === 'sbar' && <SBARReport patient={selected} />}
               </div>
             </>
           ) : (
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              gap: 8,
-            }}>
-              <Text ff="monospace" fz="lg" c={colors.textMuted}>—</Text>
-              <Text fz="sm" c={colors.textSecondary}>Select a patient</Text>
-            </div>
+            allPatients.length > 0 ? (
+              <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+                <AssignmentView patients={allPatients} />
+              </div>
+            ) : (
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: 8,
+              }}>
+                <Text ff="monospace" fz="lg" c={colors.textMuted}>—</Text>
+                <Text fz="sm" c={colors.textSecondary}>Select a patient</Text>
+              </div>
+            )
           )}
         </main>
       </div>
