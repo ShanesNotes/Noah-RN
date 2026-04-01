@@ -24,7 +24,7 @@ Noah RN is not an ambient scribing product. It is focused on clinical decision s
 - It organizes nurse-provided clinical narrative into structured assessment, handoff, and I&O workflows.
 - It does not replace clinical judgment, generate orders, or guess facility-specific policy.
 
-Current deterministic tooling in the repo includes 9 clinical calculator shell scripts under `tools/clinical-calculators`, a drug lookup tool, and unit-conversion tooling for dose, drip, and unit math.
+Current deterministic tooling in the repo includes 10 clinical calculator shell scripts under `tools/clinical-calculators`, a drug lookup tool, and unit-conversion tooling for dose, drip, and unit math.
 
 ## Architecture Overview
 
