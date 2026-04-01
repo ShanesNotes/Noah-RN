@@ -46,6 +46,20 @@ This is not an assessment (that's shift-assessment). This is the full handoff pa
 > logistics. Designed for acute/critical care nursing handoff where clinical narrative,
 > active issues, and anticipatory guidance are essential for safe care continuity.
 
+## Trace Logging
+
+Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
+
+**Start trace** (before any other work):
+```bash
+CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "shift-report")
+```
+
+**Record input context** (after collecting input, before processing):
+```bash
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
+```
+
 ## Workflow
 
 ### Step 1: Receive Input
@@ -210,6 +224,23 @@ Verify all findings against your assessment and facility policies.
 ```
 
 Select ONE randomly. **Always include — never omit, even when gap prompt is present.**
+
+### Step 6: Finalize Trace
+
+Record the skill output and close the trace:
+
+```bash
+# Record the raw output you just generated
+echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
+
+# Record hook results (empty if no hooks fired)
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
+
+# Finalize timing
+bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
+```
+
+Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
 
 ## Evidence & Confidence
 
