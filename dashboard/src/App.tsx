@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { MantineProvider, Title, Tabs } from '@mantine/core';
-import { formatHumanName } from '@medplum/core';
+import { useState, useCallback } from 'react';
+import { MantineProvider, Text } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { theme, colors } from './theme';
 import { medplum } from './medplum';
 import { PatientList } from './components/PatientList';
 import { VitalsPanel } from './components/VitalsPanel';
@@ -10,44 +10,124 @@ import { MedsPanel } from './components/MedsPanel';
 
 type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
 
+type TabKey = 'vitals' | 'labs' | 'meds';
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'vitals', label: 'VITALS' },
+  { key: 'labs', label: 'LABS' },
+  { key: 'meds', label: 'MEDS' },
+];
+
 function App() {
   const [selected, setSelected] = useState<Patient | null>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>('vitals');
+
+  const handleSelect = useCallback((p: Patient) => {
+    setSelected(p);
+    setActiveTab('vitals');
+  }, []);
 
   return (
-    <MantineProvider>
-        <div style={{ display: 'flex', height: '100vh' }}>
-          <aside style={{ width: 300, borderRight: '1px solid #eee', overflowY: 'auto', padding: 8 }}>
-            <Title order={5} mb="sm">Patients</Title>
-            <PatientList onSelect={setSelected} selectedId={selected?.id} />
-          </aside>
-          <main style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-            {selected ? (
-              <>
-                <Title order={4} mb="md">
-                  {formatHumanName(selected.name?.[0]) || `Patient ${selected.id}`}
-                </Title>
-                <Tabs defaultValue="vitals">
-                  <Tabs.List>
-                    <Tabs.Tab value="vitals">Vitals</Tabs.Tab>
-                    <Tabs.Tab value="labs">Labs</Tabs.Tab>
-                    <Tabs.Tab value="meds">Medications</Tabs.Tab>
-                  </Tabs.List>
-                  <Tabs.Panel value="vitals" pt="md">
-                    <VitalsPanel patientId={selected.id!} />
-                  </Tabs.Panel>
-                  <Tabs.Panel value="labs" pt="md">
-                    <LabsPanel patientId={selected.id!} />
-                  </Tabs.Panel>
-                  <Tabs.Panel value="meds" pt="md">
-                    <MedsPanel patientId={selected.id!} />
-                  </Tabs.Panel>
-                </Tabs>
-              </>
-            ) : (
-              <p>Select a patient from the left panel.</p>
-            )}
-          </main>
-        </div>
+    <MantineProvider theme={theme} defaultColorScheme="dark">
+      <div style={{
+        display: 'flex',
+        height: '100vh',
+        background: colors.bg,
+        color: colors.textPrimary,
+        fontFamily: '"Outfit", sans-serif',
+      }}>
+        {/* Sidebar */}
+        <aside style={{
+          width: 280,
+          borderRight: `1px solid ${colors.border}`,
+          display: 'flex',
+          flexDirection: 'column',
+          background: colors.surface,
+        }}>
+          <div style={{
+            padding: '16px 16px 12px',
+            borderBottom: `1px solid ${colors.border}`,
+          }}>
+            <Text ff="monospace" fz="xs" fw={700} c={colors.info} style={{ letterSpacing: '0.15em' }}>
+              NOAH RN
+            </Text>
+            <Text fz={10} c={colors.textMuted} mt={2}>
+              Clinical Decision Support
+            </Text>
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+            <PatientList onSelect={handleSelect} selectedId={selected?.id} />
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {selected ? (
+            <>
+              {/* Patient header + tabs */}
+              <div style={{
+                padding: '12px 24px',
+                borderBottom: `1px solid ${colors.border}`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 24,
+                background: colors.surface,
+              }}>
+                <div style={{ flex: 1 }}>
+                  <Text ff="monospace" fw={700} fz="sm">
+                    PT {selected.id?.slice(0, 8)}
+                  </Text>
+                  <Text fz={11} c={colors.textSecondary}>
+                    {[selected.gender, selected.birthDate].filter(Boolean).join(' · ')}
+                  </Text>
+                </div>
+                <div style={{ display: 'flex', gap: 0 }}>
+                  {TABS.map(t => (
+                    <button
+                      key={t.key}
+                      onClick={() => setActiveTab(t.key)}
+                      style={{
+                        background: activeTab === t.key ? colors.border : 'transparent',
+                        color: activeTab === t.key ? colors.textPrimary : colors.textSecondary,
+                        border: 'none',
+                        padding: '6px 16px',
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: '0.1em',
+                        cursor: 'pointer',
+                        borderRadius: 4,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Panel content */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+                {activeTab === 'vitals' && <VitalsPanel patientId={selected.id!} />}
+                {activeTab === 'labs' && <LabsPanel patientId={selected.id!} />}
+                {activeTab === 'meds' && <MedsPanel patientId={selected.id!} />}
+              </div>
+            </>
+          ) : (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              gap: 8,
+            }}>
+              <Text ff="monospace" fz="lg" c={colors.textMuted}>—</Text>
+              <Text fz="sm" c={colors.textSecondary}>Select a patient</Text>
+            </div>
+          )}
+        </main>
+      </div>
     </MantineProvider>
   );
 }

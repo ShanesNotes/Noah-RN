@@ -4,5 +4,39 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0B0E14;
+  color: #E8ECF1;
+  font-family: 'Outfit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E2430;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A3344;
+}
+
+::selection {
+  background: rgba(51, 154, 240, 0.3);
+}
+
+input::placeholder {
+  color: #4E5D6E;
+}
+
+input:focus {
+  border-color: #339AF0 !important;
+  box-shadow: 0 0 0 1px rgba(51, 154, 240, 0.2);
 }
