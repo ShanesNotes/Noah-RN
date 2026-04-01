@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Loader, Text, Button, Textarea, CopyButton } from '@mantine/core';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
@@ -18,6 +18,13 @@ interface SBARReportProps {
 
 export function SBARReport({ patient }: SBARReportProps) {
   const [notes, setNotes] = useState('');
+  const ageRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (patient.birthDate) {
+      ageRef.current = Math.floor((Date.now() - new Date(patient.birthDate!).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    }
+  }, [patient.birthDate]);
 
   const { data: vitals, loading: vitalsLoading } = useFhirSearch(
     'Observation',
@@ -102,11 +109,10 @@ export function SBARReport({ patient }: SBARReportProps) {
     [labs],
   );
 
+  const age = ageRef.current != null ? `${ageRef.current}` : '?';
+
   const sbarText = useMemo(() => {
     const name = formatName(patient);
-    const age = patient.birthDate
-      ? Math.floor((Date.now() - new Date(patient.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-      : '?';
     const gender = patient.gender ?? 'unknown';
 
     const hr = latestVitals.get('8867-4')?.value ?? '—';
@@ -139,7 +145,7 @@ export function SBARReport({ patient }: SBARReportProps) {
       `R — RECOMMENDATION`,
       notes ? notes : '[Add handoff notes here]',
     ].join('\n');
-  }, [patient, latestVitals, activeConditions, activeAllergies, activeMeds, latestLabs, notes]);
+  }, [patient, latestVitals, activeConditions, activeAllergies, activeMeds, latestLabs, notes, age]);
 
   if (loading) {
     return (

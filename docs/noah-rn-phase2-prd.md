@@ -550,7 +550,7 @@ phase_2b: "Routing" (requires 2a)
   8. Hooks Tier 2 → scope validation, context completeness
 
 phase_2c: "Expansion" (requires 2a, parallelizable with 2b)
-  9. Clinical calculators → all 9 calculators with cross-skill trigger integration
+  9. Clinical calculators → all 10 calculators with cross-skill trigger integration
   10. Unit conversion tool → weight-based dosing, drip rates, I&O
   11. Golden test suite → 50 initial clinical scenarios
 

@@ -5,7 +5,17 @@ import { useFhirSearch } from '../hooks/useFhirSearch';
 import type { medplum } from '../medplum';
 
 type MedicationRequest = Awaited<ReturnType<typeof medplum.searchResources<'MedicationRequest'>>>[number];
-type MedicationAdministration = Awaited<ReturnType<typeof medplum.searchResources<'MedicationAdministration'>>>[number];
+
+interface MedAdmin {
+  id?: string;
+  medicationCodeableConcept?: {
+    text?: string;
+    coding?: { code?: string; display?: string }[];
+  };
+  status?: string;
+  dosage?: { text?: string };
+  effectiveDateTime?: string;
+}
 
 function getMedName(med: MedicationRequest): string {
   return med.medicationCodeableConcept?.text
@@ -13,9 +23,9 @@ function getMedName(med: MedicationRequest): string {
     || 'Unknown';
 }
 
-function getMedAdminName(ma: MedicationAdministration): string {
-  return (ma as any).medicationCodeableConcept?.text
-    || (ma as any).medicationCodeableConcept?.coding?.[0]?.display
+function getMedAdminName(ma: MedAdmin): string {
+  return ma.medicationCodeableConcept?.text
+    || ma.medicationCodeableConcept?.coding?.[0]?.display
     || 'Unknown';
 }
 
@@ -83,9 +93,11 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
   );
 
   const { data: administrations, loading: adminLoading, error: adminError } = useFhirSearch(
-    'MedicationAdministration',
+    'MedicationAdministration' as Parameters<typeof medplum.searchResources>[0],
     `patient=${patientId}&_sort=-date&_count=30&_elements=medicationCodeableConcept,status,dosage,effectiveDateTime`,
   );
+
+  const typedAdministrations = administrations as unknown as MedAdmin[];
 
   const loading = reqLoading || adminLoading;
   const error = reqError || adminError;
@@ -105,15 +117,15 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
       };
     });
 
-    const adminRows: MedRow[] = administrations.map(ma => {
-      const doseText = (ma as any).dosage?.text;
+    const adminRows: MedRow[] = typedAdministrations.map(ma => {
+      const doseText = ma.dosage?.text;
       const { rate } = parseDoseRate(doseText);
       return {
-        id: (ma as any).id ?? '',
+        id: ma.id ?? '',
         name: getMedAdminName(ma),
-        status: (ma as any).status,
+        status: ma.status,
         dose: doseText ?? '—',
-        date: (ma as any).effectiveDateTime,
+        date: ma.effectiveDateTime,
         source: 'Admin',
         rate,
       };

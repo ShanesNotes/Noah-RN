@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { medplum } from '../medplum';
 
 type ResourceType = Parameters<typeof medplum.searchResources>[0];
@@ -21,12 +21,10 @@ export function useFhirSearch<T extends ResourceType>(
   const [error, setError] = useState<string | null>(null);
   const fetchId = useRef(0);
 
-  const doFetch = useCallback(() => {
-    if (!enabled) return;
+  const doFetch = useCallback((rt: T, q: string) => {
     const id = ++fetchId.current;
-    setLoading(true);
     setError(null);
-    medplum.searchResources(resourceType, query)
+    medplum.searchResources(rt, q)
       .then(results => {
         if (id === fetchId.current) setData([...results] as SearchResult<T>);
       })
@@ -36,9 +34,18 @@ export function useFhirSearch<T extends ResourceType>(
       .finally(() => {
         if (id === fetchId.current) setLoading(false);
       });
-  }, [resourceType, query, enabled]);
+  }, []);
 
-  useEffect(() => { doFetch(); }, [doFetch]);
+  useEffect(() => {
+    if (!enabled) return;
+    setLoading(true);
+    doFetch(resourceType, query);
+  }, [resourceType, query, enabled, doFetch]);
 
-  return { data, loading, error, refetch: doFetch };
+  const refetch = useCallback(() => {
+    setLoading(true);
+    doFetch(resourceType, query);
+  }, [resourceType, query, doFetch]);
+
+  return { data, loading, error, refetch };
 }
