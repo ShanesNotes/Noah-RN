@@ -1,73 +1,54 @@
-# React + TypeScript + Vite
+# Noah RN Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EHR dashboard for Noah RN — connects to a local HAPI FHIR server with MIMIC-IV demo data.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Vite + React + TypeScript**
+- **Mantine** for UI components
+- **Medplum React** for FHIR client and provider
+- **HAPI FHIR R4** (local) as the data source
 
-## React Compiler
+## Data Source
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Server:** `http://10.0.0.184:8080/fhir` (local network)
+- **Dataset:** MIMIC-IV Clinical Database Demo — 100 ICU patients, ~929K FHIR resources
+- **Auth:** None (local network only)
+- **No PHI** — de-identified research data only
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Patient List** — Browse all patients with name, birth date, and gender
+- **Vitals Panel** — Recent vital sign observations (HR, BP, RR, SpO2, Temp)
+- **Labs Panel** — Laboratory observations with reference ranges
+- **Medications Panel** — MedicationRequest history with status and dosing
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Known Data Gaps
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- No `AllergyIntolerance` resources in MIMIC demo
+- `clinicalStatus` and `status` fields unreliable on Conditions/MedicationRequests
+- All encounters are historical (no in-progress state)
+- Date-shifted timestamps (2100–2200 range)
+- No RxNorm codes for medications (NDC/GSN only)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The dashboard connects directly to the local HAPI FHIR server. No auth required.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Architecture
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+App (MedplumProvider)
+├── PatientList   → searchResources('Patient')
+└── PatientDetail (selected)
+    ├── VitalsPanel   → searchResources('Observation', code=...)
+    ├── LabsPanel     → searchResources('Observation', exclude vitals)
+    └── MedsPanel     → searchResources('MedicationRequest')
+```
+
+All panels use `useEffect` with cleanup to prevent stale state on patient switch.
