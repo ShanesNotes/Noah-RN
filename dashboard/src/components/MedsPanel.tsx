@@ -97,8 +97,6 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
     `patient=${patientId}&_sort=-date&_count=30&_elements=medicationCodeableConcept,status,dosage,effectiveDateTime`,
   );
 
-  const typedAdministrations = administrations as unknown as MedAdmin[];
-
   const loading = reqLoading || adminLoading;
   const error = reqError || adminError;
 
@@ -117,7 +115,7 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
       };
     });
 
-    const adminRows: MedRow[] = typedAdministrations.map(ma => {
+    const adminRows: MedRow[] = (administrations as unknown as MedAdmin[]).map(ma => {
       const doseText = ma.dosage?.text;
       const { rate } = parseDoseRate(doseText);
       return {

@@ -21,10 +21,12 @@ export function useFhirSearch<T extends ResourceType>(
   const [error, setError] = useState<string | null>(null);
   const fetchId = useRef(0);
 
-  const doFetch = useCallback((rt: T, q: string) => {
+  const doFetch = useCallback(() => {
+    if (!enabled) return;
     const id = ++fetchId.current;
+    setLoading(true);
     setError(null);
-    medplum.searchResources(rt, q)
+    medplum.searchResources(resourceType, query)
       .then(results => {
         if (id === fetchId.current) setData([...results] as SearchResult<T>);
       })
@@ -34,18 +36,9 @@ export function useFhirSearch<T extends ResourceType>(
       .finally(() => {
         if (id === fetchId.current) setLoading(false);
       });
-  }, []);
+  }, [resourceType, query, enabled]);
 
-  useEffect(() => {
-    if (!enabled) return;
-    setLoading(true);
-    doFetch(resourceType, query);
-  }, [resourceType, query, enabled, doFetch]);
+  useEffect(() => { doFetch(); }, [doFetch]);
 
-  const refetch = useCallback(() => {
-    setLoading(true);
-    doFetch(resourceType, query);
-  }, [resourceType, query, doFetch]);
-
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: doFetch };
 }
