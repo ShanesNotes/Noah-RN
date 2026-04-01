@@ -342,7 +342,7 @@ Each skill follows TDD: spec → implement → test with real clinical scenarios
 
 **Goal:** Documentation, pitch materials, demonstration-ready state.
 
-- [x] Architecture documentation (for ChartWell audience) — `docs/ARCHITECTURE-EXTERNAL.md` *(2026-03-31)*
+- [x] Architecture documentation (external audience) — `docs/ARCHITECTURE-EXTERNAL.md` *(2026-03-31)*
 - [x] Skills catalog with clinical rationale — `README.md` Skills Catalog section *(2026-03-31)*
 - [x] Demo walkthrough script — `docs/DEMO.md` *(2026-03-31)*
 - [x] README that tells the story (nurse → engineer → this) — `README.md` *(2026-03-31)*
@@ -417,12 +417,10 @@ Baseline context to prevent obvious errors. Shane is available for domain questi
 
 ## Strategic Context
 
-Noah RN is also a portfolio piece for a potential role at ChartWell AI.
-ChartWell does ambient clinical documentation ($34.99/mo, nurse-centric, voice-to-text,
-HIPAA-compliant, PLG model with Fellow Program). Noah RN demonstrates ability to
-architect the kind of skill-based clinical workflows that complement their platform —
-specifically in the decision-support space their "Provider Workstation" and "Clinical Chat"
-features would naturally expand into.
+Noah RN is a clinical decision-support agentic harness for critical care nurses.
+It demonstrates ability to architect skill-based clinical workflows that complement
+ambient documentation platforms — specifically in the decision-support space that
+clinical technology platforms would naturally expand into.
 
 The pitch: "I didn't just use AI — I built a clinical agentic system that shows how
 curated nursing expertise maps to skill-based architecture."
