@@ -52,7 +52,7 @@ noah-rn/
 ├── tools/                        # Deterministic tool implementations
 │   ├── drug-lookup/              # OpenFDA label lookup
 │   │   └── lookup.sh
-│   ├── clinical-calculators/     # 9 calculators
+│   ├── clinical-calculators/     # 10 calculators
 │   │   ├── lib/common.sh         # Shared output + scoring helpers
 │   │   ├── gcs.sh
 │   │   ├── nihss.sh
@@ -325,7 +325,7 @@ Each skill follows TDD: spec → implement → test with real clinical scenarios
 - [x] Unit conversion tool (`tools/unit-conversions/convert.sh`) — weight-based dosing (dose), drip rate calculation (drip), unit conversion (unit)
 - [x] I&O tracker skill (`plugin/skills/io-tracker/`) — fluid balance, shift totals, running 24h balance
 - [x] Unit conversion skill (`plugin/skills/unit-conversion/`) — bedside dosing math wrapper over the tool
-- [x] Clinical calculator skill (`plugin/skills/clinical-calculator/`) — skill wrapper routing to all 9 calculators
+- [x] Clinical calculator skill (`plugin/skills/clinical-calculator/`) — skill wrapper routing to all 10 calculators
 - [x] Clinical router agent (`plugin/agents/clinical-router.md`) — multi-domain orchestration
 - [x] Hooks architecture (`plugin/hooks/`) — 5 deterministic safety scripts + hooks.json manifest
 - [x] Knowledge provenance system — YAML frontmatter on all protocol files + `knowledge/FRESHNESS.md`
