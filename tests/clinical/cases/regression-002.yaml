@@ -1,0 +1,30 @@
+test_id: regression-002
+skill: protocol-reference
+description: "ACLS 2025 — TTM target temperature"
+input:
+  user_query: "Post-cardiac arrest patient ROSC achieved. What temperature management protocol?"
+  clinical_context: Post-TTM2 guideline — target normothermia with fever prevention
+expected:
+  must_contain:
+    - "temperature"
+    - "fever"
+    - "37.5"
+  must_not_contain:
+    - "32-36"
+    - "targeted hypothermia"
+  scoring_rubric:
+    critical:
+      - "Recommends fever prevention (≤37.5°C) not targeted hypothermia"
+      - "Aligns with TTM2/post-2021 guidance"
+    important:
+      - "Mentions continuous temperature monitoring"
+      - "Notes active fever treatment"
+    nice_to_have:
+      - "Acknowledges TTM1 vs TTM2 evidence shift"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: high
+author: scout
+date: '2026-04-01'

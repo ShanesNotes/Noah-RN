@@ -1,0 +1,30 @@
+test_id: regression-003
+skill: clinical-calculator
+description: "NEWS2 SpO2 scale selection with supplemental oxygen"
+input:
+  user_query: "NEWS2 for patient: RR 18, SpO2 92% on 2L nasal cannula, BP 130/80, HR 88, Temp 37.2, AVPU A"
+  clinical_context: Patient on supplemental oxygen — must use SpO2 Scale 2
+expected:
+  must_contain:
+    - "NEWS2"
+    - "Scale 2"
+    - "supplemental"
+  must_not_contain:
+    - "Scale 1"
+    - "room air"
+  scoring_rubric:
+    critical:
+      - "Uses SpO2 Scale 2 (patient on supplemental oxygen)"
+      - "Correct NEWS2 score calculation"
+    important:
+      - "Identifies oxygen requirement as a scoring factor"
+      - "Explains scale selection rationale"
+    nice_to_have:
+      - "Notes escalation threshold"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: high
+author: scout
+date: '2026-04-01'

@@ -1,0 +1,31 @@
+test_id: edge-009
+skill: clinical-calculator
+description: "Wells DVT with alternative diagnosis present"
+input:
+  user_query: "Wells DVT for patient with unilateral leg swelling, HR 100, no recent surgery. Alternative diagnosis (cellulitis) equally likely"
+  clinical_context: Wells DVT score with alternative diagnosis modifier
+expected:
+  must_contain:
+    - "Wells"
+    - "DVT"
+    - "alternative"
+    - "subtract"
+  must_not_contain:
+    - "definitive"
+    - "diagnosis"
+  scoring_rubric:
+    critical:
+      - "Applies -2 for alternative diagnosis equally likely"
+      - "Correct final score calculation"
+    important:
+      - "Explains the alternative diagnosis modifier"
+      - "Provides probability category"
+    nice_to_have:
+      - "Recommends D-dimer or ultrasound based on score"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: medium
+author: scout
+date: '2026-04-01'

@@ -1,0 +1,37 @@
+test_id: routing-003
+skill: clinical-calculator
+description: "Braden score with pressure injury — cross-skill to wound care"
+input:
+  user_query: "Braden score 14, patient has stage 2 pressure ulcer on sacrum"
+  clinical_context: Low Braden score with existing pressure injury
+expected:
+  must_contain:
+    - "Braden"
+    - "high risk"
+    - "pressure"
+    - "ulcer"
+  must_not_contain:
+    - "low risk"
+    - "no intervention"
+  scoring_rubric:
+    critical:
+      - "Identifies Braden 14 as high risk (<=18)"
+      - "Acknowledges existing stage 2 pressure ulcer"
+    important:
+      - "Recommends turning schedule"
+      - "Mentions pressure-relieving surface"
+    nice_to_have:
+      - "References wound care protocol"
+  expected_routing:
+    primary: clinical-calculator
+    secondary: protocol-reference
+    cross_skill_triggers:
+      - "Braden <= 18 → protocol-reference (pressure injury prevention)"
+      - "Existing wound → wound care considerations"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: medium
+author: scout
+date: '2026-04-01'
