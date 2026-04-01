@@ -46,6 +46,33 @@ Phase 2 complete. Phase 3 (Polish + Portfolio) next.
 - [x] Documentation — DEGRADATION.md, REGULATORY.md, LIMITATIONS.md *(2026-03-29)*
 - [x] ARCHITECTURE.md updated for Phase 2 *(2026-03-29)*
 
+## Phase 3 Progress
+
+### Dashboard (EHR Viewer)
+- [x] Scaffold Vite + Medplum + Mantine *(2026-03-30)*
+- [x] PatientList component with FHIR search *(2026-03-31)*
+- [x] VitalsPanel — LOINC-coded vitals with BP component handling *(2026-03-31)*
+- [x] LabsPanel — non-vital observations with reference ranges *(2026-03-31)*
+- [x] MedsPanel — MedicationRequest history *(2026-03-31)*
+- [x] App wiring — patient selection → tabbed detail view *(2026-03-31)*
+- [x] Build passes clean — TypeScript + Vite *(2026-03-31)*
+- [x] README replaced with project-specific docs *(2026-03-31)*
+- [ ] Vitals time-series charting (trend visualization)
+- [ ] Lab trend tracking with rate-of-change arrows
+- [ ] Medication administration timeline with drip rates
+- [ ] Multi-patient assignment view
+- [ ] SBAR handoff report generation from FHIR data
+
+### Trace Logging
+- [x] Trace logging tool (`tools/trace/trace.sh`) with init/input/output/hooks/complete *(2026-03-31)*
+- [x] Trace logging tests (`tests/trace/test_trace.sh`) *(2026-03-31)*
+- [x] Trace instructions added to all 8 skill SKILL.md files *(2026-03-31)*
+
+### Meta-Harness Optimization
+- [x] Phase A infrastructure — filesystem structure, proposer prompts, safety constraints *(2026-03-31)*
+- [ ] Eval harness implementation (Phase B — requires golden test suite)
+- [ ] Model calibration runs (Phase B)
+
 ## Architectural Decisions
 
 ### Tier 2 Hooks — Converted to Prompt Instructions *(2026-03-29)*
