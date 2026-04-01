@@ -16,16 +16,19 @@ export function PatientList({ onSelect, selectedId }: PatientListProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    medplum
-      .searchResources('Patient', '_count=100&_elements=id,name,birthDate,gender')
-      .then((results) => {
-        setPatients([...results]);
-        setLoading(false);
+    let cancelled = false;
+    setLoading(true);
+    medplum.searchResources('Patient', '_count=100&_elements=id,name,birthDate,gender')
+      .then(results => {
+        if (!cancelled) setPatients([...results]);
       })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load patients');
-        setLoading(false);
+      .catch(err => {
+        if (!cancelled) setError(String(err));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) {
@@ -41,7 +44,7 @@ export function PatientList({ onSelect, selectedId }: PatientListProps) {
       {patients.map((patient) => (
         <NavLink
           key={patient.id}
-          label={formatHumanName(patient.name?.[0])}
+          label={formatHumanName(patient.name?.[0]) || 'Unknown patient'}
           description={[patient.birthDate, patient.gender].filter(Boolean).join(' · ')}
           active={patient.id === selectedId}
           onClick={() => onSelect(patient)}
