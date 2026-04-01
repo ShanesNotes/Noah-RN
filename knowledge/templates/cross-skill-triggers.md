@@ -29,6 +29,11 @@ suggest more than one skill).
 | Wells DVT >= 3 | DVT workup, duplex ultrasound | Moderate-high DVT probability — imaging warranted. |
 | CURB-65 >= 3 | ICU admission consideration | Severe pneumonia — ICU-level monitoring and aggressive treatment. |
 | APACHE II >= 25 | Goals of care discussion | Predicted mortality > 50% — ensure code status and family communication documented. |
+| NEWS2 >= 5 | Rapid response protocol | Medium NEWS2 — urgent clinical review within 1 hour. Escalate monitoring. |
+| NEWS2 >= 7 | Rapid response protocol, sepsis bundle | High NEWS2 — emergency response. Immediate clinical review, assess for sepsis. |
+| NEWS2 any single parameter = 3 | Rapid response protocol | Extreme single parameter — emergency response even if total score is low. |
+| MEWS >= 4 | Rapid response protocol | Medium MEWS — urgent clinical review. SSC 2026 recommends MEWS alongside NEWS2. |
+| MEWS >= 6 | Rapid response protocol, sepsis bundle | High MEWS — emergency response. Immediate clinical review, assess for sepsis. |
 | UOP < 0.5 mL/kg/hr x 6h | Renal assessment, fluid status | Oliguria — end-organ perfusion concern. Evaluate for AKI. |
 | Net fluid balance > +3L | Volume overload assessment | Significant positive balance — assess for pulmonary edema, peripheral edema. |
 

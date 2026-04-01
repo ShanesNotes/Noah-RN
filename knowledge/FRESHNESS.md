@@ -8,7 +8,7 @@ Stale = past next_review date. Stale files require board (Shane) review before t
 | File | Source | Version | Last Verified | Next Review | Status |
 |------|--------|---------|---------------|-------------|--------|
 | acls.md | AHA ACLS Guidelines | 2020/2025 | 2026-03-30 | 2026-09-30 | CURRENT |
-| sepsis-bundle.md | Surviving Sepsis Campaign / CMS SEP-1 | 2021 | 2026-03-31 | 2026-06-30 | CURRENT |
+| sepsis-bundle.md | Surviving Sepsis Campaign 2026 / CMS SEP-1 | 2026 | 2026-04-01 | 2026-09-30 | CURRENT |
 | acute-stroke.md | AHA/ASA Acute Ischemic Stroke Guidelines | 2019, updated 2024 | 2026-03-30 | 2026-09-30 | CURRENT |
 | rapid-response.md | IHI / MEWS literature | 2024 | 2026-03-30 | 2026-09-30 | CURRENT |
 | rsi.md | Walls & Murphy / EMCRIT | 6th ed / 2024 update | 2026-03-30 | 2026-09-30 | CURRENT |
@@ -30,5 +30,5 @@ Stale = past next_review date. Stale files require board (Shane) review before t
 
 ## Known Issues
 
-- Sepsis fluids trigger: SSC 2021 bedside nuance is lactate > 2 = clinical alert + repeat/remeasure, while hypotension OR lactate >= 4 mmol/L triggers the 30 mL/kg bolus. Reviewed and confirmed 2026-03-31.
+- Sepsis fluids trigger: SSC 2026 upgraded fluid guidance — balanced crystalloids preferred, dynamic measures for resuscitation. Updated 2026-04-01.
 - rapid-response.md: Activation criteria are consensus/institutional — thresholds flagged as screening only, not diagnostic. Facility protocol overrides.
