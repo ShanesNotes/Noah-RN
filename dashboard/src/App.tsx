@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { MantineProvider, Title, Tabs } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { MedplumProvider } from '@medplum/react';
 import { medplum } from './medplum';
 import { PatientList } from './components/PatientList';
 import { VitalsPanel } from './components/VitalsPanel';
@@ -15,7 +14,6 @@ function App() {
 
   return (
     <MantineProvider>
-      <MedplumProvider medplum={medplum}>
         <div style={{ display: 'flex', height: '100vh' }}>
           <aside style={{ width: 300, borderRight: '1px solid #eee', overflowY: 'auto', padding: 8 }}>
             <Title order={5} mb="sm">Patients</Title>
@@ -49,7 +47,6 @@ function App() {
             )}
           </main>
         </div>
-      </MedplumProvider>
     </MantineProvider>
   );
 }
