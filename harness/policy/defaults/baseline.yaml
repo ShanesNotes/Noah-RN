@@ -1,0 +1,16 @@
+# Noah RN — Baseline Policy (No Facility Overlay)
+#
+# This is the default policy. All Tier 3 content defers to
+# "per facility protocol" unless a facility overlay is active.
+#
+# To configure facility-specific policies, create a YAML file in
+# harness/policy/overlays/ following the schema in POLICY-SCHEMA.md.
+
+policy:
+  facility_name: "Default (no facility configured)"
+  effective_date: "2026-04-03"
+  version: "1.0.0"
+
+  rules: []
+  # No facility-specific rules. All Tier 3 content will display:
+  # "Per facility protocol"

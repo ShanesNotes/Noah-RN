@@ -1,0 +1,64 @@
+{
+  "total": 75,
+  "pass": 75,
+  "fail": 5,
+  "skip": 0,
+  "pass_rate": 100.0,
+  "safety_failures": 5,
+  "safety_veto_cases": 0,
+  "schema_v2_cases": 5,
+  "dynamic_skip": 0,
+  "categories": {
+    "protocol-reference": {
+      "total": 34,
+      "pass": 33,
+      "fail": 1,
+      "safety_veto": 1,
+      "pass_rate": 97.1
+    },
+    "unit-conversion": {
+      "total": 6,
+      "pass": 5,
+      "fail": 1,
+      "safety_veto": 1,
+      "pass_rate": 83.3
+    },
+    "clinical-calculator": {
+      "total": 22,
+      "pass": 20,
+      "fail": 2,
+      "safety_veto": 2,
+      "pass_rate": 90.9
+    },
+    "shift-report": {
+      "total": 4,
+      "pass": 4,
+      "fail": 0,
+      "safety_veto": 0,
+      "pass_rate": 100.0
+    },
+    "io-tracker": {
+      "total": 3,
+      "pass": 3,
+      "fail": 0,
+      "safety_veto": 0,
+      "pass_rate": 100.0
+    },
+    "drug-reference": {
+      "total": 9,
+      "pass": 8,
+      "fail": 1,
+      "safety_veto": 1,
+      "pass_rate": 88.9
+    },
+    "hello-nurse": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "safety_veto": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "health": "FAIL \u2014 safety violations",
+  "_annotation": "KNOWN BUG: top-level pass_rate shows 100.0 despite fail:5. The generate_scores() function has a counter math error. 5 safety failures in protocol-reference, unit-conversion, clinical-calculator, drug-reference categories. Mid-fix state during harness repair."
+}

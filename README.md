@@ -1,12 +1,12 @@
 # Noah RN
 
-Noah RN is a deterministic-first clinical decision support plugin and project for bedside nursing workflows. It is built as a bounded clinical agentic system: deterministic tools where math and lookup must be exact, structured skills where nursing context needs organization, and explicit safety checks where errors matter.
+Noah RN is an outcome-spec clinical workspace harness for bedside nursing workflows. It resolves nursing workspace problems by assembling context, tools, knowledge, and guardrails — deterministic tools where math and lookup must be exact, composable skills where nursing context needs organization, and explicit safety checks where errors matter.
 
 Version: **0.2.0**
 
 ## Hook — What is Noah RN?
 
-Noah RN is a Claude Code plugin for skills-based clinical decision support. It is designed for bedside use cases where the nurse needs structured help with protocol reference, bedside math, and workflow organization without turning the system into a documentation scribe.
+Noah RN is a Claude Code plugin that operates as an outcome-spec workspace harness for bedside nursing. The nurse describes their clinical situation, and Noah assembles what they need — protocol knowledge, drug data, clinical scores, structured documentation — resolving workspace problems without turning the system into a documentation scribe.
 
 ## Origin Story
 
@@ -16,7 +16,7 @@ That changes the shape of the product. The goal is not to generate impressive pr
 
 ## What It Does
 
-Noah RN is not an ambient scribing product. It is focused on clinical decision support plus structured nursing workflows for assessment, handoff, protocol recall, and bedside math.
+Noah RN is not an ambient scribing product. It is a workspace harness for structured nursing workflows — assessment, handoff, protocol recall, and bedside math — that resolves clinical workspace problems through context assembly and outcome-spec resolution.
 
 - It helps with skills-based decision support for common bedside workflows.
 - It references national protocols and curated clinical knowledge where applicable.

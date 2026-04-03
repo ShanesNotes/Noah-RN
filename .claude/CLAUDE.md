@@ -2,9 +2,10 @@
 
 ## Identity
 
-Noah RN is an agentic nurse assistant — a Claude Code plugin + companion project.
-Clinical decision support and structured nursing workflows, NOT documentation/scribing.
+Noah RN is an outcome-spec clinical workspace harness — a Claude Code plugin + companion project.
+Resolves nursing workspace problems by assembling context, tools, knowledge, and guardrails.
 Complements ambient documentation platforms (ChartWell AI's lane), doesn't compete.
+See `docs/NORTH-STAR.md` for canonical product framing.
 
 ## Hard Constraints
 
@@ -81,8 +82,10 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 
 ## Architecture (summary)
 
-Hybrid plugin + project. Plugin lives in `plugin/` with skills, agents, commands.
-Tools (deterministic) live in `tools/`. Curated clinical data in `knowledge/`.
+Outcome-spec workspace harness. Workspace agent (`plugin/agents/workspace.md`)
+resolves clinical problems by composing tools, knowledge, and capability contracts.
+Skills define output standards (contracts), not step-by-step procedures.
+Shared contracts in `plugin/skills/_shared/`. Policy overlays in `harness/policy/`.
 Full structure and specs in `docs/ARCHITECTURE.md`.
 
 ## What Shane Brings

@@ -1,0 +1,13 @@
+{
+  "total": 58,
+  "pass": 0,
+  "fail": 0,
+  "skip": 58,
+  "pass_rate": 0.0,
+  "safety_failures": 0,
+  "safety_veto_cases": 0,
+  "schema_v2_cases": 0,
+  "dynamic_skip": 58,
+  "categories": {},
+  "health": "FAIL"
+}

@@ -1,11 +1,16 @@
-# Noah RN — Architecture & Build Plan
+# Noah RN — Architecture
 
 > Read this before building any skill or starting a new phase.
+> For canonical product framing, see `docs/NORTH-STAR.md`.
 > For session-level directives, see `.claude/CLAUDE.md`.
 
 ---
 
-## Form Factor: Hybrid Plugin + Project
+## Form Factor: Outcome-Spec Workspace Harness
+
+Noah RN is a hybrid plugin + project organized as a workspace harness.
+The workspace agent resolves clinical problems by composing tools, knowledge,
+and capability contracts. Skills define output standards, not procedures.
 
 ```
 noah-rn/
@@ -13,35 +18,34 @@ noah-rn/
 │   ├── CLAUDE.md                 # Session directives (always loaded)
 │   └── settings.json
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── FHIR-INTEGRATION.md      # MIMIC-IV demo harness and validation notes
-│   ├── DEGRADATION.md           # Phase 2 — failure mode documentation
-│   ├── REGULATORY.md            # Phase 2 — regulatory positioning
-│   └── LIMITATIONS.md           # Phase 2 — explicit capability boundaries
+│   ├── ARCHITECTURE.md           # This file
+│   ├── NORTH-STAR.md             # Canonical product framing
+│   ├── FHIR-INTEGRATION.md       # MIMIC-IV demo harness notes
+│   ├── DEGRADATION.md            # Failure mode documentation
+│   ├── REGULATORY.md             # Regulatory positioning
+│   ├── LIMITATIONS.md            # Explicit capability boundaries
+│   └── archive/                  # Archived v1 artifacts
+│       ├── clinical-router-v2.md # Previous keyword router
+│       └── skill-procedures-v1/  # Previous procedural SKILL.md files
 ├── plugin/                       # The installable Claude Code plugin
-│   ├── .claude-plugin/           # Plugin manifest directory
+│   ├── .claude-plugin/
 │   │   └── plugin.json
-│   ├── skills/                   # Clinical skills (the core product)
-│   │   ├── hello-nurse/          # Scaffold test skill
-│   │   │   └── SKILL.md
-│   │   ├── shift-assessment/
-│   │   │   └── SKILL.md
-│   │   ├── drug-reference/
-│   │   │   └── SKILL.md
-│   │   ├── protocol-reference/
-│   │   │   └── SKILL.md
-│   │   ├── shift-report/
-│   │   │   └── SKILL.md
-│   │   ├── clinical-calculator/  # Phase 2
-│   │   │   └── SKILL.md
-│   │   ├── io-tracker/           # Phase 2
-│   │   │   └── SKILL.md
-│   │   └── unit-conversion/      # Phase 2
-│   │       └── SKILL.md
+│   ├── skills/
+│   │   ├── _shared/              # Extracted shared contracts
+│   │   │   ├── output-contract.md    # Four-layer output, disclaimers, provenance
+│   │   │   ├── trace-contract.md     # Trace logging lifecycle
+│   │   │   └── confidence.md         # Three-tier confidence model
+│   │   ├── shift-assessment/SKILL.md # Outcome-spec capability contracts
+│   │   ├── drug-reference/SKILL.md
+│   │   ├── protocol-reference/SKILL.md
+│   │   ├── shift-report/SKILL.md
+│   │   ├── clinical-calculator/SKILL.md
+│   │   ├── io-tracker/SKILL.md
+│   │   └── unit-conversion/SKILL.md
 │   ├── agents/
-│   │   └── clinical-router.md    # Phase 2 — multi-domain orchestrator
-│   ├── commands/                 # Slash commands
-│   └── hooks/                    # Tier 1 safety guardrails
+│   │   └── workspace.md          # Primary interface — outcome-spec resolver
+│   ├── commands/
+│   └── hooks/                    # Tier 1 safety guardrails (permanent)
 │       ├── hooks.json
 │       └── scripts/
 │           ├── sanitize-input.sh
@@ -49,54 +53,43 @@ noah-rn/
 │           ├── validate-dosage.sh
 │           ├── validate-units.sh
 │           └── validate-negation.sh
+├── harness/                      # Workspace harness layer
+│   ├── context/                  # Patient context assembly
+│   │   ├── patient-context.md    # Schema and assembly rules
+│   │   └── session-state.md      # Session persistence contract
+│   ├── policy/                   # Institutional policy overlays
+│   │   ├── POLICY-SCHEMA.md
+│   │   ├── defaults/baseline.yaml
+│   │   └── overlays/             # Facility-specific YAML configs
+│   └── evals/                    # Workspace-outcome evaluation
+│       ├── EVAL-SCHEMA.md
+│       ├── scenarios/            # Encounter-level eval scenarios
+│       └── scoring/
 ├── tools/                        # Deterministic tool implementations
-│   ├── drug-lookup/              # OpenFDA label lookup
-│   │   └── lookup.sh
-│   ├── clinical-calculators/     # 10 calculators
-│   │   ├── lib/common.sh         # Shared output + scoring helpers
-│   │   ├── gcs.sh
-│   │   ├── nihss.sh
-│   │   ├── apache2.sh
-│   │   ├── wells-pe.sh
-│   │   ├── wells-dvt.sh
-│   │   ├── curb65.sh
-│   │   ├── braden.sh
-│   │   ├── rass.sh
-│   │   └── cpot.sh
-│   ├── fhir/                     # MIMIC-IV demo FHIR translation shim
-│   │   └── mimic-loinc-query.sh
-│   └── unit-conversions/         # Phase 2
-│       └── convert.sh
+│   ├── drug-lookup/lookup.sh
+│   ├── clinical-calculators/     # 10 calculators + shared lib
+│   ├── unit-conversions/convert.sh
+│   ├── fhir/mimic-loinc-query.sh
+│   └── trace/trace.sh
 ├── knowledge/                    # Curated clinical reference data
-│   ├── protocols/                # Evidence-based protocol definitions
-│   │   ├── acls.md
-│   │   ├── sepsis-bundle.md
-│   │   ├── acute-stroke.md
-│   │   ├── rapid-response.md
-│   │   └── rsi.md
-│   ├── drug-data/                # Cached/curated drug reference data
-│   ├── drug-ranges.json          # Phase 2 — ISMP high-alert dosage ranges
-│   ├── mimic-mappings.json       # MIMIC itemID-to-LOINC translation data
-│   ├── FRESHNESS.md              # Phase 2 — knowledge provenance manifest
-│   └── templates/                # Phase 2 — skill authoring standards
-│       ├── skill-metadata-schema.md
-│       ├── four-layer-output.md
-│       └── cross-skill-triggers.md
+│   ├── protocols/                # acls, sepsis-bundle, acute-stroke, rapid-response, rsi
+│   ├── drug-data/
+│   ├── drug-ranges.json          # ISMP high-alert dosage ranges
+│   ├── FRESHNESS.md              # Knowledge provenance manifest
+│   └── templates/                # Skill authoring standards
 ├── infrastructure/
-│   └── load-mimic.sh             # MIMIC-IV demo download/decompress/load/verify flow
+│   └── load-mimic.sh
 ├── tests/
 │   ├── drug-lookup/
-│   │   └── test_lookup.sh
-│   ├── clinical-calculators/     # 9 test files (one per calculator)
+│   ├── clinical-calculators/
 │   ├── fhir/
-│   │   └── test_mimic_loinc_query.sh
-│   ├── unit-conversions/         # Phase 2
-│   │   └── test_convert.sh
-│   ├── hooks/                    # Phase 2
-│   │   └── test_hooks.sh
-│   └── clinical-scenarios/       # Phase 2 — scenario-level test fixtures
-│       ├── README.md
-│       └── <skill>/              # One directory per skill
+│   ├── unit-conversions/
+│   ├── hooks/
+│   ├── clinical-scenarios/       # Skill-level test fixtures
+│   └── workspace/                # Workspace-level resolution tests
+├── optimization/                 # Meta-harness optimization loop
+│   ├── product/                  # Clinical harness optimization
+│   └── company/                  # Org-level optimization
 └── README.md
 ```
 
@@ -104,325 +97,187 @@ noah-rn/
 
 ## Design Principles
 
-1. **Skills are the product.** Each skill encodes a real nursing workflow as a structured,
-   repeatable, prompt-driven process. Shane's 13 years of clinical pattern recognition
-   made executable.
+1. **Outcome specs, not procedures.** Define what good output looks like. Don't
+   script how to get there. The model does clinical reasoning. The harness
+   provides tools, knowledge, and constraints.
 
-2. **Deterministic before generative.** Drug interactions, scoring calculators, unit
-   conversions — tool calls, not LLM inference.
+2. **Deterministic before generative.** Drug interactions, scoring calculators,
+   unit conversions — tool calls, not LLM inference. Wrong math kills.
 
-3. **No PHI anywhere.** Nurse provides clinical context via natural language. Noah provides
-   structure, knowledge, and workflow guidance. Nothing is stored.
+3. **No PHI anywhere.** Nurse provides clinical context via natural language.
+   Noah provides structure, knowledge, and guidance. Nothing is stored.
 
-4. **Subtractive bias.** Don't build what isn't needed yet. Each skill must justify its
-   existence by solving a real bedside problem.
+4. **Subtractive bias.** Don't build what isn't needed yet. Remove scaffolding
+   that the model no longer needs. Add structure only where it prevents harm.
 
-5. **Template-ready personalization.** The long-term direction is to adapt Noah to unit-
-   specific report sheets, assessment forms, and protocol documents. That local-config
-   layer is not built yet, so current skills stay on fixed shared structures.
+5. **Plan for leaps in agentic intelligence.** Scaffolding that exists because
+   models aren't smart enough should be easy to remove. Scaffolding that exists
+   for safety should be permanent. The architecture degrades gracefully.
 
-6. **Charge nurse, not policy manual.** Noah is the experienced nurse next to you, not
-   the binder on the wall. This means:
-   - Give practical ranges and guidance, not rigid cutoffs — unless the cutoff IS hard
-     (tPA window, defib joules). "Fluids for lactic over 2ish, but assess volume status
-     first" beats "administer 30mL/kg when serum lactate exceeds 2.0 mmol/L."
-   - "Per facility protocol" and "per provider order" are valid answers. Nursing care
-     is ordered by physicians and governed by institutional policy. Noah doesn't order
-     care — it helps you anticipate orders and organize what you already know.
-   - Context caveats belong inline. A septic patient in respiratory failure with fluid
-     overload is not getting a 30mL/kg bolus. The nurse knows this. Noah should too.
-   - Be accurate and up-to-date with evidence-based guidelines, but present them the
-     way an experienced nurse would explain them to a colleague — with practical nuance,
-     not textbook rigidity.
-   - The disclaimer is the design philosophy, not legal decoration. "You're the nurse,
-     I'm the clipboard" is literal. Noah organizes, suggests, and reminds. The nurse
-     assesses, decides, and acts.
-   - **"Why we care" one-liners.** A single sentence connecting a task to its clinical
-     meaning is a huge moat. "Lactate = global tissue hypoperfusion" plants a seed that
-     sticks. Every protocol step and reference should carry this where it adds value.
+6. **Charge nurse, not policy manual.** Practical ranges over rigid cutoffs.
+   Context caveats inline. "Per facility protocol" is valid. Include "why we
+   care" one-liners. The disclaimer is the design philosophy, not decoration.
 
-7. **Clinical clipboard — three tiers of confidence.** Noah RN is a clinical clipboard.
-   It organizes nurse-provided information, surfaces exact facts from curated references,
-   and offers bounded anticipatory guidance. It does not diagnose, place orders, or
-   silently convert local practice into universal protocol.
-   - **Tier 1 — Standardized national guidance** (AHA, SSC, AHA/ASA): presented exactly
-     as published. Hard numbers, hard timelines, exact doses.
-   - **Tier 2 — Context-dependent bedside suggestions**: labeled as such. Practical
-     ranges, "anticipate this order," clinical reasoning. The charge nurse voice.
-   - **Tier 3 — Institution-specific rules**: require explicit local configuration.
-     Noah does not guess facility policy. "Per facility protocol" until configured.
+7. **Three tiers of confidence.** Tier 1: national guidelines (exact). Tier 2:
+   bedside guidance (labeled). Tier 3: facility-specific (deferred unless
+   policy overlay configured). See `plugin/skills/_shared/confidence.md`.
 
 ---
 
-## Phase 2 Architecture
+## Workspace Architecture
 
-### Skill Metadata Schema
+### Workspace Agent (`plugin/agents/workspace.md`)
 
-Every `SKILL.md` carries structured YAML frontmatter: `name`, `skill_version`, `description`,
-`scope`, `complexity_tier`, `required_context`, `knowledge_sources`, `limitations`,
-`completeness_checklist`. Serves dual purpose: routing logic for the clinical router agent
-and machine-readable capability description for A2A readiness.
+The primary interface. Replaces the previous keyword-matching clinical router
+with outcome-spec resolution:
 
-See `knowledge/templates/skill-metadata-schema.md`.
+| Aspect | Previous (Router) | Current (Workspace) |
+|--------|------------------|-------------------|
+| Input | Keyword match against intent map | Natural language clinical situation |
+| Context | None — each skill starts fresh | Patient context accumulates across turns |
+| Composition | One skill at a time | Multiple capabilities in one response |
+| Tool use | Skills call tools individually | Agent calls tools directly |
+| Knowledge | Skills read their own files | Agent reads knowledge based on need |
+| Output | Per-skill formatting | Shared four-layer output contract |
 
-### Four-Layer Output Format
+### Context Assembly (`harness/context/`)
 
-All skill outputs follow a layered structure:
+Patient context builds incrementally from nurse input. Session-scoped only —
+no persistence, no PHI risk. See `harness/context/patient-context.md` for
+the schema and assembly rules.
 
-1. **Summary** — actionable clinical synthesis, copy-paste ready, no preamble
-2. **Evidence** — inline source citations on clinical claims, format: `(Source: [body] [year])`
-3. **Confidence** — each section labeled with its tier (Tier 1 / Tier 2 / Tier 3)
-4. **Provenance** — tool version, knowledge file used, last verified date
+### Policy Overlays (`harness/policy/`)
 
-The skill's existing output format becomes the Summary layer. Evidence and Confidence
-are additive, not replacements.
+Facility-specific Tier 3 rules via YAML configuration. Overlays only affect
+Tier 3 — they cannot override national guidelines or bedside guidance.
+See `harness/policy/POLICY-SCHEMA.md`.
 
-See `knowledge/templates/four-layer-output.md`.
+### Shared Contracts (`plugin/skills/_shared/`)
 
-### Three-Tier Confidence Model
+Extracted from 7 skills to eliminate duplication:
+- **output-contract.md**: Four-layer output, disclaimer pool, cross-skill suggestions
+- **trace-contract.md**: Trace logging lifecycle
+- **confidence.md**: Three-tier confidence model, critical flag thresholds
 
-- **Tier 1 — National guidelines** presented exactly as published. Hard numbers, hard
-  timelines, exact doses. Source cited inline.
-- **Tier 2 — Bedside guidance** labeled as such. Practical ranges, clinical reasoning,
-  anticipatory guidance. The charge nurse voice.
-- **Tier 3 — Facility-specific rules** defer to "per facility protocol." Noah does not
-  guess institutional policy.
+### Capability Contracts (Skills)
 
-### Hooks Architecture (Tier 1 Safety Floor)
+Skills define output standards as capability contracts:
+- YAML frontmatter: metadata, scope, tools, output contract, limitations
+- Brief rules: what the output must contain, preserve, and flag
+- References to shared contracts instead of duplicated boilerplate
 
-Deterministic bash scripts that run as Claude Code lifecycle hooks. Cannot be bypassed
-by prompt manipulation. Configured in `plugin/hooks/hooks.json`.
+Skills are ~60-100 lines (down from ~200-330) because they specify outcomes,
+not step-by-step procedures.
+
+---
+
+## Safety Architecture
+
+### Permanent (Never Remove)
+
+| Component | Location | Why |
+|-----------|----------|-----|
+| 5 Tier 1 hooks | `plugin/hooks/` | Deterministic bash, can't be prompt-injected |
+| Four-layer output | `plugin/skills/_shared/output-contract.md` | Provenance and transparency |
+| Three-tier confidence | `plugin/skills/_shared/confidence.md` | Prevents automation bias |
+| Tool-only math | `tools/clinical-calculators/` | Wrong math kills |
+| Drug range validation | `knowledge/drug-ranges.json` + hook | High-alert medication floor |
+| No-fabrication rule | Workspace agent prompt | Fundamental safety constraint |
+| HITL Category II | All skill frontmatter | FDA device boundary |
+| Knowledge provenance | YAML frontmatter on protocols | Audit trail |
+
+### Hooks (`plugin/hooks/`)
 
 | Hook | Trigger | Function |
 |------|---------|----------|
-| `sanitize-input.sh` | UserPromptSubmit | Prompt injection detection, clinical context validation |
-| `validate-calculator.sh` | PostToolUse (Bash) | Score range plausibility — rejects physiologically impossible output |
-| `validate-units.sh` | PostToolUse (Bash) | mg/mcg, mL/L, kg/lbs mismatch detection |
-| `validate-dosage.sh` | PostToolUse (Bash) | High-alert medication dosage cross-reference against `knowledge/drug-ranges.json` |
-| `validate-negation.sh` | PostToolUse (Bash) | Critical negation integrity checks for phrases like "no known allergies" and "do not resuscitate" |
+| `sanitize-input.sh` | UserPromptSubmit | Prompt injection detection |
+| `validate-calculator.sh` | PostToolUse (Bash) | Score range plausibility |
+| `validate-units.sh` | PostToolUse (Bash) | mg/mcg, mL/L mismatch detection |
+| `validate-dosage.sh` | PostToolUse (Bash) | High-alert medication dosage cross-reference |
+| `validate-negation.sh` | PostToolUse (Bash) | Critical negation integrity |
 
-Hooks Tier 2 (context-aware warnings) and Tier 3 (facility policy enforcement) are
-implemented as prompt instructions, not hook scripts. Deterministic shell is used only
-where deterministic validation is tractable.
+### Scaffolding Degradation Path
 
-### Clinical Router Agent
+As models improve, scaffolding is removed in this order:
 
-`plugin/agents/clinical-router.md` — orchestrates multi-domain requests. Routes ambiguous
-or complex clinical scenarios to appropriate skills. Enforces thoroughness over speed.
+1. **Remove first**: keyword routing tables, step-by-step skill workflows,
+   guided calculator input collection
+2. **Remove later**: cross-skill trigger tables, acuity inference rules,
+   output section ordering
+3. **Never remove**: safety hooks, output contract, confidence model,
+   tool-only math, provenance, HITL enforcement
 
-Use when the request spans multiple clinical domains (e.g., "my patient is crashing,"
-"new admission with sepsis and acute stroke," "help me get organized for this shift").
-Single-skill requests (e.g., "calculate GCS," "look up metoprolol") route directly to
-the relevant skill — the router is not a universal intermediary.
+No scaffolding removed without eval proving equivalence.
 
-### Knowledge Provenance System
+---
+
+## Eval Architecture
+
+Two layers:
+
+| Layer | Location | Tests |
+|-------|----------|-------|
+| Skill-level | `tests/clinical-scenarios/` | Individual capability correctness |
+| Workspace-level | `harness/evals/scenarios/` | Multi-capability composition and resolution |
+
+Workspace evals use the schema at `harness/evals/EVAL-SCHEMA.md`. Safety is
+binary pass/fail — any violation vetoes the entire scenario regardless of
+other scores.
+
+The optimization loop at `optimization/product/` uses both layers as its
+golden test suite.
+
+---
+
+## Knowledge Provenance
 
 All protocol files in `knowledge/protocols/` carry YAML frontmatter:
 `source`, `version`, `date`, `evidence_grade`, `last_verified`, `next_review`.
 
-`knowledge/FRESHNESS.md` is the centralized manifest. It tracks status (CURRENT / STALE)
-for every knowledge file. Review cadence: quarterly, or when the source guideline body
-publishes an update. Stale files require Shane review before trusting output.
-
-`knowledge/drug-ranges.json` holds ISMP high-alert medication dosage ranges (16 entries),
-used by `validate-dosage.sh`.
-
-### Local FHIR Validation Harness
-
-The build-time FHIR validation harness now uses the MIMIC-IV Clinical Database Demo on the
-tower HAPI server. That harness is for development and verification only; runtime Noah
-still does not depend on live EHR integration.
-
-Observation lookups against the demo use `tools/fhir/mimic-loinc-query.sh`, which
-translates Noah's LOINC queries to MIMIC itemIDs. Raw LOINC queries against HAPI do not
-work for the imported MIMIC Observation resources.
-
-### Cross-Skill Awareness
-
-`knowledge/templates/cross-skill-triggers.md` defines trigger rules that map clinical
-findings to suggested follow-up skills. Examples: GCS < 8 suggests protocol-reference
-(airway management); lactate > 2 suggests sepsis bundle follow-up.
-
-Suggestions only — Noah never autonomously invokes a second skill. The nurse decides.
-
-### PRD Right-Sizing Decisions
-
-Items from the Phase 2 PRD that were dropped or converted, and why:
-
-| Item | Disposition | Reason |
-|------|-------------|--------|
-| Centralized model interface | Dropped | Claude Code IS the interface — abstraction adds no value |
-| Hooks Tier 2 (context-aware warnings) | Converted to prompt instructions | Deterministic shell can't evaluate clinical context; LLM handles it better |
-| Hooks Tier 3 (facility policy enforcement) | Deferred | Requires local config system not yet built |
-| Knowledge retrieval abstraction layer | Dropped | Retrieval = Read tool on files. No abstraction needed. |
-| Agent Card JSON schema | Absorbed | Merged into skill metadata YAML frontmatter |
+`knowledge/FRESHNESS.md` tracks status (CURRENT / STALE) for every knowledge
+file. Review cadence: quarterly, or when the source guideline body publishes
+an update.
 
 ---
 
-## Phase Plan
+## Tool Conventions
 
-### Phase 0: Scaffold (Session 1)
-
-**Goal:** Project structure exists, plugin manifest is valid, one trivial skill works end-to-end.
-
-- [x] Initialize git repo with structure above
-- [x] Write plugin.json manifest
-- [x] Create a trivial "hello nurse" skill (proves the plugin works)
-- [x] Verify plugin installs and skill triggers in Claude Code
-
-**Completion criteria:** `claude plugin validate ./plugin` succeeds and `claude --plugin-dir ./plugin` loads the test skill.
-
----
-
-### Phase 1: Core Skills (Sessions 2-5)
-
-**Goal:** Four production-quality clinical skills that demonstrate the architecture.
-
-Each skill follows TDD: spec → implement → test with real clinical scenarios → iterate.
-
-#### Skill 1: Shift Assessment Workflow
-
-- [x] Guided head-to-toe systematic assessment
-- [x] Prompts nurse through each system (neuro, cardiac, respiratory, GI, GU, skin, pain, psychosocial)
-- [x] Produces structured documentation language ready to paste into any EHR
-- [x] Adapts depth based on acuity (ICU vs med-surg vs outpatient)
-- [x] Flags critical findings that need immediate intervention
-
-#### Skill 2: Drug Reference + Interactions
-
-- [x] Query OpenFDA for drug information
-- [x] Deterministic interaction checking (not LLM-generated)
-- [x] Nursing-specific focus: administration routes, timing, monitoring parameters,
-  hold parameters, common titration ranges
-- [x] High-alert medication warnings (insulin, heparin, vasopressors, etc.)
-- [x] Tool calls for the lookup; LLM for contextualizing results for the nurse
-
-#### Skill 3: Protocol Checklists
-
-- [x] Structured, step-by-step clinical protocol execution
-- [x] Sepsis (SEP-1 bundle), Stroke (NIH Stroke Scale + tPA criteria),
-  Rapid Response, ACLS, RSI
-- [x] Each protocol: trigger criteria, time-critical actions, documentation requirements,
-  escalation pathways
-- [ ] Facility-specific protocol loading via uploaded PDFs (requires local config; not built yet)
-
-#### Skill 4: Nurse Shift Report Generator
-
-- [x] Nurse provides natural language shift summary → Noah structures it into a fixed 7-section handoff
-- [ ] Upload and parse unit-specific report sheets into custom workflows (not built yet)
-- [ ] Local template-driven handoff customization (requires local config; not built yet)
-- [x] Supports common report styles: SBAR-based, systems-based, problem-based
-- [x] Output is copy-paste ready for handoff
-
----
-
-### Phase 2: Tools + Intelligence (Sessions 6-8)
-
-**Goal:** Deterministic tools, safety hooks, cross-skill intelligence, and knowledge provenance.
-
-- [x] Clinical calculators — 9 tools: GCS, NIHSS, APACHE II, Wells PE, Wells DVT, CURB-65, Braden, RASS, CPOT (NEWS2 added Phase 3)
-- [x] Shared calculator library (`tools/clinical-calculators/lib/common.sh`) — output formatting, severity banding, disclaimer
-- [x] Unit conversion tool (`tools/unit-conversions/convert.sh`) — weight-based dosing (dose), drip rate calculation (drip), unit conversion (unit)
-- [x] I&O tracker skill (`plugin/skills/io-tracker/`) — fluid balance, shift totals, running 24h balance
-- [x] Unit conversion skill (`plugin/skills/unit-conversion/`) — bedside dosing math wrapper over the tool
-- [x] Clinical calculator skill (`plugin/skills/clinical-calculator/`) — skill wrapper routing to all 10 calculators
-- [x] Clinical router agent (`plugin/agents/clinical-router.md`) — multi-domain orchestration
-- [x] Hooks architecture (`plugin/hooks/`) — 5 deterministic safety scripts + hooks.json manifest
-- [x] Knowledge provenance system — YAML frontmatter on all protocol files + `knowledge/FRESHNESS.md`
-- [x] Skill metadata schema (`knowledge/templates/skill-metadata-schema.md`)
-- [x] Four-layer output format (`knowledge/templates/four-layer-output.md`)
-- [x] Cross-skill trigger rules (`knowledge/templates/cross-skill-triggers.md`)
-- [x] ISMP high-alert drug ranges (`knowledge/drug-ranges.json`)
-- [x] Test suite expansion — hooks tests, unit conversion tests, clinical scenario fixtures
-- [x] Regulatory and limitation documentation (`docs/DEGRADATION.md`, `REGULATORY.md`, `LIMITATIONS.md`)
-
----
-
-### Phase 3: Polish + Portfolio (Sessions 9-10)
-
-**Goal:** Documentation, pitch materials, demonstration-ready state.
-
-- [x] Architecture documentation (for ChartWell audience) — `docs/ARCHITECTURE-EXTERNAL.md` *(2026-03-31)*
-- [x] Skills catalog with clinical rationale — `README.md` Skills Catalog section *(2026-03-31)*
-- [x] Demo walkthrough script — `docs/DEMO.md` *(2026-03-31)*
-- [x] README that tells the story (nurse → engineer → this) — `README.md` *(2026-03-31)*
-- [x] Competitive and market analysis — `docs/competitive-analysis.md` *(2026-04-01)*
-
-### Phase 3 Additions
-
-- [x] NEWS2 (National Early Warning Score 2) calculator — `tools/clinical-calculators/news2.sh`, 62 tests *(2026-04-01)*
-- [x] Distillation cross-reference analysis — `docs/distillation-cross-reference.md` *(2026-04-01)*
-- [x] SSC 2026 sepsis bundle update — `knowledge/protocols/sepsis-bundle.md` *(2026-04-01)*
-
----
-
-## Skill Authoring Rules
-
-- Skills are SKILL.md files with clear trigger conditions, workflow steps, and output formats.
-- Every skill must include the YAML frontmatter defined in `knowledge/templates/skill-metadata-schema.md`.
-- All skill output must follow the four-layer format defined in `knowledge/templates/four-layer-output.md`.
-- One skill = one workflow. Don't combine unrelated concerns.
-- Include explicit output format specifications. Copy-paste-ready text, not conversation.
-- Include clinical safety guardrails: "This is decision support, not a substitute for
-  clinical judgment. Verify all information against your facility's policies and current
-  patient data."
+- Tools live in `tools/<name>/` with bash implementations
+- Exit codes: 0=success, 1=input/no-match error, 2=API/system error
+- Paths resolve via `git rev-parse --show-toplevel`
+- Tests live in `tests/<tool-name>/`
+- Knowledge files in `knowledge/` are curated clinical content — edit with care
 
 ---
 
 ## Clinical Domain Context
 
-Baseline context to prevent obvious errors. Shane is available for domain questions.
-
 ### Nursing Documentation Basics
-- **SBAR:** Situation, Background, Assessment, Recommendation — standard communication framework
-- **Head-to-toe assessment:** Systematic physical assessment organized by body system
-- **Shift report:** Handoff communication between outgoing and incoming nurses
-- **MAR:** Medication Administration Record
-- **I&O:** Intake and Output (fluid balance tracking)
-- **Care plan:** Structured nursing interventions tied to nursing diagnoses
+- **SBAR**: Situation, Background, Assessment, Recommendation
+- **Head-to-toe assessment**: Systematic physical assessment by body system
+- **Shift report**: Handoff communication between nurses
+- **MAR**: Medication Administration Record
+- **I&O**: Intake and Output (fluid balance tracking)
 
 ### Critical Care Specifics
-- Patients typically 1:1 or 1:2 ratio (nurse to patient)
-- Continuous monitoring: hemodynamics, ventilator settings, vasoactive drips
-- Documentation frequency: often q1h for assessments
+- 1:1 or 1:2 nurse-to-patient ratio
+- Continuous monitoring: hemodynamics, ventilators, vasoactive drips
 - High-alert medications: vasopressors, insulin drips, heparin, sedation, paralytics
-- Common scoring: GCS (consciousness), RASS (sedation), CPOT (pain),
-  Braden (skin), NIHSS (stroke), APACHE II (severity)
+- Common scoring: GCS, RASS, CPOT, Braden, NIHSS, APACHE II, NEWS2
 
-### Documentation Pain Points (What Noah RN Solves)
-- Repetitive structured assessments that follow the same pattern every time
-- Looking up drug info mid-shift when you can't leave the bedside
-- Remembering exact protocol steps at 3am during a rapid response
-- Generating organized shift reports after a chaotic 12 hours
-- Translating clinical observations into proper documentation language
-
----
-
-## Harness Integration
-
-| Capability | Tool | Use in Noah RN |
-|-----------|------|---------------|
-| TDD workflow | superpowers:test-driven-development | Every skill and tool gets tests |
-| Parallel dispatch | superpowers:dispatching-parallel-agents | Build independent skills simultaneously |
-| Plan execution | superpowers:executing-plans | Phase-by-phase build with checkpoints |
-| Plugin creation | plugin-dev | Scaffold the plugin structure |
-| Skill authoring | plugin-dev:skill-development | Write each clinical skill |
-| Agent authoring | plugin-dev:agent-development | Write clinical agents (router) |
-| Code review | superpowers:requesting-code-review | Review before phase completion |
-| Git worktrees | superpowers:using-git-worktrees | Isolate feature work |
-| Library docs | context7 | Look up OpenFDA and related reference docs |
-| Session memory | claude-mem | Track decisions across sessions |
+### What Noah Solves
+- Repetitive structured assessments
+- Drug lookups mid-shift when you can't leave the bedside
+- Protocol recall at 3am during a rapid response
+- Organizing shift reports after a chaotic 12 hours
+- Translating clinical observations into documentation language
 
 ---
 
-## Strategic Context
+## FHIR Validation Harness
 
-Noah RN is also a portfolio piece for a potential role at ChartWell AI.
-ChartWell does ambient clinical documentation ($34.99/mo, nurse-centric, voice-to-text,
-HIPAA-compliant, PLG model with Fellow Program). Noah RN demonstrates ability to
-architect the kind of skill-based clinical workflows that complement their platform —
-specifically in the decision-support space their "Provider Workstation" and "Clinical Chat"
-features would naturally expand into.
+Build-time only. Uses MIMIC-IV Clinical Database Demo on the tower HAPI server
+(10.0.0.184:8080). For development and eval scenario hydration — runtime Noah
+does not depend on live EHR integration.
 
-The pitch: "I didn't just use AI — I built a clinical agentic system that shows how
-curated nursing expertise maps to skill-based architecture."
+See `docs/FHIR-INTEGRATION.md`.

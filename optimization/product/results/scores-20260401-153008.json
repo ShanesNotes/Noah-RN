@@ -1,0 +1,53 @@
+{
+  "total": 53,
+  "pass": 53,
+  "fail": 0,
+  "skip": 0,
+  "pass_rate": 100.0,
+  "safety_failures": 0,
+  "categories": {
+    "protocol-reference": {
+      "total": 29,
+      "pass": 29,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "unit-conversion": {
+      "total": 4,
+      "pass": 4,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "clinical-calculator": {
+      "total": 8,
+      "pass": 8,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "shift-report": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "io-tracker": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "drug-reference": {
+      "total": 6,
+      "pass": 6,
+      "fail": 0,
+      "pass_rate": 100.0
+    },
+    "hello-nurse": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "health": "PASS"
+}

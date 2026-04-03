@@ -1,0 +1,64 @@
+{
+  "total": 0,
+  "pass": 0,
+  "fail": 80,
+  "skip": 0,
+  "pass_rate": 0.0,
+  "safety_failures": 32,
+  "safety_veto_cases": 0,
+  "schema_v2_cases": 5,
+  "dynamic_skip": 0,
+  "categories": {
+    "protocol-reference": {
+      "total": 34,
+      "pass": 0,
+      "fail": 34,
+      "safety_veto": 1,
+      "pass_rate": 0.0
+    },
+    "unit-conversion": {
+      "total": 6,
+      "pass": 0,
+      "fail": 6,
+      "safety_veto": 1,
+      "pass_rate": 0.0
+    },
+    "clinical-calculator": {
+      "total": 22,
+      "pass": 0,
+      "fail": 22,
+      "safety_veto": 2,
+      "pass_rate": 0.0
+    },
+    "shift-report": {
+      "total": 4,
+      "pass": 0,
+      "fail": 4,
+      "safety_veto": 0,
+      "pass_rate": 0.0
+    },
+    "io-tracker": {
+      "total": 3,
+      "pass": 0,
+      "fail": 3,
+      "safety_veto": 0,
+      "pass_rate": 0.0
+    },
+    "drug-reference": {
+      "total": 9,
+      "pass": 0,
+      "fail": 9,
+      "safety_veto": 1,
+      "pass_rate": 0.0
+    },
+    "hello-nurse": {
+      "total": 2,
+      "pass": 0,
+      "fail": 2,
+      "safety_veto": 0,
+      "pass_rate": 0.0
+    }
+  },
+  "health": "FAIL \u2014 safety violations",
+  "_annotation": "HARNESS BUG \u2014 not a real regression. All 80 cases failed simultaneously due to a path-resolution error in the eval harness during a refactor. This run does not represent actual skill quality. Ignore for proposer counterfactual analysis."
+}
