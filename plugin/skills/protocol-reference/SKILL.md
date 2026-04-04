@@ -41,19 +41,7 @@ hitl_category: "II"
 
 Quick-recall of standardized clinical algorithms. Full steps with exact doses and timeframes by default. This is code language — precise, direct, actionable. The nurse knows why. They need the what and the when.
 
-## Trace Logging
-
-Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
-
-**Start trace** (before any other work):
-```bash
-CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "protocol-reference")
-```
-
-**Record input context** (after collecting input, before processing):
-```bash
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
-```
+> **Conventions**: This skill follows `plugin/CONVENTIONS.md` for trace logging, confidence tiers, disclaimers, provenance footer, cross-skill suggestions, and universal rules.
 
 ## Workflow
 
@@ -71,11 +59,7 @@ Match the nurse's question to one of the 5 available protocols:
 
 If the question doesn't match any protocol: "Protocol not available. Currently loaded: ACLS, Sepsis Bundle, Acute Stroke, Rapid Response, RSI."
 
-### Step 2: Read the Knowledge File
-
-Use the Read tool to load the matched protocol file. The file contains the complete, formatted algorithm.
-
-### Step 3: Present the Algorithm
+### Step 2: Present the Algorithm
 
 **Default — full algorithm.** When the nurse asks for a protocol by name, present the entire algorithm from the knowledge file. Do not summarize or distill — they're in it, they need the steps.
 
@@ -89,83 +73,23 @@ If the protocol has sub-sections (e.g., ACLS has VF/pVT, PEA/Asystole, Bradycard
 
 Just the data point. No preamble.
 
-### Step 4: Append Disclaimer
-
-After every response, append a randomly selected disclaimer:
-
-```
----
-Noah RN — not a substitute for using your noggin. Stay focused.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — trust your gut, verify with your eyes. This is just a tool.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — you're the nurse, I'm the clipboard. Double-check everything.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — clinical decision support, not clinical decisions. You got this.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — I organize, you validate. Your assessment > my output.
-Verify all findings against your assessment and facility policies.
-```
-
-Select ONE randomly. Always include — never omit.
-
-### Step 5: Finalize Trace
-
-Record the skill output and close the trace:
-
-```bash
-# Record the raw output you just generated
-echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
-
-# Record hook results (empty if no hooks fired)
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
-
-# Finalize timing
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
-```
-
-Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
-
 ## Evidence & Confidence
 
-- ACLS, Sepsis Bundle, Acute Stroke: Tier 1 (national evidence-based guidelines — AHA, SSC, AHA/ASA)
-- Rapid Response: Tier 2 (consensus-based / institutional best practice — IHI, MEWS literature)
-- RSI: Tier 2 (expert consensus — Walls & Murphy, EMCRIT)
+Tier assignments (see `plugin/CONVENTIONS.md` for tier definitions):
+
+- ACLS, Sepsis Bundle, Acute Stroke: **Tier 1** (national evidence-based guidelines — AHA, SSC, AHA/ASA)
+- Rapid Response: **Tier 2** (consensus-based / institutional best practice — IHI, MEWS literature)
+- RSI: **Tier 2** (expert consensus — Walls & Murphy, EMCRIT)
 - Note: Tier 2 protocols are widely adopted standard of care. The label reflects evidence base (expert consensus vs. RCTs), not clinical validity.
 - Source citation is embedded in each knowledge file header — include in output: "(Source: [body] [year])"
-- Focused answers (specific data points) carry the same Tier 1 confidence as full algorithms
-- Facility-specific protocol variations are Tier 3 — note "per facility protocol" for:
+- Focused answers (specific data points) carry the same tier as full algorithms
+- Facility-specific protocol variations are **Tier 3** — note "per facility protocol" for:
   - Code termination criteria
   - Specific antibiotic choices for sepsis
   - tPA consent requirements
   - RRT activation criteria
   - Post-intubation sedation protocols
 - If a nurse asks about a protocol element that varies by facility, say so explicitly
-
-## Cross-Skill Suggestions
-If the protocol context reveals a finding that maps to knowledge/templates/cross-skill-triggers.md, add ONE suggestion after the algorithm. Maximum 1 suggestion. Only if clearly relevant.
-
-## Provenance Footer
-End every response with:
----
-noah-rn v0.2 | protocol-reference v1.1.0 | [guideline body] ([year])
-Clinical decision support — verify against facility protocols and current patient data.
 
 ## Important Rules
 
