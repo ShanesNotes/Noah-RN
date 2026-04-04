@@ -2,204 +2,115 @@
 
 ## Purpose
 
-This document defines the working org structure for the Noah RN Paperclip company.
-The goal is not startup theater. The goal is to route work to the model/provider
-best suited to it while minimizing token waste, rework, and CEO bottlenecks.
-
-Default optimization target: safe shipping over maximum throughput.
+This document defines the simplified Noah RN company architecture:
+**Paperclip governs, OMC/OMX execute, deterministic tools enforce the safety floor.**
 
 ---
 
-## Executive Structure
+## Safety and governance floor
 
-The company uses a hybrid spine. The CEO has three direct reports:
-
-1. `CTO` — Gemini 3.1 Pro
-2. `Chief of Research` — Claude Opus
-3. `Principal Engineer / Head of Delivery` — Codex
-
-The `Principal Engineer / Head of Delivery` is a direct report because this role
-owns execution quality, release readiness, and delegation flow. This is not an
-IC reporting line; it is an execution leadership role.
+These constraints are mandatory across every layer:
+- no PHI handling, storage, or logging
+- deterministic tools before model arithmetic
+- five Noah RN safety hooks remain active (`sanitize-input`, `validate-calculator`, `validate-dosage`, `validate-units`, `validate-negation`)
+- four-layer output and provenance/confidence boundaries remain intact
+- HITL Category II and no-medical-device-claim boundaries remain intact
 
 ---
 
-## Role Charters
+## Layer 1 — Paperclip governance
 
-### CEO — Claude Opus
+Paperclip remains the control plane.
+It owns:
+- company scoping
+- single-assignee task control
+- approval gates
+- budget hard-stops
+- heartbeats and activity logging
+- final company-level auditability
 
-Owns:
-- product vision
-- priority calls
-- hiring and org design
-- final arbitration when architecture, research, and execution disagree
+### CEO / Product Owner
+The CEO is the only agent who talks to Shane.
+The CEO does not implement.
+The CEO:
+- decomposes work
+- selects the execution runtime
+- assigns the task to one engineer
+- verifies the deliverable before closing the task
 
-Does not own:
-- day-to-day task dispatch
-- routine code review
-- queue management for engineers
+At the company layer, routing is direct:
 
-### CTO — Gemini 3.1 Pro
+`CEO -> Founding Engineer` or `CEO -> Principal Architect`
 
-Owns:
-- system architecture
-- technical roadmap
-- model/provider portfolio decisions
-- anti-scope-creep judgment
-- RFC review and approval for major technical changes
-
-Best use of Gemini:
-- architecture critique
-- design synthesis
-- comparative tradeoff analysis
-- identifying where the system is overbuilt
-
-Does not own:
-- daily coding throughput
-- CI/CD gatekeeping
-- engineer task queue management
-
-### Chief of Research — Claude Opus
-
-Owns:
-- research agenda
-- competitor and regulatory analysis
-- distillation of long-form research into implementation guidance
-- long-horizon opportunity mapping
-
-Output standard:
-- decision memos
-- distilled recommendations
-- risk briefs
-
-Does not own:
-- implementation management
-- release approval
-
-### Principal Engineer / Head of Delivery — Codex
-
-Owns:
-- engineering queue decomposition
-- CI/CD and release process
-- execution planning
-- code review and regression review
-- eval discipline and quality gates
-- cross-agent coordination for implementation
-
-Best use of Codex:
-- repo-grounded implementation judgment
-- turning architecture into executable work
-- catching hidden regressions and weak assumptions
-- keeping work scoped, testable, and reviewable
-
-Does not own:
-- company vision
-- long-horizon research agenda
-- final product prioritization
+There is no extra executive spine, no research branch, and no delivery-manager layer.
 
 ---
 
-## Engineering Structure
+## Layer 2 — Engineer runtimes
 
-The delivery organization rolls up under the `Principal Engineer / Head of Delivery`.
+### Founding Engineer — OMC
+The Founding Engineer is the Claude-side execution owner.
+Use OMC modes for Claude-side work:
+- `deep-interview` for unclear requirements
+- `ralplan` for planning and design consensus
+- `ralph:` for bounded execution with persistent verification
+- `autopilot:` for multi-file lifecycle work
+- `ulw` for parallel independent subtasks
+- `/team N:role` or `omc team N:codex` for coordinated multi-agent execution
+- `/ccg` for cross-model synthesis when needed
 
-### Founding Engineer — Claude Opus
+### Principal Architect — OMX
+The Principal Architect is the Codex-side structural-integrity owner.
+Use OMX for Codex-side work:
+- `$deep-interview` for unclear scope
+- `$ralplan` for architecture/tradeoff planning
+- `$ralph` for bounded persistent execution
+- `$autopilot` for multi-file lifecycle work
+- `$team N:role` for coordinated parallel execution
+- `omx explore` or the Codex rescue bridge for read-only/second-pass handoffs
 
-Role:
-- senior implementation lead
-- hardest feature work
-- prompt and workflow craftsmanship
-- high-complexity product building
+### Shared execution rule
+Inside each engineer runtime, work follows staged execution and verification:
 
-Reports to:
-- operationally to `Principal Engineer / Head of Delivery`
-- dotted-line collaboration with `CTO` on major design changes
+`team-plan -> team-prd -> team-exec -> team-verify -> team-fix`
 
-### Engineers — Claude
-
-Role:
-- general implementation capacity
-- bounded feature work
-- task execution from delivery plans
-
-Reports to:
-- `Principal Engineer / Head of Delivery`
-
----
-
-## Functional Lanes
-
-These are lanes, not executive titles yet. Keep them under delivery until there
-is enough sustained volume to justify dedicated leads.
-
-- `Frontend` — dashboard UI, confidence UI, workflow surfaces
-- `Backend / Tools` — deterministic tooling, data adapters, calculators, hooks
-- `QA / Evals` — scenario harnesses, regression review, validation discipline
-- `Infra / Release` — CI, release workflow, environment sanity, operational checks
-- `Docs / Research` — long-form research, distillation, external analysis
-
-Ownership:
-- `Frontend`, `Backend / Tools`, `QA / Evals`, and `Infra / Release` live under delivery
-- `Docs / Research` lives under the Chief of Research
+That staged loop happens **inside OMC/OMX**, not in the Paperclip org chart.
 
 ---
 
-## Delegation Paths
+## Layer 3 — Deterministic tools
 
-### Normal feature flow
+Deterministic tooling remains a separate layer from model reasoning.
+It includes:
+- clinical calculators
+- unit conversions
+- drug lookups
+- Noah RN hook scripts and validators
 
-1. CEO defines priority.
-2. CTO approves architecture or implementation direction when needed.
-3. Principal Engineer decomposes work into tasks.
-4. Engineers implement.
-5. Principal Engineer reviews and decides release readiness.
-
-### Architecture escalation
-
-1. Engineer raises issue to Principal Engineer.
-2. Principal Engineer resolves locally if possible.
-3. If the issue changes architecture, escalate to CTO.
-4. If the issue changes product direction, CTO escalates to CEO.
-
-### Research flow
-
-1. CEO or CTO requests research.
-2. Chief of Research produces a decision memo.
-3. CTO converts research into architectural stance.
-4. Principal Engineer converts that stance into implementation work.
-
-### Release gate
-
-The release gate sits with the `Principal Engineer / Head of Delivery`.
-No routine code change should require CEO review to ship.
+These tools keep the safety floor stable while the model handles synthesis.
 
 ---
 
-## Token Efficiency Rules
+## Delegation contract
 
-To minimize waste and rate-limit pressure:
+Every CEO-issued task must include:
 
-- CEO should not be the default router for routine technical discussion.
-- CTO should review architecture, not micromanage implementation.
-- Research should arrive as distilled guidance, not raw document dumps.
-- Engineers should receive bounded tasks with explicit acceptance criteria.
-- Codex should be used as the execution backbone and quality gate, not as overflow coding labor.
+```text
+task_id:          Paperclip task ID
+engineer:         Founding Engineer (OMC) | Principal Architect (OMX)
+mode:             OMC or OMX execution mode
+cwd:              /home/ark/noah-rn
+scope:            Exact files/directories allowed
+deliverable:      Expected output artifact
+verification:     Command, test, or manual check that proves completion
+escalation:       Engineer -> CEO -> Shane if blocked
+```
 
-Preferred work split:
+## Operating rules
 
-- `Claude Opus CEO`: strategy and final judgment
-- `Gemini CTO`: architecture and technical arbitration
-- `Claude Opus Research`: deep research and synthesis
-- `Codex Delivery`: execution management, review, CI/CD, quality
-- `Claude Engineers`: implementation throughput
-
----
-
-## Decisions This Structure Locks In
-
-- The org is not flat.
-- The CEO does not directly manage all engineers.
-- Codex reports directly to the CEO only in the capacity of delivery leadership.
-- Gemini is the architecture executive, not the daily engineering manager.
-- The company optimizes for safe shipping, not maximal parallelism.
-- Functional specialization exists as lanes first and titles second.
+- Paperclip remains the governance layer.
+- OMC and OMX are the execution substrates.
+- Prefer deletion over addition.
+- Do not reintroduce Paperclip-era skill overlap when OMC/OMX already provide the capability.
+- Preserve Noah RN hooks and clinical safety invariants unchanged.
+- Keep the CEO lightweight and the execution runtimes rich.

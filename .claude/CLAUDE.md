@@ -7,6 +7,11 @@ Resolves nursing workspace problems by assembling context, tools, knowledge, and
 Complements ambient documentation platforms (ChartWell AI's lane), doesn't compete.
 See `docs/NORTH-STAR.md` for canonical product framing.
 
+Paperclip runtime note:
+- **CEO / Product Owner** = Paperclip native governance lane
+- **Founding Engineer** = Claude-side OMC execution lane
+- **Principal Architect** = Codex-side OMX execution lane
+
 ## Hard Constraints
 
 - FHIR integration via synthetic data on tower (10.0.0.184:8080) — no production EHR, no PHI, Synthea-only. See `docs/FHIR-INTEGRATION.md`.
@@ -37,7 +42,7 @@ bash tests/drug-lookup/test_lookup.sh
 
 All code changes MUST go through pull requests. Direct pushes to `main` are prohibited.
 
-1. **Branch**: Create a feature branch from `main`. Name it `<agent>/<short-description>` (e.g., `wiz/vitals-chart`, `scout/news2-skill`).
+1. **Branch**: Create a feature branch from `main`. Name it `<agent>/<short-description>` (e.g., `wiz/vitals-chart`, `architect/runtime-audit`).
 2. **Commit**: Commit on your feature branch. Include `Co-Authored-By: Paperclip <noreply@paperclip.ing>`.
 3. **Push**: Push your feature branch and open a pull request against `main`.
 4. **Review**: PRs require review before merge. Do not self-merge.
@@ -45,7 +50,7 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 
 ## Session Rules
 
-- One phase at a time. One skill at a time. Finish completely before moving on.
+- One phase at a time. One runtime mode at a time. Finish completely before moving on.
 - Read `docs/ARCHITECTURE.md` before building any skill or starting a new phase.
 - Test every skill against realistic clinical scenarios. Bar: "Would a 13-year ICU nurse actually use this output?"
 - Skills produce copy-paste-ready text, not conversational responses.
@@ -53,23 +58,25 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 - Fail loudly. No silent bad data from tools.
 - **Charge nurse voice.** Noah is the experienced colleague, not a textbook. Practical ranges over rigid cutoffs. Context caveats inline. "Per facility protocol" is a valid answer. Accurate and up-to-date, but presented with bedside nuance. Include "why we care" one-liners where they add clinical meaning. See ARCHITECTURE.md principle #6.
 - **Three tiers of confidence.** Tier 1: national guidelines presented exactly. Tier 2: bedside suggestions labeled as such. Tier 3: facility-specific rules require local config — Noah doesn't guess policy. See ARCHITECTURE.md principle #7.
+- Noah RN's repo-local safety hooks (`sanitize-input`, `validate-calculator`, `validate-dosage`, `validate-units`, `validate-negation`) are permanent. They must coexist with OMC hooks; they are not replaced by them.
 
 ## Harness Integration
 
-| Workflow | Skill | When |
-|----------|-------|------|
+| Workflow | Skill / mode | When |
+|----------|--------------|------|
 | Session start | `claude-mem:mem-search` | Recall prior session context |
-| Skill routing | `dispatch` | Which skill wins when multiple match |
-| Brainstorming | `superpowers:brainstorming` | Before any creative/feature work |
-| Planning | `superpowers:writing-plans` | Multi-step tasks |
-| Implementation | `superpowers:subagent-driven-development` | Execute plans with per-task subagents |
-| TDD | `superpowers:test-driven-development` | Every skill and tool |
+| Work routing | `deep-interview` / `$deep-interview` | Clarify ambiguous requests before execution |
+| Planning | `ralplan` / `$ralplan` | Multi-step work and design decisions |
+| Small bounded execution | `ralph:` / `$ralph` | Persist until the scoped task is verified complete |
+| Multi-file feature or refactor | `autopilot:` / `$autopilot` | Full lifecycle execution |
+| Parallel coordination | `/team N:role`, `omc team N:codex`, `$team N:role` | Split independent or staged work across workers |
+| TDD / regression discipline | `test-engineer`, `verifier`, test-first within `ralph:` / `autopilot:` | Every skill, hook, and tool change |
 | Skill authoring | `plugin-dev:skill-development` | Writing clinical skills |
 | Command authoring | `plugin-dev:command-development` | Writing slash commands |
 | Agent authoring | `plugin-dev:agent-development` | Writing clinical agents |
 | API docs | `context7` | Before integrating any external API |
-| Review | `code-review:code-review` | Before phase completion |
-| Completion | `superpowers:verification-before-completion` | Before claiming done |
+| Review | `code-reviewer`, `security-reviewer`, OMX verifier | Before phase completion |
+| Completion | `ralph:` / `$ralph` verification protocol | Before claiming done |
 | Durable knowledge | `obsidian` | Clinical decisions → Eve vault |
 
 ## Tool Conventions
