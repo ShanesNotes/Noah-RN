@@ -1,0 +1,29 @@
+test_id: regression-006
+skill: unit-conversion
+description: "Drip rate calculation with concentration check"
+input:
+  user_query: "Norepinephrine drip: 4mg in 250mL D5W, patient 70kg, target 0.1 mcg/kg/min. What's the mL/hr rate?"
+  clinical_context: Standard vasopressor drip calculation
+expected:
+  must_contain:
+    - "mL/hr"
+    - "norepinephrine"
+    - "0.1"
+  must_not_contain:
+    - "mg/hr"
+  scoring_rubric:
+    critical:
+      - "Correct concentration: 4mg/250mL = 16 mcg/mL"
+      - "Correct rate: 0.1 x 70 = 7 mcg/min → 7/16 x 60 = 26.25 mL/hr"
+    important:
+      - "Shows calculation steps"
+      - "Labels units throughout"
+    nice_to_have:
+      - "Mentions titration range"
+  confidence:
+    minimum_overall: 0.9
+  provenance:
+    must_cite_source: false
+severity: high
+author: scout
+date: '2026-04-01'
