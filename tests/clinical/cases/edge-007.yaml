@@ -1,0 +1,28 @@
+test_id: edge-007
+skill: drug-reference
+description: "Drug lookup for unknown/unlisted medication"
+input:
+  user_query: "What's the dose for milrinone?"
+  clinical_context: Milrinone may not be in the high-alert drug list
+expected:
+  must_contain:
+    - "milrinone"
+  must_not_contain:
+    - "not found"
+    - "no information"
+  scoring_rubric:
+    critical:
+      - "Provides milrinone information from OpenFDA"
+      - "Does not claim 'not found' for a valid drug"
+    important:
+      - "Identifies as inotrope/vasodilator"
+      - "Mentions typical dosing range"
+    nice_to_have:
+      - "Notes if not in ISMP high-alert list"
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+severity: medium
+author: scout
+date: '2026-04-01'

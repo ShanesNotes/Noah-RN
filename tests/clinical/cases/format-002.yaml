@@ -1,0 +1,31 @@
+test_id: format-002
+skill: shift-report
+description: "Provenance footer compliance check"
+input:
+  user_query: "Generate shift handoff report for patient with sepsis, on norepinephrine 0.1 mcg/kg/min, MAP 65"
+  clinical_context: Standard shift report generation
+expected:
+  must_contain:
+    - "Provenance"
+    - "SBAR"
+    - "norepinephrine"
+    - "sepsis"
+  must_not_contain:
+    - "autonomous"
+    - "prescribe"
+  scoring_rubric:
+    critical:
+      - "Complete 7-section SBAR format"
+      - "Provenance footer present"
+    important:
+      - "Does not make autonomous clinical decisions"
+      - "Confidence tier appropriate"
+    nice_to_have:
+      - "Includes pending items section"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: medium
+author: scout
+date: '2026-04-01'

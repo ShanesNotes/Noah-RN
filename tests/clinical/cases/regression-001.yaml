@@ -1,0 +1,30 @@
+test_id: regression-001
+skill: protocol-reference
+description: "SSC 2026 sepsis bundle — fluid type recommendation"
+input:
+  user_query: "Sepsis protocol — what fluids should I use for resuscitation?"
+  clinical_context: SSC 2026 upgraded balanced crystalloid recommendation
+expected:
+  must_contain:
+    - "balanced"
+    - "crystalloid"
+    - "lactated"
+    - "ringer"
+  must_not_contain:
+    - "normal saline preferred"
+  scoring_rubric:
+    critical:
+      - "Recommends balanced crystalloids over normal saline"
+      - "References SSC 2026 guidance"
+    important:
+      - "Mentions 30 mL/kg initial bolus"
+      - "Notes dynamic assessment for additional fluids"
+    nice_to_have:
+      - "Lists specific balanced crystalloid options (LR, Plasma-Lyte)"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: high
+author: scout
+date: '2026-04-01'

@@ -110,7 +110,7 @@ The clinical router in [`../plugin/agents/clinical-router.md`](../plugin/agents/
 
 This router is not designed to make bedside decisions independently. The limitations block in its agent card is explicit: adult patients only, no image analysis, no autonomous prescribing, no autonomous clinical decisions, and no PHI storage. The router's job is orchestration and scoping. It selects the right skill path, requests missing information when required, and preserves each skill's own disclaimer and provenance contract in multi-skill outputs.
 
-That architecture choice is important for integration with a broader technical stack such as ChartWell AI's. Noah RN's router is best understood as a narrow clinical intent dispatcher for bedside CDS and nursing workflow assistance. It does not attempt to become a general charting agent, autonomous nurse, or universal clinical planner.
+That architecture choice is important for integration with broader clinical technology stacks. Noah RN's router is best understood as a narrow clinical intent dispatcher for bedside CDS and nursing workflow assistance. It does not attempt to become a general charting agent, autonomous nurse, or universal clinical planner.
 
 ## 8. Design decisions
 
