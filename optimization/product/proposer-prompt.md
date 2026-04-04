@@ -40,7 +40,7 @@ optimization/product/
 ├── analysis/             # Cross-candidate metrics
 │   └── failure-modes.md
 ├── proposer-prompt.md    # This file
-├── safety-constraints.yaml
+├── clinical-constraints.yaml
 └── eval-harness.sh
 ```
 

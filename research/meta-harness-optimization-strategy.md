@@ -280,7 +280,7 @@ noah-optimizer/
 │       ├── improvement-map.json
 │       └── failure-modes.md
 ├── proposer-prompt.md            # Instructions for the free-tier proposer
-├── safety-constraints.yaml       # Non-negotiable safety rules
+├── clinical-constraints.yaml      # Non-negotiable clinical accuracy rules
 ├── eval-harness.sh               # Automated golden test suite runner
 └── OPTIMIZATION-LOG.md           # Human-readable iteration history
 ```
@@ -587,7 +587,7 @@ Claude validation → Shane approval.
    │   ├── traces/
    │   ├── analysis/
    │   ├── proposer-prompt.md
-   │   ├── safety-constraints.yaml
+   │   ├── clinical-constraints.yaml
    │   └── eval-harness.sh
    ├── company/
    │   ├── candidates/

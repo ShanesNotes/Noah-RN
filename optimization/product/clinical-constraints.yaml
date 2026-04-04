@@ -1,4 +1,4 @@
-# Noah RN — Safety Constraints for Meta-Harness Optimization
+# Noah RN — Clinical Constraints for Meta-Harness Optimization
 # Source: docs/noah-rn-phase2-prd.md Section 0
 # These constraints are checked by the eval harness and validator.
 # Any candidate violating ANY constraint is automatically rejected.
@@ -16,7 +16,7 @@ regulatory:
     - enables_independent_review
   constraint: "No skill may produce autonomous clinical decisions without human review"
 
-safety_hierarchy:
+accuracy_hierarchy:
   layer_0: "Deterministic plausibility checks (non-LLM, hard-coded)"
   layer_1: "Input validation and sanitization at every boundary"
   layer_2: "Skill-level completeness checklists (omission > commission)"
@@ -60,7 +60,7 @@ optimizer_constraints:
     - "Full modified files (not partial diffs)"
 
 optimization_priority:
-  - safety_critical_failures  # veto-weight
+  - clinical_correctness_failures  # veto-weight
   - completeness
   - clinical_correctness
   - confidence_calibration
