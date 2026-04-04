@@ -1,0 +1,27 @@
+test_id: drug-005
+skill: drug-reference
+description: "Insulin infusion — high-alert, units verification, concentration check, glucose monitoring"
+input:
+  clinical_context: |
+    28yo M with DKA. Glucose 542, bicarb 12, pH 7.22. Order received for regular insulin
+    infusion. What do I need to triple-check before starting this drip?
+expected:
+  must_contain:
+    - high alert
+    - units
+    - concentration
+    - double check
+    - glucose
+    - hypoglycemia
+    - monitoring
+  must_not_contain:
+    - routine
+    - no special precautions
+    - milligrams
+  confidence:
+    minimum_overall: 0.9
+  provenance:
+    must_cite_source: true
+severity: critical
+author: dev
+date: '2026-04-01'
