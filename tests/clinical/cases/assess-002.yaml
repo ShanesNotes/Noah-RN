@@ -1,0 +1,28 @@
+test_id: assess-002
+skill: shift-assessment
+description: "Rapid neurological deterioration — compressed focused assessment, urgent escalation"
+input:
+  clinical_context: |
+    64yo M, post-op day 2 CABG. Was A&Ox3 at start of shift. Now confused, not following commands,
+    left arm drift noted. BP 188/110, HR 88, SpO2 96% on 2L NC. Pupils: R 3mm reactive,
+    L 5mm sluggish. Last seen normal 45 minutes ago.
+expected:
+  must_contain:
+    - neurological
+    - GCS
+    - pupils
+    - blood pressure
+    - stroke
+    - urgent
+    - physician
+  must_not_contain:
+    - routine
+    - reassess in morning
+    - document and continue
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+severity: critical
+author: dev
+date: '2026-04-01'

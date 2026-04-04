@@ -129,14 +129,14 @@ import json, sys
 d = json.load(sys.stdin)
 expected = d.get('expected', {})
 mc = expected.get('must_contain', [])
-print('\n'.join(mc))
+print('\\n'.join(mc))
 ")"
   must_not_contain="$(echo "$case_json" | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 expected = d.get('expected', {})
 mnc = expected.get('must_not_contain', [])
-print('\n'.join(mnc))
+print('\\n'.join(mnc))
 ")"
   min_confidence="$(echo "$case_json" | python3 -c "
 import json, sys
@@ -248,7 +248,7 @@ invoke_skill() {
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d "{
-        \"model\": \"${OPENAI_EVAL_MODEL:-gpt-4o-mini}\",
+        \"model\": \"gpt-4o-mini\",
         \"messages\": [
           {\"role\": \"system\", \"content\": $(echo "$skill_prompt" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")},
           {\"role\": \"user\", \"content\": $(echo "$context" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")}
@@ -261,7 +261,7 @@ invoke_skill() {
       -H "anthropic-version: 2023-06-01" \
       -H "content-type: application/json" \
       -d "{
-        \"model\": \"${ANTHROPIC_EVAL_MODEL:-claude-3-haiku-20240307}\",
+        \"model\": \"claude-3-haiku-20240307\",
         \"max_tokens\": 4096,
         \"system\": $(echo "$skill_prompt" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))"),
         \"messages\": [
@@ -272,8 +272,8 @@ invoke_skill() {
     curl -s "${OLLAMA_BASE_URL}/api/generate" \
       -H "Content-Type: application/json" \
       -d "{
-        \"model\": \"${OLLAMA_EVAL_MODEL:-llama3}\",
-        \"prompt\": $(echo -e "${skill_prompt}\n\nUser: ${context}" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))"),
+        \"model\": \"llama3\",
+        \"prompt\": \"${skill_prompt}\\n\\nUser: ${context}\",
         \"stream\": false
       }" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('response', ''))"
   else
@@ -359,7 +359,6 @@ generate_scores() {
 import json, sys
 
 data = json.loads(sys.stdin.read())
-data['pass'] = data['total'] - data['fail'] - data['skip']
 scores = {
     'total': data['total'],
     'pass': data['pass'],
@@ -429,70 +428,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Candidate overlay
-BACKUP_DIR=""
-OVERLAY_FILES=()
-
-cleanup_candidate() {
-  if [ ${#OVERLAY_FILES[@]} -gt 0 ] && [ -n "$BACKUP_DIR" ]; then
-    for rel_path in "${OVERLAY_FILES[@]}"; do
-      local src="$BACKUP_DIR/$rel_path"
-      local dst="$REPO_ROOT/$rel_path"
-      if [ -f "$src" ]; then
-        cp "$src" "$dst"
-      elif [ -f "${src}.DELETED" ]; then
-        rm -f "$dst"
-      fi
-    done
-    rm -rf "$BACKUP_DIR"
-  fi
-}
-
-if [ -n "${CANDIDATE:-}" ]; then
-  # Resolve number → full path
-  if [[ "$CANDIDATE" =~ ^[0-9]+$ ]]; then
-    CANDIDATE_DIR="$SCRIPT_DIR/candidates/candidate-$CANDIDATE"
-  else
-    CANDIDATE_DIR="$CANDIDATE"
-  fi
-
-  if [ ! -d "$CANDIDATE_DIR" ]; then
-    echo "ERROR: Candidate directory not found: $CANDIDATE_DIR"
-    exit 1
-  fi
-
-  DIFF_DIR="$CANDIDATE_DIR/diff"
-  if [ ! -d "$DIFF_DIR" ]; then
-    echo "ERROR: Candidate diff/ directory not found: $DIFF_DIR"
-    exit 1
-  fi
-
-  BACKUP_DIR="$(mktemp -d)"
-  trap cleanup_candidate EXIT
-
-  echo "=== Applying candidate: $CANDIDATE_DIR ==="
-  while IFS= read -r -d '' candidate_file; do
-    rel_path="${candidate_file#$DIFF_DIR/}"
-    original="$REPO_ROOT/$rel_path"
-
-    # Back up original
-    backup_target="$BACKUP_DIR/$rel_path"
-    mkdir -p "$(dirname "$backup_target")"
-    if [ -f "$original" ]; then
-      cp "$original" "$backup_target"
-    else
-      touch "${backup_target}.DELETED"
-    fi
-
-    # Overlay candidate file
-    mkdir -p "$(dirname "$original")"
-    cp "$candidate_file" "$original"
-    OVERLAY_FILES+=("$rel_path")
-    echo "  overlaid: $rel_path"
-  done < <(find "$DIFF_DIR" -type f -print0)
-  echo ""
-fi
-
 for case_file in "$CASES_DIR"/*.yaml; do
   [ -f "$case_file" ] || continue
 
@@ -524,7 +459,7 @@ python3 -c "
 import json
 data = {
     'total': $TOTAL,
-    'pass': $TOTAL - $FAIL - $SKIP,
+    'pass': $PASS,
     'fail': $FAIL,
     'skip': $SKIP,
     'safety_failures': $SAFETY_FAILS,
