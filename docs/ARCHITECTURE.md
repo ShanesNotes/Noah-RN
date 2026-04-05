@@ -5,7 +5,9 @@
 
 ---
 
-## Form Factor: Hybrid Plugin + Project
+## Form Factor: Agent-Native Clinical Workspace Harness
+
+Implementation: Claude Code plugin + companion project (Medplum FHIR platform, React dashboard, MCP server, deterministic tools).
 
 ```
 noah-rn/
@@ -106,9 +108,10 @@ noah-rn/
 
 ## Design Principles
 
-1. **Skills are the product.** Each skill encodes a real nursing workflow as a structured,
-   repeatable, prompt-driven process. Shane's 13 years of clinical pattern recognition
-   made executable.
+1. **The workspace is the product.** Noah RN is an agent-native clinical workspace
+   harness — Medplum provides the clinical data interface, multi-agent orchestration
+   provides the intelligence, and structured skills encode Shane's 13 years of bedside
+   pattern recognition into repeatable workflows.
 
 2. **Deterministic before generative.** Drug interactions, scoring calculators, unit
    conversions — tool calls, not LLM inference.
@@ -424,25 +427,26 @@ Baseline context to prevent obvious errors. Shane is available for domain questi
 
 | Capability | Tool | Use in Noah RN |
 |-----------|------|---------------|
-| TDD workflow | superpowers:test-driven-development | Every skill and tool gets tests |
-| Parallel dispatch | superpowers:dispatching-parallel-agents | Build independent skills simultaneously |
-| Plan execution | superpowers:executing-plans | Phase-by-phase build with checkpoints |
-| Plugin creation | plugin-dev | Scaffold the plugin structure |
-| Skill authoring | plugin-dev:skill-development | Write each clinical skill |
-| Agent authoring | plugin-dev:agent-development | Write clinical agents (router) |
-| Code review | superpowers:requesting-code-review | Review before phase completion |
-| Git worktrees | superpowers:using-git-worktrees | Isolate feature work |
-| Library docs | context7 | Look up OpenFDA and related reference docs |
+| Session start | claude-mem:mem-search | Recall prior session context |
+| Skill authoring | plugin-dev:skill-development | Writing clinical skills |
+| Command authoring | plugin-dev:command-development | Writing slash commands |
+| Agent authoring | plugin-dev:agent-development | Writing clinical agents |
+| Skill optimization | optimize-skill | Auditing skill prompt quality |
+| API docs | context7 | Before integrating any external API |
+| Durable knowledge | obsidian | Clinical decisions to Eve vault |
 | Session memory | claude-mem | Track decisions across sessions |
 
 ---
 
 ## Strategic Context
 
-Noah RN is a clinical decision-support agentic harness for critical care nurses.
-It demonstrates ability to architect skill-based clinical workflows that complement
-ambient documentation platforms — specifically in the decision-support space that
-clinical technology platforms would naturally expand into.
+Noah RN is an agent-native clinical workspace harness for critical care nursing.
+Medplum provides the clinical data interface; multi-agent orchestration and structured
+skills provide the intelligence layer. The system demonstrates how clinical expertise
+translates into context-aware agent architecture — FHIR patient data, deterministic
+tools, and nursing knowledge converging under orchestration to deliver maximally useful
+bedside output.
 
-The pitch: "I didn't just use AI — I built a clinical agentic system that shows how
-curated nursing expertise maps to skill-based architecture."
+The pitch: "I didn't just use AI — I built a clinical workspace where patient data,
+nursing knowledge, and agent orchestration converge. 14 years of ICU experience
+encoded into architecture, not just prompts."

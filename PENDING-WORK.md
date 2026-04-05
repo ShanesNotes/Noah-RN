@@ -14,17 +14,18 @@ Branch: `claude/noa-131-safety-language-reframe`
 | 2: Tools + Intelligence | Done | 9 calculators, hooks, router, provenance, metadata |
 | 3: Polish + Portfolio | Done | Docs, demo, README, NEWS2, SSC 2026 |
 | 4: Medplum Foundation | Done | NOA-134 — Medplum on tower, Synthea data loaded |
-| 5: Optimization Standard | 95% | NOA-145/146 done. D3 (add optimize-skill to CLAUDE.md harness table) remaining |
+| 5: Optimization Standard | Done | NOA-145/146 done. D3 complete (optimize-skill in CLAUDE.md + ARCHITECTURE.md harness tables) |
 | 6: 10-Workstream Execution | 2/10 | WS-1 (skill optimization) and WS-3 (Medplum) done. 8 in backlog |
 
 ---
 
 ## Immediate Actions (no blockers)
 
-1. **Git hygiene** — organize 7 uncommitted workstreams into topic commits, push, PR
-2. **NOA-144 D3** — add optimize-skill to CLAUDE.md harness table (5 min)
-3. **Close stale Paperclip issues** — NOA-42, NOA-74, NOA-81, NOA-111, NOA-115, NOA-126
-4. **Stale artifact cleanup** — archive `docs/superpowers/`, `docs/noah-rn-phase2-prd.md`, remove `knowledge/drug-data/.gitkeep`
+1. ~~**Git hygiene** — organize 7 uncommitted workstreams into topic commits, push, PR~~ (done 2026-04-04)
+2. ~~**NOA-144 D3** — add optimize-skill to CLAUDE.md harness table~~ (done 2026-04-05)
+3. **Close stale Paperclip issues** — NOA-42, NOA-74, NOA-81, NOA-111, NOA-115, NOA-126 (requires Paperclip API)
+4. ~~**Stale artifact cleanup** — archive `docs/superpowers/`, `docs/noah-rn-phase2-prd.md`, remove `knowledge/drug-data/.gitkeep`~~ (done 2026-04-05)
+5. ~~**Product identity correction** — README + ARCHITECTURE.md reframed: agent-native workspace harness, not calculator suite~~ (done 2026-04-05)
 
 ## Active Backlog — Phase 6 Workstreams
 
