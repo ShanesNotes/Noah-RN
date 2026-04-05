@@ -27,16 +27,55 @@ Branch: `claude/noa-131-safety-language-reframe`
 4. ~~**Stale artifact cleanup** — archive `docs/superpowers/`, `docs/noah-rn-phase2-prd.md`, remove `knowledge/drug-data/.gitkeep`~~ (done 2026-04-05)
 5. ~~**Product identity correction** — README + ARCHITECTURE.md reframed: agent-native workspace harness, not calculator suite~~ (done 2026-04-05)
 
+## Dependency Chain (updated 2026-04-05)
+
+The identity correction surfaced a critical dependency chain that reorders the backlog:
+
+```
+Medplum Data Enrichment → Context Architecture → Eval Harness → Everything else
+         ↑                       ↑                     ↑
+   Shane researching       Needs real clinical     Can't eval without
+   data sources            encounter data           real patient context
+```
+
+**Why this order:**
+- **Eval harness (NOA-135)** is deferred — needs functional Medplum with realistic data to test against. Without encounter-scoped patient context, there's nothing meaningful to evaluate.
+- **Context architecture (NOA-138)** is promoted to critical — directly aligned with new Design Principle #1 ("context architecture first"), but requires clinical encounter data that Synthea doesn't fully provide.
+- **Data enrichment** is the new blocker — Synthea gives us FHIR resources (Observations, MedicationRequests, Conditions) but NOT the artifacts a bedside nurse contextualizes from:
+  - Physician H&P notes (DocumentReference with clinical narrative)
+  - Progress notes across encounter
+  - Time-series lab results with trends
+  - Vitals trends (not just snapshots — trajectories across shifts)
+  - Actual MAR (MedicationAdministration records, not just MedicationRequest)
+  - Encounter-scoped medication history
+
+**Data source research (Shane investigating):**
+- MIMIC-IV on PhysioNet — de-identified ICU data with charted vitals, lab trends, medication administrations, clinical notes. `infrastructure/load-mimic.sh` exists but untested against Medplum.
+- eICU Collaborative Research Database — multi-center ICU data
+- Synthea enrichment — custom modules can extend generation, but weak on clinical narratives
+- Other options TBD by Shane's research
+
+**Research distillation insights that inform this work** (from `docs/noah-rn-research-distillation.md`):
+- Pattern #4: "Retrieval quality > model scale" — the `knowledge/` dir + FHIR data are the primary levers, not model choice
+- Pattern #5: "Design interfaces for the next tier, implement for the current one" — context assembly interface should abstract retrieval, implement as context stuffing for now
+- Pattern #17: "Break the copy-forward cycle" — need fresh clinical context, not templates
+- Report 2: Adaptive chunking by document type — discharge summaries at SOAP boundaries, progress notes preserving abbreviation context, labs per-panel
+- Report 2: Context budgeting is a NOW concern — when nurse invokes skill with 80K tokens of history, eviction should be intentional
+- Report 1: MCP FHIR servers already exist (WSO2, health-record-mcp, langcare-mcp-fhir) — integration accelerators
+- Report 1: Memory tiers — working context (current encounter) → episodic (shift history) → institutional (protocols). Only working context needed now.
+
 ## Active Backlog — Phase 6 Workstreams
 
-Priority-ordered. These are the real work ahead.
+Re-prioritized based on dependency chain analysis.
 
 | WS | Issue | Title | Priority | Description |
 |----|-------|-------|----------|-------------|
-| 2 | NOA-135 | Dynamic Eval Harness — Phase B Unblock | critical | Eval harness currently 100% on structural grep. Needs real model invocation. Without this, self-improvement loop is fake. |
+| NEW | — | Medplum Data Enrichment | **blocker** | Load realistic clinical encounter data (MIMIC-IV or equivalent) into Medplum. Shane researching data sources. Blocks context architecture and eval. |
+| NEW | — | Medplum Wiring (WS-C/WS-D) | **critical** | Retarget MCP server from HAPI :8080 → Medplum :8103 with auth. Swap dashboard from direct FHIR client → @medplum/core SDK. |
+| 5 | NOA-138 | Context Architecture Enhancement | **critical** (promoted) | Patient context assembly from FHIR data — what a nurse contextualizes on first encounter. Pointer-based knowledge access, context budget strategy. Directly implements Design Principle #1. |
+| 2 | NOA-135 | Dynamic Eval Harness — Phase B Unblock | **deferred** | Needs functional Medplum + context architecture to have something meaningful to evaluate against. |
 | 6 | NOA-137 | Cross-Skill Intelligence Expansion | high | Only 3 cross-skill test cases. Where Noah becomes more than a lookup tool. |
 | 4 | NOA-136 | Research Pipeline Improvement | high | Fix research pipeline quality (graded C+). Shallow extraction, missing videos. |
-| 5 | NOA-138 | Context Architecture Enhancement | medium | Pointer-based knowledge access, context budget strategy. Prevents context pollution as skills grow. |
 | 7 | NOA-139 | Knowledge Architecture Enhancement | medium | Multi-source drug data, guideline conflict handling, freshness automation. |
 | 8 | NOA-140 | Workflow State Persistence | medium | Checkpoint system for multi-step protocols. Nurses get interrupted. |
 | 10 | NOA-142 | Deterministic Tool Expansion | medium | Expand deterministic computation. Compute > generate. |
@@ -82,13 +121,13 @@ Added MCP tool access to `plugin/agents/clinical-router.md`
 
 ## Stale Artifacts
 
-| Artifact | Recommendation |
-|----------|---------------|
-| `docs/superpowers/` | Archive — planning docs completed their purpose |
-| `docs/noah-rn-phase2-prd.md` | Archive — Phase 2 done |
-| `docs/research/offline-first-architecture.md` | Archive — unreferenced |
+| Artifact | Status |
+|----------|--------|
+| ~~`docs/superpowers/`~~ | Removed (2026-04-05) |
+| ~~`docs/noah-rn-phase2-prd.md`~~ | Archived to `docs/archive/` (2026-04-05) |
+| ~~`docs/research/offline-first-architecture.md`~~ | Archived to `docs/archive/` (2026-04-05) |
 | `optimization/OPTIMIZATION-LOG.md` | Empty placeholder — keep, mark stale |
-| `knowledge/drug-data/.gitkeep` | Remove — drug data via OpenFDA |
+| ~~`knowledge/drug-data/.gitkeep`~~ | Removed (2026-04-05) |
 | `docs/safety-compliance-report.md` | Keep for compliance ref, week-based phases outdated |
 | `docs/competitive-analysis.md` | Review for currency |
 
