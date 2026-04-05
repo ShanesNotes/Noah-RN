@@ -1,1 +1,21 @@
+# Runtime / tool state
+.omc/
+.omx/
+.codex
 .codex-home/
+.mcp.json
+.scenario-state/
+
+# Nested tool state
+dashboard/.omc/
+
+# Dependencies
+node_modules/
+
+# Downloaded binaries
+*.tar.gz
+gh_*/
+
+# OS
+.DS_Store
+Thumbs.db

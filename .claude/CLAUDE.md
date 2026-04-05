@@ -2,15 +2,14 @@
 
 ## Identity
 
-Noah RN is an agentic nurse assistant — a Claude Code plugin + companion project.
-Clinical decision support and structured nursing workflows, NOT documentation/scribing.
-Complements ambient documentation platforms (ChartWell AI's lane), doesn't compete.
+Noah RN is an agent-native clinical workspace harness — a Claude Code plugin + companion project.
+Structured nursing workflows and maximal patient context awareness.
+The nursing plugin is the MVP/genesis but not the project ceiling.
 
 ## Hard Constraints
 
-- FHIR integration via synthetic data on tower (10.0.0.184:8080) — no production EHR, no PHI, Synthea-only. See `docs/FHIR-INTEGRATION.md`.
+- FHIR integration via Medplum on tower (10.0.0.184:8103) — no production EHR, no PHI, synthetic data only. See `docs/FHIR-INTEGRATION.md`.
 - No PHI handling, storage, or logging. Nurse provides context, Noah provides structure.
-- No web UI. This is a CLI plugin.
 - No dependencies without Shane's approval.
 - No medical device claims. This is a clinical knowledge tool.
 - Deterministic before generative: if it can be computed (scores, interactions, conversions), use a tool — don't ask an LLM to do math.
@@ -58,17 +57,10 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 | Workflow | Skill | When |
 |----------|-------|------|
 | Session start | `claude-mem:mem-search` | Recall prior session context |
-| Skill routing | `dispatch` | Which skill wins when multiple match |
-| Brainstorming | `superpowers:brainstorming` | Before any creative/feature work |
-| Planning | `superpowers:writing-plans` | Multi-step tasks |
-| Implementation | `superpowers:subagent-driven-development` | Execute plans with per-task subagents |
-| TDD | `superpowers:test-driven-development` | Every skill and tool |
 | Skill authoring | `plugin-dev:skill-development` | Writing clinical skills |
 | Command authoring | `plugin-dev:command-development` | Writing slash commands |
 | Agent authoring | `plugin-dev:agent-development` | Writing clinical agents |
 | API docs | `context7` | Before integrating any external API |
-| Review | `code-review:code-review` | Before phase completion |
-| Completion | `superpowers:verification-before-completion` | Before claiming done |
 | Durable knowledge | `obsidian` | Clinical decisions → Eve vault |
 
 ## Tool Conventions
@@ -83,6 +75,8 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 
 Hybrid plugin + project. Plugin lives in `plugin/` with skills, agents, commands.
 Tools (deterministic) live in `tools/`. Curated clinical data in `knowledge/`.
+Dashboard (React 19 dev harness) in `dashboard/`. MCP server in `mcp-server/`.
+Medplum FHIR platform in `infrastructure/`.
 Full structure and specs in `docs/ARCHITECTURE.md`.
 
 ## What Shane Brings
