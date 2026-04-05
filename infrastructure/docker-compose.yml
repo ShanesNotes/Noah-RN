@@ -1,39 +1,120 @@
-services:
-  hapi:
-    image: hapiproject/hapi:v8.8.0-1
-    container_name: hapi-fhir
-    mem_limit: 4g
-    ports:
-      - "8080:8080"
-    environment:
-      - hapi.fhir.fhir_version=R4
-      - hapi.fhir.bulk_import_enabled=true
-      - hapi.fhir.enforce_referential_integrity_on_write=false
-      - hapi.fhir.enforce_referential_integrity_on_delete=false
-      - hapi.fhir.cors.allowed_origin=*
-      - spring.datasource.url=jdbc:postgresql://hapi-postgres:5432/hapi
-      - spring.datasource.username=admin
-      - spring.datasource.password=admin
-      - spring.datasource.driverClassName=org.postgresql.Driver
-      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
-    depends_on:
-      hapi-postgres:
-        condition: service_healthy
+# Medplum Full Stack — Noah RN Clinical Platform Foundation
+# Replaces HAPI FHIR (archived as docker-compose.hapi-archive.yml)
+# Deploy on tower (10.0.0.184): docker compose up -d
 
-  hapi-postgres:
-    image: postgres:16-alpine
-    container_name: hapi-postgres
+services:
+  postgres:
+    image: postgres:16
+    container_name: medplum-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: hapi
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      - POSTGRES_USER=medplum
+      - POSTGRES_PASSWORD=medplum
     volumes:
-      - hapi-data:/var/lib/postgresql/data
+      - medplum-postgres-data:/var/lib/postgresql/data
+    command:
+      - 'postgres'
+      - '-c'
+      - 'listen_addresses=*'
+      - '-c'
+      - 'statement_timeout=60000'
+      - '-c'
+      - 'default_transaction_isolation=REPEATABLE READ'
+      - '-c'
+      - 'shared_preload_libraries=pg_stat_statements,auto_explain'
+    ports:
+      - '5432:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d hapi"]
+      test: ['CMD-SHELL', 'pg_isready -U medplum']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: medplum-redis
+    restart: unless-stopped
+    command: redis-server --requirepass medplum
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'medplum', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  medplum-server:
+    image: medplum/medplum-server:latest
+    container_name: medplum-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - '8103:8103'
+    command: ['env']
+    environment:
+      MEDPLUM_PORT: 8103
+      MEDPLUM_BASE_URL: 'http://10.0.0.184:8103/'
+      MEDPLUM_APP_BASE_URL: 'http://10.0.0.184:3000/'
+      MEDPLUM_STORAGE_BASE_URL: 'http://10.0.0.184:8103/storage/'
+
+      MEDPLUM_DATABASE_HOST: 'postgres'
+      MEDPLUM_DATABASE_PORT: 5432
+      MEDPLUM_DATABASE_DBNAME: 'medplum'
+      MEDPLUM_DATABASE_USERNAME: 'medplum'
+      MEDPLUM_DATABASE_PASSWORD: 'medplum'
+
+      MEDPLUM_REDIS_HOST: 'redis'
+      MEDPLUM_REDIS_PORT: 6379
+      MEDPLUM_REDIS_PASSWORD: 'medplum'
+
+      MEDPLUM_BINARY_STORAGE: 'file:./binary/'
+      MEDPLUM_SUPPORT_EMAIL: '"Medplum" <support@medplum.com>'
+      MEDPLUM_GOOGLE_CLIENT_ID: ''
+      MEDPLUM_GOOGLE_CLIENT_SECRET: ''
+      MEDPLUM_RECAPTCHA_SITE_KEY: ''
+      MEDPLUM_RECAPTCHA_SECRET_KEY: ''
+      MEDPLUM_MAX_JSON_SIZE: '100mb'
+      MEDPLUM_MAX_BATCH_SIZE: '50mb'
+      MEDPLUM_BOT_LAMBDA_ROLE_ARN: ''
+      MEDPLUM_BOT_LAMBDA_LAYER_NAME: 'medplum-bot-layer'
+      MEDPLUM_VM_CONTEXT_BOTS_ENABLED: 'true'
+      MEDPLUM_DEFAULT_BOT_RUNTIME_VERSION: 'vmcontext'
+      MEDPLUM_ALLOWED_ORIGINS: '*'
+      MEDPLUM_DEFAULT_FHIR_QUOTA: 10000000
+      MEDPLUM_DEFAULT_RATE_LIMIT: 600000
+      MEDPLUM_INTROSPECTION_ENABLED: 'true'
+      MEDPLUM_SHUTDOWN_TIMEOUT_MILLISECONDS: 30000
+
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  medplum-app:
+    image: medplum/medplum-app:latest
+    container_name: medplum-app
+    restart: unless-stopped
+    depends_on:
+      medplum-server:
+        condition: service_healthy
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  hapi-data:
+  medplum-postgres-data:

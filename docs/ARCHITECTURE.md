@@ -83,6 +83,8 @@ noah-rn/
 │       ├── four-layer-output.md
 │       └── cross-skill-triggers.md
 ├── infrastructure/
+│   ├── docker-compose.yml        # Medplum full stack (postgres, redis, server, app)
+│   ├── docker-compose.hapi-archive.yml  # Archived HAPI FHIR config (rollback)
 │   └── load-mimic.sh             # MIMIC-IV demo download/decompress/load/verify flow
 ├── tests/
 │   ├── drug-lookup/
@@ -227,15 +229,35 @@ publishes an update. Stale files require Shane review before trusting output.
 `knowledge/drug-ranges.json` holds ISMP high-alert medication dosage ranges (16 entries),
 used by `validate-dosage.sh`.
 
-### Local FHIR Validation Harness
+### Local FHIR Platform
 
-The build-time FHIR validation harness now uses the MIMIC-IV Clinical Database Demo on the
-tower HAPI server. That harness is for development and verification only; runtime Noah
-still does not depend on live EHR integration.
+The clinical platform foundation is **Medplum** (v5.1.x), running on tower (10.0.0.184)
+as a Docker stack: PostgreSQL, Redis, Medplum server (port 8103), and Medplum admin app
+(port 3000). Medplum replaces the previous HAPI FHIR server and provides a TypeScript SDK,
+built-in auth, bot automation, access policies, and React hooks for the frontend.
 
-Observation lookups against the demo use `tools/fhir/mimic-loinc-query.sh`, which
-translates Noah's LOINC queries to MIMIC itemIDs. Raw LOINC queries against HAPI do not
-work for the imported MIMIC Observation resources.
+Current dataset: Synthea synthetic patients loaded via FHIR transaction bundles.
+MIMIC-IV data migration is planned for a future phase.
+
+The MIMIC-IV LOINC translation shim (`tools/fhir/mimic-loinc-query.sh`) remains available
+for use once MIMIC data is loaded into Medplum.
+
+```bash
+# Medplum stack management
+cd infrastructure/
+docker compose up -d          # Start all 4 services
+docker compose down           # Stop all services
+docker compose logs -f medplum-server  # Server logs
+
+# FHIR endpoint (requires auth)
+curl -H "Authorization: Bearer $TOKEN" http://10.0.0.184:8103/fhir/R4/Patient?_summary=count
+
+# Healthcheck (no auth required)
+curl http://10.0.0.184:8103/healthcheck
+
+# Admin UI
+open http://10.0.0.184:3000
+```
 
 ### Cross-Skill Awareness
 
