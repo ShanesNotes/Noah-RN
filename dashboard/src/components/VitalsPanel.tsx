@@ -2,16 +2,14 @@ import { useState, useMemo } from 'react';
 import { Loader, Text } from '@mantine/core';
 import { colors, vitalColor } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
+import { VITAL_CODES_STRING } from '../lib/vitals';
 import { Sparkline } from './Sparkline';
 import { TimeSeriesChart } from './TimeSeriesChart';
-import type { medplum } from '../medplum';
+import type { Observation, Coding } from '../fhir/types';
 
-type Observation = Awaited<ReturnType<typeof medplum.searchResources<'Observation'>>>[number];
 type ObsComponent = NonNullable<Observation['component']>[number];
-type ObsCoding = NonNullable<NonNullable<ObsComponent['code']>['coding']>[number];
+type ObsCoding = Coding;
 type DataPoint = { value: number; timestamp: number; time: string };
-
-const VITAL_CODES = '8867-4,55284-4,9279-1,2708-6,8310-5';
 
 const VITAL_META: Record<string, { label: string; unit: string; short: string }> = {
   '8867-4': { label: 'Heart Rate', unit: 'bpm', short: 'HR' },
@@ -155,9 +153,9 @@ type ViewMode = 'cards' | 'trends';
 export function VitalsPanel({ patientId }: VitalsPanelProps) {
   const [view, setView] = useState<ViewMode>('cards');
 
-  const { data: vitals, loading, error } = useFhirSearch(
+  const { data: vitals, loading, error } = useFhirSearch<Observation>(
     'Observation',
-    `patient=${patientId}&code=${VITAL_CODES}&_sort=-date&_count=50&_elements=code,valueQuantity,valueString,component,effectiveDateTime`,
+    `patient=${patientId}&code=${VITAL_CODES_STRING}&_sort=-date&_count=50&_elements=code,valueQuantity,valueString,component,effectiveDateTime`,
   );
 
   const grouped = useMemo(() => {

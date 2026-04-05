@@ -1,12 +1,9 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Loader, Text, Button, Textarea, CopyButton } from '@mantine/core';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
-import type { medplum } from '../medplum';
-
-type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
-
-const VITAL_CODES = '8867-4,55284-4,9279-1,2708-6,8310-5';
+import { VITAL_CODES_STRING } from '../lib/vitals';
+import type { Patient, Observation, Condition, MedicationRequest, AllergyIntolerance } from '../fhir/types';
 
 function formatName(patient: Patient): string {
   return patient.name?.[0]?.given?.join(' ') ?? patient.name?.[0]?.family ?? `Patient ${patient.id?.slice(0, 8)}`;
@@ -18,35 +15,33 @@ interface SBARReportProps {
 
 export function SBARReport({ patient }: SBARReportProps) {
   const [notes, setNotes] = useState('');
-  const ageRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (patient.birthDate) {
-      ageRef.current = Math.floor((Date.now() - new Date(patient.birthDate!).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-    }
+  const age = useMemo(() => {
+    if (!patient.birthDate) return '?';
+    return String(Math.floor((Date.now() - new Date(patient.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)));
   }, [patient.birthDate]);
 
-  const { data: vitals, loading: vitalsLoading } = useFhirSearch(
+  const { data: vitals, loading: vitalsLoading } = useFhirSearch<Observation>(
     'Observation',
-    `patient=${patient.id}&code=${VITAL_CODES}&_sort=-date&_count=10&_elements=code,valueQuantity,valueString,component,effectiveDateTime`,
+    `patient=${patient.id}&code=${VITAL_CODES_STRING}&_sort=-date&_count=10&_elements=code,valueQuantity,valueString,component,effectiveDateTime`,
   );
 
-  const { data: conditions, loading: conditionsLoading } = useFhirSearch(
+  const { data: conditions, loading: conditionsLoading } = useFhirSearch<Condition>(
     'Condition',
     `patient=${patient.id}&_sort=-onset-date&_count=10&_elements=code,onsetDateTime,clinicalStatus`,
   );
 
-  const { data: meds, loading: medsLoading } = useFhirSearch(
+  const { data: meds, loading: medsLoading } = useFhirSearch<MedicationRequest>(
     'MedicationRequest',
     `patient=${patient.id}&status=active&_count=20&_elements=medicationCodeableConcept,dosageInstruction,authoredOn`,
   );
 
-  const { data: allergies, loading: allergiesLoading } = useFhirSearch(
+  const { data: allergies, loading: allergiesLoading } = useFhirSearch<AllergyIntolerance>(
     'AllergyIntolerance',
     `patient=${patient.id}&_count=10&_elements=code,reaction`,
   );
 
-  const { data: labs, loading: labsLoading } = useFhirSearch(
+  const { data: labs, loading: labsLoading } = useFhirSearch<Observation>(
     'Observation',
     `patient=${patient.id}&category=laboratory&_sort=-date&_count=10&_elements=code,valueQuantity,valueString,referenceRange,effectiveDateTime`,
   );
@@ -108,8 +103,6 @@ export function SBARReport({ patient }: SBARReportProps) {
     }),
     [labs],
   );
-
-  const age = ageRef.current != null ? `${ageRef.current}` : '?';
 
   const sbarText = useMemo(() => {
     const name = formatName(patient);

@@ -2,11 +2,8 @@ import { useMemo } from 'react';
 import { Loader, Text } from '@mantine/core';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
-import type { medplum } from '../medplum';
-
-type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
-
-const VITAL_CODES = new Set(['8867-4', '55284-4', '9279-1', '2708-6', '8310-5']);
+import { VITAL_CODES_STRING } from '../lib/vitals';
+import type { Patient, Observation, MedicationRequest } from '../fhir/types';
 
 function formatName(patient: Patient): string {
   return patient.name?.[0]?.given?.join(' ') ?? patient.name?.[0]?.family ?? `Patient ${patient.id?.slice(0, 8)}`;
@@ -23,15 +20,17 @@ interface AssignmentViewProps {
 }
 
 export function AssignmentView({ patients }: AssignmentViewProps) {
-  const { data: vitals, loading: vitalsLoading } = useFhirSearch(
+  const patientIds = patients.map(p => p.id).join(',');
+
+  const { data: vitals, loading: vitalsLoading } = useFhirSearch<Observation>(
     'Observation',
-    `code=${[...VITAL_CODES].join(',')}&_sort=-date&_count=200&_elements=patient,code,valueQuantity,valueString,component,effectiveDateTime`,
+    `patient=${patientIds}&code=${VITAL_CODES_STRING}&_sort=-date&_count=200&_elements=patient,code,valueQuantity,valueString,component,effectiveDateTime`,
     patients.length > 0,
   );
 
-  const { data: meds, loading: medsLoading } = useFhirSearch(
+  const { data: meds, loading: medsLoading } = useFhirSearch<MedicationRequest>(
     'MedicationRequest',
-    `_sort=-authoredOn&_count=200&_elements=patient,medicationCodeableConcept,status,dosageInstruction,authoredOn`,
+    `patient=${patientIds}&_sort=-authoredOn&_count=200&_elements=patient,medicationCodeableConcept,status,dosageInstruction,authoredOn`,
     patients.length > 0,
   );
 

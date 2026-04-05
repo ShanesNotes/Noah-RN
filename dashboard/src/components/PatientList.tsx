@@ -1,11 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { formatHumanName } from '@medplum/core';
 import { Loader, Text } from '@mantine/core';
-import { medplum } from '../medplum';
+import { formatPatientName } from '../fhir/client';
+import type { Patient } from '../fhir/types';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
-
-type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
 
 interface PatientListProps {
   onSelect: (patient: Patient) => void;
@@ -15,7 +13,7 @@ interface PatientListProps {
 
 export function PatientList({ onSelect, onLoadAll, selectedId }: PatientListProps) {
   const [search, setSearch] = useState('');
-  const { data: patients, loading, error } = useFhirSearch(
+  const { data: patients, loading, error } = useFhirSearch<Patient>(
     'Patient',
     '_count=100&_elements=id,name,birthDate,gender',
   );
@@ -30,7 +28,7 @@ export function PatientList({ onSelect, onLoadAll, selectedId }: PatientListProp
     if (!search) return patients;
     const q = search.toLowerCase();
     return patients.filter(p => {
-      const name = formatHumanName(p.name?.[0])?.toLowerCase() ?? '';
+      const name = formatPatientName(p)?.toLowerCase() ?? '';
       return name.includes(q) || p.id?.includes(q);
     });
   }, [patients, search]);
@@ -69,7 +67,7 @@ export function PatientList({ onSelect, onLoadAll, selectedId }: PatientListProp
 
       {!loading && !error && filtered.map(patient => {
         const active = patient.id === selectedId;
-        const name = formatHumanName(patient.name?.[0]) || 'Unknown';
+        const name = formatPatientName(patient) || 'Unknown';
         return (
           <button
             key={patient.id}

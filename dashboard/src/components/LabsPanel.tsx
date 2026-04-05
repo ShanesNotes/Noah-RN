@@ -2,12 +2,9 @@ import { useMemo } from 'react';
 import { Loader, Text } from '@mantine/core';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
+import { VITAL_CODES_SET } from '../lib/vitals';
 import { TimeSeriesChart } from './TimeSeriesChart';
-import type { medplum } from '../medplum';
-
-type Observation = Awaited<ReturnType<typeof medplum.searchResources<'Observation'>>>[number];
-
-const VITAL_CODES = new Set(['8867-4', '55284-4', '9279-1', '2708-6', '8310-5']);
+import type { Observation } from '../fhir/types';
 
 function getLabValue(obs: Observation): string {
   if (obs.valueQuantity?.value != null) {
@@ -48,13 +45,13 @@ interface LabsPanelProps {
 }
 
 export function LabsPanel({ patientId }: LabsPanelProps) {
-  const { data, loading, error } = useFhirSearch(
+  const { data, loading, error } = useFhirSearch<Observation>(
     'Observation',
     `patient=${patientId}&_sort=-date&_count=50&_elements=code,valueQuantity,valueString,referenceRange,effectiveDateTime`,
   );
 
   const labs = useMemo(
-    () => data.filter(obs => !VITAL_CODES.has(obs.code?.coding?.[0]?.code ?? '')),
+    () => data.filter(obs => !VITAL_CODES_SET.has(obs.code?.coding?.[0]?.code ?? '')),
     [data],
   );
 

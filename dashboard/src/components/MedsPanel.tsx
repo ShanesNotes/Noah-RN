@@ -2,20 +2,7 @@ import { useMemo } from 'react';
 import { Loader, Text } from '@mantine/core';
 import { colors } from '../theme';
 import { useFhirSearch } from '../hooks/useFhirSearch';
-import type { medplum } from '../medplum';
-
-type MedicationRequest = Awaited<ReturnType<typeof medplum.searchResources<'MedicationRequest'>>>[number];
-
-interface MedAdmin {
-  id?: string;
-  medicationCodeableConcept?: {
-    text?: string;
-    coding?: { code?: string; display?: string }[];
-  };
-  status?: string;
-  dosage?: { text?: string };
-  effectiveDateTime?: string;
-}
+import type { MedicationRequest, MedicationAdministration } from '../fhir/types';
 
 function getMedName(med: MedicationRequest): string {
   return med.medicationCodeableConcept?.text
@@ -23,7 +10,7 @@ function getMedName(med: MedicationRequest): string {
     || 'Unknown';
 }
 
-function getMedAdminName(ma: MedAdmin): string {
+function getMedAdminName(ma: Record<string, any>): string {
   return ma.medicationCodeableConcept?.text
     || ma.medicationCodeableConcept?.coding?.[0]?.display
     || 'Unknown';
@@ -53,9 +40,12 @@ function formatTime(dt?: string): string {
 
 function parseDoseRate(doseText?: string): { rate?: string; dose?: string } {
   if (!doseText) return {};
-  const rateMatch = doseText.match(/(\d+(?:\.\d+)?)\s*(mg|mcg|units|mL|g)\s*(\/\s*hr|\/\s*min|\/\s*kg\/min|\/\s*kg\/hr)/i);
+  const rateMatch = doseText.match(/(\d+(?:\.\d+)?)\s*(mg|mcg|µg|units?|mL|g|mmol)\s*(?:\/|per)\s*(hr|hour|min|minute|kg\/min|kg\/hr|kg\/hour)/i);
   if (rateMatch) {
     return { rate: rateMatch[0].trim() };
+  }
+  if (/\b(drip|infusion|continuous)\b/i.test(doseText)) {
+    return { rate: doseText };
   }
   return { dose: doseText };
 }
@@ -87,13 +77,13 @@ interface MedsPanelProps {
 }
 
 export function MedsPanel({ patientId }: MedsPanelProps) {
-  const { data: meds, loading: reqLoading, error: reqError } = useFhirSearch(
+  const { data: meds, loading: reqLoading, error: reqError } = useFhirSearch<MedicationRequest>(
     'MedicationRequest',
     `patient=${patientId}&_sort=-authoredOn&_count=30&_elements=medicationCodeableConcept,status,dosageInstruction,authoredOn`,
   );
 
-  const { data: administrations, loading: adminLoading, error: adminError } = useFhirSearch(
-    'MedicationAdministration' as Parameters<typeof medplum.searchResources>[0],
+  const { data: administrations, loading: adminLoading, error: adminError } = useFhirSearch<MedicationAdministration>(
+    'MedicationAdministration',
     `patient=${patientId}&_sort=-date&_count=30&_elements=medicationCodeableConcept,status,dosage,effectiveDateTime`,
   );
 
@@ -115,8 +105,8 @@ export function MedsPanel({ patientId }: MedsPanelProps) {
       };
     });
 
-    const adminRows: MedRow[] = (administrations as unknown as MedAdmin[]).map(ma => {
-      const doseText = ma.dosage?.text;
+    const adminRows: MedRow[] = (administrations as any[]).map((ma: Record<string, any>) => {
+      const doseText = ma.dosage?.text ?? ma.dosage?.dose?.value?.toString();
       const { rate } = parseDoseRate(doseText);
       return {
         id: ma.id ?? '',

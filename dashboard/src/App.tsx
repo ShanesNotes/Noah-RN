@@ -1,26 +1,28 @@
 import { useState, useCallback } from 'react';
-import { formatHumanName } from '@medplum/core';
 import { MantineProvider, Text } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { theme, colors } from './theme';
-import { medplum } from './medplum';
+import { formatPatientName } from './fhir/client';
+import type { Patient } from './fhir/types';
 import { PatientList } from './components/PatientList';
 import { VitalsPanel } from './components/VitalsPanel';
 import { LabsPanel } from './components/LabsPanel';
 import { MedsPanel } from './components/MedsPanel';
 import { AssignmentView } from './components/AssignmentView';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ContextInspector } from './components/ContextInspector';
+import { SkillPanel } from './components/SkillPanel';
+import { OrderSetsPanel } from './components/OrderSetsPanel';
 
-import { SBARReport } from './components/SBARReport';
-
-type Patient = Awaited<ReturnType<typeof medplum.searchResources<'Patient'>>>[number];
-
-type TabKey = 'vitals' | 'labs' | 'meds' | 'sbar';
+type TabKey = 'vitals' | 'labs' | 'meds' | 'context' | 'noah' | 'orders';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'vitals', label: 'VITALS' },
   { key: 'labs', label: 'LABS' },
   { key: 'meds', label: 'MEDS' },
-  { key: 'sbar', label: 'SBAR' },
+  { key: 'orders', label: 'ORDERS' },
+  { key: 'context', label: 'CONTEXT' },
+  { key: 'noah', label: 'NOAH' },
 ];
 
 function App() {
@@ -85,7 +87,7 @@ function App() {
               }}>
                 <div style={{ flex: 1 }}>
                   <Text ff="monospace" fw={700} fz="sm">
-                    {formatHumanName(selected.name?.[0]) || `Patient ${selected.id?.slice(0, 8)}`}
+                    {formatPatientName(selected) || `Patient ${selected.id?.slice(0, 8)}`}
                   </Text>
                   <Text fz={11} c={colors.textSecondary}>
                     {[selected.gender, selected.birthDate].filter(Boolean).join(' · ')}
@@ -118,10 +120,12 @@ function App() {
 
               {/* Panel content */}
               <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-                {activeTab === 'vitals' && <VitalsPanel patientId={selected.id!} />}
-                {activeTab === 'labs' && <LabsPanel patientId={selected.id!} />}
-                {activeTab === 'meds' && <MedsPanel patientId={selected.id!} />}
-                {activeTab === 'sbar' && <SBARReport patient={selected} />}
+                {activeTab === 'vitals' && selected.id && <ErrorBoundary panel="Vitals"><VitalsPanel patientId={selected.id} /></ErrorBoundary>}
+                {activeTab === 'labs' && selected.id && <ErrorBoundary panel="Labs"><LabsPanel patientId={selected.id} /></ErrorBoundary>}
+                {activeTab === 'meds' && selected.id && <ErrorBoundary panel="Meds"><MedsPanel patientId={selected.id} /></ErrorBoundary>}
+                {activeTab === 'orders' && <ErrorBoundary panel="Orders"><OrderSetsPanel /></ErrorBoundary>}
+                {activeTab === 'context' && selected.id && <ErrorBoundary panel="Context"><ContextInspector patientId={selected.id} /></ErrorBoundary>}
+                {activeTab === 'noah' && selected.id && <ErrorBoundary panel="Noah"><SkillPanel patientId={selected.id} patientName={formatPatientName(selected)} /></ErrorBoundary>}
               </div>
             </>
           ) : (
