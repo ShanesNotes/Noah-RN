@@ -163,18 +163,20 @@ ensure_server_safe_for_import() {
 
 put_resource() {
     local resource_type="$1" resource_id="$2" payload="$3"
-    local url="${FHIR_SERVER%/}/${resource_type}/${resource_id}"
+    local url="${FHIR_SERVER%/}/${resource_type}"
 
     if [[ "$DRY_RUN" == "1" ]]; then
-        echo "DRY-RUN PUT $url"
+        echo "DRY-RUN POST $url (id=$resource_id)"
         return 0
     fi
 
     fetch_token
+    # Use POST with If-None-Exist for idempotent upsert (Medplum doesn't auto-create on PUT)
     "$CURL_BIN" --fail-with-body -sS \
-        -X PUT \
+        -X POST \
         -H "Content-Type: application/fhir+json" \
         -H "Authorization: Bearer $BEARER_TOKEN" \
+        -H "If-None-Exist: _id=$resource_id" \
         --data-binary "$payload" \
         "$url" >/dev/null
 }
