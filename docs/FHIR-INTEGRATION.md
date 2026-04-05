@@ -1,4 +1,4 @@
-# FHIR Integration — MIMIC-IV Clinical Database Demo on FHIR v2.1.0
+# FHIR Integration — Medplum Clinical Platform
 
 > **No PHI. No production/runtime EHR use.**
 > This infrastructure is a local build-time and test harness only.
@@ -7,57 +7,97 @@
 
 ## 1. Infrastructure Overview
 
-### Server
+### Platform
 
 | Component | Detail |
 |-----------|--------|
 | Host | `tower` — 10.0.0.184 (local network) |
 | Specs | 62GB RAM, 12 cores, Ubuntu 24.04 |
-| Software | HAPI FHIR R4 v8.8.0 (Docker) |
-| Container | `hapi-fhir` (`--restart unless-stopped`) |
-| FHIR endpoint | `http://10.0.0.184:8080/fhir` |
-| Web UI (dev) | `http://10.0.0.184:8080` |
-| Auth | None (local network only) |
+| Software | Medplum v5.1.x (Docker full stack) |
+| Containers | medplum-server, medplum-app, medplum-postgres, medplum-redis |
+| FHIR endpoint | `http://10.0.0.184:8103/fhir/R4` |
+| Admin UI | `http://10.0.0.184:3000` |
+| Healthcheck | `http://10.0.0.184:8103/healthcheck` |
+| Auth | OAuth2/OIDC (built-in) — FHIR requests require Bearer token |
 
 Tower is separate from beelink (dev workstation) to keep the FHIR server running independently without competing for dev resources.
 
+Medplum replaces the previous HAPI FHIR R4 server and provides: TypeScript SDK, built-in
+auth (OAuth2/OIDC), bot automation, access policies, React hooks, and an admin UI.
+The old HAPI compose is archived at `infrastructure/docker-compose.hapi-archive.yml`.
+
 ### Current Dataset
 
-- Live HAPI state on 2026-03-31:
-  - Closeout verification via `infrastructure/load-mimic.sh verify --fhir-server http://10.0.0.184:8080/fhir --expected-patients 100` reports `patients=100`, `observations=813540`, `conditions=5051`, `medication_requests=17552`.
-  - PostgreSQL total resources stabilized at `928935` across a 5-second recheck.
-  - Loader process `PID 94354` is no longer running.
-- The demo remains date-shifted for validation use and should be treated as synthetic-style test data rather than real-calendar clinical data.
-- Operational implication: Observation-backed workflows are now available on the demo import, but active-condition filtering, active-medication filtering, allergies, in-progress encounters, and direct weight lookup remain constrained by the source data.
+- **Synthea synthetic patients** loaded via FHIR transaction bundles.
+- MIMIC-IV data migration is planned for a future phase.
+- Synthea data includes: Patient demographics, Conditions, Observations (vitals + labs), MedicationRequests, Encounters, Procedures, Immunizations, CarePlans, and more.
 
 ### Operations
 
 ```bash
-# Verify server is running
-ssh tower "docker ps --filter name=hapi-fhir"
+# Start/stop Medplum stack
+cd infrastructure/
+docker compose up -d
+docker compose down
+
+# Healthcheck (no auth)
+curl http://10.0.0.184:8103/healthcheck
 
 # Check FHIR capability statement
-curl -s http://10.0.0.184:8080/fhir/metadata | head -20
+curl -H "Authorization: Bearer $TOKEN" http://10.0.0.184:8103/fhir/R4/metadata | head -20
 
 # Quick patient census
-curl -s "http://10.0.0.184:8080/fhir/Patient?_summary=count"
+curl -H "Authorization: Bearer $TOKEN" "http://10.0.0.184:8103/fhir/R4/Patient?_summary=count"
 
-# Restart server
-ssh tower "docker restart hapi-fhir"
+# Server logs
+ssh tower "docker compose -f /home/ark/noah-rn/infrastructure/docker-compose.yml logs -f medplum-server"
 
-# Load the MIMIC demo end-to-end
-./infrastructure/load-mimic.sh download
-./infrastructure/load-mimic.sh decompress
-./infrastructure/load-mimic.sh load --allow-nonempty-server
-./infrastructure/load-mimic.sh verify --expected-patients 100
+# Admin UI
+open http://10.0.0.184:3000
 ```
 
-`infrastructure/load-mimic.sh` is the source of truth for the demo flow:
-- `download` pulls the PhysioNet MIMIC-IV FHIR Demo v2.1.0 NDJSON bundle
-- `decompress` expands the `.ndjson.gz` files in place
-- `load` PUTs the resources into HAPI in the required order
-- `verify` checks the live server counts and basic resource availability
-- `--allow-nonempty-server` bypasses the empty-server guard when reloading a populated demo instance
+### Authentication
+
+Medplum requires OAuth2 authentication for FHIR API access.
+
+**Client credentials (machine-to-machine — preferred for tools/scripts):**
+
+```bash
+# ClientApplication: "Noah RN Default Client"
+# Client ID: 3c3c4c3a-2993-424c-b46d-f58db0d7ca14
+
+TOKEN=$(curl -s -X POST http://10.0.0.184:8103/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id=3c3c4c3a-2993-424c-b46d-f58db0d7ca14&client_secret=be4fd047142ee6ed2a004a4a9cb98ff4c20f7c73d6082b3754dc9ae613083a34" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+```
+
+**User login (PKCE flow — for interactive/admin use):**
+
+```bash
+# Login credentials: admin@example.com / medplum_admin
+# Project: "Noah RN"
+
+CODE_VERIFIER=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+CODE_CHALLENGE=$(echo -n "$CODE_VERIFIER" | openssl dgst -sha256 -binary | base64 | tr '+/' '-_' | tr -d '=')
+
+LOGIN=$(curl -s -X POST http://10.0.0.184:8103/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"admin@example.com\",\"password\":\"medplum_admin\",\"codeChallengeMethod\":\"S256\",\"codeChallenge\":\"$CODE_CHALLENGE\"}")
+
+CODE=$(echo "$LOGIN" | python3 -c "import sys,json; print(json.load(sys.stdin)['code'])")
+
+TOKEN=$(curl -s -X POST http://10.0.0.184:8103/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code&code=$CODE&code_verifier=$CODE_VERIFIER" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+```
+
+### MIMIC-IV Data (archived — future migration)
+
+`infrastructure/load-mimic.sh` remains available for the MIMIC-IV FHIR Demo v2.1.0 pipeline.
+It was built for HAPI FHIR and will need adaptation for Medplum's authenticated endpoints
+before MIMIC data can be loaded into the new platform.
 
 ---
 
@@ -287,50 +327,52 @@ bash tools/fhir/mimic-loinc-query.sh 2524-7 <patient-id>
 
 ## 5. Constraints & Safety Notes
 
-- **MIMIC demo, not Synthea.** The server holds the MIMIC-IV Clinical Database Demo on FHIR v2.1.0.
-- **No PHI.** The demo is de-identified and restricted to non-production development use.
-- **Local network only, no auth.** The HAPI instance remains reachable only on the local network with no authentication.
-- **Build-time only.** Noah uses this harness for validation and demo loading; it does not support runtime clinical querying in production.
-- **Date shifting is expected.** Demo timestamps are shifted into the 2100-2200 range, so workflows should use relative time logic rather than assuming real calendar dates.
-- **Observation import complete.** Observation resources are loaded and validated on the current server, including direct category queries and the translation-shim lab lookups.
-- **Status caveats remain.** `Condition?clinical-status=active` and `MedicationRequest?status=active` can return empty Bundles even when historical resources exist, because those active-state filters are not reliable on the imported demo.
-- **Current-state caveats remain.** `Encounter?status=in-progress` returns empty on the imported dataset because the encounters are historical/finished.
-- **Weight lookup caveat remains.** Direct body-weight lookup by `Observation.code=29463-7` is still not viable on the current mapping.
-- **Known gaps.** AllergyIntolerance resources and clinical notes are absent from the demo conversion.
+- **Synthea synthetic data.** The server holds Synthea-generated patients — fully synthetic, not derived from real clinical records.
+- **No PHI.** All data is synthetic and restricted to non-production development use.
+- **Authenticated access.** Medplum requires OAuth2 Bearer tokens for FHIR API access (unlike the previous unauthenticated HAPI setup).
+- **Local network only.** The Medplum instance is reachable only on the local network.
+- **Build-time only.** Noah uses this harness for validation and development; it does not support runtime clinical querying in production.
+- **Synthea data characteristics.** Synthea generates realistic but synthetic clinical histories including conditions, medications, observations, encounters, procedures, and immunizations. Data quality is generally higher than MIMIC-IV FHIR conversions for active-status filtering.
+- **MIMIC-IV migration planned.** The MIMIC-IV dataset (100 patients, 928K resources) will be migrated to Medplum in a future phase. The LOINC translation shim will need adaptation for Medplum's authenticated endpoints.
 
 ---
 
-## 6. End-to-End Smoke Test Results (2026-03-31)
+## 6. Medplum Validation (2026-04-04)
 
-Validated the complete FHIR pipeline from `mimic-loinc-query.sh` through skill-level data consumption.
+Validated Medplum deployment on tower with Synthea synthetic data.
 
-### Test Suite
+### Platform Status
 
-- `tests/fhir/test_mimic_loinc_query.sh`: **23/23 passed** against live HAPI at `http://10.0.0.184:8080/fhir`.
+| Check | Status | Detail |
+|-------|--------|--------|
+| Healthcheck | OK | v5.1.6, postgres+redis connected |
+| FHIR R4 metadata | OK | CapabilityStatement, FHIR 4.0.1 |
+| Client credentials auth | OK | Token exchange via ClientApplication |
+| Patient census | OK | 9 Synthea patients |
+| Observations | OK | 1,255 resources (labs + vitals) |
+| Conditions | OK | 74 resources |
+| MedicationRequests | OK | 20 resources |
+| Encounters | OK | 102 resources |
 
-### Skill Smoke Tests (sample patient `28dcf33b-0c52-587f-83ad-2a3270976719`)
+### Synthea vs MIMIC-IV Data Differences
 
-| Skill | Query | Result | Notes |
-|-------|-------|--------|-------|
-| **clinical-calculator** | Creatinine (2160-0) | 0.4–0.5 mg/dL, multiple draws | Shim resolves to itemID 50912. Feedable to CrCl calc. |
-| **clinical-calculator** | Potassium (2823-3) | 3.8 mEq/L | Shim resolves to itemID 50971. Feedable to electrolyte checks. |
-| **clinical-calculator** | Heart rate (220045 direct) | 106–112 bpm | Direct itemID query works. |
-| **protocol-reference** | Lactate (2524-7 alias) | 1.1 mmol/L | Shim resolves alias → itemID 50813. Below sepsis trigger (>2). |
-| **drug-reference** | Insulin (from MIMIC formulary code) | Lookup returns INSULIN LISPRO (ADMELOG) via OpenFDA | Pipeline: MIMIC MedicationRequest → formulary code → drug-lookup tool. |
+Synthea data uses standard LOINC codes directly in `Observation.code.coding`, so the MIMIC
+translation shim (`mimic-loinc-query.sh`) is **not needed** for Synthea patients. Direct FHIR
+queries by LOINC code work:
 
-### Medication Data Gap
-
-MIMIC-IV `Medication` resources use `medicationReference` rather than inline `medicationCodeableConcept`. Most referenced `Medication` resources have **empty `code.text` and `code.coding`** — medication display names are not populated in the MIMIC-IV FHIR IG. A subset carries NDC codes under `http://mimic.mit.edu/fhir/mimic/CodeSystem/mimic-medication-ndc`, and one carries a formulary code (`INSULIN`). Cross-referencing medication history with the drug-lookup tool requires resolving NDC → drug name externally or using the formulary display code when present.
-
-### Verified Data Pipeline
-
+```bash
+# Direct LOINC query — works with Synthea (no shim needed)
+curl -H "Authorization: Bearer $TOKEN" \
+  "http://10.0.0.184:8103/fhir/R4/Observation?patient={id}&code=2160-0&_sort=-date&_count=5"
 ```
-Nurse query (LOINC) → mimic-loinc-query.sh (alias resolution)
-  → mimic-mappings.json (LOINC → itemID)
-  → HAPI FHIR /Observation?code={itemID}
-  → JSON Bundle with valueQuantity
-  → Skill consumption (calculator input, protocol trigger, etc.)
-```
+
+The MIMIC shim and mapping layer (Section 4) remain relevant for future MIMIC-IV migration.
+
+### Previous HAPI Smoke Tests (2026-03-31, archived)
+
+The prior HAPI-era smoke tests (`tests/fhir/test_mimic_loinc_query.sh`, 23/23 passed) validated
+the MIMIC-IV pipeline against `http://10.0.0.184:8080/fhir`. Those tests are not applicable to
+the Medplum/Synthea stack but remain in the repo for future MIMIC migration reference.
 
 ---
 
