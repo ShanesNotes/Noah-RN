@@ -62,6 +62,7 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 | Agent authoring | `plugin-dev:agent-development` | Writing clinical agents |
 | API docs | `context7` | Before integrating any external API |
 | Durable knowledge | `obsidian` | Clinical decisions → Eve vault |
+| Skill optimization | `optimize-skill` | Auditing and improving skill prompt quality |
 
 ## Tool Conventions
 

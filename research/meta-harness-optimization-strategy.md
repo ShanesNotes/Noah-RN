@@ -8,7 +8,7 @@ scope: company-level + product-level harness optimization
 audience: Paperclip CEO agent (orchestration), Board Operator (governance), SOTA coding agents (implementation)
 dependencies:
   - noah-rn-research-distillation.md (cross-report patterns #1, #4, #5, #6, #13, #15)
-  - noah-rn-phase2-prd.md (architectural invariants, golden test suite requirement)
+  - docs/archive/noah-rn-phase2-prd.md (architectural invariants, golden test suite requirement)
 provenance:
   source: "Meta-Harness (Lee et al., Stanford IRIS Lab, 2026) + autoresearch (Karpathy, 2026)"
   paper: "https://arxiv.org/abs/2603.28052"
@@ -644,7 +644,7 @@ Phase C: One full optimization cycle completes: proposal → eval → validation
 
 ## Constraints
 
-- Architectural invariants from noah-rn-phase2-prd.md Section 0 are absolute.
+- Architectural invariants from docs/archive/noah-rn-phase2-prd.md Section 0 are absolute.
   The optimizer NEVER proposes changes that violate them.
 - This is harness optimization, not clinical knowledge generation.
   The optimizer modifies prompts, not medical facts.
@@ -656,7 +656,7 @@ Phase C: One full optimization cycle completes: proposal → eval → validation
 
 - research/meta-harness-optimization-strategy.md (this issue's companion research)
 - noah-rn-research-distillation.md (cross-report patterns, especially #1, #4, #15)
-- noah-rn-phase2-prd.md (architectural invariants, Phase 2c golden test suite)
+- docs/archive/noah-rn-phase2-prd.md (architectural invariants, Phase 2c golden test suite)
 ```
 
 ---
@@ -720,7 +720,7 @@ sources:
 
   internal:
     - "noah-rn-research-distillation.md"
-    - "noah-rn-phase2-prd.md"
+    - "docs/archive/noah-rn-phase2-prd.md"
 
 next_review: "2026-04-15"
 ```

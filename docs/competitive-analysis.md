@@ -305,5 +305,5 @@ Based on competitive analysis:
 
 ### Existing Repo Documentation
 - docs/REGULATORY.md — CDS exemption analysis, function-level risk assessment
-- docs/noah-rn-phase2-prd.md — Architecture, deliverables, non-goals
+- docs/archive/noah-rn-phase2-prd.md — Architecture, deliverables, non-goals (archived)
 - docs/noah-rn-research-distillation.md — 31 patterns from 15 research reports

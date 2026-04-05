@@ -18,7 +18,7 @@ provenance:
     - type: "project-knowledge"
       artifacts:
         - "noah-rn-research-distillation.md"
-        - "noah-rn-phase2-prd.md"
+        - "docs/archive/noah-rn-phase2-prd.md"
         - "Orchestration_Topologies_and_Federated_Memory.md"
         - "Streaming_Inference_Fabric.md"
         - "Deployment_Scaling_and_Operational_Architecture.md"

@@ -1,11 +1,11 @@
 # Noah RN — Clinical Constraints for Meta-Harness Optimization
-# Source: docs/noah-rn-phase2-prd.md Section 0
+# Source: docs/archive/noah-rn-phase2-prd.md Section 0
 # These constraints are checked by the eval harness and validator.
 # Any candidate violating ANY constraint is automatically rejected.
 
 version: "1.0.0"
 last_verified: "2026-03-31"
-source: "docs/noah-rn-phase2-prd.md"
+source: "docs/archive/noah-rn-phase2-prd.md"
 
 regulatory:
   classification: "HITL Category II — documentation assistance"
