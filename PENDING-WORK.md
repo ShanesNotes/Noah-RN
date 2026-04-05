@@ -73,7 +73,8 @@ Re-prioritized based on dependency chain analysis.
 
 | WS | Issue | Title | Priority | Description |
 |----|-------|-------|----------|-------------|
-| NEW | — | Medplum Data Enrichment | **blocker** | Load realistic clinical encounter data (MIMIC-IV or equivalent) into Medplum. Shane researching data sources. Blocks context architecture and eval. |
+| NEW | — | Medplum Data Enrichment | **blocker** | Load MIMIC-IV on FHIR demo (100 patients) + MIMIC-IV-Note (H&Ps, progress notes → DocumentReference). Provenance-stamped. See `research/Medplum-data-enrichment.txt` for loading pipeline. Blocks context architecture and eval. |
+| NEW | — | Real-Time Vitals Simulator Layer | **high** | ResusMonitor (manual control) + scripted simulators (BarryRobinson/Vital-Signs-Monitor, Med Sim Studio, neon-icu-vitals-monitor) streaming live Observations into Medplum via Bot. Gives skills real-time ICU data for sepsis/ACLS/shift-report testing. |
 | NEW | — | Medplum Wiring (WS-C/WS-D) | **critical** | Retarget MCP server from HAPI :8080 → Medplum :8103 with auth. Swap dashboard from direct FHIR client → @medplum/core SDK. |
 | 5 | NOA-138 | Context Architecture Enhancement | **critical** (promoted) | Patient context assembly from FHIR data — what a nurse contextualizes on first encounter. Pointer-based knowledge access, context budget strategy. Directly implements Design Principle #1. |
 | 2 | NOA-135 | Dynamic Eval Harness — Phase B Unblock | **deferred** | Needs functional Medplum + context architecture to have something meaningful to evaluate against. |
