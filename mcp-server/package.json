@@ -1,0 +1,22 @@
+{
+  "name": "noah-rn-clinical-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Clinical workspace harness MCP server for Noah RN",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}
