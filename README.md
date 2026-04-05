@@ -1,27 +1,34 @@
 # Noah RN
 
-Noah RN is an agent-native clinical workspace harness built for critical care nursing. Medplum provides the clinical data interface; multi-agent orchestration and structured skills provide the intelligence layer. Built by a 14-year ICU nurse who engineers the systems he wished existed at the bedside.
+Noah RN is an agent-native clinical workspace harness built for critical care nursing, paired with a simulated production environment for clinical AI evaluation. Built by a 14-year ICU nurse who engineers the systems he wished existed at the bedside.
 
 Version: **0.3.0**
 
 ## What is Noah RN?
 
-A clinical workspace where FHIR patient data, deterministic tools, and nursing knowledge converge under agent orchestration. The system is designed around context architecture — assembling the right patient data, clinical knowledge, and workflow structure so the agent can deliver maximally useful output to the nurse.
+Two things, built together:
+
+**1. A clinical workspace harness** — multi-agent orchestration, structured skills, deterministic tools, and MCP-based context curation converging on a Medplum FHIR interface. The system assembles patient data, clinical knowledge, and workflow structure so the agent delivers maximally useful output to the nurse.
+
+**2. A simulated production environment** — real de-identified ICU data, clinical narratives, and real-time vitals simulation feeding into a FHIR store. A virtual hospital floor for evaluating clinical AI agents against realistic encounters, not synthetic toy data.
+
+Neither exists in isolation. The harness needs realistic data to evaluate against. The eval environment needs an agentic system to test. Together they form a development platform for clinical AI that is tuned by a working nurse, not a product manager.
 
 It is **not** an ambient scribing product, a documentation tool, or a general-purpose chatbot. It complements documentation platforms — it doesn't compete with them.
 
-## Architecture
+---
+
+## Pillar 1: Clinical Workspace Harness
+
+### Architecture
 
 ```text
 noah-rn/
 ├── plugin/                       # Claude Code plugin (skills, agents, hooks)
 ├── dashboard/                    # React 19 clinical workspace (dev harness)
 ├── mcp-server/                   # Model Context Protocol (context assembly + simulation)
-├── infrastructure/               # Medplum Docker stack (postgres, redis, server, app)
 ├── tools/                        # Deterministic CLI tools (calculators, conversions, lookups)
 ├── knowledge/                    # Curated protocols, drug data, templates
-├── tests/                        # Test scripts + 80+ clinical scenario fixtures
-├── optimization/                 # Eval harness + candidate optimization
 └── docs/                         # Architecture, FHIR integration, compliance
 ```
 
@@ -29,20 +36,12 @@ noah-rn/
 
 | Layer | Role | Implementation |
 |-------|------|----------------|
-| **Clinical Interface** | FHIR patient data, auth, admin | Medplum platform (active development) |
+| **Clinical Interface** | FHIR patient data, auth, admin | Medplum FHIR R4 platform |
 | **Agent Orchestration** | Multi-domain routing, context assembly | Clinical router agent, MCP server |
 | **Structured Skills** | Nursing workflow intelligence | 7 clinical workflow skills encoding bedside pattern recognition |
 | **Deterministic Tools** | Math, lookup, validation | 10 calculators, drug lookup, unit conversion, safety hooks |
 
-## Clinical Interface — Medplum
-
-[Medplum](https://medplum.com) v5.1.x running on local infrastructure (tower). Provides FHIR R4 server, built-in OAuth2, admin UI, TypeScript SDK, and bot automation. This layer is under active development — the MCP server and dashboard are being retargeted to Medplum's APIs.
-
-**Data:** Synthea synthetic patients (~60 patients, 33K+ observations). No PHI — development and testing only.
-
-**What Medplum unlocks:** Real patient context for backtesting skills against clinical scenarios. Without a FHIR data backbone, skills operate on nurse-provided text alone. With Medplum, the workspace can assemble vitals trends, lab trajectories, medication histories, and active orders — the full picture a bedside nurse needs.
-
-## Skills & Orchestration
+### Skills & Orchestration
 
 7 clinical workflow skills, plus a clinical router agent that orchestrates multi-domain requests across them.
 
@@ -56,14 +55,56 @@ noah-rn/
 | `io-tracker` | Parses free-text intake/output into categorized totals and balance |
 | `unit-conversion` | Dose, drip, and unit conversions — deterministic, not LLM-generated |
 
-## Supporting Tools
+### Supporting Tools
 
-Deterministic infrastructure that the workspace relies on. These are tools in the toolbox, not the product.
+Deterministic infrastructure that the workspace relies on. Tools in the toolbox, not the product.
 
 - **10 clinical calculators** — GCS, NIHSS, APACHE II, Wells PE/DVT, CURB-65, Braden, RASS, CPOT, NEWS2
 - **Drug lookup** — OpenFDA label search with nursing-specific context
 - **Unit/dose/drip conversion** — weight-based dosing, drip rate calculation
 - **Safety hooks** — 5 deterministic validation scripts (input sanitization, calculator validation, dosage checking, unit validation, negation integrity)
+
+---
+
+## Pillar 2: Simulated Production Environment
+
+A virtual hospital floor for clinical AI evaluation, built on real de-identified data and real-time simulation.
+
+### Data Stack
+
+| Layer | Source | What it provides |
+|-------|--------|-----------------|
+| **Historical ICU data** | [MIMIC-IV on FHIR](https://physionet.org/content/mimic-iv-fhir-demo/2.1.0/) | 100 de-identified ICU patients with encounter-scoped vitals, labs, MAR, conditions, procedures — real clinical messiness, not synthetic rules |
+| **Clinical narratives** | [MIMIC-IV-Note](https://physionet.org/content/mimic-iv-note/) | Physician H&Ps, progress notes, discharge summaries mapped to FHIR DocumentReference |
+| **Synthetic breadth** | [Synthea](https://github.com/synthetichealth/synthea) | Non-ICU edge cases, rapid golden-test generation, smoke testing |
+| **Real-time vitals** | [ResusMonitor](https://www.resusmonitor.com/) | Browser-based ICU monitor sim with remote control — live Observation streams into Medplum |
+| **Scenario orchestration** | [MedAgentSim](https://github.com/MAXNORM8650/MedAgentSim) | Clinical simulation scenarios with decision points for agent eval |
+
+### Data Flow
+
+```
+MIMIC-IV NDJSON ──→ Medplum $import ──→ ┐
+MIMIC-IV-Note ────→ DocumentReference ──→ ├──→ Medplum FHIR R4 Store
+Synthea bundles ──→ bulk import ────────→ ┘         │
+                                                     ↓
+ResusMonitor ─────→ Observation stream ──→ noah-rn routing agent + skills
+                                                     │
+                                                     ↓
+                                          Hooks + completeness checklists
+                                                     │
+                                                     ↓
+                                          Golden test cases + regression
+```
+
+### Why This Matters
+
+Most clinical AI eval uses synthetic data or isolated benchmarks. This environment provides:
+- **Real ICU data** with the sparsity, irregular sampling, and clinical messiness agents must handle
+- **Encounter-scoped context** — what a nurse actually sees on a shift, not isolated observations
+- **Live physiological response** — skills reacting to vitals in real time, not static snapshots
+- **Professionally tuned scenarios** — user stories written by a working ICU nurse, not a product manager
+
+---
 
 ## Design Principles
 
@@ -75,7 +116,7 @@ Deterministic infrastructure that the workspace relies on. These are tools in th
 
 ## Infrastructure
 
-**FHIR Platform:** Medplum v5.1.x on local tower (10.0.0.184). Docker stack: PostgreSQL, Redis, Medplum server (port 8103), admin app (port 3000).
+**FHIR Platform:** [Medplum](https://medplum.com) v5.1.x on local tower. Docker stack: PostgreSQL, Redis, Medplum server (port 8103), admin app (port 3000).
 
 **Dashboard:** React 19 + Vite + Mantine workspace with vitals, labs, meds, orders, and context inspector panels.
 
@@ -97,6 +138,18 @@ claude --plugin-dir ./plugin
 # Verify
 /hello-nurse
 ```
+
+## Acknowledgments
+
+This project builds on open data and open-source tools:
+
+- **[MIMIC-IV](https://physionet.org/content/mimiciv/)** — Johnson et al., PhysioNet. De-identified critical care data from Beth Israel Deaconess Medical Center.
+- **[MIMIC-IV on FHIR](https://physionet.org/content/mimic-iv-fhir/)** — FHIR R4 conversion by the [kind-lab/mimic-fhir](https://github.com/kind-lab/mimic-fhir) project.
+- **[Synthea](https://github.com/synthetichealth/synthea)** — MITRE Corporation. Synthetic patient generation.
+- **[Medplum](https://github.com/medplum/medplum)** — Open-source FHIR platform and developer tools.
+- **[ResusMonitor](https://www.resusmonitor.com/)** — Real-time patient monitor simulation for medical education.
+- **[MedAgentSim](https://github.com/MAXNORM8650/MedAgentSim)** — Medical agent simulation datasets.
+- **[OpenFDA](https://open.fda.gov/)** — FDA drug label and adverse event data.
 
 ## Disclaimer
 
