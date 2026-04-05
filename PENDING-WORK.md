@@ -49,11 +49,14 @@ Medplum Data Enrichment → Context Architecture → Eval Harness → Everything
   - Actual MAR (MedicationAdministration records, not just MedicationRequest)
   - Encounter-scoped medication history
 
-**Data source research (Shane investigating):**
-- MIMIC-IV on PhysioNet — de-identified ICU data with charted vitals, lab trends, medication administrations, clinical notes. `infrastructure/load-mimic.sh` exists but untested against Medplum.
-- eICU Collaborative Research Database — multi-center ICU data
-- Synthea enrichment — custom modules can extend generation, but weak on clinical narratives
-- Other options TBD by Shane's research
+**Data source research (resolved — see `research/Medplum-data-enrichment.txt`):**
+- **MIMIC-IV on FHIR v2.1** (primary) — PhysioNet now ships native FHIR R4 NDJSON bundles. 24 profiles + 6 ED. Encounter-scoped: vitals, labs, MAR (MedicationAdministration), charted events, micro, outputs. Demo subset (100 patients, open access): https://physionet.org/content/mimic-iv-fhir-demo/2.1.0/
+- **MIMIC-IV-Note** (paired) — de-identified H&Ps, progress notes, discharge summaries. Map 1:1 to DocumentReference with encounter references. Trivial in Medplum.
+- **ResusMonitor** (real-time layer) — browser-based ICU monitor sim. Script vital-signs Observations into Medplum via Bot for live streaming data. Closes the loop: historical data + live vitals.
+- eICU-CRD, HiRID, AmsterdamUMCdb — deferred (tabular, no FHIR, limited narratives)
+- Synthea — demoted to smoke tests only
+
+**Loading pipeline:** Medplum batch import of NDJSON + Bot for note→DocumentReference mapping. Code skeletons in the research doc. `infrastructure/load-mimic.sh` exists but predates Medplum — needs rewrite for Medplum SDK ingest.
 
 **Research distillation insights that inform this work** (from `docs/noah-rn-research-distillation.md`):
 - Pattern #4: "Retrieval quality > model scale" — the `knowledge/` dir + FHIR data are the primary levers, not model choice
