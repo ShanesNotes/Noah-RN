@@ -15,6 +15,12 @@ tools:
   - Read
   - Bash
   - Grep
+  - mcp__noah-rn-clinical__get_patient_context
+  - mcp__noah-rn-clinical__list_patients
+  - mcp__noah-rn-clinical__inspect_context
+  - mcp__noah-rn-clinical__get_scenario
+  - mcp__noah-rn-clinical__advance_scenario
+  - mcp__noah-rn-clinical__reset_scenario
 agent_card:
   schema: "https://noah-rn.dev/agent-card/v1"
   name: noah-rn-router
