@@ -3,8 +3,11 @@ set -euo pipefail
 
 DEMO_URL_DEFAULT="https://physionet.org/files/mimic-iv-fhir-demo/2.1.0/"
 DOWNLOAD_ROOT_DEFAULT="${HOME}/noah-rn/mimic-demo"
-FHIR_SERVER_DEFAULT="http://10.0.0.184:8080/fhir"
+FHIR_SERVER_DEFAULT="http://10.0.0.184:8103/fhir/R4"
 EXPECTED_PATIENTS_DEFAULT="100"
+TOKEN_ENDPOINT_DEFAULT="http://10.0.0.184:8103/oauth2/token"
+CLIENT_ID_DEFAULT="3c3c4c3a-2993-424c-b46d-f58db0d7ca14"
+CLIENT_SECRET_DEFAULT="be4fd047142ee6ed2a004a4a9cb98ff4c20f7c73d6082b3754dc9ae613083a34"
 WGET_BIN="${WGET_BIN:-wget}"
 GUNZIP_BIN="${GUNZIP_BIN:-gunzip}"
 JQ_BIN="${JQ_BIN:-jq}"
@@ -84,8 +87,30 @@ resolve_data_dir() {
     fi
 }
 
+BEARER_TOKEN=""
+TOKEN_EXPIRES_AT=0
+
+fetch_token() {
+    local now
+    now="$(date +%s)"
+    if [[ -n "$BEARER_TOKEN" && "$now" -lt "$TOKEN_EXPIRES_AT" ]]; then
+        return 0
+    fi
+    local response
+    response="$("$CURL_BIN" -sS -X POST "$TOKEN_ENDPOINT" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=client_credentials&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}")" \
+        || fail 2 "failed to fetch OAuth2 token from $TOKEN_ENDPOINT"
+    BEARER_TOKEN="$("$JQ_BIN" -r '.access_token // empty' <<<"$response")" || fail 2 "invalid token response"
+    [[ -n "$BEARER_TOKEN" ]] || fail 2 "empty access_token in response"
+    local expires_in
+    expires_in="$("$JQ_BIN" -r '.expires_in // 3600' <<<"$response")"
+    TOKEN_EXPIRES_AT=$(( now + expires_in - 30 ))
+}
+
 fetch_json() {
-    "$CURL_BIN" -sS "$1"
+    fetch_token
+    "$CURL_BIN" -sS -H "Authorization: Bearer $BEARER_TOKEN" "$1"
 }
 
 metadata_check() {
@@ -145,9 +170,11 @@ put_resource() {
         return 0
     fi
 
+    fetch_token
     "$CURL_BIN" --fail-with-body -sS \
         -X PUT \
         -H "Content-Type: application/fhir+json" \
+        -H "Authorization: Bearer $BEARER_TOKEN" \
         --data-binary "$payload" \
         "$url" >/dev/null
 }
@@ -233,6 +260,9 @@ DOWNLOAD_ROOT="$DOWNLOAD_ROOT_DEFAULT"
 DATA_DIR=""
 DOWNLOAD_URL="$DEMO_URL_DEFAULT"
 FHIR_SERVER="$FHIR_SERVER_DEFAULT"
+TOKEN_ENDPOINT="$TOKEN_ENDPOINT_DEFAULT"
+CLIENT_ID="$CLIENT_ID_DEFAULT"
+CLIENT_SECRET="$CLIENT_SECRET_DEFAULT"
 EXPECTED_PATIENTS="$EXPECTED_PATIENTS_DEFAULT"
 ALLOW_NONEMPTY_SERVER="0"
 DRY_RUN="0"
