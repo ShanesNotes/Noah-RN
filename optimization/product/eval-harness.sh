@@ -3,6 +3,7 @@ set -euo pipefail
 # Eval Harness — Phase B (Dynamic + Static)
 # Runs skills against golden test cases, captures traces, produces scores.json.
 #
+# Usage: optimization/product/eval-harness.sh [--candidate <N>] [--case <id>] [--skill <name>] [--mode static|dynamic]
 # Usage: optimization/product/eval-harness.sh [--candidate <N>] [--case <id>] [--skill <name>]
 #                                              [--mode static|dynamic|both]
 #                                              [--dynamic-only] [--structural-only]
@@ -22,7 +23,7 @@ CASES_DIR="$REPO_ROOT/tests/clinical/cases"
 RESULTS_DIR="$SCRIPT_DIR/results"
 TRACES_DIR="$SCRIPT_DIR/traces"
 ANALYSIS_DIR="$SCRIPT_DIR/analysis"
-SAFETY_CONSTRAINTS="$SCRIPT_DIR/safety-constraints.yaml"
+SAFETY_CONSTRAINTS="$SCRIPT_DIR/clinical-constraints.yaml"
 
 mkdir -p "$RESULTS_DIR" "$TRACES_DIR" "$ANALYSIS_DIR"
 
@@ -32,6 +33,9 @@ PASS=0
 FAIL=0
 SKIP=0
 SAFETY_FAILS=0
+SAFETY_VETO=0
+SCHEMA_V2_CASES=0
+DYNAMIC_SKIP=0
 SAFETY_VETO_CASES=0
 DYNAMIC_SKIP=0
 SCHEMA_V2_COUNT=0
@@ -51,6 +55,7 @@ log_info() { echo -e "${CYAN}INFO${NC} $1"; }
 declare -A CAT_TOTAL CAT_PASS CAT_FAIL CAT_SAFETY_VETO
 
 record_result() {
+  local category="$1" result="$2" safety_veto="${3:-0}"
   local category="$1" result="$2" is_safety_veto="${3:-false}"
   CAT_TOTAL[$category]=$(( ${CAT_TOTAL[$category]:-0} + 1 ))
   if [ "$result" = "pass" ]; then
@@ -58,6 +63,7 @@ record_result() {
   elif [ "$result" = "fail" ]; then
     CAT_FAIL[$category]=$(( ${CAT_FAIL[$category]:-0} + 1 ))
   fi
+  if [ "$safety_veto" = "1" ]; then
   if [ "$is_safety_veto" = "true" ] || [ "$is_safety_veto" = "1" ]; then
     CAT_SAFETY_VETO[$category]=$(( ${CAT_SAFETY_VETO[$category]:-0} + 1 ))
   fi
@@ -271,6 +277,124 @@ print(match.group(1) if match else '0.0')
   return 0
 }
 
+# Dynamic validation — run skill against test case and check output
+run_dynamic_validation() {
+  local case_json="$1"
+  local skill="$2"
+  local test_id="$3"
+  local case_trace_dir="$4"
+
+  # Check if model is configured
+  if [ -z "${OPENAI_API_KEY:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${OLLAMA_BASE_URL:-}" ]; then
+    log_skip "$test_id — no model configured (dynamic skipped)"
+    DYNAMIC_SKIP=$((DYNAMIC_SKIP + 1))
+    return 0
+  fi
+
+  # Extract expectations
+  local must_contain must_not_contain min_confidence must_cite_source
+  must_contain="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+expected = d.get('expected', {})
+mc = expected.get('must_contain', [])
+print('\n'.join(mc))
+")"
+  must_not_contain="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+expected = d.get('expected', {})
+mnc = expected.get('must_not_contain', [])
+print('\n'.join(mnc))
+")"
+  min_confidence="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+expected = d.get('expected', {})
+conf = expected.get('confidence', {})
+print(conf.get('minimum_overall', 0.5))
+")"
+  must_cite_source="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+expected = d.get('expected', {})
+prov = expected.get('provenance', {})
+print(str(prov.get('must_cite_source', False)).lower())
+")"
+
+  # Get clinical context
+  local clinical_context
+  clinical_context="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('input', {}).get('clinical_context', ''))
+")"
+
+  # Invoke skill via model API (placeholder — actual implementation depends on model provider)
+  local skill_output
+  skill_output="$(invoke_skill "$skill" "$clinical_context" "$case_trace_dir")" || {
+    log_fail "$test_id — skill invocation failed"
+    return 1
+  }
+
+  # Validate must_contain
+  local missing_contains=()
+  while IFS= read -r term; do
+    [ -z "$term" ] && continue
+    if ! echo "$skill_output" | grep -qi "$term"; then
+      missing_contains+=("$term")
+    fi
+  done <<< "$must_contain"
+
+  # Validate must_not_contain
+  local found_prohibited=()
+  while IFS= read -r term; do
+    [ -z "$term" ] && continue
+    if echo "$skill_output" | grep -qi "$term"; then
+      found_prohibited+=("$term")
+    fi
+  done <<< "$must_not_contain"
+
+  # Validate confidence
+  local actual_confidence
+  actual_confidence="$(echo "$skill_output" | python3 -c "
+import sys, re
+text = sys.stdin.read()
+match = re.search(r'confidence[:\s]+([0-9.]+)', text, re.IGNORECASE)
+if match:
+    print(match.group(1))
+else:
+    print('0.0')
+" 2>/dev/null || echo "0.0")"
+
+  local confidence_ok
+  confidence_ok="$(python3 -c "print('true' if float('$actual_confidence') >= float('$min_confidence') else 'false')")"
+
+  # Validate provenance
+  local provenance_ok="true"
+  if [ "$must_cite_source" = "true" ]; then
+    if ! echo "$skill_output" | grep -qi "source:\|citation:\|reference:\|guideline:"; then
+      provenance_ok="false"
+    fi
+  fi
+
+  # Report results
+  local failures=()
+  [ ${#missing_contains[@]} -gt 0 ] && failures+=("missing:${missing_contains[*]}")
+  [ ${#found_prohibited[@]} -gt 0 ] && failures+=("prohibited:${found_prohibited[*]}")
+  [ "$confidence_ok" = "false" ] && failures+=("confidence:${actual_confidence} < ${min_confidence}")
+  [ "$provenance_ok" = "false" ] && failures+=("provenance:missing_source")
+
+  if [ ${#failures[@]} -gt 0 ]; then
+    log_fail "$test_id — $(IFS='; '; echo "${failures[*]}")"
+    return 1
+  fi
+
+  log_pass "$test_id"
+  return 0
+}
+
+# Invoke skill via model API
 invoke_skill() {
   local skill="$1"
   local context="$2"
@@ -287,6 +411,7 @@ invoke_skill() {
   local skill_prompt
   skill_prompt="$(cat "$skill_file")"
 
+  # Determine model provider
   if [ -n "${OPENAI_API_KEY:-}" ]; then
     curl -s "https://api.openai.com/v1/chat/completions" \
       -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -326,6 +451,7 @@ invoke_skill() {
   fi
 }
 
+# Run a single test case
 run_case() {
   local case_file="$1"
   local case_json
@@ -365,11 +491,27 @@ run_case() {
   mkdir -p "$case_trace_dir"
   echo "$case_json" > "$case_trace_dir/input-context.json"
 
+  # Create trace directory
+  local case_trace_dir="$TRACES_DIR/$test_id"
+  mkdir -p "$case_trace_dir"
+
+  # Save input context to trace
+  echo "$case_json" > "$case_trace_dir/input-context.json"
+
+  # Static validation (always run)
   local skill_result
   skill_result="$(validate_skill "$skill")" || true
 
   if [[ "$skill_result" == FAIL:* ]]; then
     local detail="${skill_result#FAIL:}"
+    if [ "$severity" = "critical" ]; then
+      SAFETY_FAILS=$((SAFETY_FAILS+1))
+      SAFETY_VETO=$((SAFETY_VETO+1))
+    fi
+    log_fail "$test_id — $detail"
+    FAIL=$((FAIL+1))
+    record_result "$skill" "fail" "$([ "$severity" = "critical" ] && echo 1 || echo 0)"
+    echo "FAIL:$detail" > "$case_trace_dir/hook-results.json"
     log_fail "$test_id — $detail"
     FAIL=$((FAIL+1))
     record_result "$skill" "fail" "$safety_veto"
@@ -381,6 +523,34 @@ run_case() {
   elif [[ "$skill_result" == MISSING:* ]]; then
     log_fail "$test_id — skill '$skill' not found"
     FAIL=$((FAIL+1))
+    record_result "$skill" "fail" "0"
+    echo "MISSING:skill_not_found" > "$case_trace_dir/hook-results.json"
+    return
+  fi
+
+  # Dynamic validation (if model configured)
+  if [ -n "${OPENAI_API_KEY:-}" ] || [ -n "${ANTHROPIC_API_KEY:-}" ] || [ -n "${OLLAMA_BASE_URL:-}" ]; then
+    SCHEMA_V2_CASES=$((SCHEMA_V2_CASES + 1))
+    if run_dynamic_validation "$case_json" "$skill" "$test_id" "$case_trace_dir"; then
+      PASS=$((PASS+1))
+      record_result "$skill" "pass" "0"
+      echo "PASS" > "$case_trace_dir/hook-results.json"
+    else
+      FAIL=$((FAIL+1))
+      if [ "$severity" = "critical" ]; then
+        SAFETY_FAILS=$((SAFETY_FAILS+1))
+        SAFETY_VETO=$((SAFETY_VETO+1))
+      fi
+      record_result "$skill" "fail" "$([ "$severity" = "critical" ] && echo 1 || echo 0)"
+      echo "FAIL:dynamic_validation_failed" > "$case_trace_dir/hook-results.json"
+    fi
+  else
+    # Static pass
+    log_pass "$test_id (static only)"
+    PASS=$((PASS+1))
+    record_result "$skill" "pass" "0"
+    echo "PASS:static_only" > "$case_trace_dir/hook-results.json"
+  fi
     record_result "$skill" "fail" "$safety_veto"
     echo "MISSING:skill_not_found" > "$case_trace_dir/hook-results.json"
     if [ "$severity" = "critical" ] || [ "$safety_veto" = "true" ]; then
@@ -459,13 +629,11 @@ scores = {
 for cat, counts in data.get('categories', {}).items():
     total = counts.get('total', 0)
     passed = counts.get('pass', 0)
-    failed = counts.get('fail', 0)
     safety_veto = counts.get('safety_veto', 0)
     scores['categories'][cat] = {
         'total': total,
         'pass': passed,
-        'fail': failed,
-        'skip': max(total - passed - failed, 0),
+        'fail': total - passed,
         'safety_veto': safety_veto,
         'pass_rate': round(passed / max(total, 1) * 100, 1)
     }
@@ -596,6 +764,7 @@ done
 
 echo ""
 echo "=== Results ==="
+echo "Total: $TOTAL | Pass: $PASS | Fail: $FAIL | Skip: $SKIP | Safety: $SAFETY_FAILS | Veto: $SAFETY_VETO | Schema v2: $SCHEMA_V2_CASES | Dynamic Skip: $DYNAMIC_SKIP"
 echo "Total: $TOTAL | Pass: $PASS | Fail: $FAIL | Skip: $SKIP | Safety: $SAFETY_FAILS | Safety-veto cases: $SAFETY_VETO_CASES | Schema v2: $SCHEMA_V2_COUNT | Dynamic skip: $DYNAMIC_SKIP"
 
 echo ""
@@ -605,6 +774,7 @@ for cat in "${!CAT_TOTAL[@]}"; do
   local_fail=${CAT_FAIL[$cat]:-0}
   local_total=${CAT_TOTAL[$cat]}
   local_veto=${CAT_SAFETY_VETO[$cat]:-0}
+  echo "  $cat: $local_pass/$local_total (veto: $local_veto)"
   local_veto_tag=""
   [ "$local_veto" -gt 0 ] && local_veto_tag=" (safety_veto: $local_veto)"
   echo "  $cat: pass=$local_pass fail=$local_fail total=$local_total${local_veto_tag}"
@@ -620,6 +790,12 @@ data = {
     'fail': $FAIL,
     'skip': $SKIP,
     'safety_failures': $SAFETY_FAILS,
+    'safety_veto_cases': $SAFETY_VETO,
+    'schema_v2_cases': $SCHEMA_V2_CASES,
+    'dynamic_skip': $DYNAMIC_SKIP,
+    'categories': {
+$(for cat in "${!CAT_TOTAL[@]}"; do
+  echo "        \"$cat\": {\"total\": ${CAT_TOTAL[$cat]}, \"pass\": ${CAT_PASS[$cat]:-0}, \"safety_veto\": ${CAT_SAFETY_VETO[$cat]:-0}},"
     'safety_veto_cases': $SAFETY_VETO_CASES,
     'schema_v2_cases': $SCHEMA_V2_COUNT,
     'dynamic_skip': $DYNAMIC_SKIP,

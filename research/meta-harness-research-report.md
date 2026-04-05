@@ -14,6 +14,7 @@
 |-----------|----------|--------|-------|
 | Filesystem structure | `optimization/product/` + `optimization/company/` | ✅ Complete | `candidates/`, `traces/`, `analysis/`, `results/` directories with `.gitkeep` |
 | Product proposer prompt | `optimization/product/proposer-prompt.md` | ✅ Complete | 113 lines — counterfactual diagnosis workflow, hard constraints, optimization targets, output format |
+| Clinical constraints | `optimization/product/clinical-constraints.yaml` | ✅ Complete | 72 lines — regulatory posture, accuracy hierarchy, output format, provenance, optimizer constraints, confidence tiers |
 | Safety constraints | `optimization/product/safety-constraints.yaml` | ✅ Complete | 72 lines — regulatory posture, safety hierarchy, output format, provenance, optimizer constraints, confidence tiers |
 | Eval harness skeleton | `optimization/product/eval-harness.sh` | ✅ Complete | 260 lines — static structural validation only (checks skill files contain required elements) |
 | Failure modes analysis | `optimization/product/analysis/failure-modes.md` | ✅ Complete | Documents current validation limitations and path to dynamic validation |
@@ -57,6 +58,7 @@ The existing 53 test cases in `tests/clinical/cases/` are well-structured but in
 | Severity distribution | 22 critical, 22 high, 6 medium, 3 low | Good — maintain this ratio |
 | Cross-skill cases | 3 (`cross-001` through `cross-003`) | Need 10+ |
 | Edge cases | 5 (`edge-001` through `edge-005`) | Need 15+ |
+| Correctness cases | 5 (`safety-001` through `safety-005`) | Need 20+ (these are the veto set) |
 | Safety cases | 5 (`safety-001` through `safety-005`) | Need 20+ (these are the veto set) |
 
 ### 2.2 Golden Test Suite Architecture
@@ -117,11 +119,15 @@ expected:
     secondary_skills: [clinical-calculator]  # for NIHSS if neuro involvement
     cross_skill_triggers: [post-ROSC assessment]
 severity: critical
+clinical_veto: true  # explicit tagging for veto subset
 safety_veto: true  # explicit tagging for veto subset
 author: shane
 date: '2026-03-31'
 ```
 
+### 2.4 Clinical Accuracy Veto Subset
+
+The 22 critical-severity cases form the clinical accuracy veto set. These must be explicitly tagged and checked first:
 ### 2.4 Safety Veto Subset
 
 The 22 critical-severity cases form the safety veto set. These must be explicitly tagged and checked first:
@@ -141,6 +147,7 @@ The 22 critical-severity cases form the safety veto set. These must be explicitl
 
 Priority order for adding cases:
 
+1. **Clinically critical gaps** (20 cases): Cover every ACLS rhythm, every sepsis bundle step, every stroke protocol element, every RSI drug sequence
 1. **Safety-critical gaps** (20 cases): Cover every ACLS rhythm, every sepsis bundle step, every stroke protocol element, every RSI drug sequence
 2. **Cross-skill scenarios** (10 cases): Sepsis + calculator (SOFA), stroke + calculator (NIHSS), cardiac arrest + drug lookup (epinephrine dosing)
 3. **Edge cases** (15 cases): Pediatric dosing, renal impairment, drug interactions, contraindication conflicts
@@ -153,6 +160,7 @@ Priority order for adding cases:
 
 ### 3.1 What Calibration Means for Clinical CDS
 
+Model calibration = the correlation between stated confidence and actual correctness. In clinical CDS, this is clinically critical:
 Model calibration = the correlation between stated confidence and actual correctness. In clinical CDS, this is safety-critical:
 
 - **Overconfident wrong answer** = nurse trusts incorrect guidance → patient harm
@@ -190,6 +198,7 @@ Iteration N:
      - Tier labeling criteria (when to say Tier 1 vs Tier 2 vs Tier 3)
      - Uncertainty flagging triggers (when to add [Check] markers)
   4. Re-run golden suite → measure calibration improvement
+  5. Accept if: ECE improved AND no clinical regression
   5. Accept if: ECE improved AND no safety regression
 ```
 
@@ -245,6 +254,9 @@ Additions needed:
 
 ## Conflicting Failure Modes
 When two failure modes suggest opposite changes:
+1. Prioritize clinically critical failures over completeness failures
+2. Prioritize failures in critical-severity cases over medium-severity
+3. If both are clinically critical, propose two candidates (one per fix) and let eval decide
 1. Prioritize safety-critical failures over completeness failures
 2. Prioritize failures in critical-severity cases over medium-severity
 3. If both are safety-critical, propose two candidates (one per fix) and let eval decide
@@ -338,6 +350,7 @@ The optimizer needs multiple feedback signals, not just pass/fail:
 |--------|--------|-----------|---------------|
 | Pass/fail per case | Eval harness | Per iteration | High — direct optimization target |
 | Score delta per metric | Eval harness | Per iteration | High — shows which dimension improved |
+| Clinical accuracy veto trigger | Eval harness | Per iteration | Critical — immediate rejection |
 | Safety veto trigger | Eval harness | Per iteration | Critical — immediate rejection |
 | Confidence calibration error | Eval harness | Per iteration | Medium — gradual optimization |
 | Trace analysis | Proposer review | Per iteration | High — drives next proposal |
@@ -516,6 +529,7 @@ This is enough to run 3-5 calibration iterations and determine whether the loop 
 | Run 3-5 proposer iterations per model | 3-5 hours | Phase A.5 |
 | Score models on all dimensions | 1 hour | Iteration results |
 | Select top 2 models for rotation | 30 min | Model scores |
+| Implement clinical accuracy veto in eval harness | 1 hour | Clinically-tagged cases |
 | Implement safety veto in eval harness | 1 hour | Safety-tagged cases |
 | First Claude validation of top candidate | 30 min | Eval results |
 
@@ -588,6 +602,7 @@ The critical architectural decision is separating **harness optimization** (impr
 3. The optimization loop can only improve how knowledge is presented and validated
 4. Model selection (Layer 4) is how you improve clinical reasoning
 
+This separation is already encoded in the clinical constraints — the proposer prompt explicitly forbids modifying clinical knowledge content.
 This separation is already encoded in the safety constraints — the proposer prompt explicitly forbids modifying clinical knowledge content.
 
 ---
@@ -596,6 +611,7 @@ This separation is already encoded in the safety constraints — the proposer pr
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
+| Free-tier models produce junk proposals | High | Medium | Claude validator catches bad proposals; clinical accuracy veto prevents regressions |
 | Free-tier models produce junk proposals | High | Medium | Claude validator catches bad proposals; safety veto prevents regressions |
 | Golden test suite insufficient to catch failures | Medium | High | Shane's clinical review is the final gate; expand test suite continuously |
 | Optimization loop drifts from architectural invariants | Medium | High | Claude validator checks invariants; hard constraints in proposer prompt |
