@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "reports": [
+    {
+      "video_id": "0cVuMHaYEHE",
+      "title": "Anthropic, OpenAI, and Microsoft Just Agreed on One File Format. It Changes Everything.",
+      "channel": "AI News & Strategy Daily | Nate B Jones",
+      "published": "2026-03-30T23:37:42Z",
+      "ingested": "2026-04-04T00:29:00-04:00",
+      "tags": ["agents", "claude-code", "workflows", "architecture"],
+      "source_quality": "high",
+      "relevance_score": 5,
+      "report_path": "research/youtube/2026-03-30-anthropic-openai-microsoft-agreed.md",
+      "related_report_ids": []
+    },
+    {
+      "video_id": "RpFh0Nc7RvA",
+      "title": "100k Stars in a day. I Found the Founders Sigrid Jin & Bellman",
+      "channel": "Ray Fernando",
+      "published": "2026-04-03T22:39:04Z",
+      "ingested": "2026-04-04T00:32:05-04:00",
+      "tags": ["agents", "agent-orchestration", "coding-agents", "claude-code"],
+      "source_quality": "medium",
+      "relevance_score": 4,
+      "report_path": "research/youtube/2026-04-01-100k-stars-in-a-day.md",
+      "related_report_ids": []
+    },
+    {
+      "video_id": "FtCdYhspm7w",
+      "title": "I Broke Down Anthropic's $2.5 Billion Leak. Your Agent Is Missing 12 Critical Pieces.",
+      "channel": "AI News & Strategy Daily | Nate B Jones",
+      "published": "2026-04-03T22:49:00Z",
+      "ingested": "2026-04-04T00:33:22-04:00",
+      "tags": ["architecture", "security", "claude-code", "agents"],
+      "source_quality": "high",
+      "relevance_score": 5,
+      "report_path": "research/youtube/2026-04-03-anthropic-2-5-billion-leak.md",
+      "related_report_ids": []
+    },
+    {
+      "video_id": "61JUHDK-em8",
+      "title": "AI Self EVOLUTION (Meta Harness)",
+      "channel": "Matthew Berman",
+      "published": "2026-04-04T03:48:33Z",
+      "ingested": "2026-04-04T00:34:37-04:00",
+      "tags": ["architecture", "agents", "models", "tooling"],
+      "source_quality": "medium",
+      "relevance_score": 3,
+      "report_path": "research/youtube/2026-03-31-ai-self-evolution-meta-harness.md",
+      "related_report_ids": []
+    },
+    {
+      "video_id": "4cuT-LKcmWs",
+      "title": "The AI Job Market Split in Two. One Side Pays $400K and Can't Hire Fast Enough.",
+      "channel": "AI News & Strategy Daily | Nate B Jones",
+      "published": "2026-03-26T22:00:24Z",
+      "ingested": "2026-03-31T23:08:05-04:00",
+      "tags": ["agents", "prompting", "architecture"],
+      "source_quality": "high",
+      "relevance_score": 4,
+      "report_path": "research/youtube/2026-03-26-the-ai-job-market-split.md",
+      "related_report_ids": []
+    }
+  ],
+  "tag_graph": {
+    "agents|claude-code": 3,
+    "agents|workflows": 1,
+    "agents|architecture": 4,
+    "claude-code|workflows": 1,
+    "claude-code|architecture": 2,
+    "workflows|architecture": 1,
+    "agents|agent-orchestration": 1,
+    "agents|coding-agents": 1,
+    "agent-orchestration|coding-agents": 1,
+    "agent-orchestration|claude-code": 1,
+    "coding-agents|claude-code": 1,
+    "architecture|security": 1,
+    "security|claude-code": 1,
+    "security|agents": 1,
+    "architecture|models": 1,
+    "architecture|tooling": 1,
+    "agents|models": 1,
+    "agents|tooling": 1,
+    "models|tooling": 1,
+    "agents|prompting": 1,
+    "prompting|architecture": 1
+  }
+}
