@@ -1,6 +1,6 @@
 # Noah RN
 
-Noah RN is a deterministic-first clinical workspace harness and project for clinical workflows. It is built as a bounded clinical agentic system: deterministic tools where math and lookup must be exact, structured skills where clincal context needs organization, and explicit safety checks where errors matter.
+Noah RN is a clinical workspace harness and project for clinical workflows. It is built as a bounded clinical agentic system: deterministic tools where math and lookup must be exact, structured skills where clincal context needs organization, and explicit safety checks where errors matter.
 
 Version: **0.2.0**
 
