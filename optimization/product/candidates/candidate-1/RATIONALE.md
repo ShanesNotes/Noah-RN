@@ -76,4 +76,5 @@ Cases most likely to fail initially:
 
 1. `optimization/product/eval-harness.sh` — Add dynamic execution mode
 2. `optimization/product/clinical-constraints.yaml` — Add dynamic validation constraints
+2. `optimization/product/safety-constraints.yaml` — Add dynamic validation constraints
 3. `optimization/product/analysis/failure-modes.md` — Update with dynamic validation results

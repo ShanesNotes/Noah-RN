@@ -17,6 +17,7 @@ RESULTS_DIR="$SCRIPT_DIR/results"
 TRACES_DIR="$SCRIPT_DIR/traces"
 ANALYSIS_DIR="$SCRIPT_DIR/analysis"
 SAFETY_CONSTRAINTS="$SCRIPT_DIR/clinical-constraints.yaml"
+SAFETY_CONSTRAINTS="$SCRIPT_DIR/safety-constraints.yaml"
 
 mkdir -p "$RESULTS_DIR" "$TRACES_DIR" "$ANALYSIS_DIR"
 
