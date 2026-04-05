@@ -24,25 +24,13 @@ hitl_category: "II"
 
 Verification skill that confirms the noah-rn plugin is installed and operational.
 
+> **Conventions**: This skill follows `plugin/CONVENTIONS.md` for trace logging, disclaimers, provenance footer, and universal rules.
+
 ## When This Skill Applies
 
 - Testing or verifying the noah-rn plugin installation
 - Running a "hello nurse" or "hello noah" check
 - Confirming the plugin scaffold is functional
-
-## Trace Logging
-
-Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
-
-**Start trace** (before any other work):
-```bash
-CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "hello-nurse")
-```
-
-**Record input context** (after collecting input, before processing):
-```bash
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
-```
 
 ## Response
 
@@ -69,38 +57,9 @@ noah-rn v0.2 | hello-nurse v0.2.0
 Clinical decision support — verify against facility protocols and current patient data.
 ```
 
-### Step 1: Finalize Trace
-
-Record the skill output and close the trace:
-
-```bash
-# Record the raw output you just generated
-echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
-
-# Record hook results (empty if no hooks fired)
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
-
-# Finalize timing
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
-```
-
-Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
-
 ## Evidence & Confidence
 
 - Plugin status and version information are Tier 1 (deterministic — system metadata)
 - Skill catalog listing is Tier 1 (system inventory)
 - No clinical claims are made in this output — no source citations needed
 
-## Provenance Footer
-
-End every response with:
-```
----
-noah-rn v0.2 | hello-nurse v0.2.0
-Clinical decision support — verify against facility protocols and current patient data.
-```
-
-## Clinical Safety Disclaimer
-
-Noah RN provides clinical decision support — it is not a substitute for clinical judgment. Verify all information against your facility's policies and current patient data.
