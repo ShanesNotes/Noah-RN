@@ -10,6 +10,33 @@ import type {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// OAuth2 client credentials token cache
+let cachedToken: { accessToken: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt - 30_000) {
+    return cachedToken.accessToken;
+  }
+
+  const { tokenEndpoint, clientId, clientSecret } = config.fhir.auth;
+  const res = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Token request failed: ${res.status} ${res.statusText}`);
+  }
+
+  const body = await res.json() as { access_token: string; expires_in?: number };
+  cachedToken = {
+    accessToken: body.access_token,
+    expiresAt: Date.now() + (body.expires_in ?? 3600) * 1000,
+  };
+  return cachedToken.accessToken;
+}
+
 async function fhirFetch<T>(path: string): Promise<FhirResult<T>> {
   // Fixture mode: read from cached JSON if configured or server unreachable
   if (config.fhir.fixtureDir) {
@@ -18,10 +45,14 @@ async function fhirFetch<T>(path: string): Promise<FhirResult<T>> {
 
   const url = `${config.fhir.serverUrl}/${path}`;
   try {
+    const token = await getAccessToken();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), config.fhir.requestTimeoutMs);
 
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
     clearTimeout(timeout);
 
     if (!res.ok) {
