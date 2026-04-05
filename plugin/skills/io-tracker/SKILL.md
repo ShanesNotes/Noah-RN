@@ -36,6 +36,8 @@ Organize free-text fluid intake and output data into categorized, totaled, docum
 
 Supports two modes: single dump (all I&O at once) and incremental (add entries throughout the conversation).
 
+> **Conventions**: This skill follows `plugin/CONVENTIONS.md` for trace logging, confidence tiers, disclaimers, provenance footer, cross-skill suggestions, and universal rules.
+
 ## Recognized Categories
 
 ### Intake
@@ -56,23 +58,9 @@ Supports two modes: single dump (all I&O at once) and incremental (add entries t
 | **Stool** | Liquid/measurable only -- formed stool is not typically measured |
 | **Blood loss** | Estimated blood loss (EBL), surgical, GI bleed estimates |
 
-## Trace Logging
-
-Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
-
-**Start trace** (before any other work):
-```bash
-CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "io-tracker")
-```
-
-**Record input context** (after collecting input, before processing):
-```bash
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
-```
-
 ## Workflow
 
-### Step 1: Receive Input
+### Step 1: Receive and Parse Input
 
 Accept the nurse's free-text I&O description. This can be:
 - A full shift dump: "250 of urine out, drank 500ml, at 50% dinner, IVs running at 125/hr for 4 hours"
@@ -81,64 +69,46 @@ Accept the nurse's free-text I&O description. This can be:
 
 Do not ask clarifying questions unless a volume is genuinely ambiguous or missing. Parse what is provided.
 
-### Step 2: Parse and Categorize
-
 Map each mentioned fluid to the correct category. Use clinical context to infer:
 - "foley drained 250" = Urine / Foley / 250 mL
 - "drank 500ml" = PO liquids / 500 mL
-- "IVs running at 125/hr" = IV fluids -- but need duration to calculate volume (ask if not provided)
-- "50% dinner" = Dietary -- estimate per Step 3
+- "IVs running at 125/hr" = IV fluids -- need duration to calculate volume (ask if not provided)
+- "50% dinner" = Dietary -- estimate per special cases below
 - "JP had 45cc" = Drains / JP / 45 mL
 - "500 NS bolus" = IV fluids / bolus / 500 mL
 - "blood products: 1 unit PRBCs" = IV fluids / blood products / ~350 mL (standard unit volume)
 
-Preserve the nurse's language in the Details column. Don't sanitize abbreviations.
+Preserve the nurse's language in the Details column.
 
-### Step 3: Handle Special Cases
+### Step 2: Handle Special Cases
 
 **Meal percentages:**
 Use ~300 mL as the default standard hospital tray fluid estimate. Calculate proportionally:
-- 100% tray = ~300 mL
-- 75% = ~225 mL
-- 50% = ~150 mL
-- 25% = ~75 mL
+- 100% tray = ~300 mL, 75% = ~225 mL, 50% = ~150 mL, 25% = ~75 mL
 
 Mark all dietary estimates as Tier 2:
 ```
 ~150 mL est. (50% of ~300mL standard tray -- adjust per your facility)
 ```
 
-The nurse can override with their facility's actual tray volume.
-
 **IV rate calculations:**
 If the nurse provides rate and duration, calculate: volume = rate x time.
 - "NS at 125/hr for 4 hours" = 500 mL (Tier 1 -- math)
-- "running at same rate" = ask for the rate if not previously mentioned in conversation
+- If rate given without duration, ask for the timeframe.
 
-If rate is given without duration, ask for the timeframe.
+**Ice chips:** Standard conversion: ice chips volume x 0.3 = fluid equivalent (30% rule). Tier 2 estimate.
 
-**Ice chips:**
-Standard conversion: ice chips volume x 0.3 = fluid equivalent (30% rule). Mark as Tier 2 estimate.
-
-**Continuous bladder irrigation (CBI):**
-If the nurse mentions CBI, calculate net output: urine bag volume - irrigation intake = true urine output. Flag this calculation clearly.
+**Continuous bladder irrigation (CBI):** Calculate net output: urine bag volume - irrigation intake = true urine output. Flag this calculation clearly.
 
 **Blood products:**
-Flag blood products separately in the Intake table. Standard unit volumes for reference:
-- PRBCs: ~350 mL per unit
-- FFP: ~250 mL per unit
-- Platelets: ~50 mL per unit (pooled ~300 mL)
-- Cryoprecipitate: ~15 mL per unit
+Flag blood products separately in the Intake table. Standard unit volumes:
+- PRBCs: ~350 mL, FFP: ~250 mL, Platelets: ~50 mL (pooled ~300 mL), Cryoprecipitate: ~15 mL
 
-Use actual volume if the nurse provides it. Use standard estimates only if unit count is given without volume, and mark as Tier 2 estimate.
+Use actual volume if provided. Standard estimates are Tier 2, labeled as such.
 
-Standard volumes are common clinical reference values. Actual volumes vary by product and manufacturer. (Source: institutional clinical practice — Tier 2 estimates, labeled as such)
+### Step 3: Calculate Totals
 
-### Step 4: Calculate Totals
-
-After the entries are normalized, call the deterministic I&O tool and use its
-output as the source of truth for category totals, grand totals, net balance,
-and running state:
+Call the deterministic I&O tool -- all arithmetic goes through the tool, not the model:
 
 ```bash
 bash "$(git rev-parse --show-toplevel)/tools/io-tracker/track.sh" <<'EOF'
@@ -146,12 +116,7 @@ bash "$(git rev-parse --show-toplevel)/tools/io-tracker/track.sh" <<'EOF'
 EOF
 ```
 
-Do not total volumes in the model. All arithmetic and recomputation go through
-the tool.
-
-### Step 5: Format Output
-
-Present as a clean, copy-paste-ready summary:
+### Step 4: Format Output
 
 ```
 ## I&O Summary
@@ -177,9 +142,7 @@ Present as a clean, copy-paste-ready summary:
 > Dietary estimate uses ~300mL standard tray. Adjust per your facility.
 ```
 
-If there are Tier 2 estimates, include the caveat note below the table.
-
-### Step 6: Incremental Mode
+### Step 5: Incremental Mode
 
 If the nurse provides follow-up entries in the same conversation:
 - Keep the prior normalized entries from the last `track.sh` output state
@@ -188,15 +151,7 @@ If the nurse provides follow-up entries in the same conversation:
 - Re-render the full summary with updated totals
 - Mark new entries visually (prefix with `+` in the Details column)
 
-Example follow-up:
-```
-Nurse: "also had emesis 150cc coffee ground, and foley another 200"
-```
-
-Updated summary includes the original entries plus the new ones, with totals
-recomputed by the deterministic tool.
-
-### Step 7: Clinical Flags
+### Step 6: Clinical Flags
 
 When clinical context is available, flag concerning patterns. These are Tier 2 (bedside guidance):
 
@@ -211,98 +166,29 @@ When clinical context is available, flag concerning patterns. These are Tier 2 (
 - **Significant output**: Single drain >500 mL, emesis >500 mL, or EBL >500 mL
 - **Negative balance**: Flag if unexpected (e.g., not on diuretics) -- may indicate volume depletion
 
-Only show flags when the data supports them. Do not speculate about diagnoses or fluid status beyond what the numbers show.
+Only show flags when the data supports them.
 
 **Why we care:**
 - **Low UOP**: Urine output < 0.5 mL/kg/hr = early sign of renal hypoperfusion. AKI prevention window.
-- **Large positive balance**: Fluid overload → pulmonary edema → respiratory failure. Especially dangerous in CHF/ESRD.
-- **Negative balance without diuretics**: Unexpected volume depletion — assess for third-spacing, bleeding, or inadequate resuscitation.
-
-### Step 8: Disclaimer
-
-Append a randomly selected disclaimer:
-
-```
----
-Noah RN -- not a substitute for using your noggin. Stay focused.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- trust your gut, verify with your eyes. This is just a tool.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- you're the nurse, I'm the clipboard. Double-check everything.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- clinical decision support, not clinical decisions. You got this.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- I organize, you validate. Your assessment > my output.
-Verify all findings against your assessment and facility policies.
-```
-
-Select ONE randomly per invocation. Do not repeat the same one consecutively.
-
-### Step 9: Finalize Trace
-
-Record the skill output and close the trace:
-
-```bash
-# Record the raw output you just generated
-echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
-
-# Record hook results (empty if no hooks fired)
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
-
-# Finalize timing
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
-```
-
-Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
+- **Large positive balance**: Fluid overload -> pulmonary edema -> respiratory failure. Especially dangerous in CHF/ESRD.
+- **Negative balance without diuretics**: Unexpected volume depletion -- assess for third-spacing, bleeding, or inadequate resuscitation.
 
 ## Evidence & Confidence
 
 - IV rate x time calculations are Tier 1 (deterministic math)
-- Dietary tray estimates (~300mL) are Tier 2 — always label with "(Tier 2 estimate — adjust per facility)"
-- Blood product standard volumes are Tier 2 — label with unit source
+- Dietary tray estimates (~300mL) are Tier 2 -- always label with "(Tier 2 estimate -- adjust per facility)"
+- Blood product standard volumes are Tier 2 -- label with unit source
 - Ice chips 30% rule is Tier 2
 - Clinical flags (low UOP, large balance) are Tier 2 (bedside guidance)
-- Facility-specific concerning thresholds are Tier 3 — "per facility protocol"
-
-## Provenance Footer
-End every response with:
----
-noah-rn v0.2 | io-tracker v1.1.0 | nurse-provided data
-Clinical decision support — verify against facility protocols and current patient data.
-
-## Cross-Skill Suggestions
-
-If I&O findings map to knowledge/templates/cross-skill-triggers.md, add up to 2 suggestions after the I&O summary. Only if clearly supported by the data.
-
-Key trigger mappings for I&O:
-- UOP < 0.5 mL/kg/hr x 6h → consider renal assessment, fluid status review
-- Net fluid balance > +3L → consider volume overload assessment
-- Significant negative balance without diuretics → consider fluid resuscitation review
+- Facility-specific concerning thresholds are Tier 3 -- "per facility protocol"
 
 ## Important Rules
 
 - Do not invent volumes. If the nurse says "some output" without a number, ask for the volume. One prompt, one chance.
-- Do not estimate urine output. Urine must have a measured volume. Only dietary and blood products use standard estimates, and those are always labeled as Tier 2.
-- IV rate x time calculations are Tier 1 (deterministic math).
-- Dietary tray estimates are Tier 2 (labeled with default assumption and facility caveat).
+- Do not estimate urine output. Urine must have a measured volume. Only dietary and blood products use standard estimates, labeled as Tier 2.
+- All arithmetic goes through the deterministic tool. Do not total volumes in the model.
 - Net balance is always calculated and displayed.
-- Preserve nurse shorthand in the Details column: "500 of NS", "drained 200 from JP", "dark amber concentrated".
-- Output is copy-paste ready. No conversational preamble ("Here's your I&O summary...").
-- "Per facility protocol" for what constitutes concerning output thresholds -- facilities have different standards.
+- Preserve nurse shorthand in the Details column.
+- Output is copy-paste ready. No conversational preamble.
+- "Per facility protocol" for what constitutes concerning output thresholds.
 - When in doubt about a category, ask once. Don't re-prompt.

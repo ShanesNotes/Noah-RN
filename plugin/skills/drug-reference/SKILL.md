@@ -39,21 +39,9 @@ hitl_category: "II"
 
 # Drug Reference
 
-Look up drug information via the OpenFDA Drug Label API. Returns distilled, bedside-useful output — not a textbook. Default is a quick-reference (3-5 lines). Full label data available on request.
+Look up drug information via the OpenFDA Drug Label API. Returns distilled, bedside-useful output -- not a textbook. Default is a quick-reference (3-5 lines). Full label data available on request.
 
-## Trace Logging
-
-Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
-
-**Start trace** (before any other work):
-```bash
-CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "drug-reference")
-```
-
-**Record input context** (after collecting input, before processing):
-```bash
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
-```
+> **Conventions**: This skill follows `plugin/CONVENTIONS.md` for trace logging, confidence tiers, disclaimers, provenance footer, cross-skill suggestions, and universal rules.
 
 ## Workflow
 
@@ -94,60 +82,40 @@ Before calling the tool, check if the drug matches any entry on this ISMP high-a
 If the drug is high-alert, flag at the TOP of every response:
 
 ```
-⚠ HIGH-ALERT MEDICATION — independent double-check required per facility policy
+!! HIGH-ALERT MEDICATION -- independent double-check required per facility policy
 ```
 
 ### Step 3: Call the Lookup Tool
-
-Run the drug lookup tool. First find the noah-rn repo root by locating the tool, then execute it:
 
 ```bash
 bash "$(git rev-parse --show-toplevel)/tools/drug-lookup/lookup.sh" "<drug_name>"
 ```
 
-The tool returns structured JSON with these fields:
-- `generic_name`, `brand_name` — drug identification
-- `pharm_class` — pharmacologic class (may be extracted from description if API field is empty)
-- `route` — administration routes
-- `dosage_and_administration` — FDA dosing text
-- `warnings` — warnings/precautions (field name varies across labels)
-- `boxed_warning` — black box warning text (null if none)
-- `adverse_reactions` — side effects
-- `contraindications` — when NOT to give
-- `drug_interactions` — known interactions from label
+The tool returns structured JSON with: `generic_name`, `brand_name`, `pharm_class`, `route`, `dosage_and_administration`, `warnings`, `boxed_warning`, `adverse_reactions`, `contraindications`, `drug_interactions`.
 
 If the tool returns an error:
 - `no_match`: "No FDA label found for '[drug]'. Check spelling."
 - `api_error`: "OpenFDA is unreachable. Try again in a moment."
 - `rate_limit`: "OpenFDA rate limit hit. Wait a few seconds and retry."
 
-Report errors plainly. No apologies, no filler.
+Report errors plainly.
 
 ### Step 4: Format Output Based on Context
 
 Read the nurse's original question and select the appropriate output depth.
 
-**Default — distilled quick-reference (3-5 lines):**
+**Default -- distilled quick-reference (3-5 lines):**
 
 Use for general questions like "what is [drug]?", "tell me about [drug]", or when intent is unclear.
 
-Format:
 ```
-[Generic] ([Brand]) — [class]
+[Generic] ([Brand]) -- [class]
 Routes: [routes]. [Key admin notes if relevant]
 [1-2 key bedside points: what to check, what to watch for]
 Monitor: [key monitoring parameters]
 ```
 
-Example:
-```
-Metoprolol (Lopressor) — beta-blocker, antihypertensive
-Routes: PO, IV push (IV: give over 1 min)
-Check HR and BP before admin. Hold parameters per facility protocol.
-Monitor: bradycardia, hypotension, dizziness.
-```
-
-**Focused — specific field based on question:**
+**Focused -- specific field based on question:**
 
 | Question Pattern | Show |
 |-----------------|------|
@@ -157,15 +125,15 @@ Monitor: bradycardia, hypotension, dizziness.
 | "Interactions with [drug]" | Drug interactions section |
 | "Black box warning for [drug]" | Boxed warning text |
 
-Keep focused responses to 3-8 lines. Distill the FDA prose — don't dump raw label text.
+Keep focused responses to 3-8 lines. Distill the FDA prose -- don't dump raw label text.
 
-**Full — complete extraction on request:**
+**Full -- complete extraction on request:**
 
 Triggered by: "tell me everything", "full reference", "expand", "more detail", "full monograph"
 
 Render all available fields in structured sections:
 ```
-[Generic] ([Brand]) — [class]
+[Generic] ([Brand]) -- [class]
 Routes: [routes]
 
 DOSAGE & ADMINISTRATION
@@ -187,84 +155,13 @@ DRUG INTERACTIONS
 [distilled from drug_interactions]
 ```
 
-### Step 5: Append Disclaimer
-
-After every response (including errors), append a randomly selected disclaimer:
-
-```
----
-Noah RN — not a substitute for using your noggin. Stay focused.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — trust your gut, verify with your eyes. This is just a tool.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — you're the nurse, I'm the clipboard. Double-check everything.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — clinical decision support, not clinical decisions. You got this.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN — I organize, you validate. Your assessment > my output.
-Verify all findings against your assessment and facility policies.
-```
-
-Select ONE randomly. Always include — never omit, even on errors.
-
-### Step 6: Finalize Trace
-
-Record the skill output and close the trace:
-
-```bash
-# Record the raw output you just generated
-echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
-
-# Record hook results (empty if no hooks fired)
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
-
-# Finalize timing
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
-```
-
-Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
-
 ## Evidence & Confidence
 
-- Cite source inline after clinical claims: "(Source: FDA drug label via OpenFDA)"
-- Drug identification and FDA label data are Tier 1 (published label — exact as printed)
-- Hold parameter suggestions and monitoring guidance are Tier 2 (bedside guidance — label as such)
-- Facility-specific dosing, titration protocols, and formulary restrictions are Tier 3 — always defer: "Per facility protocol"
-- Flag data freshness: FDA labels update periodically. If the label data looks incomplete or outdated, note: "[Check] Verify against current facility formulary"
-
-## Provenance Footer
-
-End every response with:
-```
----
-noah-rn v0.2 | drug-reference v1.1.0 | FDA drug label via OpenFDA
-Clinical decision support — verify against facility protocols and current patient data.
-```
-
-## Cross-Skill Suggestions
-
-If the drug lookup reveals findings that map to knowledge/templates/cross-skill-triggers.md, add ONE suggestion after the drug reference output. Maximum 1 suggestion. Only if clearly relevant.
-
-Common trigger mappings for drug reference:
-- High-alert anticoagulant → consider reviewing relevant protocol (e.g., bleeding risk assessment)
-- Vasoactive drip → consider reviewing ACLS or sepsis protocol if hemodynamic context applies
-- Thrombolytic (tPA) → consider reviewing stroke protocol for exclusion criteria
+- Drug identification and FDA label data are Tier 1 (published label -- exact as printed)
+- Hold parameter suggestions and monitoring guidance are Tier 2 (bedside guidance -- label as such)
+- Facility-specific dosing, titration protocols, and formulary restrictions are Tier 3 -- always defer: "Per facility protocol"
+- Flag data freshness: if the label data looks incomplete or outdated, note: "[Check] Verify against current facility formulary"
+- Source citation: "(Source: FDA drug label via OpenFDA)"
 
 ## Important Rules
 
@@ -272,7 +169,7 @@ Common trigger mappings for drug reference:
 - Default to quick-reference. Only go full when explicitly asked.
 - Do not fabricate drug information. If the tool returns "Not available" for a field, say so.
 - Do not diagnose or recommend treatments. This is a reference tool.
-- Do not make up hold parameters, titration ranges, or dosing that isn't in the FDA label. If the label doesn't specify, say "per facility protocol" — do not guess.
+- Do not make up hold parameters, titration ranges, or dosing that isn't in the FDA label. If the label doesn't specify, say "per facility protocol."
 - Preserve the nurse's drug name convention. If they say "levo", use "levo" alongside the formal name.
-- Output must be copy-paste ready. No conversational framing.
 - The high-alert flag appears on EVERY response for a high-alert drug, including focused and full responses.
+- Output is copy-paste ready. No conversational framing.

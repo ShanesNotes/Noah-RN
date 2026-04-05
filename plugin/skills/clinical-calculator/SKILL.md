@@ -40,13 +40,15 @@ hitl_category: "II"
 
 Calculate standardized clinical assessment scores using deterministic tools. The nurse provides component values (or describes the patient), and Noah calculates the exact score with clinical context.
 
+> **Conventions**: This skill follows `plugin/CONVENTIONS.md` for trace logging, confidence tiers, disclaimers, provenance footer, cross-skill suggestions, and universal rules.
+
 ## Available Calculators
 
 | Calculator | Use Case | Inputs |
 |-----------|----------|--------|
 | **GCS** | Consciousness / TBI severity | Eye (1-4), Verbal (1-5), Motor (1-6) |
 | **NIHSS** | Stroke severity | 15 items (LOC, gaze, visual, facial, motor, ataxia, sensory, language, dysarthria, extinction) |
-| **APACHE II** | ICU severity / prognosis | APACHE II requires all 15 inputs before calculation |
+| **APACHE II** | ICU severity / prognosis | All 15 inputs required |
 | **Wells PE** | PE probability | 7 clinical criteria (yes/no) |
 | **Wells DVT** | DVT probability | 9 clinical criteria + alternative dx (yes/no) |
 | **CURB-65** | Pneumonia severity | 5 criteria (yes/no) |
@@ -54,20 +56,6 @@ Calculate standardized clinical assessment scores using deterministic tools. The
 | **RASS** | Sedation level | Single behavioral observation (-5 to +4) |
 | **CPOT** | Pain in non-verbal patients | 4 behavioral indicators (0-2 each) |
 | **NEWS2** | Acute illness severity / track-and-trigger | RR, SpO2, O2 therapy, Temp, SBP, HR, AVPU |
-
-## Trace Logging
-
-Every invocation of this skill MUST be traced. Run the trace tool at the start and end of each invocation.
-
-**Start trace** (before any other work):
-```bash
-CASE_ID=$(bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" init "clinical-calculator")
-```
-
-**Record input context** (after collecting input, before processing):
-```bash
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" input "$CASE_ID" '{"query":"<user query>","patient_context":<any patient context as JSON or null>}'
-```
 
 ## Workflow
 
@@ -97,14 +85,11 @@ Walk through each component. Show the valid range and score descriptors.
 
 For complex calculators:
 - **NIHSS**: Present items in order (1a through 11). Show scoring criteria for each item.
-- **APACHE II**: Group by vital signs, then labs, then age/chronic. APACHE II requires all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool. Require FiO2 to determine oxygenation scoring path.
-- **Wells PE**: Present each criterion as a yes/no question with clinical description.
-- **Wells DVT**: Present each criterion as a yes/no question with clinical description.
+- **APACHE II**: Group by vital signs, then labs, then age/chronic. Require all 15 inputs. Require FiO2 to determine oxygenation scoring path.
+- **Wells PE/DVT**: Present each criterion as a yes/no question with clinical description.
 - **NEWS2**: Present all 7 vital sign parameters. Explain SpO2 scale selection (scale 1=standard, scale 2=hypercapnic risk/COPD).
 
 ### Step 3: Call the Tool
-
-Execute the appropriate calculator script:
 
 ```bash
 bash "$(git rev-parse --show-toplevel)/tools/clinical-calculators/<calculator>.sh" <args>
@@ -122,11 +107,9 @@ bash "$(git rev-parse --show-toplevel)/tools/clinical-calculators/<calculator>.s
 - CPOT: `cpot.sh --facial N --body N --muscle N --compliance N`
 - NEWS2: `news2.sh --rr N --spo2 N --o2 <yes|no> --temp N --sbp N --hr N --avpu <A|V|P|U> [--spo2-scale <1|2>]`
 
-If the tool returns an error, report it plainly. Do not apologize or add filler.
+If the tool returns an error, report it plainly. Help the nurse correct the input.
 
 ### Step 4: Format Output
-
-Present results in this format:
 
 ```
 ## [Calculator Name]: [score]/[max] -- [category]
@@ -139,47 +122,21 @@ Present results in this format:
 > Why we care: [one-liner connecting this score to clinical meaning]
 ```
 
-**"Why we care" lines (one per calculator):**
+**"Why we care" lines:**
 - **GCS**: GCS tracks consciousness trajectory. A 2-point drop from baseline is a red flag -- reassess and escalate.
 - **NIHSS**: NIHSS quantifies stroke deficit and guides intervention thresholds. Serial scores track whether the patient is improving or worsening.
 - **APACHE II**: APACHE II estimates ICU mortality risk. It informs prognosis discussions and resource allocation, not treatment decisions.
 - **Wells PE**: Wells stratifies PE probability to guide workup -- D-dimer vs. CT angio. Clinical gestalt matters here too.
-- **Wells DVT**: Wells stratifies DVT probability to guide workup — duplex ultrasound vs. D-dimer. Unilateral leg swelling with risk factors needs an answer, not a wait-and-see.
-- **CURB-65**: CURB-65 guides disposition -- home vs. floor vs. ICU. It's a starting point, not a substitute for clinical judgment on the sick pneumonia patient.
+- **Wells DVT**: Wells stratifies DVT probability to guide workup -- duplex ultrasound vs. D-dimer.
+- **CURB-65**: CURB-65 guides disposition -- home vs. floor vs. ICU. Starting point, not a substitute for clinical judgment.
 - **Braden**: Braden identifies pressure injury risk before skin breaks down. Lower score = higher risk = more aggressive prevention needed.
 - **RASS**: RASS quantifies sedation depth for titration targets. Compare to the ordered goal -- if there's a mismatch, it's a conversation with the provider.
 - **CPOT**: CPOT detects pain in patients who can't self-report. A score of 3+ means pain is likely present -- treat and reassess.
-- **NEWS2**: NEWS2 is the standard track-and-trigger for acute deterioration. Serial scores reveal trajectory -- a rising NEWS2 is often the earliest sign of clinical decline.
+- **NEWS2**: NEWS2 is the standard track-and-trigger for acute deterioration. A rising NEWS2 is often the earliest sign of clinical decline.
 
-### Evidence & Confidence
+### Step 5: Contextual Flags
 
-- After the score table, cite the scoring system source: "(Source: [scoring system] — [original authors/body])"
-  - GCS: Teasdale & Jennett 1974
-  - NIHSS: NIH Stroke Study Group 1989, AHA/ASA
-  - APACHE II: Knaus et al. 1985
-  - Wells PE: Wells et al. 2001
-  - Wells DVT: Wells et al. 2003
-  - CURB-65: Lim et al. 2003, BTS
-  - Braden: Bergstrom et al. 1987
-  - RASS: Sessler et al. 2002
-  - CPOT: Gelinas et al. 2006
-  - NEWS2: Royal College of Physicians 2017
-- Score calculations are Tier 1 (deterministic math — exact published criteria)
-- Contextual flags are Tier 2 (bedside guidance — labeled as such)
-- Facility-specific activation criteria are Tier 3 — defer to "per facility protocol"
-
-### Provenance Footer
-
-End every response with:
-```
----
-noah-rn v0.2 | clinical-calculator v1.1.0 | [scoring system] ([year])
-Clinical decision support — verify against facility protocols and current patient data.
-```
-
-### Step 5: Add Contextual Flags
-
-If the score hits a clinically significant threshold, add a flag after the table. These are Tier 2 (bedside guidance), labeled as such.
+If the score hits a clinically significant threshold, add a flag. These are Tier 2 (bedside guidance).
 
 ```
 [!] [Flag text] (bedside guidance -- verify per facility protocol)
@@ -192,7 +149,7 @@ If the score hits a clinically significant threshold, add a flag after the table
 - NIHSS >=21: "Severe stroke -- high morbidity, assess for large vessel occlusion"
 - APACHE II >=20: "Estimated mortality >25% -- ensure goals of care are addressed"
 - Wells PE >6: "High probability -- CT angiography indicated, consider empiric anticoagulation"
-- Wells DVT >=3: "Moderate-high DVT probability -- duplex ultrasound indicated, consider empiric anticoagulation if high clinical suspicion"
+- Wells DVT >=3: "Moderate-high DVT probability -- duplex ultrasound indicated"
 - CURB-65 >=3: "Consider ICU level of care -- mortality risk significant"
 - Braden <=12: "High risk -- implement full pressure injury prevention bundle"
 - Braden <=9: "Very high risk -- specialty mattress, nutrition consult, q2h repositioning minimum"
@@ -202,79 +159,19 @@ If the score hits a clinically significant threshold, add a flag after the table
 - NEWS2 >=7: "Emergency response -- immediate clinical review, consider rapid response team"
 - NEWS2 any single parameter scoring 3: "Single parameter at extreme -- emergency response even if total score is low"
 
-Only show flags that apply. Do not list inapplicable thresholds.
+Only show flags that apply.
 
-### Cross-Skill Suggestions
+## Evidence & Confidence
 
-If a score hits a trigger threshold from knowledge/templates/cross-skill-triggers.md, add ONE suggestion:
-```
----
-Based on [finding]: consider reviewing [protocol/skill]. [One-line clinical rationale.]
-```
-
-Maximum 1 suggestion per calculator output. Only suggest if clinically relevant.
-
-### Step 6: Disclaimer
-
-Append a randomly selected disclaimer:
-
-```
----
-Noah RN -- not a substitute for using your noggin. Stay focused.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- trust your gut, verify with your eyes. This is just a tool.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- you're the nurse, I'm the clipboard. Double-check everything.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- clinical decision support, not clinical decisions. You got this.
-Verify all findings against your assessment and facility policies.
-```
-
-```
----
-Noah RN -- I organize, you validate. Your assessment > my output.
-Verify all findings against your assessment and facility policies.
-```
-
-Select ONE randomly per invocation. Do not repeat the same one consecutively.
-
-### Step 7: Finalize Trace
-
-Record the skill output and close the trace:
-
-```bash
-# Record the raw output you just generated
-echo "<your complete output above>" | bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" output "$CASE_ID"
-
-# Record hook results (empty if no hooks fired)
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" hooks "$CASE_ID" '{"hooks_fired":[]}'
-
-# Finalize timing
-bash "$(git rev-parse --show-toplevel)/tools/trace/trace.sh" done "$CASE_ID"
-```
-
-Trace logging is append-only and must not block or alter skill output. If trace commands fail, continue with normal skill execution.
+- Score calculations are Tier 1 (deterministic math -- exact published criteria)
+- Contextual flags are Tier 2 (bedside guidance -- labeled as such)
+- Facility-specific activation criteria are Tier 3 -- defer to "per facility protocol"
+- Source citations: GCS (Teasdale & Jennett 1974), NIHSS (NIH 1989), APACHE II (Knaus et al. 1985), Wells PE (Wells et al. 2001), Wells DVT (Wells et al. 2003), CURB-65 (Lim et al. 2003), Braden (Bergstrom et al. 1987), RASS (Sessler et al. 2002), CPOT (Gelinas et al. 2006), NEWS2 (RCP 2017)
 
 ## Important Rules
 
 - Do not fabricate component values. If the nurse provides only a total score without components, ask for the component breakdown. Scores without components are clinically meaningless.
-- Do not round or estimate component scores. If the nurse describes something ambiguously ("pupils are sluggish"), ask which score that maps to rather than guessing.
+- Do not round or estimate component scores. If the nurse describes something ambiguously, ask which score that maps to rather than guessing.
 - All score calculations are deterministic (tool-computed). Do not calculate scores yourself -- always call the tool.
-- If the tool returns an error (invalid input), relay the error message and help the nurse correct the input.
-- Tier 1 content (published scoring criteria, exact thresholds) is presented exactly as defined.
-- Tier 2 content (contextual flags, bedside guidance) is labeled as such.
-- Tier 3 content (facility-specific activation criteria, sedation targets) defers to "per facility protocol."
+- For APACHE II: require all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool.
 - Output is copy-paste ready. No conversational preamble.
-- For APACHE II: this is a complex calculator with many inputs. Be patient with the nurse, but APACHE II requires all 15 inputs before calculation. Missing inputs must be requested explicitly before calling the tool.
