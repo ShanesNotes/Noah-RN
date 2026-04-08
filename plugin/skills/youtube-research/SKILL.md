@@ -12,11 +12,13 @@ description: >-
 
 ## Doctrine
 
-- The transcript is the canonical source artifact. Research interprets it.
-- Deterministic layer (poll + ingest) is separated from generative layer (research + report).
+- **`segments.json` (WhisperX raw output) is the canonical source.** `transcript.md` is a rendered view of it — regenerate, never hand-edit. Reports are non-canonical interpretations.
+- **The downstream wiki builder (`noah-rn/wiki/`) consumes raw transcripts directly.** Do not synthesize, clean, or rewrite the transcript — the wiki builder handles all synthesis. Your job here is to produce a *research report* for humans, not to pre-chew the raw signal.
+- Deterministic layer (poll + ingest + render) is separated from generative layer (research + report).
 - Cross-reference prior reports to build cumulative knowledge graph.
 - This skill does NOT make architectural decisions — it surfaces knowledge for CEO to delegate.
 - This skill does NOT modify project code — it produces research artifacts only.
+- **Never modify `transcript.md` or `segments.json`** under `~/university/`. They are immutable artifacts of the ingest tool.
 
 ## Pipeline
 
@@ -34,26 +36,56 @@ If NEW_VIDEOS is empty, log "YouTube Research — playlist caught up. No new vid
 
 For each line in NEW_VIDEOS (format: `VIDEO_ID|TITLE|PUBLISHED_DATE`):
 
+Before invoking, classify the video as `solo` (single speaker monologue/talk), `multi_speaker` (interview/panel/podcast with 2+ distinct voices), or `unknown`. Pass it through:
+
 ```bash
 bash ~/university/tools/ingest.sh \
   --url "https://youtube.com/watch?v=$VIDEO_ID" \
-  --profile ~/university/tools/whisperx_tower_profile.yaml
+  --profile ~/university/tools/whisperx_tower_profile.yaml \
+  --source-kind solo   # or multi_speaker / unknown
 ```
 
 **Always use the tower GPU profile** (`whisperx_tower_profile.yaml`) — the tower (10.0.0.184) has an RTX 4060 Ti and handles transcription significantly faster than local CPU. If tower is unreachable, ingest.sh will fall back to CPU automatically.
+
+The ingest tool produces a deterministic `transcript.md` with inline `[HH:MM:SS]` timestamps rendered from `segments.json`. Treat both files as immutable — never edit them.
 
 Check exit code on each call. On failure: log a warning with VIDEO_ID and error, skip that video, continue to next. Do not abort the batch.
 
 ### Phase 3: Analyze
 
-Read the transcript from `~/university/<channel-slug>/<date-title-slug>/transcript.md`.
+Read the transcript from `~/university/<channel-slug>/<date-title-slug>/transcript.md`. It already has inline `[HH:MM:SS]` timestamps at every paragraph.
 
-Extract 3-5 key segments — timestamped, most relevant passages AND read the full transcript for inclusion in the report.
+Extract 3-5 key segments — timestamped, most relevant passages. Do NOT copy the full transcript into the report; the wiki builder reads it directly from `~/university/...`. The report only needs *excerpts* + analysis.
 
 Focus on:
 - Novel techniques or tool announcements
 - Architectural patterns
 - Clinical/healthcare relevance to noah-rn
+
+### Phase 3.5: Extract References (companion file)
+
+Write a companion `references.md` alongside the transcript at `~/university/<channel-slug>/<date-title-slug>/references.md`. Capture every named external resource spoken in the video — tool/project names, paper citations, person names, URLs stated aloud, benchmarks, datasets, frameworks.
+
+Use **timestamps as the primary key**, not line numbers (line numbers drift if the transcript is re-rendered):
+
+```markdown
+---
+video_id: "<id>"
+extracted_at: "<ISO-8601>"
+---
+
+# References — <title>
+
+| Name | Kind | Timestamp | Context |
+|------|------|-----------|---------|
+| OpenBrain | tool | [02:14] | mentioned while discussing memory hygiene |
+| Karpathy's autoresearch | project | [08:47] | cited as prior art for LLM wikis |
+| <name> | tool / project / paper / person / url / benchmark / dataset / framework | [MM:SS] | brief context |
+```
+
+Kind vocabulary: `tool`, `project`, `paper`, `person`, `url`, `benchmark`, `dataset`, `framework`, `model`, `service`, `standard`.
+
+Idempotency: if `references.md` already exists, regenerate it — do not append. Overwrite is safe because the input (transcript.md) is deterministic.
 
 ### Phase 4: Research
 
@@ -86,9 +118,19 @@ published: "<date>"
 ingested: "<ISO-8601>"
 tags: [<tags>]
 source_quality: high|medium|low
+source_kind: solo|multi_speaker|unknown
 relevance_score: 1-5
 relevance_rationale: "<one line>"
+canonical: false
+raw_transcript_path: "~/university/<channel>/<slug>/transcript.md"
+references_path: "~/university/<channel>/<slug>/references.md"
+segments_json_path: "~/university/<channel>/<slug>/transcript/source.json"
 ---
+
+> **⚠ NON-CANONICAL AUTO-SUMMARY.** The raw transcript at `raw_transcript_path` is the
+> source of truth. This report was produced by the research pipeline for human skimming
+> and may omit structurally important content. The downstream LLM Wiki builder reads only
+> the raw transcript, not this report.
 
 ## TL;DR
 
@@ -104,11 +146,13 @@ relevance_rationale: "<one line>"
 
 ## External References
 
-| Name | Type | URL | Notes |
-|------|------|-----|-------|
-| <project/tool/model/skill name> | repo / tool / model / skill / framework / service | <URL if stated or findable> | <brief context on what it is and why it was mentioned> |
+See the companion `references.md` at `references_path` for the full timestamp-keyed table. In the report, include only the **top 5-10 most strategically relevant** references with URLs:
 
-Capture every project, repository, tool, model, skill, library, framework, or service mentioned in the video. Types: `repo`, `tool`, `model`, `skill`, `framework`, `service`, `paper`, `dataset`, `standard`. If a URL was stated in the video, use it. If not stated but the project is well-known (e.g., a GitHub repo), find and include the canonical URL. If unfindable, leave URL blank and note "URL not stated".
+| Name | Type | Timestamp | URL | Notes |
+|------|------|-----------|-----|-------|
+| <name> | repo / tool / model / framework / paper / dataset / standard | [MM:SS] | <URL if stated or findable> | <why it matters> |
+
+Types: `repo`, `tool`, `model`, `skill`, `framework`, `service`, `paper`, `dataset`, `standard`. If a URL was stated in the video, use it. If not stated but the project is well-known, find and include the canonical URL. If unfindable, leave URL blank and note "URL not stated".
 
 ## Actionable Mapping
 
@@ -131,20 +175,44 @@ Capture every project, repository, tool, model, skill, library, framework, or se
 
 ## Metadata
 
-- Full transcript: ~/university/<channel>/<slug>/transcript.md
+- Raw transcript (canonical): `~/university/<channel>/<slug>/transcript.md`
+- Segments JSON (immutable source): `~/university/<channel>/<slug>/transcript/source.json`
+- References: `~/university/<channel>/<slug>/references.md`
 - Source quality: <rating> — <rationale>
-- Ingestion method: ingest.sh + whisperx (tower GPU)
+- Source kind: <solo|multi_speaker|unknown>
+- Ingestion method: ingest.sh + whisperx (tower GPU) + deterministic render_transcript.py
 
-## Full Transcript
-
-<complete transcript text from ~/university/<channel>/<slug>/transcript.md>
+**DO NOT** paste the full transcript into this report. The wiki builder reads directly
+from `raw_transcript_path`. Duplicating it here wastes context and risks drift.
 ```
 
 ### Phase 6: Index
 
-Update `research/youtube/index.json`:
+Update `research/youtube/index.json`. Each entry in the `"reports"` array must include:
 
-- Append to `"reports"` array: `{video_id, title, channel, published, ingested, tags, source_quality, relevance_score, report_path, related_report_ids}`
+```json
+{
+  "video_id": "<id>",
+  "title": "<title>",
+  "channel": "<channel>",
+  "published": "<date>",
+  "ingested": "<ISO-8601>",
+  "tags": ["..."],
+  "source_quality": "high|medium|low",
+  "source_kind": "solo|multi_speaker|unknown",
+  "relevance_score": 1,
+  "canonical_report_path": "research/youtube/<date>-<slug>.md",
+  "raw_transcript_path": "/home/ark/university/<channel>/<slug>/transcript.md",
+  "segments_json_path": "/home/ark/university/<channel>/<slug>/transcript/source.json",
+  "references_path": "/home/ark/university/<channel>/<slug>/references.md",
+  "wiki_ingested": false,
+  "related_report_ids": ["..."]
+}
+```
+
+- `canonical_report_path` is the research report (marked `canonical: false` in its frontmatter — it exists for human skimming, not as a wiki source).
+- `raw_transcript_path` is the source of truth for the downstream wiki builder.
+- `wiki_ingested` defaults to `false`. The wiki pipeline flips it to `true` externally — **this skill never writes `true`**.
 - Update `"tag_graph"`: for each pair of tags in this report, increment the co-occurrence count. Format: `{"tag1|tag2": count}`
 
 ### Phase 7: Mark

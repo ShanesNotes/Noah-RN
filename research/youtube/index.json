@@ -22,7 +22,13 @@
         "4cuT-LKcmWs",
         "FtCdYhspm7w",
         "0cVuMHaYEHE"
-      ]
+      ],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-04-01-claude-mythos-changes-everything.md",
+      "raw_transcript_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-01-claude-mythos-changes-everything-your-ai-stack-isn-t-ready-hV5_XSEBZNg/transcript.md",
+      "segments_json_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-01-claude-mythos-changes-everything-your-ai-stack-isn-t-ready-hV5_XSEBZNg/transcript/source.json",
+      "references_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-01-claude-mythos-changes-everything-your-ai-stack-isn-t-ready-hV5_XSEBZNg/references.md"
     },
     {
       "video_id": "0cVuMHaYEHE",
@@ -39,7 +45,13 @@
       "source_quality": "high",
       "relevance_score": 5,
       "report_path": "research/youtube/2026-03-30-anthropic-openai-microsoft-agreed.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-03-30-anthropic-openai-microsoft-agreed.md",
+      "raw_transcript_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-30-anthropic-openai-and-microsoft-just-agreed-on-one-file-format-it-changes-everyth-0cVuMHaYEHE/transcript.md",
+      "segments_json_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-30-anthropic-openai-and-microsoft-just-agreed-on-one-file-format-it-changes-everyth-0cVuMHaYEHE/transcript/source.json",
+      "references_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-30-anthropic-openai-and-microsoft-just-agreed-on-one-file-format-it-changes-everyth-0cVuMHaYEHE/references.md"
     },
     {
       "video_id": "RpFh0Nc7RvA",
@@ -56,7 +68,13 @@
       "source_quality": "medium",
       "relevance_score": 4,
       "report_path": "research/youtube/2026-04-01-100k-stars-in-a-day.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "multi_speaker",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-04-01-100k-stars-in-a-day.md",
+      "raw_transcript_path": "/home/ark/university/ray-fernando/2026-04-01-100k-stars-in-a-day-i-found-the-founders-sigrid-jin-bellman-RpFh0Nc7RvA/transcript.md",
+      "segments_json_path": "/home/ark/university/ray-fernando/2026-04-01-100k-stars-in-a-day-i-found-the-founders-sigrid-jin-bellman-RpFh0Nc7RvA/transcript/source.json",
+      "references_path": "/home/ark/university/ray-fernando/2026-04-01-100k-stars-in-a-day-i-found-the-founders-sigrid-jin-bellman-RpFh0Nc7RvA/references.md"
     },
     {
       "video_id": "FtCdYhspm7w",
@@ -73,7 +91,13 @@
       "source_quality": "high",
       "relevance_score": 5,
       "report_path": "research/youtube/2026-04-03-anthropic-2-5-billion-leak.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-04-03-anthropic-2-5-billion-leak.md",
+      "raw_transcript_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-03-i-broke-down-anthropic-s-2-5-billion-leak-your-agent-is-missing-12-critical-piec-FtCdYhspm7w/transcript.md",
+      "segments_json_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-03-i-broke-down-anthropic-s-2-5-billion-leak-your-agent-is-missing-12-critical-piec-FtCdYhspm7w/transcript/source.json",
+      "references_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-03-i-broke-down-anthropic-s-2-5-billion-leak-your-agent-is-missing-12-critical-piec-FtCdYhspm7w/references.md"
     },
     {
       "video_id": "61JUHDK-em8",
@@ -90,7 +114,13 @@
       "source_quality": "medium",
       "relevance_score": 3,
       "report_path": "research/youtube/2026-03-31-ai-self-evolution-meta-harness.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-03-31-ai-self-evolution-meta-harness.md",
+      "raw_transcript_path": "/home/ark/university/matthew-berman/2026-03-31-ai-self-evolution-meta-harness-61JUHDK-em8/transcript.md",
+      "segments_json_path": "/home/ark/university/matthew-berman/2026-03-31-ai-self-evolution-meta-harness-61JUHDK-em8/transcript/source.json",
+      "references_path": "/home/ark/university/matthew-berman/2026-03-31-ai-self-evolution-meta-harness-61JUHDK-em8/references.md"
     },
     {
       "video_id": "4cuT-LKcmWs",
@@ -106,7 +136,13 @@
       "source_quality": "high",
       "relevance_score": 4,
       "report_path": "research/youtube/2026-03-26-the-ai-job-market-split.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-03-26-the-ai-job-market-split.md",
+      "raw_transcript_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-26-the-ai-job-market-split-in-two-one-side-pays-400k-and-can-t-4cuT-LKcmWs/transcript.md",
+      "segments_json_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-26-the-ai-job-market-split-in-two-one-side-pays-400k-and-can-t-4cuT-LKcmWs/transcript/source.json",
+      "references_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-03-26-the-ai-job-market-split-in-two-one-side-pays-400k-and-can-t-4cuT-LKcmWs/references.md"
     },
     {
       "video_id": "kVPVmz0qJvY",
@@ -123,7 +159,13 @@
       "source_quality": "high",
       "relevance_score": 5,
       "report_path": "research/youtube/2026-04-05-your-agent-produces-at-100x.md",
-      "related_report_ids": []
+      "related_report_ids": [],
+      "source_kind": "solo",
+      "wiki_ingested": false,
+      "canonical_report_path": "research/youtube/2026-04-05-your-agent-produces-at-100x.md",
+      "raw_transcript_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-05-your-agent-produces-at-100x-your-org-reviews-at-3x-that-s-the-problem-kVPVmz0qJvY/transcript.md",
+      "segments_json_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-05-your-agent-produces-at-100x-your-org-reviews-at-3x-that-s-the-problem-kVPVmz0qJvY/transcript/source.json",
+      "references_path": "/home/ark/university/ai-news-strategy-daily-nate-b-jones/2026-04-05-your-agent-produces-at-100x-your-org-reviews-at-3x-that-s-the-problem-kVPVmz0qJvY/references.md"
     }
   ],
   "tag_graph": {
