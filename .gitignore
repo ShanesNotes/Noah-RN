@@ -19,3 +19,7 @@ gh_*/
 # OS
 .DS_Store
 Thumbs.db
+
+# Strategic / local-only docs (never commit — see notes/noah-rn-strategic-agent-briefing.md)
+notes/
+docs/local/
