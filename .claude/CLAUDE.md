@@ -35,8 +35,8 @@ bash tests/drug-lookup/test_lookup.sh
 
 All code changes MUST go through pull requests. Direct pushes to `main` are prohibited.
 
-1. **Branch**: Create a feature branch from `main`. Name it `<agent>/<short-description>` (e.g., `wiz/vitals-chart`, `scout/news2-skill`).
-2. **Commit**: Commit on your feature branch. Include `Co-Authored-By: Paperclip <noreply@paperclip.ing>`.
+1. **Branch**: Create a feature branch from `main`. Name it `feat/<short-description>` or `fix/<short-description>`.
+2. **Commit**: Commit on your feature branch with a clear conventional-commit message.
 3. **Push**: Push your feature branch and open a pull request against `main`.
 4. **Review**: PRs require review before merge. Do not self-merge.
 5. **Never push directly to main.** No exceptions.
