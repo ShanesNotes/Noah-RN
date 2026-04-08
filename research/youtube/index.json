@@ -2,12 +2,40 @@
   "version": 1,
   "reports": [
     {
+      "video_id": "hV5_XSEBZNg",
+      "title": "Claude Mythos Changes Everything. Your AI Stack Isn't Ready.",
+      "channel": "AI News & Strategy Daily | Nate B Jones",
+      "published": "2026-04-01T00:00:00Z",
+      "ingested": "2026-04-05T15:30:00-04:00",
+      "tags": [
+        "architecture",
+        "models",
+        "prompting",
+        "agents",
+        "token-economics"
+      ],
+      "source_quality": "high",
+      "relevance_score": 5,
+      "report_path": "research/youtube/2026-04-01-claude-mythos-changes-everything.md",
+      "related_report_ids": [
+        "61JUHDK-em8",
+        "4cuT-LKcmWs",
+        "FtCdYhspm7w",
+        "0cVuMHaYEHE"
+      ]
+    },
+    {
       "video_id": "0cVuMHaYEHE",
       "title": "Anthropic, OpenAI, and Microsoft Just Agreed on One File Format. It Changes Everything.",
       "channel": "AI News & Strategy Daily | Nate B Jones",
       "published": "2026-03-30T23:37:42Z",
       "ingested": "2026-04-04T00:29:00-04:00",
-      "tags": ["agents", "claude-code", "workflows", "architecture"],
+      "tags": [
+        "agents",
+        "claude-code",
+        "workflows",
+        "architecture"
+      ],
       "source_quality": "high",
       "relevance_score": 5,
       "report_path": "research/youtube/2026-03-30-anthropic-openai-microsoft-agreed.md",
@@ -19,7 +47,12 @@
       "channel": "Ray Fernando",
       "published": "2026-04-03T22:39:04Z",
       "ingested": "2026-04-04T00:32:05-04:00",
-      "tags": ["agents", "agent-orchestration", "coding-agents", "claude-code"],
+      "tags": [
+        "agents",
+        "agent-orchestration",
+        "coding-agents",
+        "claude-code"
+      ],
       "source_quality": "medium",
       "relevance_score": 4,
       "report_path": "research/youtube/2026-04-01-100k-stars-in-a-day.md",
@@ -31,7 +64,12 @@
       "channel": "AI News & Strategy Daily | Nate B Jones",
       "published": "2026-04-03T22:49:00Z",
       "ingested": "2026-04-04T00:33:22-04:00",
-      "tags": ["architecture", "security", "claude-code", "agents"],
+      "tags": [
+        "architecture",
+        "security",
+        "claude-code",
+        "agents"
+      ],
       "source_quality": "high",
       "relevance_score": 5,
       "report_path": "research/youtube/2026-04-03-anthropic-2-5-billion-leak.md",
@@ -43,7 +81,12 @@
       "channel": "Matthew Berman",
       "published": "2026-04-04T03:48:33Z",
       "ingested": "2026-04-04T00:34:37-04:00",
-      "tags": ["architecture", "agents", "models", "tooling"],
+      "tags": [
+        "architecture",
+        "agents",
+        "models",
+        "tooling"
+      ],
       "source_quality": "medium",
       "relevance_score": 3,
       "report_path": "research/youtube/2026-03-31-ai-self-evolution-meta-harness.md",
@@ -55,34 +98,62 @@
       "channel": "AI News & Strategy Daily | Nate B Jones",
       "published": "2026-03-26T22:00:24Z",
       "ingested": "2026-03-31T23:08:05-04:00",
-      "tags": ["agents", "prompting", "architecture"],
+      "tags": [
+        "agents",
+        "prompting",
+        "architecture"
+      ],
       "source_quality": "high",
       "relevance_score": 4,
       "report_path": "research/youtube/2026-03-26-the-ai-job-market-split.md",
       "related_report_ids": []
+    },
+    {
+      "video_id": "kVPVmz0qJvY",
+      "title": "Your Agent Produces at 100x. Your Org Reviews at 3x. That's the Problem.",
+      "channel": "AI News & Strategy Daily | Nate B Jones",
+      "published": "2026-04-05T20:25:55Z",
+      "ingested": "2026-04-05T16:32:13-04:00",
+      "tags": [
+        "agents",
+        "architecture",
+        "agent-orchestration",
+        "workflows"
+      ],
+      "source_quality": "high",
+      "relevance_score": 5,
+      "report_path": "research/youtube/2026-04-05-your-agent-produces-at-100x.md",
+      "related_report_ids": []
     }
   ],
   "tag_graph": {
-    "agents|claude-code": 3,
-    "agents|workflows": 1,
-    "agents|architecture": 4,
-    "claude-code|workflows": 1,
-    "claude-code|architecture": 2,
-    "workflows|architecture": 1,
-    "agents|agent-orchestration": 1,
-    "agents|coding-agents": 1,
-    "agent-orchestration|coding-agents": 1,
+    "agent-orchestration|agents": 2,
+    "agent-orchestration|architecture": 1,
     "agent-orchestration|claude-code": 1,
-    "coding-agents|claude-code": 1,
-    "architecture|security": 1,
-    "security|claude-code": 1,
-    "security|agents": 1,
-    "architecture|models": 1,
-    "architecture|tooling": 1,
-    "agents|models": 1,
+    "agent-orchestration|coding-agents": 1,
+    "agent-orchestration|workflows": 1,
+    "agents|architecture": 5,
+    "agents|claude-code": 3,
+    "agents|coding-agents": 1,
+    "agents|models": 3,
+    "agents|prompting": 3,
+    "agents|security": 1,
+    "agents|token-economics": 1,
     "agents|tooling": 1,
+    "agents|workflows": 2,
+    "architecture|claude-code": 2,
+    "architecture|models": 1,
+    "architecture|prompting": 3,
+    "architecture|security": 1,
+    "architecture|token-economics": 1,
+    "architecture|tooling": 1,
+    "architecture|workflows": 2,
+    "claude-code|coding-agents": 1,
+    "claude-code|security": 1,
+    "claude-code|workflows": 1,
+    "models|prompting": 1,
+    "models|token-economics": 1,
     "models|tooling": 1,
-    "agents|prompting": 1,
-    "prompting|architecture": 1
+    "prompting|token-economics": 1
   }
 }
