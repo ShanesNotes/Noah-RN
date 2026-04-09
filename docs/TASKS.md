@@ -26,7 +26,9 @@
 
 ## 🔥 Active (pick one, start here)
 
-These are the 3 highest-leverage next actions. Pick ONE per session, complete it fully, then come back.
+These are the 4 highest-leverage next actions. Pick ONE per session, complete it fully, then come back.
+
+**Priority note (2026-04-08):** The Nate B Jones "100x" video analysis (`research/youtube/2026-04-05-your-agent-produces-at-100x.md`) directly changed the A2/A3 ordering. His commandment #4 ("do not rely on agent self-reporting") means **observability must be in place BEFORE context architecture work begins**. A3 is now ahead of A2. Also added A4 as a fast clinical-router audit based on his "skills ≠ processes" warning.
 
 ### A1. Sandbox portability prototype (4 hours) 🎯 HIGHEST LEVERAGE
 **Category:** Cat. 1 — Dual-Target Runtime Portability
@@ -40,29 +42,40 @@ These are the 3 highest-leverage next actions. Pick ONE per session, complete it
 **If it fails:** Evaluate Hermes Agent as alternative runtime (4 more hours, same test).
 **/deep-interview seed:** No — this is execution, not requirements gathering. Just do it.
 
-### A2. Encounter-scoped context assembly contract (1 week)
+### A2. Observability instrumentation (2 days) — MOVED AHEAD OF CONTEXT ARCHITECTURE
+**Category:** Cat. 7 — Observability & Optimization
+**What:** Deploy Langfuse self-hosted via Docker Compose, wrap all LLM calls with `@observe()` decorators, implement category-tagged token counting at context assembly.
+**Why now:** The Nate B Jones "100x" video commandment #4 is explicit: *"Do not rely on agent self-reporting. Have an independent perspective, preferably automated, that tells you if the agent got the job done correctly or not."* You can't measure whether context assembly (A3) is working without instrumentation in place first. Instrumentation bolted on after the fact is unreliable. Fastest real feedback loop in the entire roadmap (2 days to working dashboards).
+**Success criteria:**
+- [ ] Langfuse running on Docker Compose (PostgreSQL + ClickHouse + Redis + S3)
+- [ ] All LLM calls in noah-rn wrapped with `@observe()`
+- [ ] Token counts per category visible in Langfuse dashboard (`fhir_resource` / `rag_chunk` / `system_prompt` / `conversation_history` / `tool_result` / `tool_definitions`)
+- [ ] Cost per skill invocation visible
+- [ ] KV-cache hit rate measurable
+**/deep-interview seed:** None needed — this is straightforward deployment work.
+
+### A3. Encounter-scoped context assembly contract (1 week) — after A2 observability is live
 **Category:** Cat. 3 — Context Architecture
-**What:** Define the stable interface `get_patient_context(patient_id) → structured context bundle` and implement it against MIMIC-IV data in Medplum. Includes category-tagged token counting (fhir_resource / rag_chunk / system_prompt / conversation_history / tool_result / tool_definitions).
-**Why now:** This is the Vervaeke "optimal grip" problem made concrete. It's the primary design surface per the North Star. It blocks Cat. 2 (Eval) and Cat. 5 (Memory) and Cat. 6 (PHI pipeline placement). Can be worked independently of the sandbox prototype.
+**What:** Define the stable interface `get_patient_context(patient_id) → structured context bundle` and implement it against MIMIC-IV data in Medplum. Instrumented from day one via A2's Langfuse categories.
+**Why now:** This is the Vervaeke "optimal grip" problem made concrete. It's the primary design surface per the North Star. It blocks Cat. 2 (Eval) and Cat. 5 (Memory) and Cat. 6 (PHI pipeline placement). Can be worked independently of the sandbox prototype (A1).
 **Success criteria:**
 - [ ] MCP tool `get_patient_context` has stable interface regardless of underlying assembly logic
 - [ ] Returns timeline-ordered, trend-computed, gap-annotated context bundle
 - [ ] Per-skill context profiles defined (what does each skill need from the encounter?)
-- [ ] Token category counts tagged at assembly time
+- [ ] Every call instrumented via A2's Langfuse categories
 - [ ] Works against at least one real MIMIC-IV encounter
 **/deep-interview seed:** Use path #2 from PENDING-WORK.md ("Encounter-Scoped Context Architecture").
 
-### A3. Observability instrumentation (2 days)
-**Category:** Cat. 7 — Observability & Optimization
-**What:** Deploy Langfuse self-hosted via Docker Compose, wrap all LLM calls with `@observe()` decorators, implement category-tagged token counting at context assembly.
-**Why now:** You can't improve what you can't measure. The 100:1 input-to-output token ratio and the 10× cache cost difference make this foundational. Should happen BEFORE A2 ideally, so that A2's work is instrumented from day one. It's also the fastest real feedback loop in the entire roadmap.
+### A4. Clinical-router audit — dispatcher vs vibe-coder (2 hours)
+**Category:** Cat. 2 — Agentic Orchestration (Vector A) — intersection with Cat. 6 safety
+**What:** Read `plugin/agents/clinical-router.md` against the "dispatcher vs vibe-coder" criterion from the 100x video analysis. Identify any sections where the router is trying to make clinical decisions via LLM reasoning instead of routing deterministically to specialized skills.
+**Why now:** The Nate B Jones "100x" video commandment is explicit: *"Do not mistake a skill or a tool call for a process. If you have a business workflow, it should be as much as you can hardwired in."* The clinical-router is the single place in noah-rn where this failure mode could silently introduce vibe-coded clinical triage. Fast, cheap audit. High payoff if issues found.
 **Success criteria:**
-- [ ] Langfuse running on Docker Compose (PostgreSQL + ClickHouse + Redis + S3)
-- [ ] All LLM calls in noah-rn wrapped with `@observe()`
-- [ ] Token counts per category visible in Langfuse dashboard
-- [ ] Cost per skill invocation visible
-- [ ] KV-cache hit rate measurable
-**/deep-interview seed:** None needed — this is straightforward deployment work.
+- [ ] Router audited section-by-section against the criterion
+- [ ] Any sections doing clinical decision-making via LLM reasoning flagged
+- [ ] If issues found: file a focused refactor task to make those sections deterministic dispatchers
+- [ ] If no issues found: add a regression test that catches future drift
+**/deep-interview seed:** None needed — this is a focused code audit.
 
 ---
 
@@ -106,6 +119,29 @@ Ranked roughly in execution order, but dependencies noted. Pick based on what ma
 **/deep-interview seed:** Path #4 in PENDING-WORK.md
 
 ---
+
+## 📚 Ongoing — Wiki Expansion (standing work stream)
+
+### W1. Wiki ingest beyond YouTube — research/ + notes/ + strategic briefings
+**Category:** Cross-cutting — feeds all 8 PHASED-ROADMAP categories via concept promotions
+**What:** The wiki (`wiki/`, gitignored Karpathy-pattern LLM working memory) currently contains only 4 YouTube transcript ingests. Substantial additional raw material exists in `notes/` (LOCAL ONLY strategic docs + Opus PRDs) and `research/` (24+ research reports). Each ingest follows the Karpathy pattern: 10-15 page touches, cross-references to existing concepts, promotions when sources converge.
+**Why it matters:** The wiki compounds. Every new ingest increases cross-reference density and surfaces promotion candidates for committed docs. After 4 ingests the wiki has 1 stable concept + 5 promotion candidates. Continuing expansion is the single highest-leverage investment in Claude's persistent working memory across sessions.
+**Priority queue:** Full wishlist at `wiki/questions/ingest-wishlist.md` (gitignored). Tier 1 summary:
+1. `notes/clinical intelligence pipeline.md` — PHI pipeline + provider census memory + observability research (~10-15 new concepts expected, 2-3 promotions)
+2. `notes/noah-rn-knowledge-architecture.md` — ontology backbone (SNOMED CT / RxNorm / LOINC) + drug pipeline
+3. `notes/agentorchastration.md` — OpenClaw + NeMo + Letta composition (fills KAIROS/dual-target-runtime forward refs)
+4. `research/meta-harness-*.md` — reinforces plumbing-over-ai and observability-from-day-one
+5. `research/Context Engineering & MEGA-RAG Architectures...` — primary source for context-architecture-as-crowning-skill
+**Token efficiency:** Large sources (300-500+ lines) use subagent extraction (Option B from 2026-04-08 token analysis) — ~40-60% savings vs direct read. Small sources (YouTube transcripts, short Opus briefings) use Option A (parallel writes + pruning).
+**Cadence:** Not a one-shot task. One ingest per working session, ideally at start of session before other work. Each ingest is ~30-45 min of focused work.
+**Success criteria:**
+- [ ] Tier 1 items ingested in priority order (5 items)
+- [ ] Each ingest produces a log entry in `wiki/log.md`
+- [ ] Forward reference count trends DOWN over time (concepts get filled faster than new ones are added)
+- [ ] At least 2 more promotions triggered across Tier 1 ingests
+- [ ] Wishlist file at `wiki/questions/ingest-wishlist.md` updated after each ingest
+**Dependencies:** None. Can run in parallel with A1-A4 active work.
+**/deep-interview seed:** None — this is execution work. The wishlist IS the scope doc.
 
 ## 🔒 Blocked / Waiting
 
