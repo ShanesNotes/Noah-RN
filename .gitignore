@@ -23,3 +23,14 @@ Thumbs.db
 # Strategic / local-only docs (never commit — see notes/noah-rn-strategic-agent-briefing.md)
 notes/
 docs/local/
+
+# Claude's LLM wiki (Karpathy pattern — local working memory, not committed)
+wiki/
+
+# Paperclip-driven research ingestion pipeline — local-only, never commit.
+# The pipeline, its skill, its heartbeat state, and its outputs are coupled
+# to the Paperclip control plane and must not live in the public GitHub repo.
+tools/youtube-poll/
+plugin/skills/youtube-research/
+research/youtube/
+notify.js
