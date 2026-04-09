@@ -54,14 +54,14 @@ Each category is "sit down and work on this for days-to-weeks at a time." They a
 
 ### Category 1: Dual-Target Runtime Portability
 
-**What it is.** noah-rn produces a single source of portable artifacts (SKILL.md, deterministic bash hooks, MCP tools, React components, calculators) that target **two runtimes** from the same codebase:
+**What it is.** noah-rn produces a single source of portable artifacts (SKILL.md, deterministic bash hooks, MCP tools, React components, calculators) that target **two runtimes** from the same codebase. This architecture enforces **hardwired-glue**—deterministic code for workflow trunks and branches, with the LLM relegated to the generative leaves. Skills are not just prompts; they are structured processes where infrastructure provides the deterministic floor for agentic reasoning.
 
 1. **Sandbox/testing runtime** — an open-source agent harness (OpenClaw wrapped by NemoClaw) used for golden test suite evaluation, Meta-Harness-style harness optimization, and red-teaming. Runs with **non-Claude models only** (OpenClaw ToS forbids Claude in the sandbox). Free-tier access via OpenRouter (Qwen3-Coder, Gemma-3, Llama-4-Scout, Nemotron).
 2. **Production runtime** — a future persistent agent platform with an extension packaging format. This is the distribution/marketplace target. A `scripts/build-*.sh` packaging script produces the extension artifact from the same source artifacts used in sandbox testing. Strategic details for this target live in `docs/local/STRATEGIC-CONTEXT.md` (LOCAL ONLY).
 
 Claude Code remains the current dev harness. NemoClaw is **additive** (sandbox). The production runtime is **additive** (future distribution). There is no migration away from Claude Code; there is a broadening of the runtimes that the same source artifacts must satisfy.
 
-**Why it matters.** Every other category assumes runtime portability. If you build a PHI pipeline, provider census, and knowledge graph on Claude Code primitives alone, you've coupled the clinical intelligence layer to one orchestration runtime. The architectural guardrail: *"Does this work in both the sandbox runtime and the production runtime?"* If the answer is no, redesign until it does.
+**Why it matters.** Every other category assumes runtime portability. If you build a PHI pipeline, provider census, and knowledge graph on Claude Code primitives alone, you've coupled the clinical intelligence layer to one orchestration runtime. The architectural guardrail: *"Does this work in both the sandbox runtime and the production runtime?"* If the answer is no, redesign until it does. This dual-target approach facilitates a **harness regression test suite** grounded in **hardwired-glue**. By testing the deterministic hooks and tools in isolation from the LLM, we ensure the infrastructure remains the stable trunk even as models evolve.
 
 **Source docs:**
 - `notes/noah-rn-strategic-agent-briefing.md` (LOCAL ONLY — dual-target strategy, bring-up playbook, packaging script template)
@@ -172,7 +172,7 @@ Claude Code remains the current dev harness. NemoClaw is **additive** (sandbox).
 
 ### Category 3: Context Architecture
 
-**What it is.** The encounter-scoped context assembly layer — how patient FHIR data, clinical knowledge, and provider state compose into the model's working context per skill invocation. This is the Vervaeke "optimal grip" problem from your journal made concrete.
+**What it is.** The encounter-scoped context assembly layer — how patient FHIR data, clinical knowledge, and provider state compose into the model's working context per skill invocation. Empirically, **context architecture is the crowning skill**—the Dewey Decimal system of clinical intelligence. It is the categorization and just-in-time delivery of data that enables high-stakes decision support. This is the Vervaeke "optimal grip" problem made concrete.
 
 **Why it matters.** The new docs elevate this to the **primary design surface**. North Star v0.2.0: *"Context architecture is the primary design surface."* PRD principle 1: *"noah-rn is a clinical workspace where patient data, nursing knowledge, and agent orchestration converge. Context architecture is the primary design surface."*
 

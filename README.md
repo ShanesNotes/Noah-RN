@@ -16,6 +16,10 @@ Neither exists in isolation. The harness needs realistic data to evaluate agains
 
 It is **not** an ambient scribing product, a documentation tool, or a general-purpose chatbot. It complements documentation platforms — it doesn't compete with them.
 
+## Core Positioning
+
+Noah RN rejects the **mini-me fallacy**—the error of assuming agents are merely scaled-down humans doing current workflows faster. Instead, it prioritizes **plumbing over AI** (80% infrastructure, 20% model), recognizing that in high-stakes clinical care, the infrastructure *is* the product. We build on the empirical finding that **context architecture is the crowning skill**; our focus is on the deterministic assembly of patient data so the agent delivers maximally useful output. As **skills compound**, brittle prompts evaporate, replaced by stable, refined workflow logic. This design point is anchored in Nate B Jones's canonical cost-of-error event: an "incorrect drug interaction recommendation" is the catastrophic floor we are built to prevent.
+
 ---
 
 ## Pillar 1: Clinical Workspace Harness
