@@ -5,32 +5,60 @@
 .codex-home/
 .mcp.json
 .scenario-state/
+graphify-out/
+.graphify_*.json
+.graphify_*.txt
+.graphify_*
+.obsidian/
 
 # Nested tool state
-dashboard/.omc/
+apps/clinician-dashboard/.omc/
 
 # Dependencies
 node_modules/
+apps/clinician-dashboard/dist/
+services/clinical-mcp/dist/
 
 # Downloaded binaries
 *.tar.gz
 gh_*/
+
+# Legacy runtime experiments; pi.dev is the active foundation unless revisited.
+infrastructure/nemoclaw/
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Strategic / local-only docs (never commit — see notes/noah-rn-strategic-agent-briefing.md)
+local/
 notes/
 docs/local/
 
 # Claude's LLM wiki (Karpathy pattern — local working memory, not committed)
 wiki/
+research/
+
+# Internal research / memo artifacts — local only, not product repo material
+# Even if useful for planning, these should not be committed to GitHub.
+docs/distillation-cross-reference.md
+docs/YOUTUBE-PIPELINE-BACKFILL-NOTES.md
+docs/archive/YOUTUBE-PIPELINE-BACKFILL-NOTES.md
+docs/noah-rn-research-distillation.md
+docs/archive/legacy-control-plane/noah-rn-research-distillation.md
+docs/foundations/readiness-handoff.md
+docs/foundations/shift-report-bridge-handoff.md
+docs/foundations/medplum-architecture-packet.md
 
 # Paperclip-driven research ingestion pipeline — local-only, never commit.
 # The pipeline, its skill, its heartbeat state, and its outputs are coupled
 # to the Paperclip control plane and must not live in the public GitHub repo.
 tools/youtube-poll/
-plugin/skills/youtube-research/
+plugin/
 research/youtube/
-notify.js
+notify*.js
+
+# Local/generated cleanup artifacts
+comments.json
+*.patch
+evals/product/traces/youtube-research-*/

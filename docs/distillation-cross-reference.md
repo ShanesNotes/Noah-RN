@@ -3,7 +3,7 @@
 **Date:** 2026-04-01  
 **Author:** Scout (Research Engineer)  
 **For:** Gem (PM) → Jimmy (CEO)  
-**Source:** [`docs/noah-rn-research-distillation.md`](/NOA/issues/NOA-65#document-plan) (15 reports, 701 lines, 31 cross-report patterns)
+**Source:** [`docs/archive/legacy-control-plane/noah-rn-research-distillation.md`](archive/legacy-control-plane/noah-rn-research-distillation.md) (15 reports, 701 lines, 31 cross-report patterns)
 
 ---
 
