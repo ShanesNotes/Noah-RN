@@ -1,9 +1,0 @@
-{
-  "name": "noah-rn",
-  "version": "0.2.0",
-  "description": "Clinical decision support and structured nursing workflows for bedside nurses",
-  "author": {
-    "name": "Shane"
-  },
-  "keywords": ["nursing", "clinical-decision-support", "icu", "critical-care", "calculators"]
-}

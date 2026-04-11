@@ -113,7 +113,7 @@ run_case() {
 
   # Check if skill file exists
   local skill_file
-  skill_file="$(find "$REPO_ROOT/plugin/skills" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
+  skill_file="$(find "$REPO_ROOT/packages/workflows" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
   if [ -z "$skill_file" ]; then
     log_fail "$test_id — skill '$skill' not found"
     FAIL=$((FAIL+1))

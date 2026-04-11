@@ -2,8 +2,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ROUTER="$REPO_ROOT/plugin/agents/clinical-router.md"
-SKILLS_DIR="$REPO_ROOT/plugin/skills"
+ROUTER="$REPO_ROOT/packages/agent-harness/router/clinical-router.md"
+SKILLS_DIR="$REPO_ROOT/packages/workflows"
 TRIGGERS="$REPO_ROOT/knowledge/templates/cross-skill-triggers.md"
 PASS=0
 FAIL=0
@@ -108,10 +108,11 @@ assert_contains "agent_card has supported_skills" "supported_skills:" "$FRONTMAT
 echo ""
 echo "=== Skill Coverage ==="
 
-# Every skill directory must appear in the router's intent map or available skills
+# Every workflow skill directory must appear in the router's intent map or available skills
 ROUTER_CONTENT=$(cat "$ROUTER")
 
 for skill_dir in "$SKILLS_DIR"/*/; do
+    [[ -f "$skill_dir/SKILL.md" ]] || continue
     skill_name=$(basename "$skill_dir")
     assert_contains "router references skill: $skill_name" "$skill_name" "$ROUTER_CONTENT"
 done
@@ -228,7 +229,7 @@ echo ""
 echo "=== Agent Card Skills vs Actual Skills ==="
 
 AGENT_CARD_SKILLS=$(sed -n '/supported_skills:/,/^[^ ]/p' "$ROUTER" | grep '^\s*- ' | sed 's/.*- //' | sort)
-ACTUAL_SKILLS=$(ls -1 "$SKILLS_DIR" | sort)
+ACTUAL_SKILLS=$(find "$SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d -exec test -f "{}/SKILL.md" \; -printf '%f\n' | sort)
 
 assert_eq "supported_skills matches skill directories" "$ACTUAL_SKILLS" "$AGENT_CARD_SKILLS"
 

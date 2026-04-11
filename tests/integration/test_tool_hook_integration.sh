@@ -13,7 +13,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TOOLS_DIR="$REPO_ROOT/tools/clinical-calculators"
-HOOK="$REPO_ROOT/plugin/hooks/scripts/validate-calculator.sh"
+HOOK="$REPO_ROOT/tools/safety-hooks/scripts/validate-calculator.sh"
 
 PASS=0
 FAIL=0

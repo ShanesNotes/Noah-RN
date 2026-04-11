@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "status": "scaffold",
+  "authoritative_surface": "tools",
+  "registries": [
+    {
+      "name": "clinical-calculators",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/clinical-calculators/"
+    },
+    {
+      "name": "drug-lookup",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/drug-lookup/"
+    },
+    {
+      "name": "fhir",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/fhir/"
+    },
+    {
+      "name": "io-tracker",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/io-tracker/"
+    },
+    {
+      "name": "trace",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/trace/"
+    },
+    {
+      "name": "unit-conversions",
+      "kind": "deterministic_tool_family",
+      "source_path": "tools/unit-conversions/"
+    },
+    {
+      "name": "safety-hooks",
+      "kind": "deterministic_guardrail_family",
+      "source_path": "tools/safety-hooks/"
+    }
+  ]
+}
