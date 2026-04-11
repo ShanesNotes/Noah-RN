@@ -1,4 +1,5 @@
 # Runtime / tool state
+.claude/
 .omc/
 .omx/
 .codex
