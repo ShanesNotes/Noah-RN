@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -60,9 +60,22 @@ export const config = {
 } as const;
 
 // Load MIMIC LOINC mappings from knowledge directory
+function resolveKnowledgeDir(): string {
+  let current = __dirname;
+
+  for (let depth = 0; depth < 6; depth += 1) {
+    const candidate = resolve(current, 'knowledge', 'mimic-mappings.json');
+    if (existsSync(candidate)) {
+      return resolve(current, 'knowledge');
+    }
+    current = resolve(current, '..');
+  }
+
+  throw new Error(`Unable to locate knowledge/mimic-mappings.json from ${__dirname}`);
+}
+
 export function loadMimicMappings(): MimicMappings {
-  const repoRoot = resolve(__dirname, '..', '..');
-  const mappingPath = resolve(repoRoot, 'knowledge', 'mimic-mappings.json');
+  const mappingPath = resolve(resolveKnowledgeDir(), 'mimic-mappings.json');
   const raw = readFileSync(mappingPath, 'utf-8');
   return JSON.parse(raw);
 }

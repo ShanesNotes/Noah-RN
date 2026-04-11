@@ -5,7 +5,7 @@ import { config } from '../config.js';
 import { loincToItemIds } from './loinc-map.js';
 import type {
   FhirBundle, FhirResult, Patient, Observation,
-  Condition, MedicationRequest, Encounter,
+  Condition, MedicationRequest, MedicationAdministration, Encounter, DocumentReference,
 } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -154,6 +154,16 @@ export async function getMedicationRequests(patientId: string): Promise<FhirResu
   return { data: meds, error: null };
 }
 
+export async function getMedicationAdministrations(patientId: string): Promise<FhirResult<MedicationAdministration[]>> {
+  const result = await fhirFetch<FhirBundle<MedicationAdministration>>(
+    `MedicationAdministration?patient=${patientId}&_sort=-date&_count=100`,
+  );
+  if (result.error || !result.data) return { data: null, error: result.error };
+
+  const administrations = result.data.entry?.map(e => e.resource) ?? [];
+  return { data: administrations, error: null };
+}
+
 export async function getEncounters(patientId: string): Promise<FhirResult<Encounter[]>> {
   const result = await fhirFetch<FhirBundle<Encounter>>(
     `Encounter?patient=${patientId}&_count=50`,
@@ -162,6 +172,16 @@ export async function getEncounters(patientId: string): Promise<FhirResult<Encou
 
   const encounters = result.data.entry?.map(e => e.resource) ?? [];
   return { data: encounters, error: null };
+}
+
+export async function getDocumentReferences(patientId: string): Promise<FhirResult<DocumentReference[]>> {
+  const result = await fhirFetch<FhirBundle<DocumentReference>>(
+    `DocumentReference?patient=${patientId}&_sort=-date&_count=100`,
+  );
+  if (result.error || !result.data) return { data: null, error: result.error };
+
+  const documents = result.data.entry?.map(e => e.resource) ?? [];
+  return { data: documents, error: null };
 }
 
 export async function listPatients(count: number = 100): Promise<FhirResult<Array<{ id: string; name: string; gender: string }>>> {

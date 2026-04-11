@@ -1,10 +1,19 @@
-import type { Observation, Condition, MedicationRequest, Encounter } from '../fhir/types.js';
+import type {
+  Observation,
+  Condition,
+  MedicationRequest,
+  MedicationAdministration,
+  Encounter,
+  DocumentReference,
+} from '../fhir/types.js';
 
 // Discriminated union for timeline entries — the single canonical data structure
 export type TimelineEntry =
   | ObservationEntry
   | ConditionEntry
   | MedicationEntry
+  | MedicationAdministrationEntry
+  | NoteEntry
   | EncounterEntry;
 
 export interface ObservationEntry {
@@ -35,6 +44,22 @@ export interface MedicationEntry {
 export interface EncounterEntry {
   type: 'encounter';
   resource: Encounter;
+  timestamp: string;
+  relativeTime: string;
+  relativeMinutes: number;
+}
+
+export interface MedicationAdministrationEntry {
+  type: 'medicationAdministration';
+  resource: MedicationAdministration;
+  timestamp: string;
+  relativeTime: string;
+  relativeMinutes: number;
+}
+
+export interface NoteEntry {
+  type: 'note';
+  resource: DocumentReference;
   timestamp: string;
   relativeTime: string;
   relativeMinutes: number;

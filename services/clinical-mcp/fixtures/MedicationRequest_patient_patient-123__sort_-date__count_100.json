@@ -1,0 +1,27 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "m1",
+        "medicationCodeableConcept": {
+          "text": "Norepinephrine"
+        },
+        "authoredOn": "2026-04-10T08:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "m2",
+        "medicationCodeableConcept": {
+          "text": "Piperacillin-tazobactam"
+        },
+        "authoredOn": "2026-04-10T07:30:00Z"
+      }
+    }
+  ]
+}

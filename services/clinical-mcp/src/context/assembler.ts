@@ -1,5 +1,13 @@
 import { config } from '../config.js';
-import { getPatient, getObservations, getConditions, getMedicationRequests, getEncounters } from '../fhir/client.js';
+import {
+  getPatient,
+  getObservations,
+  getConditions,
+  getMedicationRequests,
+  getMedicationAdministrations,
+  getEncounters,
+  getDocumentReferences,
+} from '../fhir/client.js';
 import type { PatientContext, TimelineEntry, ObservationEntry } from './types.js';
 import {
   computeRelativeMinutes, formatRelativeTime, findMostRecentTimestamp,
@@ -15,16 +23,36 @@ export async function assemblePatientContext(
   const gaps: string[] = [];
 
   // Query all resources in parallel
-  const [patientResult, vitalsResult, labsResult, conditionsResult, medsResult, encountersResult] = await Promise.all([
+  const [
+    patientResult,
+    vitalsResult,
+    labsResult,
+    conditionsResult,
+    medsResult,
+    medAdminsResult,
+    encountersResult,
+    documentReferencesResult,
+  ] = await Promise.all([
     getPatient(patientId),
     getObservations(patientId, { category: 'vital-signs' }),
     getObservations(patientId, { category: 'laboratory' }),
     getConditions(patientId),
     getMedicationRequests(patientId),
+    getMedicationAdministrations(patientId),
     getEncounters(patientId),
+    getDocumentReferences(patientId),
   ]);
 
-  sources.push('Patient', 'Observation(vital-signs)', 'Observation(laboratory)', 'Condition', 'MedicationRequest', 'Encounter');
+  sources.push(
+    'Patient',
+    'Observation(vital-signs)',
+    'Observation(laboratory)',
+    'Condition',
+    'MedicationRequest',
+    'MedicationAdministration',
+    'Encounter',
+    'DocumentReference',
+  );
 
   // Patient demographics
   if (patientResult.error || !patientResult.data) {
@@ -44,7 +72,9 @@ export async function assemblePatientContext(
   if (labsResult.error) gaps.push(`Lab results query failed: ${labsResult.error}`);
   if (conditionsResult.error) gaps.push(`Conditions query failed: ${conditionsResult.error}`);
   if (medsResult.error) gaps.push(`Medications query failed: ${medsResult.error}`);
+  if (medAdminsResult.error) gaps.push(`Medication administration query failed: ${medAdminsResult.error}`);
   if (encountersResult.error) gaps.push(`Encounters query failed: ${encountersResult.error}`);
+  if (documentReferencesResult.error) gaps.push(`Provider notes query failed: ${documentReferencesResult.error}`);
 
   // Collect all timestamps to find reference point
   const allTimestamps: string[] = [];
@@ -52,13 +82,23 @@ export async function assemblePatientContext(
   const labs = labsResult.data ?? [];
   const conditions = conditionsResult.data ?? [];
   const meds = medsResult.data ?? [];
+  const medicationAdministrations = medAdminsResult.data ?? [];
   const encounters = encountersResult.data ?? [];
+  const documentReferences = documentReferencesResult.data ?? [];
 
   for (const v of vitals) if (v.effectiveDateTime) allTimestamps.push(v.effectiveDateTime);
   for (const l of labs) if (l.effectiveDateTime) allTimestamps.push(l.effectiveDateTime);
   for (const c of conditions) if (c.recordedDate) allTimestamps.push(c.recordedDate);
   for (const m of meds) if (m.authoredOn) allTimestamps.push(m.authoredOn);
+  for (const admin of medicationAdministrations) {
+    const ts = admin.effectiveDateTime ?? admin.effectivePeriod?.start;
+    if (ts) allTimestamps.push(ts);
+  }
   for (const e of encounters) if (e.period?.start) allTimestamps.push(e.period.start);
+  for (const doc of documentReferences) {
+    const ts = getDocumentReferenceTimestamp(doc);
+    if (ts) allTimestamps.push(ts);
+  }
 
   const referenceTimestamp = findMostRecentTimestamp(allTimestamps);
 
@@ -111,6 +151,20 @@ export async function assemblePatientContext(
     });
   }
 
+  // Medication administrations / MAR
+  for (const admin of medicationAdministrations) {
+    const ts = admin.effectiveDateTime ?? admin.effectivePeriod?.start ?? '';
+    if (!ts) continue;
+    const relMin = computeRelativeMinutes(ts, referenceTimestamp);
+    timeline.push({
+      type: 'medicationAdministration',
+      resource: admin,
+      timestamp: ts,
+      relativeTime: formatRelativeTime(relMin),
+      relativeMinutes: relMin,
+    });
+  }
+
   // Encounters
   for (const enc of encounters) {
     const ts = enc.period?.start ?? '';
@@ -125,19 +179,33 @@ export async function assemblePatientContext(
     });
   }
 
+  // Provider notes
+  for (const doc of documentReferences) {
+    const ts = getDocumentReferenceTimestamp(doc);
+    if (!ts) continue;
+    const relMin = computeRelativeMinutes(ts, referenceTimestamp);
+    timeline.push({
+      type: 'note',
+      resource: doc,
+      timestamp: ts,
+      relativeTime: formatRelativeTime(relMin),
+      relativeMinutes: relMin,
+    });
+  }
+
   // Sort by relative time (most recent first)
   const sorted = sortTimeline(timeline);
 
   // Compute trends for all LOINC codes with 3+ data points
   const trends = computeTrends(allObs);
 
-  // Document known gaps
-  gaps.push('No allergy data (AllergyIntolerance absent in MIMIC-IV demo)');
-  gaps.push('No provider notes (DocumentReference absent in MIMIC-IV demo)');
+  // Document observed read-path gaps
   if (!vitals.length) gaps.push('No vital signs found');
   if (!labs.length) gaps.push('No laboratory results found');
   if (!conditions.length) gaps.push('No conditions found');
   if (!meds.length) gaps.push('No medication requests found');
+  if (!medicationAdministrations.length) gaps.push('No medication administration history found');
+  if (!documentReferences.length) gaps.push('No provider notes found');
 
   // Apply context budget — truncate oldest entries first
   let truncated = sorted;
@@ -166,4 +234,8 @@ export async function assemblePatientContext(
     sources,
     tokenEstimate,
   };
+}
+
+function getDocumentReferenceTimestamp(doc: { date?: string; content?: Array<{ attachment?: { creation?: string } }> }): string {
+  return doc.date ?? doc.content?.[0]?.attachment?.creation ?? '';
 }

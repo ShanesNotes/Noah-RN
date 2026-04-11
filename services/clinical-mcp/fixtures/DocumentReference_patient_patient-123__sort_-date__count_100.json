@@ -1,0 +1,61 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "doc-1",
+        "status": "current",
+        "type": {
+          "text": "Progress note"
+        },
+        "description": "Overnight ICU progress note",
+        "date": "2026-04-10T11:30:00Z",
+        "author": [
+          {
+            "display": "Dr. Ada Nguyen"
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "title": "ICU Progress Note",
+              "creation": "2026-04-10T11:30:00Z",
+              "data": "UGF0aWVudCByZXNwb25kaW5nIHRvIHByZXNzb3IgdGl0cmF0aW9uLi4u"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "doc-2",
+        "status": "current",
+        "type": {
+          "text": "H&P"
+        },
+        "description": "Admission history and physical",
+        "date": "2026-04-09T19:00:00Z",
+        "author": [
+          {
+            "display": "Dr. Sam Patel"
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "title": "Admission H&P",
+              "creation": "2026-04-09T19:00:00Z",
+              "data": "QWRtaXR0ZWQgd2l0aCBoeXBvdGVuc2lvbiBhbmQgc2Vwc2lzLi4u"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

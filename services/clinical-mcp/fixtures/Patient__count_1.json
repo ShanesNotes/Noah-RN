@@ -1,0 +1,20 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-123",
+        "name": [
+          {
+            "text": "John Doe"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1962-05-10"
+      }
+    }
+  ]
+}
