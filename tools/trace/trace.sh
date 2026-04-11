@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
-TRACES_DIR="${TRACE_BASE_DIR:-$REPO_ROOT/optimization/product/traces}"
+TRACES_DIR="${TRACE_BASE_DIR:-$REPO_ROOT/evals/product/traces}"
 
 cmd="${1:-}"
 
