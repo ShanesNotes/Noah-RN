@@ -1,5 +1,7 @@
 # Noah RN — Competitive & Market Analysis
 
+> Historical market snapshot. Use for market and competitor context, not current architecture direction. Runtime positioning in this file predates the `pi.dev` foundation decision in [`../PLAN.md`](../PLAN.md).
+
 > Generated: 2026-04-01 | Sources: 20+ web searches, product sites, FDA guidance, research papers, existing repo docs
 
 ---
@@ -306,4 +308,4 @@ Based on competitive analysis:
 ### Existing Repo Documentation
 - docs/REGULATORY.md — CDS exemption analysis, function-level risk assessment
 - docs/archive/noah-rn-phase2-prd.md — Architecture, deliverables, non-goals (archived)
-- docs/noah-rn-research-distillation.md — 31 patterns from 15 research reports
+- docs/archive/legacy-control-plane/noah-rn-research-distillation.md — 31 patterns from 15 research reports
