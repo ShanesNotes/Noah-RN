@@ -1,0 +1,119 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 4,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v1",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T11:00:00Z",
+        "valueQuantity": {
+          "value": 102,
+          "unit": "bpm"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v2",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T10:00:00Z",
+        "valueQuantity": {
+          "value": 98,
+          "unit": "bpm"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v3",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T09:00:00Z",
+        "valueQuantity": {
+          "value": 94,
+          "unit": "bpm"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v4",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8480-6",
+              "display": "Systolic BP"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T11:00:00Z",
+        "valueQuantity": {
+          "value": 88,
+          "unit": "mmHg"
+        }
+      }
+    }
+  ]
+}

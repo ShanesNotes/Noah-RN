@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-SKILL_FILE="$REPO_ROOT/plugin/skills/clinical-calculator/SKILL.md"
+SKILL_FILE="$REPO_ROOT/packages/workflows/clinical-calculator/SKILL.md"
 PASS=0
 FAIL=0
 
@@ -34,7 +34,7 @@ echo "=== Clinical Calculator Skill Contract: APACHE II ==="
 
 skill_text="$(cat "$SKILL_FILE")"
 
-assert_contains "APACHE II requires all 15 inputs before calculation" "APACHE II requires all 15 inputs" "$skill_text"
+assert_contains "APACHE II requires all 15 inputs before calculation" "require all 15 inputs before calculation" "$skill_text"
 assert_contains "missing inputs must be requested explicitly" "missing inputs must be requested explicitly" "$skill_text"
 assert_not_contains "does not promise calculation with available values" "available values" "$skill_text"
 

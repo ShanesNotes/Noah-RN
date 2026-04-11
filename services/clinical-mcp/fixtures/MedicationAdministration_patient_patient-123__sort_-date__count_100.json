@@ -1,0 +1,50 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "MedicationAdministration",
+        "id": "ma-1",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Norepinephrine"
+        },
+        "effectiveDateTime": "2026-04-10T10:45:00Z",
+        "dosage": {
+          "text": "0.08 mcg/kg/min IV infusion",
+          "dose": {
+            "value": 0.08,
+            "unit": "mcg/kg/min"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "display": "Nurse Casey Brooks"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationAdministration",
+        "id": "ma-2",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Piperacillin-tazobactam"
+        },
+        "effectiveDateTime": "2026-04-10T09:15:00Z",
+        "dosage": {
+          "text": "3.375 g IV",
+          "dose": {
+            "value": 3.375,
+            "unit": "g"
+          }
+        }
+      }
+    }
+  ]
+}

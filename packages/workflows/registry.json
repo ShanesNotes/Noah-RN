@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "status": "scaffold",
+  "authoritative_surface": "packages/workflows",
+  "skills": [
+    {
+      "name": "clinical-calculator",
+      "source_path": "packages/workflows/clinical-calculator/SKILL.md",
+      "scope": ["clinical_scoring"]
+    },
+    {
+      "name": "drug-reference",
+      "source_path": "packages/workflows/drug-reference/SKILL.md",
+      "scope": ["medication_lookup"]
+    },
+    {
+      "name": "hello-nurse",
+      "source_path": "packages/workflows/hello-nurse/SKILL.md",
+      "scope": ["plugin_verification"]
+    },
+    {
+      "name": "io-tracker",
+      "source_path": "packages/workflows/io-tracker/SKILL.md",
+      "scope": ["fluid_balance"]
+    },
+    {
+      "name": "protocol-reference",
+      "source_path": "packages/workflows/protocol-reference/SKILL.md",
+      "scope": ["cardiac_arrest", "sepsis", "stroke", "rapid_response", "airway_management"]
+    },
+    {
+      "name": "shift-assessment",
+      "source_path": "packages/workflows/shift-assessment/SKILL.md",
+      "scope": ["nursing_assessment", "head_to_toe", "systems_assessment", "clinical_documentation"]
+    },
+    {
+      "name": "shift-report",
+      "source_path": "packages/workflows/shift-report/SKILL.md",
+      "scope": ["shift_handoff", "nursing_report", "sbar", "clinical_documentation"]
+    },
+    {
+      "name": "unit-conversion",
+      "source_path": "packages/workflows/unit-conversion/SKILL.md",
+      "scope": ["dose_math", "unit_conversion"]
+    }
+  ]
+}

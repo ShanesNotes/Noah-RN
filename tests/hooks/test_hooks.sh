@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOKS_DIR="$SCRIPT_DIR/../../plugin/hooks/scripts"
+HOOKS_DIR="$SCRIPT_DIR/../../tools/safety-hooks/scripts"
 PASS=0
 FAIL=0
 
@@ -215,12 +215,12 @@ assert_eq "lookup error status — no warning" "" "$OUT"
 # Portability: validate-dosage.sh resolves ranges from its script location, not a hard-coded repo path
 TMP_REPO="$(mktemp -d)"
 trap 'rm -rf "$TMP_REPO"' EXIT
-mkdir -p "$TMP_REPO/plugin/hooks/scripts" "$TMP_REPO/knowledge"
-cp "$HOOKS_DIR/common.sh" "$TMP_REPO/plugin/hooks/scripts/common.sh"
-cp "$VALDOSE" "$TMP_REPO/plugin/hooks/scripts/validate-dosage.sh"
+mkdir -p "$TMP_REPO/tools/safety-hooks/scripts" "$TMP_REPO/knowledge"
+cp "$HOOKS_DIR/common.sh" "$TMP_REPO/tools/safety-hooks/scripts/common.sh"
+cp "$VALDOSE" "$TMP_REPO/tools/safety-hooks/scripts/validate-dosage.sh"
 jq '.heparin.alert = "PORTABILITY TEST ALERT" | .heparin.dose.plausible_max = 55' "$RANGES_FILE" > "$TMP_REPO/knowledge/drug-ranges.json"
 PORTABILITY_INPUT='{"status":"ok","drug":{"generic_name":"heparin","brand_name":"Hep-Lock","pharm_class":"anticoagulant"}}'
-OUT=$(cd /tmp && posttool_stdout_payload "Bash" "bash tools/drug-lookup/lookup.sh heparin" "$PORTABILITY_INPUT" | bash "$TMP_REPO/plugin/hooks/scripts/validate-dosage.sh")
+OUT=$(cd /tmp && posttool_stdout_payload "Bash" "bash tools/drug-lookup/lookup.sh heparin" "$PORTABILITY_INPUT" | bash "$TMP_REPO/tools/safety-hooks/scripts/validate-dosage.sh")
 assert_contains "validate-dosage from outside repo uses local ranges file" "PORTABILITY TEST ALERT" "$OUT"
 
 # Structured heparin dose metadata exists
@@ -359,7 +359,7 @@ echo ""
 echo "=== structural checks ==="
 
 # hooks.json exists and is valid JSON
-HOOKS_JSON="$SCRIPT_DIR/../../plugin/hooks/hooks.json"
+HOOKS_JSON="$SCRIPT_DIR/../../tools/safety-hooks/hooks.json"
 [ -f "$HOOKS_JSON" ] && jq empty "$HOOKS_JSON" 2>/dev/null && \
     { echo "  PASS: hooks.json exists and is valid JSON"; PASS=$((PASS + 1)); } || \
     { echo "  FAIL: hooks.json missing or invalid JSON"; FAIL=$((FAIL + 1)); }

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "status": "scaffold",
+  "authoritative_surface": "packages/agent-harness",
+  "workflows": {
+    "clinical-calculator": {
+      "tool_family_refs": ["clinical-calculators", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["cross-skill-triggers", "four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    },
+    "drug-reference": {
+      "tool_family_refs": ["drug-lookup", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["drug-ranges", "four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    },
+    "hello-nurse": {
+      "tool_family_refs": ["trace"],
+      "knowledge_asset_refs": ["disclaimers"],
+      "service_surface_refs": []
+    },
+    "io-tracker": {
+      "tool_family_refs": ["io-tracker", "trace"],
+      "knowledge_asset_refs": ["four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    },
+    "protocol-reference": {
+      "tool_family_refs": ["trace"],
+      "knowledge_asset_refs": ["four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    },
+    "shift-assessment": {
+      "tool_family_refs": ["trace"],
+      "knowledge_asset_refs": ["cross-skill-triggers", "four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    },
+    "shift-report": {
+      "tool_family_refs": ["trace"],
+      "knowledge_asset_refs": ["cross-skill-triggers", "drug-ranges", "four-layer-output", "disclaimers"],
+      "service_surface_refs": ["services/clinical-mcp/"]
+    },
+    "unit-conversion": {
+      "tool_family_refs": ["unit-conversions", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["four-layer-output", "disclaimers"],
+      "service_surface_refs": []
+    }
+  }
+}

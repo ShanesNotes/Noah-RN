@@ -1,0 +1,17 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "e1",
+        "status": "in-progress",
+        "period": {
+          "start": "2026-04-09T18:00:00Z"
+        }
+      }
+    }
+  ]
+}

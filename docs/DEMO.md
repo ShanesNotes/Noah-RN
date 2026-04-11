@@ -75,7 +75,7 @@ Foley is still on the to-do list.
 
 5. Internet access is required for `drug-reference` because it uses OpenFDA.
 
-Invoke skills directly as `/hello-nurse`, `/shift-assessment`, `/drug-reference`, and the other skill names used below. `plugin/commands/` is currently empty.
+Invoke skills directly as `/hello-nurse`, `/shift-assessment`, `/drug-reference`, and the other skill names used below. Legacy Claude-plugin command artifacts are archived under `docs/archive/legacy-claude-plugin/`.
 
 For every clinical step, check for the repo's expected output contract:
 - copy-paste-ready structure

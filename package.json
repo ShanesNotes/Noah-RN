@@ -1,0 +1,17 @@
+{
+  "name": "noah-rn",
+  "private": true,
+  "scripts": {
+    "build:dashboard": "npm run build --workspace apps/clinician-dashboard",
+    "test:dashboard": "npm run test --workspace apps/clinician-dashboard",
+    "build:clinical-mcp": "npm run build --workspace services/clinical-mcp",
+    "test:clinical-mcp": "npm run test --workspace services/clinical-mcp",
+    "build": "npm run build:dashboard && npm run build:clinical-mcp",
+    "test": "npm run test:dashboard && npm run test:clinical-mcp"
+  },
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ]
+}
