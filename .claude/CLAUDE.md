@@ -2,55 +2,26 @@
 
 ## Identity
 
-Noah RN is an agent-native clinical workspace harness — a Claude Code plugin + companion project.
-Structured nursing workflows and maximal patient context awareness.
-The nursing plugin is the MVP/genesis but not the project ceiling.
+- Noah RN is an agent-native clinical workspace harness with an emphasis on context architecture
+- Decomposed clinical workflows captured in skills.md and tools.md optimized for specification precision 
+- Multi-agent orchestration integrated inside of an electronic health record for maximal patient context awareness
 
-## Hard Constraints
 
-- FHIR integration via Medplum on tower (10.0.0.184:8103) — no production EHR, no PHI, synthetic data only. See `docs/FHIR-INTEGRATION.md`.
-- No PHI handling, storage, or logging. Nurse provides context, Noah provides structure.
-- No dependencies without Shane's approval.
-- No medical device claims. This is a clinical knowledge tool.
-- Deterministic before generative: if it can be computed (scores, interactions, conversions), use a tool — don't ask an LLM to do math.
+## Wiki — Claude's Working Memory
 
-## Phase Plan & Tracking
+Noah RN has a project-local LLM wiki at `wiki/` (gitignored) following [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). It is Claude's synthesis layer — persistent working memory that compounds across sessions. Shane reads; Claude writes.
 
-See `docs/ARCHITECTURE.md` for phase plan. Track progress in project management tools, not here.
+**Session start protocol** (before any ingest/query/work):
+1. Read `wiki/WIKI-SCHEMA.md` — conventions, workflows, hard rules (THE source of truth for how to use the wiki)
+2. Read `wiki/index.md` — content catalog
+3. Read tail of `wiki/log.md` — recent activity: `grep "^## \[" wiki/log.md | tail -5`
 
-## Commands
+**Core workflow:** Raw source arrives → Claude ingests (reads raw transcript from `~/university/` or `research/`, never a Paperclip summary) → creates/updates source + concept + entity + question pages → updates `index.md` + `log.md`. One source typically touches 5-15 pages. Over time, stable concepts get promoted into `docs/PHASED-ROADMAP.md` / `docs/TASKS.md`.
 
-```bash
-# Validate plugin structure
-claude plugin validate ./plugin
+**Standing directive (2026-04-08):** When reviewing YouTube research, read the RAW transcript from `~/university/<channel>/<slug>/transcript.md`, NOT the Paperclip-generated report. Translate out-of-domain references (e.g. "CRM") to clinical / medical AI context.
 
-# Run drug lookup tool
-REPO_ROOT=$(git rev-parse --show-toplevel) && bash "$REPO_ROOT/tools/drug-lookup/lookup.sh" <drug_name>
+See `wiki/WIKI-SCHEMA.md` for page types, templates, hard rules, and the full Ingest / Query / Lint / Promote workflows.
 
-# Run tool tests (requires network for API tests)
-bash tests/drug-lookup/test_lookup.sh
-```
-
-## Git Workflow (Company Policy)
-
-All code changes MUST go through pull requests. Direct pushes to `main` are prohibited.
-
-1. **Branch**: Create a feature branch from `main`. Name it `feat/<short-description>` or `fix/<short-description>`.
-2. **Commit**: Commit on your feature branch with a clear conventional-commit message.
-3. **Push**: Push your feature branch and open a pull request against `main`.
-4. **Review**: PRs require review before merge. Do not self-merge.
-5. **Never push directly to main.** No exceptions.
-
-## Session Rules
-
-- One phase at a time. One skill at a time. Finish completely before moving on.
-- Read `docs/ARCHITECTURE.md` before building any skill or starting a new phase.
-- Test every skill against realistic clinical scenarios. Bar: "Would a 13-year ICU nurse actually use this output?"
-- Skills produce copy-paste-ready text, not conversational responses.
-- Every skill includes a clinical safety disclaimer.
-- Fail loudly. No silent bad data from tools.
-- **Charge nurse voice.** Noah is the experienced colleague, not a textbook. Practical ranges over rigid cutoffs. Context caveats inline. "Per facility protocol" is a valid answer. Accurate and up-to-date, but presented with bedside nuance. Include "why we care" one-liners where they add clinical meaning. See ARCHITECTURE.md principle #6.
-- **Three tiers of confidence.** Tier 1: national guidelines presented exactly. Tier 2: bedside suggestions labeled as such. Tier 3: facility-specific rules require local config — Noah doesn't guess policy. See ARCHITECTURE.md principle #7.
 
 ## Harness Integration
 
@@ -70,18 +41,10 @@ All code changes MUST go through pull requests. Direct pushes to `main` are proh
 - Exit codes: 0=success, 1=input/no-match error, 2=API/system error
 - Paths resolve via `git rev-parse --show-toplevel`, not relative paths
 - Tests live in `tests/<tool-name>/test_<name>.sh`
-- Knowledge files in `knowledge/` are curated clinical content — edit with care
 
-## Architecture (summary)
-
-Hybrid plugin + project. Plugin lives in `plugin/` with skills, agents, commands.
-Tools (deterministic) live in `tools/`. Curated clinical data in `knowledge/`.
-Dashboard (React 19 dev harness) in `dashboard/`. MCP server in `mcp-server/`.
-Medplum FHIR platform in `infrastructure/`.
-Full structure and specs in `docs/ARCHITECTURE.md`.
 
 ## What Shane Brings
 
-14yr licensed RN, 13yr critical care at Level 1 trauma center (Grand Rapids, MI).
-Deep ICU, ventilator management, hemodynamic monitoring, code/rapid response, complex drips.
-Self-taught engineer. First-principles thinker. Subtractive bias. No tolerance for slop.
+Tenured licensed critical care RN 
+
+Self-taught engineer. First-principles thinker. Minimalist bias.
