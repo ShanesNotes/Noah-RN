@@ -8,7 +8,7 @@ Define memory as clinical operating context, not generic chat history.
 
 - `PLAN.md`: memory is one of the active subprojects.
 - `TASKS.md`: memory architecture spec is already in the queue.
-- `packages/memory/README.md`: the lane is reserved for future memory-layer work.
+- `docs/topology/subproject-workspace-map.md`: the foundation docs are the active memory center until runtime code exists again.
 
 ## Canonical boundary
 
@@ -58,7 +58,7 @@ The rest should stay specified but deferred until a workflow requires them.
 
 ## Canonical surfaces now
 
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 - `services/clinical-mcp/` for patient-context assembly
 - workflow contracts that declare required context
 
@@ -73,6 +73,6 @@ The rest should stay specified but deferred until a workflow requires them.
 - `README.md`
 - `PLAN.md`
 - `TASKS.md`
-- `packages/memory/README.md`
+- `docs/foundations/memory-tier-boundary.md`
 - `notes/noah-rn-pi-like-clinical-operating-structure.md`
 - `docs/foundations/medplum-architecture-packet.md`

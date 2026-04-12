@@ -4,27 +4,47 @@ export interface FhirBundle<T = FhirResource> {
   resourceType: 'Bundle';
   type: string;
   total?: number;
-  entry?: Array<{ resource: T }>;
+  entry?: BundleEntry<T>[];
 }
 
 export interface FhirResource {
   resourceType: string;
   id?: string;
+  meta?: Meta;
+}
+
+export interface Meta {
+  versionId?: string;
+  lastUpdated?: string;
+}
+
+export interface BundleEntry<T = FhirResource> {
+  fullUrl?: string;
+  resource: T;
+}
+
+export interface Identifier {
+  system?: string;
+  value?: string;
+}
+
+export interface HumanName {
+  family?: string;
+  given?: string[];
+  text?: string;
+}
+
+export interface Narrative {
+  status?: string;
+  div?: string;
 }
 
 export interface Patient extends FhirResource {
   resourceType: 'Patient';
-  name?: Array<{
-    family?: string;
-    given?: string[];
-    text?: string;
-  }>;
+  name?: HumanName[];
   gender?: string;
   birthDate?: string;
-  identifier?: Array<{
-    system?: string;
-    value?: string;
-  }>;
+  identifier?: Identifier[];
 }
 
 export interface Coding {
@@ -51,25 +71,29 @@ export interface Attachment {
   data?: string;
 }
 
+export interface Quantity {
+  value?: number;
+  unit?: string;
+  system?: string;
+  code?: string;
+}
+
+export interface Period {
+  start?: string;
+  end?: string;
+}
+
 export interface Observation extends FhirResource {
   resourceType: 'Observation';
   status?: string;
   category?: Array<{ coding?: Coding[] }>;
   code: CodeableConcept;
   effectiveDateTime?: string;
-  valueQuantity?: {
-    value?: number;
-    unit?: string;
-    system?: string;
-    code?: string;
-  };
+  valueQuantity?: Quantity;
   valueString?: string;
   component?: Array<{
     code: CodeableConcept;
-    valueQuantity?: {
-      value?: number;
-      unit?: string;
-    };
+    valueQuantity?: Quantity;
   }>;
 }
 
@@ -88,16 +112,23 @@ export interface MedicationRequest extends FhirResource {
   status?: string;
   intent?: string;
   medicationCodeableConcept?: CodeableConcept;
+  subject?: Reference;
+  encounter?: Reference;
   medicationReference?: Reference;
   authoredOn?: string;
   dosageInstruction?: Array<{
     text?: string;
     route?: CodeableConcept;
     doseAndRate?: Array<{
-      doseQuantity?: { value?: number; unit?: string };
-      rateQuantity?: { value?: number; unit?: string };
+      doseQuantity?: Quantity;
+      rateQuantity?: Quantity;
     }>;
   }>;
+}
+
+export interface Medication extends FhirResource {
+  resourceType: 'Medication';
+  code?: CodeableConcept;
 }
 
 export interface MedicationAdministration extends FhirResource {
@@ -108,25 +139,12 @@ export interface MedicationAdministration extends FhirResource {
   subject?: Reference;
   context?: Reference;
   effectiveDateTime?: string;
-  effectivePeriod?: {
-    start?: string;
-    end?: string;
-  };
+  effectivePeriod?: Period;
   dosage?: {
     text?: string;
     route?: CodeableConcept;
-    dose?: {
-      value?: number;
-      unit?: string;
-      system?: string;
-      code?: string;
-    };
-    rateQuantity?: {
-      value?: number;
-      unit?: string;
-      system?: string;
-      code?: string;
-    };
+    dose?: Quantity;
+    rateQuantity?: Quantity;
   };
   performer?: Array<{
     actor?: Reference;
@@ -138,10 +156,8 @@ export interface Encounter extends FhirResource {
   status?: string;
   class?: Coding;
   type?: CodeableConcept[];
-  period?: {
-    start?: string;
-    end?: string;
-  };
+  subject?: Reference;
+  period?: Period;
   reasonCode?: CodeableConcept[];
 }
 
@@ -154,25 +170,49 @@ export interface DocumentReference extends FhirResource {
   date?: string;
   author?: Reference[];
   description?: string;
+  text?: Narrative;
   content?: Array<{
     attachment?: Attachment;
   }>;
   context?: {
     encounter?: Reference[];
-    period?: {
-      start?: string;
-      end?: string;
-    };
+    period?: Period;
   };
+}
+
+export interface Task extends FhirResource {
+  resourceType: 'Task';
+  status?: string;
+  intent?: string;
+  for?: Reference;
+  encounter?: Reference;
+  focus?: Reference;
+  requester?: Reference;
+  owner?: Reference;
+  description?: string;
+}
+
+export interface Provenance extends FhirResource {
+  resourceType: 'Provenance';
+  target?: Reference[];
+  recorded?: string;
+  agent?: Array<{
+    who?: Reference;
+    type?: CodeableConcept;
+  }>;
 }
 
 export type ClinicalResource =
   | Observation
   | Condition
+  | Medication
   | MedicationRequest
   | MedicationAdministration
   | Encounter
-  | DocumentReference;
+  | DocumentReference
+  | Patient
+  | Task
+  | Provenance;
 
 export interface FhirResult<T> {
   data: T | null;

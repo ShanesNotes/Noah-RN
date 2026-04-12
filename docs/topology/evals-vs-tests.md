@@ -38,6 +38,11 @@ Examples in this repo:
 - `evals/product/reviews/`
 - `evals/company/`
 
+Generated-output rule:
+- timestamped score dumps and one-off timestamped trace runs are generated evidence, not canonical fixtures
+- keep stable named corpora when they are intentional baselines
+- ignore or clean timestamped local churn when it is only session residue
+
 ## Rule of Thumb
 
 - If it is a developer-facing check that should gate normal changes, it belongs in `tests/`.

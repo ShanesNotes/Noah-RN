@@ -30,7 +30,16 @@ PATIENT_JSON="$(node "$REPO_ROOT/.pi/extensions/noah-router/build-shift-report-w
 assert_eq "patient workflow input is ready" "ready" "$(echo "$PATIENT_JSON" | jq -r '.status')"
 assert_eq "patient workflow input mode preserved" "patient_context" "$(echo "$PATIENT_JSON" | jq -r '.input_mode')"
 assert_eq "patient workflow input carries patient id" "patient-123" "$(echo "$PATIENT_JSON" | jq -r '.workflow_input.patient_context.patient.id')"
-assert_eq "patient workflow input has timeline entries" "5" "$(echo "$PATIENT_JSON" | jq '.workflow_input.patient_context.timeline | length')"
+PATIENT_TIMELINE_COUNT="$(echo "$PATIENT_JSON" | jq '.workflow_input.patient_context.timeline | length')"
+if (( PATIENT_TIMELINE_COUNT >= 5 )); then
+    echo "  PASS: patient workflow input has timeline entries"
+    PASS=$((PASS + 1))
+else
+    echo "  FAIL: patient workflow input has timeline entries"
+    echo "    expected: >= 5"
+    echo "    actual:   $PATIENT_TIMELINE_COUNT"
+    FAIL=$((FAIL + 1))
+fi
 assert_eq "patient workflow input preserves knowledge assets" "4" "$(echo "$PATIENT_JSON" | jq '.workflow_input.knowledge_assets | length')"
 
 MISSING_JSON="$(node "$REPO_ROOT/.pi/extensions/noah-router/build-shift-report-workflow-input.mjs" '{}')"

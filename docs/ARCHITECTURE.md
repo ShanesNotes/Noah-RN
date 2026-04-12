@@ -39,7 +39,8 @@ Live-runtime boundary center:
 
 Supporting surfaces:
 - `infrastructure/` — Medplum and local environment setup; the shared FHIR backbone that both centers read from and the sim-harness writes into.
-- `apps/clinician-dashboard/` — sidecar observability, prototyping surface, and the **waveform viewer** for sim-harness output.
+- `apps/nursing-station/` — Medplum-first clinician workspace surface for patient/task flows.
+- `apps/clinician-dashboard/` — runtime-console sidecar for evals, traces, context inspection, skills, terminal workflows, and future sim observability.
 
 Role of `services/clinical-mcp/`:
 - assemble patient context
@@ -81,7 +82,7 @@ Role:
 ### Memory layer
 
 Center:
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 
 Role:
 - define memory boundaries before broader persistence work
@@ -123,7 +124,7 @@ When the encounter is a live simulation, an additional path runs continuously in
 services/sim-harness/
   -> (wraps Pulse/BioGears physiology engine + scenario director + waveform generators)
   -> infrastructure/ (Medplum FHIR) -> services/clinical-mcp/ -> packages/agent-harness/
-  -> apps/clinician-dashboard/ (waveform viewer + live vitals panel)
+  -> apps/clinician-dashboard/ (future waveform/vitals observability surface)
 ```
 
 The agent does not talk to `services/sim-harness/` directly. It goes through `services/clinical-mcp/`, which exposes the live simulation the same way it exposes static MIMIC context — plus a small number of sim-only MCP tools (live-vitals snapshot, waveform vision access, medication administration, intervention orders) registered through the same boundary. See `docs/foundations/sim-harness-runtime-access-contract.md` and `docs/foundations/sim-harness-waveform-vision-contract.md`.
@@ -149,13 +150,14 @@ Deferred:
 
 ## Active Subsystems Summary
 
-- `apps/clinician-dashboard/` - clinician sidecar prototype and waveform viewer surface
+- `apps/nursing-station/` - Medplum-first clinician workspace surface
+- `apps/clinician-dashboard/` - runtime-console sidecar prototype for evals, traces, context inspection, skill visibility, and terminal/operator workflows
 - `services/clinical-mcp/` - patient-context and simulation-facing boundary
 - `services/sim-harness/` - clinical simulation harness center (scaffold only); wraps open-source physiology engines; drives live vitals, waveforms, and scenario timelines; writes FHIR back into Medplum
 - `packages/agent-harness/` - routing and harness substrate
 - `packages/workflows/` - authoritative workflow contracts
 - `clinical-resources/` - curated clinical resource surface
-- `packages/memory/` - future memory-layer center
+- `docs/foundations/memory-layer-scaffold.md` - current memory-layer definition surface until runtime code returns
 - `infrastructure/` - Medplum and local environment setup
 - `evals/` - meta-harness traces and evaluation artifacts
 

@@ -1,20 +1,17 @@
 # Clinician Dashboard
 
-This folder holds the Noah RN clinician dashboard sidecar.
+This folder holds the Noah RN runtime-console dashboard sidecar.
 
 It is a supporting application surface, not the canonical clinical workspace.
 
 ## What this app owns
 
 - clinician-facing sidecar views
-- observational UI for patient data and workflow context
-- workflow-adjacent panels such as:
-  - vitals
-  - labs
-  - medications
-  - context inspection
-  - skill prompt support
-  - assignment-level overview
+- eval and trace observability
+- context inspection
+- skill/runtime visibility
+- terminal/operator support
+- future sim observability
 
 ## What this app does not own
 
@@ -33,8 +30,15 @@ Those live in:
 
 Treat this app as:
 - sidecar observability
-- clinician-facing prototyping
+- runtime-console prototyping
 - workflow-support surface
+
+Current panel set:
+- eval dashboard
+- trace viewer
+- context inspector
+- skill panel
+- terminal panel
 
 Do not treat it as the source of truth for clinical workspace architecture.
 
@@ -70,7 +74,7 @@ It should be understood as a consumer of the clinical workspace, not the owner o
 If a change affects:
 - chart-context truth or bundle shape → start in `services/clinical-mcp/`
 - workflow contract or routing behavior → start in `packages/workflows/` or `packages/agent-harness/`
-- clinician-facing sidecar display or interaction → start here
+- runtime-console display or interaction → start here
 
 ## Read this next
 

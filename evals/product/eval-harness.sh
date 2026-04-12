@@ -3,10 +3,8 @@ set -euo pipefail
 # Eval Harness — Phase B (Dynamic + Static)
 # Runs skills against golden test cases, captures traces, produces scores.json.
 #
-# Usage: optimization/product/eval-harness.sh [--candidate <N>] [--case <id>] [--skill <name>] [--mode static|dynamic]
 # Usage: optimization/product/eval-harness.sh [--candidate <N>] [--case <id>] [--skill <name>]
-#                                              [--mode static|dynamic|both]
-#                                              [--dynamic-only] [--structural-only]
+#                                              [--mode static|dynamic|both] [--dynamic-only] [--structural-only]
 #
 # Validates each candidate against the golden test suite and produces:
 # - scores.json with per-category metrics
@@ -33,12 +31,9 @@ PASS=0
 FAIL=0
 SKIP=0
 SAFETY_FAILS=0
-SAFETY_VETO=0
-SCHEMA_V2_CASES=0
-DYNAMIC_SKIP=0
 SAFETY_VETO_CASES=0
-DYNAMIC_SKIP=0
 SCHEMA_V2_COUNT=0
+DYNAMIC_SKIP=0
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -55,7 +50,6 @@ log_info() { echo -e "${CYAN}INFO${NC} $1"; }
 declare -A CAT_TOTAL CAT_PASS CAT_FAIL CAT_SAFETY_VETO
 
 record_result() {
-  local category="$1" result="$2" safety_veto="${3:-0}"
   local category="$1" result="$2" is_safety_veto="${3:-false}"
   CAT_TOTAL[$category]=$(( ${CAT_TOTAL[$category]:-0} + 1 ))
   if [ "$result" = "pass" ]; then
@@ -63,7 +57,6 @@ record_result() {
   elif [ "$result" = "fail" ]; then
     CAT_FAIL[$category]=$(( ${CAT_FAIL[$category]:-0} + 1 ))
   fi
-  if [ "$safety_veto" = "1" ]; then
   if [ "$is_safety_veto" = "true" ] || [ "$is_safety_veto" = "1" ]; then
     CAT_SAFETY_VETO[$category]=$(( ${CAT_SAFETY_VETO[$category]:-0} + 1 ))
   fi
@@ -143,10 +136,24 @@ print('PASS')
 " 2>/dev/null || echo "FAIL:parse_error"
 }
 
+resolve_skill_file() {
+  local skill="$1"
+  local skill_file
+
+  skill_file="$(find "$REPO_ROOT/packages/workflows" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
+  if [ -n "$skill_file" ]; then
+    printf '%s\n' "$skill_file"
+    return 0
+  fi
+
+  skill_file="$(find "$REPO_ROOT/plugin/skills" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
+  printf '%s\n' "$skill_file"
+}
+
 validate_skill() {
   local skill="$1"
   local skill_file
-  skill_file="$(find "$REPO_ROOT/plugin/skills" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
+  skill_file="$(resolve_skill_file "$skill")"
 
   if [ -z "$skill_file" ]; then
     echo "MISSING:skill_not_found"
@@ -185,152 +192,36 @@ run_dynamic_validation() {
   local test_id="$3"
   local case_trace_dir="$4"
 
-  if [ -z "${OPENAI_API_KEY:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${OLLAMA_BASE_URL:-}" ]; then
+  # Check if model is configured
+  if [ -z "${NOAH_HARNESS_CMD:-}" ] && [ -z "${OPENAI_API_KEY:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${OLLAMA_BASE_URL:-}" ]; then
     log_skip "$test_id — no model configured (dynamic skipped)"
     DYNAMIC_SKIP=$((DYNAMIC_SKIP + 1))
     return 2
   fi
 
-  local must_contain must_not_contain min_confidence must_cite_source
-  must_contain="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-print('\\n'.join(expected.get('must_contain', [])))
-")"
-  must_not_contain="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-print('\\n'.join(expected.get('must_not_contain', [])))
-")"
-  min_confidence="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-print(expected.get('confidence', {}).get('minimum_overall', 0.5))
-")"
-  must_cite_source="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-print(str(expected.get('provenance', {}).get('must_cite_source', False)).lower())
-")"
-
-  local clinical_context
-  clinical_context="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('user_query') or d.get('input', {}).get('user_query') or d.get('input', {}).get('clinical_context', ''))
-")"
-
-  local skill_output
-  skill_output="$(invoke_skill "$skill" "$clinical_context" "$case_trace_dir")" || {
-    log_fail "$test_id — skill invocation failed"
-    return 1
-  }
-
-  local missing_contains=()
-  while IFS= read -r term; do
-    [ -z "$term" ] && continue
-    if ! echo "$skill_output" | grep -qi "$term"; then
-      missing_contains+=("$term")
-    fi
-  done <<< "$must_contain"
-
-  local found_prohibited=()
-  while IFS= read -r term; do
-    [ -z "$term" ] && continue
-    if echo "$skill_output" | grep -qi "$term"; then
-      found_prohibited+=("$term")
-    fi
-  done <<< "$must_not_contain"
-
-  local actual_confidence
-  actual_confidence="$(echo "$skill_output" | python3 -c "
-import re, sys
-text = sys.stdin.read()
-match = re.search(r'confidence[:\\s]+([0-9.]+)', text, re.IGNORECASE)
-print(match.group(1) if match else '0.0')
-" 2>/dev/null || echo "0.0")"
-
-  local confidence_ok
-  confidence_ok="$(python3 -c "print('true' if float('$actual_confidence') >= float('$min_confidence') else 'false')")"
-
-  local provenance_ok="true"
-  if [ "$must_cite_source" = "true" ] && ! echo "$skill_output" | grep -qi "source:\|citation:\|reference:\|guideline:"; then
-    provenance_ok="false"
-  fi
-
-  local failures=()
-  [ ${#missing_contains[@]} -gt 0 ] && failures+=("missing:${missing_contains[*]}")
-  [ ${#found_prohibited[@]} -gt 0 ] && failures+=("prohibited:${found_prohibited[*]}")
-  [ "$confidence_ok" = "false" ] && failures+=("confidence:${actual_confidence} < ${min_confidence}")
-  [ "$provenance_ok" = "false" ] && failures+=("provenance:missing_source")
-
-  if [ ${#failures[@]} -gt 0 ]; then
-    log_fail "$test_id — $(IFS='; '; echo "${failures[*]}")"
-    return 1
-  fi
-
-  log_pass "$test_id"
-  return 0
-}
-
-# Dynamic validation — run skill against test case and check output
-run_dynamic_validation() {
-  local case_json="$1"
-  local skill="$2"
-  local test_id="$3"
-  local case_trace_dir="$4"
-
-  # Check if model is configured
-  if [ -z "${OPENAI_API_KEY:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${OLLAMA_BASE_URL:-}" ]; then
-    log_skip "$test_id — no model configured (dynamic skipped)"
-    DYNAMIC_SKIP=$((DYNAMIC_SKIP + 1))
-    return 0
-  fi
-
   # Extract expectations
-  local must_contain must_not_contain min_confidence must_cite_source
-  must_contain="$(echo "$case_json" | python3 -c "
+  local must_contain must_not_contain min_confidence must_cite_source clinical_context
+  local dynamic_fields
+  dynamic_fields="$(echo "$case_json" | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 expected = d.get('expected', {})
-mc = expected.get('must_contain', [])
-print('\n'.join(mc))
+print(json.dumps({
+    'must_contain': '\n'.join(expected.get('must_contain', [])),
+    'must_not_contain': '\n'.join(expected.get('must_not_contain', [])),
+    'min_confidence': expected.get('confidence', {}).get('minimum_overall', 0.5),
+    'must_cite_source': str(expected.get('provenance', {}).get('must_cite_source', False)).lower(),
+    'clinical_context': d.get('user_query') or d.get('input', {}).get('user_query') or d.get('input', {}).get('clinical_context', ''),
+}))
 ")"
-  must_not_contain="$(echo "$case_json" | python3 -c "
-import json, sys
+  eval "$(echo "$dynamic_fields" | python3 -c "
+import json, shlex, sys
 d = json.load(sys.stdin)
-expected = d.get('expected', {})
-mnc = expected.get('must_not_contain', [])
-print('\n'.join(mnc))
-")"
-  min_confidence="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-conf = expected.get('confidence', {})
-print(conf.get('minimum_overall', 0.5))
-")"
-  must_cite_source="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-expected = d.get('expected', {})
-prov = expected.get('provenance', {})
-print(str(prov.get('must_cite_source', False)).lower())
+for key in ('must_contain', 'must_not_contain', 'min_confidence', 'must_cite_source', 'clinical_context'):
+    print(f\"{key}={shlex.quote(str(d[key]))}\")
 ")"
 
-  # Get clinical context
-  local clinical_context
-  clinical_context="$(echo "$case_json" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('input', {}).get('clinical_context', ''))
-")"
-
-  # Invoke skill via model API (placeholder — actual implementation depends on model provider)
+  # Invoke the harness or a model-backed skill surface
   local skill_output
   skill_output="$(invoke_skill "$skill" "$clinical_context" "$case_trace_dir")" || {
     log_fail "$test_id — skill invocation failed"
@@ -394,14 +285,19 @@ else:
   return 0
 }
 
-# Invoke skill via model API
+# Invoke a skill through the harness override or a model-backed fallback
 invoke_skill() {
   local skill="$1"
   local context="$2"
   local trace_dir="$3"
 
+  if [ -n "${NOAH_HARNESS_CMD:-}" ]; then
+    "$NOAH_HARNESS_CMD" "$skill" "$context" "$trace_dir"
+    return $?
+  fi
+
   local skill_file
-  skill_file="$(find "$REPO_ROOT/plugin/skills" -name "SKILL.md" -path "*$skill*" 2>/dev/null | head -1)"
+  skill_file="$(resolve_skill_file "$skill")"
 
   if [ -z "$skill_file" ]; then
     echo "ERROR: Skill file not found for '$skill'"
@@ -458,11 +354,24 @@ run_case() {
   case_json="$(parse_case "$case_file")" || { log_skip "$(basename "$case_file") (parse error)"; SKIP=$((SKIP+1)); return; }
 
   local test_id skill description severity safety_veto schema_v2
-  test_id="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('test_id','?'))")"
-  skill="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('skill','?'))")"
-  description="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('description','?'))")"
-  severity="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('severity','medium'))")"
-  safety_veto="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if d.get('safety_veto') else 'false')")"
+  local case_fields
+  case_fields="$(echo "$case_json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(json.dumps({
+    'test_id': d.get('test_id', '?'),
+    'skill': d.get('skill', '?'),
+    'description': d.get('description', '?'),
+    'severity': d.get('severity', 'medium'),
+    'safety_veto': 'true' if d.get('safety_veto') else 'false',
+}))
+")"
+  eval "$(echo "$case_fields" | python3 -c "
+import json, shlex, sys
+d = json.load(sys.stdin)
+for key in ('test_id', 'skill', 'description', 'severity', 'safety_veto'):
+    print(f\"{key}={shlex.quote(str(d[key]))}\")
+")"
   schema_v2="$(has_schema_v2 "$case_file")"
 
   [ "$schema_v2" = "true" ] && SCHEMA_V2_COUNT=$((SCHEMA_V2_COUNT+1))
@@ -491,27 +400,12 @@ run_case() {
   mkdir -p "$case_trace_dir"
   echo "$case_json" > "$case_trace_dir/input-context.json"
 
-  # Create trace directory
-  local case_trace_dir="$TRACES_DIR/$test_id"
-  mkdir -p "$case_trace_dir"
-
-  # Save input context to trace
-  echo "$case_json" > "$case_trace_dir/input-context.json"
-
   # Static validation (always run)
   local skill_result
   skill_result="$(validate_skill "$skill")" || true
 
   if [[ "$skill_result" == FAIL:* ]]; then
     local detail="${skill_result#FAIL:}"
-    if [ "$severity" = "critical" ]; then
-      SAFETY_FAILS=$((SAFETY_FAILS+1))
-      SAFETY_VETO=$((SAFETY_VETO+1))
-    fi
-    log_fail "$test_id — $detail"
-    FAIL=$((FAIL+1))
-    record_result "$skill" "fail" "$([ "$severity" = "critical" ] && echo 1 || echo 0)"
-    echo "FAIL:$detail" > "$case_trace_dir/hook-results.json"
     log_fail "$test_id — $detail"
     FAIL=$((FAIL+1))
     record_result "$skill" "fail" "$safety_veto"
@@ -528,42 +422,13 @@ run_case() {
     return
   fi
 
-  # Dynamic validation (if model configured)
-  if [ -n "${OPENAI_API_KEY:-}" ] || [ -n "${ANTHROPIC_API_KEY:-}" ] || [ -n "${OLLAMA_BASE_URL:-}" ]; then
-    SCHEMA_V2_CASES=$((SCHEMA_V2_CASES + 1))
-    if run_dynamic_validation "$case_json" "$skill" "$test_id" "$case_trace_dir"; then
-      PASS=$((PASS+1))
-      record_result "$skill" "pass" "0"
-      echo "PASS" > "$case_trace_dir/hook-results.json"
-    else
-      FAIL=$((FAIL+1))
-      if [ "$severity" = "critical" ]; then
-        SAFETY_FAILS=$((SAFETY_FAILS+1))
-        SAFETY_VETO=$((SAFETY_VETO+1))
-      fi
-      record_result "$skill" "fail" "$([ "$severity" = "critical" ] && echo 1 || echo 0)"
-      echo "FAIL:dynamic_validation_failed" > "$case_trace_dir/hook-results.json"
-    fi
-  else
-    # Static pass
-    log_pass "$test_id (static only)"
-    PASS=$((PASS+1))
-    record_result "$skill" "pass" "0"
-    echo "PASS:static_only" > "$case_trace_dir/hook-results.json"
-  fi
-    record_result "$skill" "fail" "$safety_veto"
-    echo "MISSING:skill_not_found" > "$case_trace_dir/hook-results.json"
-    if [ "$severity" = "critical" ] || [ "$safety_veto" = "true" ]; then
-      SAFETY_FAILS=$((SAFETY_FAILS+1))
-    fi
-    return
-  fi
-
+  # Determine dynamic input availability
   local has_dynamic_input="false"
   if [ "$schema_v2" = "true" ]; then
     has_dynamic_input="$(echo "$case_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if (d.get('user_query') or d.get('input', {}).get('user_query')) else 'false')")"
   fi
 
+  # Dynamic-only mode requires dynamic input
   if [ "$MODE" = "dynamic" ] && [ "$has_dynamic_input" = "false" ]; then
     log_skip "$test_id — no dynamic input defined"
     SKIP=$((SKIP+1))
@@ -571,37 +436,38 @@ run_case() {
     return
   fi
 
+  # Attempt dynamic validation when mode allows and input exists
   if [ "$MODE" != "static" ] && [ "$has_dynamic_input" = "true" ]; then
-    if run_dynamic_validation "$case_json" "$skill" "$test_id" "$case_trace_dir"; then
+    run_dynamic_validation "$case_json" "$skill" "$test_id" "$case_trace_dir"
+    local dyn_status=$?
+    if [ "$dyn_status" -eq 0 ]; then
       PASS=$((PASS+1))
       record_result "$skill" "pass" "$safety_veto"
       echo "PASS" > "$case_trace_dir/hook-results.json"
-      return
-    else
-      status=$?
-      if [ "$status" -eq 2 ]; then
-        if [ "$MODE" = "dynamic" ]; then
-          SKIP=$((SKIP+1))
-          echo "SKIP:dynamic_unavailable" > "$case_trace_dir/hook-results.json"
-          return
-        fi
-        log_pass "$test_id (static only)"
-        PASS=$((PASS+1))
-        record_result "$skill" "pass" "$safety_veto"
-        echo "PASS:static_only" > "$case_trace_dir/hook-results.json"
+    elif [ "$dyn_status" -eq 2 ]; then
+      # Dynamic skipped (no model configured) — fall through to static
+      if [ "$MODE" = "dynamic" ]; then
+        SKIP=$((SKIP+1))
+        echo "SKIP:dynamic_unavailable" > "$case_trace_dir/hook-results.json"
         return
       fi
+      log_pass "$test_id (static only)"
+      PASS=$((PASS+1))
+      record_result "$skill" "pass" "$safety_veto"
+      echo "PASS:static_only" > "$case_trace_dir/hook-results.json"
+    else
       FAIL=$((FAIL+1))
       record_result "$skill" "fail" "$safety_veto"
       echo "FAIL:dynamic_validation_failed" > "$case_trace_dir/hook-results.json"
       if [ "$severity" = "critical" ] || [ "$safety_veto" = "true" ]; then
         SAFETY_FAILS=$((SAFETY_FAILS+1))
       fi
-      return
     fi
+    return
   fi
 
-  log_pass "$test_id${has_dynamic_input:+} (static only)"
+  # Static-only pass
+  log_pass "$test_id (static only)"
   PASS=$((PASS+1))
   record_result "$skill" "pass" "$safety_veto"
   echo "PASS:static_only" > "$case_trace_dir/hook-results.json"
@@ -683,64 +549,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-BACKUP_DIR=""
-OVERLAY_FILES=()
-
-cleanup_candidate() {
-  if [ ${#OVERLAY_FILES[@]} -gt 0 ] && [ -n "$BACKUP_DIR" ]; then
-    for rel_path in "${OVERLAY_FILES[@]}"; do
-      local src="$BACKUP_DIR/$rel_path"
-      local dst="$REPO_ROOT/$rel_path"
-      if [ -f "$src" ]; then
-        cp "$src" "$dst"
-      elif [ -f "${src}.DELETED" ]; then
-        rm -f "$dst"
-      fi
-    done
-    rm -rf "$BACKUP_DIR"
-  fi
-}
-
 if [ -n "${CANDIDATE:-}" ]; then
-  if [[ "$CANDIDATE" =~ ^[0-9]+$ ]]; then
-    CANDIDATE_DIR="$SCRIPT_DIR/candidates/candidate-$CANDIDATE"
-  else
-    CANDIDATE_DIR="$CANDIDATE"
-  fi
-
-  if [ ! -d "$CANDIDATE_DIR" ]; then
-    echo "ERROR: Candidate directory not found: $CANDIDATE_DIR"
-    exit 1
-  fi
-
-  DIFF_DIR="$CANDIDATE_DIR/diff"
-  if [ ! -d "$DIFF_DIR" ]; then
-    echo "ERROR: Candidate diff/ directory not found: $DIFF_DIR"
-    exit 1
-  fi
-
-  BACKUP_DIR="$(mktemp -d)"
-  trap cleanup_candidate EXIT
-
-  echo "=== Applying candidate: $CANDIDATE_DIR ==="
-  while IFS= read -r -d '' candidate_file; do
-    rel_path="${candidate_file#$DIFF_DIR/}"
-    original="$REPO_ROOT/$rel_path"
-
-    backup_target="$BACKUP_DIR/$rel_path"
-    mkdir -p "$(dirname "$backup_target")"
-    if [ -f "$original" ]; then
-      cp "$original" "$backup_target"
-    else
-      touch "${backup_target}.DELETED"
-    fi
-
-    mkdir -p "$(dirname "$original")"
-    cp "$candidate_file" "$original"
-    OVERLAY_FILES+=("$rel_path")
-    log_info "overlaid: $rel_path"
-  done < <(find "$DIFF_DIR" -type f -print0)
-  echo ""
+  # shellcheck source=/dev/null
+  . "$SCRIPT_DIR/apply-candidate.sh"
+  apply_candidate_overlay
 fi
 
 for case_file in "$CASES_DIR"/*.yaml; do
@@ -764,7 +576,6 @@ done
 
 echo ""
 echo "=== Results ==="
-echo "Total: $TOTAL | Pass: $PASS | Fail: $FAIL | Skip: $SKIP | Safety: $SAFETY_FAILS | Veto: $SAFETY_VETO | Schema v2: $SCHEMA_V2_CASES | Dynamic Skip: $DYNAMIC_SKIP"
 echo "Total: $TOTAL | Pass: $PASS | Fail: $FAIL | Skip: $SKIP | Safety: $SAFETY_FAILS | Safety-veto cases: $SAFETY_VETO_CASES | Schema v2: $SCHEMA_V2_COUNT | Dynamic skip: $DYNAMIC_SKIP"
 
 echo ""
@@ -774,7 +585,6 @@ for cat in "${!CAT_TOTAL[@]}"; do
   local_fail=${CAT_FAIL[$cat]:-0}
   local_total=${CAT_TOTAL[$cat]}
   local_veto=${CAT_SAFETY_VETO[$cat]:-0}
-  echo "  $cat: $local_pass/$local_total (veto: $local_veto)"
   local_veto_tag=""
   [ "$local_veto" -gt 0 ] && local_veto_tag=" (safety_veto: $local_veto)"
   echo "  $cat: pass=$local_pass fail=$local_fail total=$local_total${local_veto_tag}"
@@ -790,12 +600,6 @@ data = {
     'fail': $FAIL,
     'skip': $SKIP,
     'safety_failures': $SAFETY_FAILS,
-    'safety_veto_cases': $SAFETY_VETO,
-    'schema_v2_cases': $SCHEMA_V2_CASES,
-    'dynamic_skip': $DYNAMIC_SKIP,
-    'categories': {
-$(for cat in "${!CAT_TOTAL[@]}"; do
-  echo "        \"$cat\": {\"total\": ${CAT_TOTAL[$cat]}, \"pass\": ${CAT_PASS[$cat]:-0}, \"safety_veto\": ${CAT_SAFETY_VETO[$cat]:-0}},"
     'safety_veto_cases': $SAFETY_VETO_CASES,
     'schema_v2_cases': $SCHEMA_V2_COUNT,
     'dynamic_skip': $DYNAMIC_SKIP,

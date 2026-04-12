@@ -91,6 +91,10 @@ Key docs:
 - [foundations/agent-harness-runtime-contract.md](foundations/agent-harness-runtime-contract.md)
 - [foundations/clinical-resources-runtime-access-contract.md](foundations/clinical-resources-runtime-access-contract.md)
 - [foundations/memory-tier-boundary.md](foundations/memory-tier-boundary.md)
+- [foundations/medplum-primary-workspace-note.md](foundations/medplum-primary-workspace-note.md)
+- [foundations/medplum-rails-noah-runtime.md](foundations/medplum-rails-noah-runtime.md)
+- [foundations/medplum-shift-report-contract.md](foundations/medplum-shift-report-contract.md)
+- [foundations/pi-dev-runtime-lane-checkpoint-1.md](foundations/pi-dev-runtime-lane-checkpoint-1.md)
 
 `Shift Report` workflow-specific artifacts also currently live here because they are still boundary/contract docs rather than implementation docs.
 
@@ -114,6 +118,7 @@ Purpose:
 Current docs:
 - [analysis/distillation-cross-reference.md](analysis/distillation-cross-reference.md)
 - [analysis/safety-compliance-report.md](analysis/safety-compliance-report.md)
+- [analysis/2026-04-12-session-closeout-audit.md](analysis/2026-04-12-session-closeout-audit.md)
 
 ### `docs/archive/`
 

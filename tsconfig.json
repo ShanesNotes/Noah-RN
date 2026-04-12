@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/clinician-dashboard/tsconfig.app.json" },
+    { "path": "./apps/clinician-dashboard/tsconfig.node.json" },
+    { "path": "./services/clinical-mcp/tsconfig.json" },
+    { "path": "./packages/agent-harness/tsconfig.json" },
+    { "path": "./packages/workflows/tsconfig.json" },
+    { "path": "./clinical-resources/tsconfig.json" },
+    { "path": "./services/sim-harness/tsconfig.json" },
+    { "path": "./apps/nursing-station/tsconfig.json" }
+  ]
+}

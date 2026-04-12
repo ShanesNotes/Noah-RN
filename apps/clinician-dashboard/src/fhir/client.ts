@@ -2,8 +2,8 @@ import type { FhirBundle, FhirResource } from './types';
 
 const FHIR_BASE = '/fhir'; // Vite proxy → http://10.0.0.184:8103/fhir/R4
 const TOKEN_ENDPOINT = '/oauth2/token'; // Vite proxy → http://10.0.0.184:8103/oauth2/token
-const CLIENT_ID = '3c3c4c3a-2993-424c-b46d-f58db0d7ca14';
-const CLIENT_SECRET = 'be4fd047142ee6ed2a004a4a9cb98ff4c20f7c73d6082b3754dc9ae613083a34';
+const CLIENT_ID = import.meta.env.VITE_FHIR_CLIENT_ID ?? '3c3c4c3a-2993-424c-b46d-f58db0d7ca14';
+const CLIENT_SECRET = import.meta.env.VITE_FHIR_CLIENT_SECRET ?? 'be4fd047142ee6ed2a004a4a9cb98ff4c20f7c73d6082b3754dc9ae613083a34';
 
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 

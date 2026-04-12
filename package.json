@@ -3,15 +3,26 @@
   "private": true,
   "scripts": {
     "build:dashboard": "npm run build --workspace apps/clinician-dashboard",
+    "dev:nursing-station": "npm run dev --workspace apps/nursing-station",
+    "build:nursing-station": "npm run build --workspace apps/nursing-station",
     "test:dashboard": "npm run test --workspace apps/clinician-dashboard",
     "build:clinical-mcp": "npm run build --workspace services/clinical-mcp",
     "test:clinical-mcp": "npm run test --workspace services/clinical-mcp",
-    "build": "npm run build:dashboard && npm run build:clinical-mcp",
+    "playwright:install": "npx playwright install",
+    "playwright:smoke": "node scripts/browser-playwright-smoke.mjs",
+    "playwright:medplum": "node scripts/browser-playwright-smoke.mjs http://10.0.0.184:3000/signin medplum-signin",
+    "playwright:medplum:debug": "node scripts/browser-playwright-medplum-debug.mjs",
+    "playwright:dashboard": "node scripts/browser-playwright-smoke.mjs http://localhost:5173 noah-dashboard",
+    "dev:dashboard": "npm run dev --workspace apps/clinician-dashboard",
+    "build": "npm run build:dashboard && npm run build:nursing-station && npm run build:clinical-mcp",
     "test": "npm run test:dashboard && npm run test:clinical-mcp"
   },
   "workspaces": [
     "apps/*",
     "services/*",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
 }

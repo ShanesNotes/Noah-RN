@@ -17,7 +17,7 @@ The project exists to help a nurse build, test, and refine decomposable clinical
 Noah RN has five active subprojects:
 
 1. **Agent harness** - `pi.dev` foundation, workflow orchestration, specialized agents, `SKILLS.md`, `TOOLS.md`, and deterministic tool contracts.
-2. **Clinical workspace** - Medplum-backed EHR development environment with patient chart context, vitals, labs, meds, and clinician UI. Includes a **Clinical Simulation Harness** named scope at `services/sim-harness/` that wraps open-source physiology engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) to produce live vitals, waveforms, and scenario-directed patient state for the agent to operate in.
+2. **Clinical workspace** - Medplum-backed EHR development environment with Medplum-first clinician workflows, a nursing-station app at `apps/nursing-station/`, a runtime-console sidecar at `apps/clinician-dashboard/`, and a **Clinical Simulation Harness** named scope at `services/sim-harness/` that wraps open-source physiology engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) to produce live vitals, waveforms, and scenario-directed patient state for the agent to operate in.
 3. **Memory layer** - longitudinal patient H&P, mutable present encounter canvas, provider session memory, provider persistent memory, and task-local agent memory.
 4. **Clinical resources** - guidelines, protocols, pocket manuals, publication feeds, and an agent-centric Lexicomp-like drug reference.
 5. **Meta-harness optimization** - observability, eval traces, metrics, and continuous improvement loops for the harness itself.
@@ -50,7 +50,8 @@ The repo currently contains working or partially working pieces from earlier pha
 
 Common areas:
 
-- Dashboard: `apps/clinician-dashboard/`
+- Nursing station: `apps/nursing-station/`
+- Runtime console dashboard: `apps/clinician-dashboard/`
 - MCP server: `services/clinical-mcp/`
 - Clinical simulation harness: `services/sim-harness/` (scaffold only; canonical spec in `docs/foundations/sim-harness-scaffold.md`)
 - Medplum infrastructure: `infrastructure/`

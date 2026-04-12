@@ -51,8 +51,10 @@ Current direction:
 - Medplum remains the open-source EHR foundation and FHIR backbone.
 - MIMIC/Synthea provide static simulated patient data for chart-context seeding.
 - `services/clinical-mcp/` is the agent-facing context boundary.
+- `apps/nursing-station/` is the current Medplum-first clinician workspace surface.
+- `apps/clinician-dashboard/` is the runtime-console sidecar for evals, traces, context inspection, skill visibility, and future sim observability. It is not the primary chart UI.
 - `services/sim-harness/` is the live-runtime workspace center for tickable patient state, waveform generation, and scenario direction. It wraps open-source clinical simulation engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) rather than reinventing physiology.
-- `apps/clinician-dashboard/` is a sidecar observability/prototyping surface and the waveform viewer for sim-harness output.
+- `apps/clinician-dashboard/` may later grow a waveform viewer for sim-harness output, but that is future runtime work, not the current landed role.
 - Both the agent and the clinician see the same FHIR context regardless of whether the source is a static MIMIC case or a live sim-harness encounter.
 
 Named scope inside Clinical Workspace:
@@ -155,14 +157,19 @@ Do not drastically rewrite `research/` in this pass. Treat it as a source corpus
 
 ## Current Critical Path
 
-1. Treat the topology and readiness-prep wave as complete enough to begin the first pi-native bridge.
+1. Treat the topology and readiness-prep wave as complete enough to begin the first Medplum-native review loop.
 2. Treat the first Shift Report bridge scaffold as complete enough to force the next implementation decision.
 3. Use the new registry + contract + selection structures as the implementation substrate.
-4. Pick and wire the first realistic bedside workflow, starting with Shift Report.
-5. Connect that workflow to Medplum patient context in the new layout.
-6. Add only the memory/resource/tool pieces required by that workflow.
-7. Instrument the workflow before deeper optimization or state-machine work.
-8. Land the Clinical Simulation Harness scaffold so the first live-vitals workflow loop has a runtime center before any runtime code is written. See `docs/foundations/sim-harness-scaffold.md`.
+4. Use the decided first-workflow draft posture in `docs/foundations/medplum-draft-review-lifecycle.md`:
+   - `Task` request/review primitive
+   - draft `DocumentReference` review artifact
+   - Noah RN remains execution owner
+5. Close the one remaining Medplum uncertainty with an empirical preliminary-resource visibility test.
+6. Harden the `Task -> clinical-mcp -> agent-harness -> shift-report -> DocumentReference` loop without widening write semantics prematurely.
+7. Keep the nursing-station app Medplum-first and the dashboard narrow as a runtime console.
+8. Add only the memory/resource/tool pieces required by that first workflow loop.
+9. Instrument the workflow before deeper optimization or state-machine work.
+10. Keep the Clinical Simulation Harness scaffold ready as the runtime center for the first live-vitals workflow loop before any sim runtime code is written. See `docs/foundations/sim-harness-scaffold.md`.
 
 ## Deferred Work
 
@@ -235,3 +242,39 @@ Consequence:
 - `docs/ARCHITECTURE.md`, `docs/topology/subproject-workspace-map.md`, and `docs/foundations/clinical-workspace-scaffold.md` updated to reflect the second workspace center under Clinical Workspace.
 - No in-house physiology engine will be built. Extensions stay as adapters on top of the wrapped open-source engines.
 - The origin research is captured in `research/Open Source Clinical Simulation.md`, `research/Architectural integration for noah-rn clinical simulation.md`, and the wiki concept pages `wiki/concepts/clinical-simulator-as-eval-substrate.md` and `wiki/concepts/computational-physiology-engine.md`.
+
+### 2026-04-12: Make Medplum The Primary Workspace And The Dashboard A Runtime Console
+
+Decision: treat `apps/nursing-station/` as the Medplum-first clinician workspace surface and treat `apps/clinician-dashboard/` as the runtime-console sidecar.
+
+Why:
+
+- The current branch now has a real Medplum-native app surface, an operator/test lane around Shift Report, and a dashboard that is drifting toward evals, traces, context inspection, and runtime visibility rather than bedside chart ownership.
+- Keeping both apps as chart surfaces would recreate a split source of truth too early.
+
+Consequence:
+
+- Medplum stays the primary chart/review surface.
+- The dashboard stays focused on observability, debug, traces, evals, and future sim visibility.
+- Future waveform-viewer work belongs to the dashboard only when the sim runtime exists and needs that surface.
+
+### 2026-04-12: Use FHIR-Queued Draft Review For The First Workflow
+
+Decision: the first Shift Report workflow uses a FHIR-queued draft review lifecycle:
+
+- `Task(status=requested)` as the request/review primitive
+- Noah RN runtime as the execution owner
+- draft `DocumentReference(status=current, docStatus=preliminary)` as the first review artifact
+- `Task.output` linking the draft artifact after success
+
+Why:
+
+- it preserves the Medplum rails / Noah runtime split
+- it is a better fit for documentation-style review artifacts than volatile-only session state
+- it gives the first workflow a restart-safe, versioned, nurse-reviewable surface without widening broad write semantics
+
+Consequence:
+
+- the default first-workflow draft posture is no longer an open architectural contradiction
+- the remaining open gate is empirical: verify how preliminary artifacts appear in Medplum UI before wider rollout
+- non-document/action-authoritative resources still default to `Task.input` proposals rather than direct draft writes when they lack safe preliminary semantics

@@ -1,7 +1,7 @@
 # Memory Layer First Batch
 
 Workspace center:
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 
 ## Purpose
 
@@ -55,6 +55,6 @@ Current artifact:
 
 ## Deep references
 
-- `packages/memory/README.md`
+- `docs/foundations/memory-tier-boundary.md`
 - `docs/foundations/medplum-architecture-packet.md`
 - `notes/noah-rn-pi-like-clinical-operating-structure.md`

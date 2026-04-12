@@ -1,7 +1,7 @@
 # Memory Tier Boundary
 
 Workspace center:
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Define the four memory tiers as explicit runtime boundaries before any broader p
 - `PLAN.md`
 - `TASKS.md`
 - `docs/foundations/memory-layer-first-batch.md`
-- `packages/memory/README.md`
+- `docs/topology/subproject-workspace-map.md`
 
 ## Boundary
 
@@ -56,7 +56,7 @@ Everything else stays defined but deferred.
 ## Later runtime mirror
 
 When implementation begins, the runtime mirror of this boundary should live under:
-- `packages/memory/`
+- a future `packages/` lane once memory code exists again
 
 ## References
 

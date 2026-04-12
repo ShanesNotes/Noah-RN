@@ -12,6 +12,8 @@ These docs are useful, but they are not control-plane docs and should not be tre
 Current contents:
 - `distillation-cross-reference.md`
 - `safety-compliance-report.md`
+- `2026-04-12-session-closeout-audit.md`
 
 Rule:
 - if a doc analyzes the repo, compares sources, or builds a backlog from research, it likely belongs here.
+- generated session HTML or scratch templates should stay local/generated unless explicitly promoted.

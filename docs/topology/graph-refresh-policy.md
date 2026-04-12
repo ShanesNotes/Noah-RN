@@ -19,7 +19,7 @@ That canonical graph should represent the repo as a whole when refreshed meaning
 - `packages/agent-harness/`
 - `packages/workflows/`
 - `clinical-resources/`
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 - `evals/`
 
 Important architectural questions often cross those boundaries. A single full-project graph is therefore more useful than a collection of isolated local graphs.
@@ -66,6 +66,7 @@ But the intended artifact remains the same: the next meaningful full-project gra
 Baseline hygiene:
 - keep a root `.graphifyignore`
 - exclude legacy graph artifacts, backups, cache, converted files, and any graph memory you do not want folded back into the next baseline
+- use `tools/graphify/set-profile.sh canonical-project` before a canonical full-project refresh so the corpus boundary is explicit
 
 ## Current handling
 
@@ -73,6 +74,8 @@ Baseline hygiene:
 - a legacy/custom merged artifact was archived under `local/graphify/legacy/graphify-out-full-project-20260411/`
 - other Graphify folders are generated/local support artifacts unless explicitly promoted
 - Graphify outputs remain generated/local, not product architecture surfaces
+- the currently checked-in canonical snapshot is dated `2026-04-11`; after the `2026-04-12` closeout/docs shift it should be treated as slightly stale until the next full rebuild lands
+- if the local Graphify install does not expose a rebuild command, record the staleness explicitly in the closeout/audit docs rather than pretending the graph is current
 
 ## Agent rule
 

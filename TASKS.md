@@ -4,47 +4,46 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
 
 ## Now
 
-1. **Use the new control plane and workflow substrate to start the first pi-native bridge**
-   - Use `PLAN.md`, `TASKS.md`, and `docs/ARCHITECTURE.md` as the active control plane.
-   - Use `packages/workflows/registry.json`, workflow `contract:` blocks, and `packages/agent-harness/*` consumers as the structural basis for the next step.
-   - Keep `packages/workflows/` authoritative until a source-of-truth promotion is explicitly recorded.
-   - Treat transition handoff memos as local/internal context, not product-repo control documents.
+1. **Reconcile the refreshed Graphify output against the current plan**
+   - Check whether the rebuilt `graphify-out/` changes the dependency order of the current scaffolding work.
+   - Update sequencing only if the new graph shows a stronger cross-surface dependency than the current plan.
 
-2. **Stabilize Medplum workspace path**
-   - Confirm current Medplum local/tower setup.
-   - Decide the smallest viable patient context bundle.
-   - Choose one MIMIC/Synthea patient path for end-to-end testing.
-   - Keep dashboard and MCP work scoped to that first path in the new layout.
+2. **Run the Medplum preliminary-resource visibility test**
+   - Use `docs/foundations/medplum-draft-review-lifecycle.md` as the governing decision.
+   - Create a representative preliminary Shift Report draft artifact.
+   - Inspect the relevant Medplum UI surfaces and record exactly where draft artifacts appear.
+   - Decide whether task-scoped filtering is sufficient before wider rollout.
 
-3. **Define the first workflow to build**
-   - Pick one realistic bedside workflow.
-   - Specify required chart context, tools, memory, and output shape.
-   - Create acceptance criteria before implementation.
+3. **Harden the first Medplum-native Shift Report review loop**
+   - Treat `Task -> clinical-mcp -> agent-harness -> shift-report -> DocumentReference` as the active forcing path.
+   - Keep write semantics narrow and explicit while `services/clinical-mcp/src/fhir/writes.ts` remains scaffold-only.
+   - Use the current operator path under `infrastructure/medplum/` as the proof surface.
 
-4. **Land the Clinical Simulation Harness scaffold (docs-only pass)**
-   - Canonical scaffold doc: `docs/foundations/sim-harness-scaffold.md`.
-   - First-batch doc: `docs/foundations/sim-harness-first-batch.md`.
-   - Runtime access contract: `docs/foundations/sim-harness-runtime-access-contract.md`.
-   - Waveform vision contract (non-negotiable: agent must see the raw strip): `docs/foundations/sim-harness-waveform-vision-contract.md`.
-   - Engine wrapping spec (Pulse primary, BioGears fallback, Infirmary Integrated / rohySimulator / Auto-ALS as reference patterns): `docs/foundations/sim-harness-engine-wrapping.md`.
-   - Workspace center scaffold only: `services/sim-harness/README.md`.
-   - No runtime code in this pass. Runtime work is gated on the first bedside workflow needing live vitals.
+4. **Keep Medplum primary and the dashboard narrow**
+   - Keep `apps/nursing-station/` as the main clinician-facing patient/task surface.
+   - Keep `apps/clinician-dashboard/` scoped to evals, traces, context inspection, skill visibility, and terminal/runtime support.
+   - Do not re-grow the dashboard into a second chart unless a concrete Medplum limitation forces it.
+
+5. **Choose and prove one bounded patient path**
+   - Confirm the smallest viable patient context bundle.
+   - Keep `patient-123` or one equivalent path as the bounded proof target.
+   - Extend context/resources only when that path needs them.
 
 ## Next
 
-4. **Implement the minimal `pi.dev` harness foundation inside the new layout**
-   - Use `.pi/` as the project-level pi.dev scaffold surface.
-   - Start with the first Shift Report path.
+5. **Implement the minimal `pi.dev` harness foundation inside the new layout**
+   - Use `.pi/` as the project-level pi.dev bridge surface.
    - Consume the registry + contract + selection structures before adding new runtime layers.
+   - Keep `packages/workflows/` authoritative until a promotion decision is explicitly recorded.
 
-5. **Memory architecture spec**
+6. **Memory architecture spec**
    - Longitudinal patient H&P.
    - Present encounter mutable Markdown/canvas.
    - Provider session memory.
    - Provider persistent memory.
    - Task-local agent memory.
 
-6. **Clinical resources catalog plan**
+7. **Clinical resources catalog plan**
    - Guidelines and protocols.
    - Joint Commission as institution-policy stand-in where useful.
    - AHA and other established references.
@@ -52,10 +51,14 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Publication/update source strategy.
    - Lexicomp-like agent-centric drug reference path.
 
-7. **Meta-harness observability plan**
+8. **Meta-harness observability plan**
    - Define what every workflow invocation should log under `evals/`.
    - Decide minimum metrics for quality, safety, cost, and latency.
    - Connect evaluation traces to future eval harness work.
+
+9. **Land the Clinical Simulation Harness runtime only when needed**
+   - Keep the scaffold docs canonical for now.
+   - Start runtime work only when the first bedside workflow actually needs live vitals and waveforms.
 
 ## Later
 

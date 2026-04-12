@@ -3,8 +3,8 @@ import { Text, Button, CopyButton } from '@mantine/core';
 import { colors } from '../theme';
 
 interface SkillPanelProps {
-  patientId: string;
-  patientName: string;
+  patientId?: string;
+  patientName?: string;
 }
 
 const SKILLS = [
@@ -17,7 +17,7 @@ const SKILLS = [
   { id: 'unit-conversion', name: 'Unit Conversion', description: 'Weight-based dosing, drip rates, unit conversions' },
 ];
 
-export function SkillPanel({ patientId, patientName }: SkillPanelProps) {
+export function SkillPanel({ patientId = '<patient-id>', patientName = '<patient>' }: SkillPanelProps) {
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [output, setOutput] = useState<string | null>(null);
 

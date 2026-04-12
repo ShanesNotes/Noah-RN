@@ -1,0 +1,42 @@
+services:
+  pi-runtime:
+    build:
+      context: ../..
+      dockerfile: infrastructure/pi/Dockerfile
+    container_name: noah-pi-runtime
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    user: "${PI_RUNTIME_UID:-1000}:${PI_RUNTIME_GID:-1000}"
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    env_file:
+      - ./.env
+    environment:
+      HOME: /pi-home
+      PI_CODING_AGENT_DIR: /pi-home/agent
+      XDG_CONFIG_HOME: /pi-home/.config
+      XDG_DATA_HOME: /pi-home/.local/share
+      MEDPLUM_DOCKER_BASE_URL: ${MEDPLUM_DOCKER_BASE_URL:-http://medplum-server:8103}
+      FHIR_SERVER: ${FHIR_SERVER:-http://medplum-server:8103/fhir/R4}
+      FHIR_BASE_URL: ${FHIR_BASE_URL:-http://medplum-server:8103/fhir/R4}
+      FHIR_TOKEN_ENDPOINT: ${FHIR_TOKEN_ENDPOINT:-http://medplum-server:8103/oauth2/token}
+      FHIR_CLIENT_ID: ${FHIR_CLIENT_ID:-}
+      FHIR_CLIENT_SECRET: ${FHIR_CLIENT_SECRET:-}
+      PI_PROVIDER: ${PI_PROVIDER:-google}
+      PI_MODEL: ${PI_MODEL:-}
+      PI_OFFLINE: ${PI_OFFLINE:-0}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+    volumes:
+      - ../..:/workspace
+      - ../../local/pi-runtime/home:/pi-home
+    networks:
+      - medplum
+
+networks:
+  medplum:
+    external: true
+    name: ${MEDPLUM_DOCKER_NETWORK:-infrastructure_default}

@@ -70,7 +70,7 @@ Artifact:
 ### 4. Memory layer
 
 Workspace center:
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 
 Goal of the first batch:
 - define the four memory tiers as runtime boundaries

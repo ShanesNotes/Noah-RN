@@ -5,7 +5,7 @@ import { fhirSearch } from '../fhir/client';
 import type { Observation, Condition, MedicationRequest, Encounter } from '../fhir/types';
 
 interface ContextInspectorProps {
-  patientId: string;
+  patientId?: string;
 }
 
 interface TimelineEntry {
@@ -35,12 +35,15 @@ function computeRelativeTime(timestamp: string, reference: string): string {
   return `T-${Math.floor(minutes / 1440)}d`;
 }
 
-export function ContextInspector({ patientId }: ContextInspectorProps) {
+export function ContextInspector({ patientId: propPatientId }: ContextInspectorProps) {
+  const [inputId, setInputId] = useState(propPatientId ?? '');
+  const [patientId, setPatientId] = useState(propPatientId ?? '');
   const [bundle, setBundle] = useState<ContextBundle | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!patientId) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -163,9 +166,35 @@ export function ContextInspector({ patientId }: ContextInspectorProps) {
     return () => { cancelled = true; };
   }, [patientId]);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 40 }}><Loader size="sm" color={colors.info} /></div>;
-  if (error) return <Text c={colors.critical} fz="sm">{error}</Text>;
-  if (!bundle) return null;
+  const patientInput = (
+    <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+      <Text ff="monospace" fz={10} c={colors.textMuted} style={{ letterSpacing: '0.1em' }}>PATIENT ID</Text>
+      <input
+        value={inputId}
+        onChange={e => setInputId(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') setPatientId(inputId); }}
+        placeholder="Enter FHIR Patient ID..."
+        style={{
+          flex: 1, maxWidth: 360, background: colors.surface, border: `1px solid ${colors.border}`,
+          borderRadius: 4, padding: '6px 10px', color: colors.textPrimary,
+          fontFamily: '"JetBrains Mono", monospace', fontSize: 12, outline: 'none',
+        }}
+      />
+      <button
+        onClick={() => setPatientId(inputId)}
+        style={{
+          background: colors.border, border: 'none', borderRadius: 4, padding: '6px 12px',
+          color: colors.textPrimary, fontFamily: '"JetBrains Mono", monospace', fontSize: 11,
+          cursor: 'pointer',
+        }}
+      >LOAD</button>
+    </div>
+  );
+
+  if (!patientId && !bundle) return <>{patientInput}<Text c={colors.textMuted} fz="sm" mt={40} ta="center">Enter a Patient ID to inspect assembled context</Text></>;
+  if (loading) return <>{patientInput}<div style={{ textAlign: 'center', padding: 40 }}><Loader size="sm" color={colors.info} /></div></>;
+  if (error) return <>{patientInput}<Text c={colors.critical} fz="sm">{error}</Text></>;
+  if (!bundle) return <>{patientInput}</>;
 
   const typeColors: Record<string, string> = {
     'observation:vital': colors.info,
@@ -176,6 +205,8 @@ export function ContextInspector({ patientId }: ContextInspectorProps) {
   };
 
   return (
+    <div>
+      {patientInput}
     <div style={{ display: 'flex', gap: 24, height: '100%' }}>
       {/* Left: Timeline */}
       <div style={{ flex: 2, overflowY: 'auto' }}>
@@ -247,6 +278,7 @@ export function ContextInspector({ patientId }: ContextInspectorProps) {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 }
