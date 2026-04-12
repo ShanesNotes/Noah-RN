@@ -4,6 +4,9 @@ Noah RN is an agent-native clinical workspace harness for critical care nursing.
 
 The project exists to help a nurse build, test, and refine decomposable clinical workflows in a realistic EHR-like environment. The current direction is intentionally simple: start with `pi.dev` as the agent harness foundation, keep Medplum as the clinical workspace backbone, and add heavier runtime components only when they solve a concrete problem.
 
+
+<img width="2740" height="2440" alt="image" src="https://github.com/user-attachments/assets/4a93b60b-acf9-4d9d-be5e-8b08683f8f2a" />
+
 ## Start Here
 
 - [PLAN.md](PLAN.md) is the canonical project plan and architecture control plane.
