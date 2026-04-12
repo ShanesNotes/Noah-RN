@@ -3,8 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
-BUNDLE_FILE="$REPO_ROOT/knowledge/protocols/sepsis-bundle.md"
-FRESHNESS_FILE="$REPO_ROOT/knowledge/FRESHNESS.md"
+BUNDLE_FILE="$REPO_ROOT/clinical-resources/protocols/sepsis-bundle.md"
+FRESHNESS_FILE="$REPO_ROOT/clinical-resources/FRESHNESS.md"
 PASS=0
 FAIL=0
 

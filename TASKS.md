@@ -21,6 +21,15 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Specify required chart context, tools, memory, and output shape.
    - Create acceptance criteria before implementation.
 
+4. **Land the Clinical Simulation Harness scaffold (docs-only pass)**
+   - Canonical scaffold doc: `docs/foundations/sim-harness-scaffold.md`.
+   - First-batch doc: `docs/foundations/sim-harness-first-batch.md`.
+   - Runtime access contract: `docs/foundations/sim-harness-runtime-access-contract.md`.
+   - Waveform vision contract (non-negotiable: agent must see the raw strip): `docs/foundations/sim-harness-waveform-vision-contract.md`.
+   - Engine wrapping spec (Pulse primary, BioGears fallback, Infirmary Integrated / rohySimulator / Auto-ALS as reference patterns): `docs/foundations/sim-harness-engine-wrapping.md`.
+   - Workspace center scaffold only: `services/sim-harness/README.md`.
+   - No runtime code in this pass. Runtime work is gated on the first bedside workflow needing live vitals.
+
 ## Next
 
 4. **Implement the minimal `pi.dev` harness foundation inside the new layout**

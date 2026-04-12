@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { selectWorkflows } from "./select-workflows.mjs";
 import { loadToolsRegistry } from "./list-tools.mjs";
-import { loadKnowledgeRegistry } from "./list-knowledge.mjs";
+import { loadClinicalResourcesRegistry } from "./list-clinical-resources.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..");
@@ -38,7 +38,7 @@ export function describeRoutingCandidates({ scope, availableContext = [] } = {})
   const selected = selectWorkflows({ scope, availableContext });
   const dependencyRegistry = loadDependencies().workflows;
   const toolRegistry = loadToolsRegistry().registries;
-  const knowledgeRegistry = loadKnowledgeRegistry().assets;
+  const knowledgeRegistry = loadClinicalResourcesRegistry().assets;
 
   return selected.map((workflow) => {
     const deps = dependencyRegistry[workflow.name] ?? {

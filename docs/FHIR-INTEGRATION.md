@@ -284,7 +284,7 @@ Sample patient used for direct validation: `28dcf33b-0c52-587f-83ad-2a3270976719
 MIMIC-IV FHIR Observations are keyed by local MIMIC itemIDs, not the LOINC values Noah queries elsewhere in the repo. Use `tools/fhir/mimic-loinc-query.sh` as the translation shim instead of querying HAPI by LOINC directly.
 Raw HAPI Observation LOINC queries do not work against the MIMIC data because `Observation.code` is keyed to local itemIDs.
 
-Source of truth: `knowledge/mimic-mappings.json`
+Source of truth: `clinical-resources/mimic-mappings.json`
 
 Compatibility notes:
 - Noah currently queries lactate as `2524-7`, but the official MIT-LCP mapping for itemID `50813` is `32693-4`. The shim supports both.

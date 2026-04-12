@@ -12,7 +12,7 @@ This note describes how future routing should combine the new readiness artifact
 - `tools/registry.json`
 
 ### Knowledge inventory
-- `knowledge/registry.json`
+- `clinical-resources/registry.json`
 
 ### Current routing authority
 - `packages/agent-harness/router/clinical-router.md`
@@ -27,8 +27,8 @@ This note describes how future routing should combine the new readiness artifact
    - inspect workflow `contract:` block
    - verify the workflow gives the right artifact and does not violate negative-space constraints
 
-3. **Confirm tool and knowledge dependencies**
-   - use `tools/registry.json` and `knowledge/registry.json`
+3. **Confirm tool and clinical resource dependencies**
+   - use `tools/registry.json` and `clinical-resources/registry.json`
    - verify required deterministic tools and reference assets exist
 
 4. **Apply current routing policy**

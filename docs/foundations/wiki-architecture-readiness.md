@@ -11,11 +11,11 @@ Attach to current surfaces:
 - `packages/workflows/`
 - `packages/agent-harness/`
 - `.pi/skills/`
-- `knowledge/`
+- `clinical-resources/`
 - `tools/`
 
 Readiness target:
-- structural registries for skills, tools, and knowledge
+- structural registries for skills, tools, and clinical resources
 - routing based on metadata rather than prose-only interpretation
 
 ### 2. Skill-as-Contract
@@ -53,7 +53,7 @@ Attach to current surfaces:
 - `services/clinical-mcp/`
 - `packages/memory/`
 - `.pi/`
-- `knowledge/`
+- `clinical-resources/`
 
 Readiness target:
 - vocabulary and contracts for write/select/compress/isolate

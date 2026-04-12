@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ROUTER="$REPO_ROOT/packages/agent-harness/router/clinical-router.md"
 SKILLS_DIR="$REPO_ROOT/packages/workflows"
-TRIGGERS="$REPO_ROOT/knowledge/templates/cross-skill-triggers.md"
+TRIGGERS="$REPO_ROOT/clinical-resources/templates/cross-skill-triggers.md"
 PASS=0
 FAIL=0
 

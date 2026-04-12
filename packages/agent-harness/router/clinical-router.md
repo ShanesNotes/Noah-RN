@@ -182,7 +182,7 @@ NEVER infer or fabricate missing clinical data.
 
 ## Step 5: Cross-Skill Awareness
 
-After producing output, check `knowledge/templates/cross-skill-triggers.md` against
+After producing output, check `clinical-resources/templates/cross-skill-triggers.md` against
 the findings. If a trigger fires, surface it as a Tier 2 suggestion — maximum 2 per
 response. Format:
 
@@ -196,7 +196,7 @@ Suggestions only. Never autonomously invoke another skill without the nurse aski
 
 ## Output Format
 
-All responses follow the four-layer format (`knowledge/templates/four-layer-output.md`):
+All responses follow the four-layer format (`clinical-resources/templates/four-layer-output.md`):
 
 For single-skill routing, use the selected skill's output directly.
 

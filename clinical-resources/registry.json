@@ -1,37 +1,37 @@
 {
   "version": 1,
   "status": "scaffold",
-  "authoritative_surface": "knowledge",
+  "authoritative_surface": "clinical-resources",
   "assets": [
     {
       "name": "cross-skill-triggers",
       "kind": "template",
-      "source_path": "knowledge/templates/cross-skill-triggers.md"
+      "source_path": "clinical-resources/templates/cross-skill-triggers.md"
     },
     {
       "name": "disclaimers",
       "kind": "template",
-      "source_path": "knowledge/templates/disclaimers.md"
+      "source_path": "clinical-resources/templates/disclaimers.md"
     },
     {
       "name": "four-layer-output",
       "kind": "template",
-      "source_path": "knowledge/templates/four-layer-output.md"
+      "source_path": "clinical-resources/templates/four-layer-output.md"
     },
     {
       "name": "skill-metadata-schema",
       "kind": "template",
-      "source_path": "knowledge/templates/skill-metadata-schema.md"
+      "source_path": "clinical-resources/templates/skill-metadata-schema.md"
     },
     {
       "name": "drug-ranges",
       "kind": "reference_data",
-      "source_path": "knowledge/drug-ranges.json"
+      "source_path": "clinical-resources/drug-ranges.json"
     },
     {
       "name": "mimic-mappings",
       "kind": "reference_data",
-      "source_path": "knowledge/mimic-mappings.json"
+      "source_path": "clinical-resources/mimic-mappings.json"
     }
   ]
 }

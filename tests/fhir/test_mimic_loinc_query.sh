@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 TOOL="$REPO_ROOT/tools/fhir/mimic-loinc-query.sh"
-MAPPING_FILE="$REPO_ROOT/knowledge/mimic-mappings.json"
+MAPPING_FILE="$REPO_ROOT/clinical-resources/mimic-mappings.json"
 PASS=0
 FAIL=0
 

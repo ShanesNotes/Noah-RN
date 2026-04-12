@@ -185,7 +185,7 @@ echo ""
 echo "=== validate-dosage.sh ==="
 
 VALDOSE="$HOOKS_DIR/validate-dosage.sh"
-RANGES_FILE="$SCRIPT_DIR/../../knowledge/drug-ranges.json"
+RANGES_FILE="$SCRIPT_DIR/../../clinical-resources/drug-ranges.json"
 
 # Non-Bash tool — exits 0, no output
 OUT=$(echo '{"hook_event_name":"PostToolUse","tool_name":"Read","tool_input":{},"tool_response":{"stdout":""}}' | bash "$VALDOSE")
@@ -215,10 +215,10 @@ assert_eq "lookup error status — no warning" "" "$OUT"
 # Portability: validate-dosage.sh resolves ranges from its script location, not a hard-coded repo path
 TMP_REPO="$(mktemp -d)"
 trap 'rm -rf "$TMP_REPO"' EXIT
-mkdir -p "$TMP_REPO/tools/safety-hooks/scripts" "$TMP_REPO/knowledge"
+mkdir -p "$TMP_REPO/tools/safety-hooks/scripts" "$TMP_REPO/clinical-resources"
 cp "$HOOKS_DIR/common.sh" "$TMP_REPO/tools/safety-hooks/scripts/common.sh"
 cp "$VALDOSE" "$TMP_REPO/tools/safety-hooks/scripts/validate-dosage.sh"
-jq '.heparin.alert = "PORTABILITY TEST ALERT" | .heparin.dose.plausible_max = 55' "$RANGES_FILE" > "$TMP_REPO/knowledge/drug-ranges.json"
+jq '.heparin.alert = "PORTABILITY TEST ALERT" | .heparin.dose.plausible_max = 55' "$RANGES_FILE" > "$TMP_REPO/clinical-resources/drug-ranges.json"
 PORTABILITY_INPUT='{"status":"ok","drug":{"generic_name":"heparin","brand_name":"Hep-Lock","pharm_class":"anticoagulant"}}'
 OUT=$(cd /tmp && posttool_stdout_payload "Bash" "bash tools/drug-lookup/lookup.sh heparin" "$PORTABILITY_INPUT" | bash "$TMP_REPO/tools/safety-hooks/scripts/validate-dosage.sh")
 assert_contains "validate-dosage from outside repo uses local ranges file" "PORTABILITY TEST ALERT" "$OUT"
@@ -373,7 +373,7 @@ HAS_PTU=$(jq 'has("hooks") and (.hooks | has("PostToolUse"))' "$HOOKS_JSON" 2>/d
 assert_eq "hooks.json has PostToolUse" "true" "$HAS_PTU"
 
 # drug-ranges.json exists and is valid JSON
-DR="$SCRIPT_DIR/../../knowledge/drug-ranges.json"
+DR="$SCRIPT_DIR/../../clinical-resources/drug-ranges.json"
 [ -f "$DR" ] && jq empty "$DR" 2>/dev/null && \
     { echo "  PASS: drug-ranges.json exists and is valid JSON"; PASS=$((PASS + 1)); } || \
     { echo "  FAIL: drug-ranges.json missing or invalid JSON"; FAIL=$((FAIL + 1)); }

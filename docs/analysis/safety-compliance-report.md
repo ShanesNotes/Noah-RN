@@ -1,5 +1,8 @@
 # Noah RN — Safety & Compliance Architecture Research Report
 
+> Status: deep reference
+> Role: detailed safety/compliance analysis and backlog input, not active control-plane guidance
+
 **Date:** 2026-04-01
 **Classification:** Internal — Engineering + Compliance
 **Scope:** Clinical decision-support system safety, regulatory compliance, and production readiness
@@ -228,7 +231,7 @@ Tier 1 hooks are deterministic and context-free. Tier 2 hooks maintain session s
 - Known high-risk pairs: heparin+alteplase, vasopressor+vasopressin, opioid+sedation
 - Contraindication checking against documented allergies (from negation hook context)
 
-**Data source:** Extend `knowledge/drug-ranges.json` with `interactions` array per drug, or create `knowledge/drug-interactions.json`.
+**Data source:** Extend `clinical-resources/drug-ranges.json` with `interactions` array per drug, or create `clinical-resources/drug-interactions.json`.
 
 **Action:** ADVISORY for moderate interactions, BLOCK for absolute contraindications (e.g., known allergy + drug).
 
@@ -308,7 +311,7 @@ Different hospitals have different clinical thresholds, protocols, and formulary
 ### 5.2 Design: Policy-as-Code
 
 ```
-knowledge/
+clinical-resources/
   policies/
     default.yaml              # Baseline (evidence-based defaults)
     facilities/
@@ -323,7 +326,7 @@ knowledge/
 ### 5.3 Policy Schema
 
 ```yaml
-# knowledge/policies/default.yaml
+# clinical-resources/policies/default.yaml
 _meta:
   version: "1.0.0"
   effective_date: "2026-04-01"
@@ -354,8 +357,8 @@ calculators:
     icp_monitoring_threshold: 8
 
 drug_ranges:
-  source: "knowledge/drug-ranges.json"
-  facility_formulary_overrides: "knowledge/policies/facilities/{facility_id}-formulary.yaml"
+  source: "clinical-resources/drug-ranges.json"
+  facility_formulary_overrides: "clinical-resources/policies/facilities/{facility_id}-formulary.yaml"
 
 protocols:
   sepsis:
@@ -367,7 +370,7 @@ protocols:
 ### 5.4 Facility Override Example
 
 ```yaml
-# knowledge/policies/facilities/hospital-a.yaml
+# clinical-resources/policies/facilities/hospital-a.yaml
 _meta:
   facility_id: "hospital-a"
   facility_name: "Metro General Hospital"
@@ -537,7 +540,7 @@ The `lookup.sh` tool queries `api.fda.gov/drug/label.json` with no caching, no v
 #### 7.3.1 Response Caching with Version Pinning
 
 ```
-knowledge/
+clinical-resources/
   drug-labels/
     heparin/
       v2026-03-31.json        # Pinned response snapshot
@@ -552,7 +555,7 @@ knowledge/
 #### 7.3.2 Metadata Schema
 
 ```yaml
-# knowledge/drug-labels/heparin/metadata.yaml
+# clinical-resources/drug-labels/heparin/metadata.yaml
 drug_name: "heparin"
 api_url: "https://api.fda.gov/drug/label.json?search=(openfda.generic_name:%22heparin%22)&limit=1"
 fetched_at: "2026-03-31T10:00:00Z"
@@ -601,7 +604,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check for label updates
         run: |
-          for drug in $(jq -r 'keys[]' knowledge/drug-ranges.json); do
+          for drug in $(jq -r 'keys[]' clinical-resources/drug-ranges.json); do
             ./scripts/check-label-update.sh "$drug"
           done
       - name: Create PR if changes detected
@@ -667,7 +670,7 @@ tests/
     "source": "Surviving Sepsis Campaign 2026, CMS SEP-1",
     "implemented_date": "2026-03-23",
     "next_review": "2026-09-30",
-    "protocol_file": "knowledge/protocols/sepsis-bundle.md"
+    "protocol_file": "clinical-resources/protocols/sepsis-bundle.md"
   }
 }
 ```

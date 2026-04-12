@@ -2,7 +2,7 @@
 
 ## Goal
 
-Move Noah RN toward metadata-first discovery for skills, tools, and knowledge.
+Move Noah RN toward metadata-first discovery for skills, tools, and clinical resources.
 
 ## Registries to Prepare
 
@@ -42,15 +42,15 @@ outputs: [patient_context_bundle]
 side_effects: none
 ```
 
-### Knowledge registry
+### Clinical resources registry
 Source surfaces:
-- `knowledge/`
+- `clinical-resources/`
 
 Proposed record shape:
 ```yaml
 name: cross-skill-triggers
 kind: knowledge_asset
-source_path: knowledge/templates/cross-skill-triggers.md
+source_path: clinical-resources/templates/cross-skill-triggers.md
 provenance: required
 freshness: required
 ```

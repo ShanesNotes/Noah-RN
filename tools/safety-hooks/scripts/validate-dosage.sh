@@ -20,7 +20,7 @@ STATUS=$(json_field "$OUTPUT" '.status // empty') || exit 0
 [ "$STATUS" != "ok" ] && exit 0
 
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-RANGES_FILE="$REPO_ROOT/knowledge/drug-ranges.json"
+RANGES_FILE="$REPO_ROOT/clinical-resources/drug-ranges.json"
 
 [ ! -f "$RANGES_FILE" ] && exit 0
 

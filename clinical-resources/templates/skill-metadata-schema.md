@@ -21,8 +21,8 @@ required_context:
     - <field>                       # e.g., rhythm, vitals, medication_name
   optional:                         # skill uses if provided, doesn't request
     - <field>
-knowledge_sources:                  # paths to knowledge/ files this skill reads
-  - "knowledge/protocols/acls.md"
+knowledge_sources:                  # paths to clinical-resources/ files this skill reads
+  - "clinical-resources/protocols/acls.md"
 limitations:                        # what this skill cannot do
   - "adult_patients_only"
   - "does_not_replace_clinical_judgment"
@@ -45,5 +45,5 @@ hitl_category: "II"                 # always II — documentation assistance
 - **hitl_category**: Always "II" (documentation assistance). The moment a skill
   produces autonomous clinical decisions without human review, it crosses into
   FDA device territory. This is an architectural constraint, not a limitation.
-- **knowledge_sources**: List every file in knowledge/ that this skill reads.
+- **knowledge_sources**: List every file in clinical-resources/ that this skill reads.
   Enables automated staleness detection via FRESHNESS.md cross-reference.

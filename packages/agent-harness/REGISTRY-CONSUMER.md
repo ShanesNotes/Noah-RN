@@ -7,14 +7,14 @@ This note explains how future router/harness work should consume the new readine
 - `packages/workflows/registry.json`
 - `packages/workflows/*/SKILL.md`
 - `tools/registry.json`
-- `knowledge/registry.json`
+- `clinical-resources/registry.json`
 
 ## Consumption posture
 
 Future router work should prefer:
 
 1. **registry-first discovery**
-   - enumerate available workflow/tool/knowledge surfaces from registry files
+   - enumerate available workflow/tool/clinical-resource surfaces from registry files
 2. **contract-aware routing**
    - inspect workflow `contract:` blocks before selecting a workflow
 3. **current-source authority**

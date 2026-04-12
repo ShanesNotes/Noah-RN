@@ -44,21 +44,28 @@ Immediate questions:
 
 ### 2. Clinical Workspace
 
-Goal: create a realistic EHR-like development environment where workflows can be built and tested against patient context.
+Goal: create a realistic EHR-like development environment where workflows can be built and tested against patient context that can be **static** (MIMIC/Synthea snapshots) or **live** (a tickable simulation harness wrapping validated open-source physiology engines).
 
 Current direction:
 
-- Medplum remains the open-source EHR foundation.
-- MIMIC/Synthea provide simulated patient data.
-- Medplum is the canonical clinician-facing workspace for now.
-- `apps/clinician-dashboard/` is a sidecar observability/prototyping surface until a stronger product need is proven.
-- MCP/server code is useful if it helps assemble patient context cleanly.
+- Medplum remains the open-source EHR foundation and FHIR backbone.
+- MIMIC/Synthea provide static simulated patient data for chart-context seeding.
+- `services/clinical-mcp/` is the agent-facing context boundary.
+- `services/sim-harness/` is the live-runtime workspace center for tickable patient state, waveform generation, and scenario direction. It wraps open-source clinical simulation engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) rather than reinventing physiology.
+- `apps/clinician-dashboard/` is a sidecar observability/prototyping surface and the waveform viewer for sim-harness output.
+- Both the agent and the clinician see the same FHIR context regardless of whether the source is a static MIMIC case or a live sim-harness encounter.
+
+Named scope inside Clinical Workspace:
+
+- **Clinical Simulation Harness** — live-EHR + live-vitals environment for the agentic harness to operate in. Wraps Pulse as the primary physiology engine; wraps Infirmary Integrated rhythm/waveform patterns; borrows rohySimulator's LLM virtual-patient dialogue shape; exposes an Auto-ALS-style Gym-compatible interface for the meta-harness eval loop. Canonical scaffold lives in `docs/foundations/sim-harness-scaffold.md`. Runtime center is `services/sim-harness/`.
 
 Immediate questions:
 
 - What is the smallest end-to-end patient chart path?
 - Which one patient/workflow should prove the loop first?
 - What should the nurse see before invoking an agent?
+- Which open-source engine wrapping strategy lands first: Pulse Python-binding sidecar, Pulse REST sidecar, or in-process adapter?
+- How does the agent validate a rhythm classification against the raw waveform surface?
 
 ### 3. Memory Layer
 
@@ -155,6 +162,7 @@ Do not drastically rewrite `research/` in this pass. Treat it as a source corpus
 5. Connect that workflow to Medplum patient context in the new layout.
 6. Add only the memory/resource/tool pieces required by that workflow.
 7. Instrument the workflow before deeper optimization or state-machine work.
+8. Land the Clinical Simulation Harness scaffold so the first live-vitals workflow loop has a runtime center before any runtime code is written. See `docs/foundations/sim-harness-scaffold.md`.
 
 ## Deferred Work
 
@@ -178,7 +186,7 @@ Approved posture:
 
 - keep `README.md`, `PLAN.md`, and `TASKS.md` as the required root anchors
 - move runnable surfaces toward `apps/`, `services/`, and `packages/`
-- keep `knowledge/`, `infrastructure/`, `tests/`, `tools/`, and `docs/` as first-class root surfaces
+- keep `clinical-resources/`, `infrastructure/`, `tests/`, `tools/`, and `docs/` as first-class root surfaces
 - use root npm workspaces as the first orchestration layer for moved runnable packages
 - treat `wiki/`, `research/`, `notes/`, `docs/local/`, and Graphify outputs as local/foundational/generated rather than deliverable topology
 - treat `.omx/`, `.omc/`, and `.obsidian/` as path-sensitive exceptions until tooling explicitly supports relocation
@@ -208,3 +216,22 @@ Decision: restructure Noah RN around a surface-first monorepo shape with explici
 Why: AI-agent discovery is the primary optimization target, and the current root mixes active product surfaces with grounding material and generated artifacts.
 
 Consequence: runnable surfaces now live under `apps/` and `services/`, workflow/router contracts now live under `packages/`, hook scripts now live under `tools/safety-hooks/`, and `evals/` is replacing `optimization/` as the active meta-harness surface.
+
+### 2026-04-11: Stand Up A Clinical Simulation Harness Inside Clinical Workspace
+
+Decision: add a named `Clinical Simulation Harness` scope inside subproject #2 (Clinical Workspace), with `services/sim-harness/` as its workspace center. It wraps validated open-source engines (Pulse Physiology Engine, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS / Virtu-ALS) rather than rebuilding physiology in-house. The agent must have direct vision on the waveform surface for clinical validation, not just rhythm/label metadata.
+
+Why:
+
+- The first real bedside workflow needs a live-vitals substrate that the agent can operate in, not just a static MIMIC snapshot.
+- Pulse is Apache-2.0, validated, multi-language bindable, and already ships the cardiovascular/respiratory/renal/nervous physiology noah-rn would otherwise spend months building. Reinventing it would violate the project's plumbing-over-AI posture.
+- A nurse validates a rhythm reading by looking at the strip. The agent must do the same. Exposing only a rhythm label to the agent would bake a silent-failure surface into the harness.
+- Auto-ALS already demonstrates the Gym-compatible RL interface pattern; adopting it keeps the door open for meta-harness work against a live environment.
+
+Consequence:
+
+- New foundation doc set under `docs/foundations/sim-harness-*.md`, starting with `sim-harness-scaffold.md`, `sim-harness-first-batch.md`, `sim-harness-runtime-access-contract.md`, `sim-harness-waveform-vision-contract.md`, and `sim-harness-engine-wrapping.md`.
+- New workspace center at `services/sim-harness/` (scaffold only; no runtime code yet).
+- `docs/ARCHITECTURE.md`, `docs/topology/subproject-workspace-map.md`, and `docs/foundations/clinical-workspace-scaffold.md` updated to reflect the second workspace center under Clinical Workspace.
+- No in-house physiology engine will be built. Extensions stay as adapters on top of the wrapped open-source engines.
+- The origin research is captured in `research/Open Source Clinical Simulation.md`, `research/Architectural integration for noah-rn clinical simulation.md`, and the wiki concept pages `wiki/concepts/clinical-simulator-as-eval-substrate.md` and `wiki/concepts/computational-physiology-engine.md`.

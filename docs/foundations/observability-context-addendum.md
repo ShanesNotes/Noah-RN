@@ -31,7 +31,7 @@ Add later when implementing:
 
 ### Select
 - `services/clinical-mcp/`
-- `knowledge/`
+- `clinical-resources/`
 
 ### Compress
 - future summarization / context-reduction surfaces in `.pi/`

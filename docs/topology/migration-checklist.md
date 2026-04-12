@@ -20,8 +20,8 @@ Use this checklist for execution batches. Do not skip forward to bulk moves.
   - [ ] `packages/`
   - [ ] `evals/`
   - [ ] `local/`
-- [ ] keep `knowledge/`, `infrastructure/`, `tests/`, `tools/`, and `docs/` root-level
-- [ ] keep `.omx/`, `.omc/`, `.obsidian/`, and `graphify-out/` as explicit exceptions until their tooling is addressed
+- [ ] keep `clinical-resources/`, `infrastructure/`, `tests/`, `tools/`, and `docs/` root-level
+- [ ] keep `.omx/`, `.omc/`, `.obsidian/`, and `graphify-out*` as explicit exceptions until their tooling is addressed
 
 ## Phase 2 — Runnable Surfaces
 
@@ -71,7 +71,7 @@ rg -n "dashboard/|mcp-server/|plugin/|optimization/|docs/local/|research/|wiki/"
 ### Ignore boundary audit
 
 ```bash
-git check-ignore -v local/** wiki/** research/** notes/** graphify-out/** .obsidian/** .omx/** .omc/**
+git check-ignore -v local/** wiki/** research/** notes/** graphify-out*/** .obsidian/** .omx/** .omc/**
 ```
 
 ### Workflow continuity spot check

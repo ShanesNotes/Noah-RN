@@ -36,7 +36,7 @@ packages/
   workflows/
   memory/
   safety/
-knowledge/
+clinical-resources/
 infrastructure/
 evals/
 tests/
@@ -70,7 +70,7 @@ local/
   - `packages/memory/` for mutable encounter/session memory work
   - `packages/safety/` for shared safety-hook or validation contracts that stay code-level
 
-### `knowledge/`
+### `clinical-resources/`
 - Remains root-level because it is a first-class product surface, not merely supporting data.
 
 ### `infrastructure/`
@@ -100,7 +100,8 @@ These should not be relocated casually:
 - `.omx/` — OMX runtime state
 - `.omc/` — OMC/runtime state
 - `.obsidian/` — local vault/UI state
-- `graphify-out/` — current generated Graphify location until Graphify usage is updated cleanly
+- `graphify-out/` — canonical generated full-project graph artifact for repo-wide navigation
+- `local/graphify/legacy/graphify-out-full-project-20260411/` — archived legacy/custom merged graph artifact from an earlier workflow
 
 ## Move Policy
 
@@ -118,3 +119,4 @@ During the current migration phase:
 - treat `apps/clinician-dashboard/`, `services/clinical-mcp/`, `packages/workflows/`, `packages/agent-harness/`, and `tools/safety-hooks/` as current working locations
 - treat this document as the approved destination model
 - prefer adding new migration docs under `docs/topology/` instead of inventing new root categories
+- treat `graphify-out/` as the first graph surface for repo-wide graph navigation

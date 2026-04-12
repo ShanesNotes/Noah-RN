@@ -4,14 +4,14 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..");
-const knowledgeRegistryPath = resolve(repoRoot, "knowledge", "registry.json");
+const clinicalResourcesRegistryPath = resolve(repoRoot, "clinical-resources", "registry.json");
 
-export function loadKnowledgeRegistry() {
-  return JSON.parse(readFileSync(knowledgeRegistryPath, "utf8"));
+export function loadClinicalResourcesRegistry() {
+  return JSON.parse(readFileSync(clinicalResourcesRegistryPath, "utf8"));
 }
 
-export function listKnowledge() {
-  const registry = loadKnowledgeRegistry();
+export function listClinicalResources() {
+  const registry = loadClinicalResourcesRegistry();
   return registry.assets.map((asset) => {
     const absolutePath = resolve(repoRoot, asset.source_path);
     return {
@@ -25,5 +25,5 @@ export function listKnowledge() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log(JSON.stringify(listKnowledge(), null, 2));
+  console.log(JSON.stringify(listClinicalResources(), null, 2));
 }

@@ -1,5 +1,8 @@
 # Distillation Report Cross-Reference Analysis
 
+> Status: deep reference
+> Role: maps older research distillation into current repo state; not active architecture or execution guidance
+
 **Date:** 2026-04-01  
 **Author:** Scout (Research Engineer)  
 **For:** Gem (PM) → Jimmy (CEO)  
@@ -33,7 +36,7 @@ The distillation report extracted 31 cross-cutting patterns and hundreds of acti
 | 1 | Harness > model | ✅ Done | Plugin-first architecture, 8 skills, deterministic tools |
 | 2 | A2A readiness (Agent Cards) | ❌ Missing | No machine-readable capability descriptions |
 | 3 | Adapter layer for external data | ✅ Done | `tools/drug-lookup/lookup.sh` (OpenFDA), `tools/fhir/mimic-loinc-query.sh` |
-| 4 | Retrieval quality > model scale | ✅ Done | `knowledge/` with 5 protocols + 2 reference files |
+| 4 | Retrieval quality > model scale | ✅ Done | `clinical-resources/` with 5 protocols + 2 reference files |
 | 5 | Design for next tier, implement current | ✅ Done | Memory interface deferred, context stuffing implemented |
 | 6 | Contradiction handling (antrhodiscernment) | ⚠️ Partial | Cross-skill triggers template exists; no active conflict detection |
 | 7 | Thoroughness > speed bias | ⚠️ Partial | Router has complexity tiers; no explicit thoroughness bias |
@@ -44,7 +47,7 @@ The distillation report extracted 31 cross-cutting patterns and hundreds of acti
 | 12 | Confidence signals in every output | ⚠️ Partial | Four-layer output template exists; not enforced in all skills |
 | 13 | Golden test cases from experience | ⚠️ Partial | 309 calculator tests exist but not golden/annotated scenarios |
 | 14 | HITL Category II | ✅ Done | All skills produce drafts; router declares HITL Cat II |
-| 15 | Fine-tune for format, RAG for knowledge | ✅ Done | No fine-tuning; knowledge/ is proto-RAG |
+| 15 | Fine-tune for format, RAG for knowledge | ✅ Done | No fine-tuning; clinical-resources/ is proto-RAG |
 | 16 | Human-AI interaction gap > model gap | ⚠️ Partial | Dashboard has output components; no confidence UI |
 | 17 | Break copy-forward cycle | ⚠️ Partial | SBAR report generates fresh; no explicit anti-template enforcement |
 | 18 | Knowledge currency = patient safety | ✅ Done | FRESHNESS.md, provenance headers on all knowledge files |
@@ -125,7 +128,7 @@ The distillation report extracted 31 cross-cutting patterns and hundreds of acti
 | Skill outputs reference knowledge versions | ❌ Missing | No version references in skill output templates |
 | Surface guideline conflicts | ⚠️ Partial | Cross-skill triggers template exists; no active detection |
 | Multi-source drug interaction | ❌ Missing | Only OpenFDA single source |
-| Authoritative sources only | ✅ Done | `knowledge/` contains only guidelines and references |
+| Authoritative sources only | ✅ Done | `clinical-resources/` contains only guidelines and references |
 
 ### Report 7: Deployment & Operations
 

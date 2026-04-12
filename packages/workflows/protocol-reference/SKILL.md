@@ -18,11 +18,11 @@ required_context:
     - patient_weight
     - time_of_onset
 knowledge_sources:
-  - "knowledge/protocols/acls.md"
-  - "knowledge/protocols/sepsis-bundle.md"
-  - "knowledge/protocols/acute-stroke.md"
-  - "knowledge/protocols/rapid-response.md"
-  - "knowledge/protocols/rsi.md"
+  - "clinical-resources/protocols/acls.md"
+  - "clinical-resources/protocols/sepsis-bundle.md"
+  - "clinical-resources/protocols/acute-stroke.md"
+  - "clinical-resources/protocols/rapid-response.md"
+  - "clinical-resources/protocols/rsi.md"
 limitations:
   - adult_patients_only
   - five_protocols_only
@@ -66,11 +66,11 @@ Match the nurse's question to one of the 5 available protocols:
 
 | Trigger | File | Source |
 |---------|------|--------|
-| ACLS, code blue, cardiac arrest, v-fib, VF, pVT, PEA, asystole, bradycardia algorithm, tachycardia algorithm, post-ROSC | `knowledge/protocols/acls.md` | AHA ACLS 2020/2025 |
-| Sepsis, sepsis bundle, qSOFA, hour-1 bundle, SEP-1, septic shock | `knowledge/protocols/sepsis-bundle.md` | SSC 2021, CMS SEP-1 |
-| Stroke, tPA, alteplase, stroke window, LKW, thrombectomy, NIH stroke | `knowledge/protocols/acute-stroke.md` | AHA/ASA 2019, updated 2024 |
-| Rapid response, RRT, MEWS, early warning, when to call, escalation | `knowledge/protocols/rapid-response.md` | IHI, MEWS literature |
-| RSI, intubation, rapid sequence, intubation meds, intubation doses, airway | `knowledge/protocols/rsi.md` | Walls & Murphy, EMCRIT |
+| ACLS, code blue, cardiac arrest, v-fib, VF, pVT, PEA, asystole, bradycardia algorithm, tachycardia algorithm, post-ROSC | `clinical-resources/protocols/acls.md` | AHA ACLS 2020/2025 |
+| Sepsis, sepsis bundle, qSOFA, hour-1 bundle, SEP-1, septic shock | `clinical-resources/protocols/sepsis-bundle.md` | SSC 2021, CMS SEP-1 |
+| Stroke, tPA, alteplase, stroke window, LKW, thrombectomy, NIH stroke | `clinical-resources/protocols/acute-stroke.md` | AHA/ASA 2019, updated 2024 |
+| Rapid response, RRT, MEWS, early warning, when to call, escalation | `clinical-resources/protocols/rapid-response.md` | IHI, MEWS literature |
+| RSI, intubation, rapid sequence, intubation meds, intubation doses, airway | `clinical-resources/protocols/rsi.md` | Walls & Murphy, EMCRIT |
 
 If the question doesn't match any protocol: "Protocol not available. Currently loaded: ACLS, Sepsis Bundle, Acute Stroke, Rapid Response, RSI."
 

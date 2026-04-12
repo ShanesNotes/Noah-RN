@@ -1,57 +1,80 @@
-# Noah RN Dashboard
+# Clinician Dashboard
 
-EHR dashboard for Noah RN — connects to a local HAPI FHIR server with MIMIC-IV demo data.
+This folder holds the Noah RN clinician dashboard sidecar.
 
-## Stack
+It is a supporting application surface, not the canonical clinical workspace.
 
-- **Vite + React + TypeScript**
-- **Mantine** for UI components
-- **Medplum React** for FHIR client and provider
-- **HAPI FHIR R4** (local) as the data source
+## What this app owns
 
-## Data Source
+- clinician-facing sidecar views
+- observational UI for patient data and workflow context
+- workflow-adjacent panels such as:
+  - vitals
+  - labs
+  - medications
+  - context inspection
+  - skill prompt support
+  - assignment-level overview
 
-- **Server:** `http://10.0.0.184:8080/fhir` (local network)
-- **Dataset:** MIMIC-IV Clinical Database Demo — 100 ICU patients, ~929K FHIR resources
-- **Auth:** None (local network only)
-- **No PHI** — de-identified research data only
+## What this app does not own
 
-## Features
+- canonical chart state
+- patient-context assembly
+- workflow contract truth
+- routing authority
 
-- **Patient List** — Browse all patients with name, birth date, and gender
-- **Vitals Panel** — Recent vital sign observations (HR, BP, RR, SpO2, Temp) with sparkline previews
-- **Vitals Trends** — Time-series line charts for each vital type with interactive tooltips
-- **Labs Panel** — Laboratory observations with reference ranges, trend charts, and rate-of-change arrows
-- **Medications Panel** — MedicationRequest history with status, dosing, and drip rate detection
-- **Assignment View** — Multi-patient overview showing latest vitals and active meds at a glance
-- **SBAR Handoff** — Structured Situation-Background-Assessment-Recommendation report with copy-to-clipboard
+Those live in:
+- `services/clinical-mcp/`
+- `packages/workflows/`
+- `packages/agent-harness/`
+- Medplum as the clinical workspace backbone
 
-## Known Data Gaps
+## Current role
 
-- No `AllergyIntolerance` resources in MIMIC demo
-- `clinicalStatus` and `status` fields unreliable on Conditions/MedicationRequests
-- All encounters are historical (no in-progress state)
-- Date-shifted timestamps (2100–2200 range)
-- No RxNorm codes for medications (NDC/GSN only)
+Treat this app as:
+- sidecar observability
+- clinician-facing prototyping
+- workflow-support surface
 
-## Getting Started
+Do not treat it as the source of truth for clinical workspace architecture.
 
-```bash
-npm install
-npm run dev
-```
+## Current stack
 
-The dashboard connects directly to the local HAPI FHIR server. No auth required.
+- Vite
+- React
+- TypeScript
+- Mantine
+- Recharts
 
-## Architecture
+## Current data posture
 
-```
-App (MedplumProvider)
-├── PatientList   → searchResources('Patient')
-└── PatientDetail (selected)
-    ├── VitalsPanel   → searchResources('Observation', code=...)
-    ├── LabsPanel     → searchResources('Observation', exclude vitals)
-    └── MedsPanel     → searchResources('MedicationRequest')
-```
+The app reads patient-facing clinical data through the current FHIR/clinical workspace path.
 
-All panels use `useEffect` with cleanup to prevent stale state on patient switch.
+It should be understood as a consumer of the clinical workspace, not the owner of that workspace.
+
+## Where to look first
+
+- `src/App.tsx` — overall shell and panel switching
+- `src/components/` — patient-facing panels and workflow support surfaces
+- `src/fhir/` — app-side FHIR client helpers
+- `src/hooks/` — app-side data hooks
+
+## What to ignore first
+
+- `dist/` — build output
+- `node_modules/` — dependency install state
+- local `.omc/` state — tooling/runtime residue
+
+## Current rule
+
+If a change affects:
+- chart-context truth or bundle shape → start in `services/clinical-mcp/`
+- workflow contract or routing behavior → start in `packages/workflows/` or `packages/agent-harness/`
+- clinician-facing sidecar display or interaction → start here
+
+## Read this next
+
+- `src/README.md`
+- `../../docs/ARCHITECTURE.md`
+- `../../docs/foundations/clinical-workspace-scaffold.md`
+- `../../docs/foundations/shift-report-runtime-path.md`

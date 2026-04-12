@@ -57,7 +57,7 @@ if [[ -z "$LOINC" || -z "$PATIENT_ID" ]]; then
 fi
 
 REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
-MAPPING_FILE="${MAPPING_FILE:-$REPO_ROOT/knowledge/mimic-mappings.json}"
+MAPPING_FILE="${MAPPING_FILE:-$REPO_ROOT/clinical-resources/mimic-mappings.json}"
 FHIR_SERVER="${FHIR_SERVER:-http://10.0.0.184:8080/fhir}"
 
 if ! command -v "$CURL_BIN" >/dev/null 2>&1; then

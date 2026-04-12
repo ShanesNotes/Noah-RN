@@ -14,7 +14,8 @@ Keep deliverable surfaces legible for coding agents while preserving high-value 
 | `research/` | `local/grounding/research/` | keep in place for now; treat as source corpus |
 | `notes/` | `local/grounding/notes/` | keep in place for now |
 | `docs/local/` | `local/grounding/docs-local/` | keep in place for now |
-| `graphify-out/` | `local/graphify/` | keep local-only; move only when Graphify defaults are updated cleanly |
+| `graphify-out/` | `local/graphify/` | canonical full-project graph; keep local-only; move only when Graphify defaults are updated cleanly |
+| `local/graphify/legacy/graphify-out-full-project-20260411/` | `local/graphify/legacy/` | archived legacy/custom merged graph |
 | `.obsidian/` | runtime/local exception | keep in place unless wiki/link audit says otherwise |
 | `.omx/` | runtime exception | keep in place |
 | `.omc/` | runtime exception | keep in place |
@@ -32,6 +33,6 @@ Keep deliverable surfaces legible for coding agents while preserving high-value 
 Use these checks when touching local/private/generated boundaries:
 
 ```bash
-git check-ignore -v local/** wiki/** research/** notes/** graphify-out/** .obsidian/** .omx/** .omc/** plugin/**
+git check-ignore -v local/** wiki/** research/** notes/** graphify-out*/** .obsidian/** .omx/** .omc/** plugin/**
 find . -maxdepth 1 -mindepth 1 | sort
 ```

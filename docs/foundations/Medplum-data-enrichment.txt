@@ -1,0 +1,107 @@
+**Phase 1 orchestration + Phase 2 context/MEGA-RAG baseline established; Medplum FHIR R4 ingestion layer now prioritized as eval harness foundation.**  
+
+noah-rn’s shift to Medplum as the clinical workspace UI is a high-leverage architectural win: it gives us a production-grade FHIR R4 server (with built-in bots, custom operations, $everything, and batch import) that slots directly into our plugin-first harness without reinventing the wheel. The immediate blocker you flagged—high-fidelity encounter-scoped data (narratives + time-series)—is solvable today with zero custom ETL for the structured portion and minimal mapping for narratives. This directly accelerates agentic harness skills + golden-test eval (Phase 2) while keeping us firmly in HITL Category II / CDS exemption territory.
+
+### 1. Best source: MIMIC-IV on FHIR (v2.1) — exact match for your criteria
+PhysioNet now ships **MIMIC-IV (and MIMIC-IV-ED) fully converted to FHIR R4 bundles** (NDJSON format).  
+- **What it gives you**: Encounter-scoped resources with full time-series (vitals, labs, MAR, charted events, microbiology, outputs) + demographics, conditions, procedures, medications.  
+- **Resources generated** (24 MIMIC-specific profiles + 6 ED): `Patient`, `Encounter` (ICU/ED), `Observation` (labs, chartevents/vitals, micro, datetime, output), `Medication*` (Request, Dispense, Administration, Statement), `Condition`, `Procedure`, `Location`, `Organization`, `Specimen`.  
+- **US Core alignment** where possible; extensions only where MIMIC terminology demands it.  
+- **Demo dataset** (100-patient subset, open access): https://physionet.org/content/mimic-iv-fhir-demo/2.1.0/ — perfect for immediate Medplum loading and harness eval.  
+- **Full dataset** (credentialed, ~300k patients): https://physionet.org/content/mimic-iv-fhir/2.1/ — NDJSON.gz files, loadable into any FHIR R4 server (including Medplum).  
+
+**Clinical narratives (H&P, progress notes, discharge summaries)**: Not in the core structured conversion (MIMIC-IV tables are events/observations), but the companion **MIMIC-IV-Note** module provides the de-identified text. Map these 1:1 to `DocumentReference` (or `DiagnosticReport` for note-type) with `subject` + `context.encounter` references to the FHIR Encounters above. This is trivial in Medplum and gives you exactly the “narratives alongside time-series” you need.
+
+**Why this beats Synthea for ICU realism**:
+- Synthea = synthetic, rule-based, great for broad testing but shallow ICU fidelity.
+- MIMIC-IV on FHIR = real de-identified ICU data (Beth Israel Deaconess 2008–2019) with the exact sparsity, irregular sampling, and clinical messiness our agents must handle.
+
+**Loading pipeline into Medplum (actionable skeleton)**  
+Use Medplum’s batch import or a one-time Bot. Here’s the minimal code (Node.js / Medplum SDK) you can drop in today:
+
+```ts
+import { MedplumClient } from '@medplum/core';
+import fs from 'fs';
+import ndjson from 'ndjson';
+
+const medplum = new MedplumClient({ /* your creds */ });
+
+// One-time ingest of demo NDJSON
+async function ingestMimicDemo() {
+  const parser = ndjson.parse();
+  fs.createReadStream('mimic-iv-fhir-demo.ndjson')
+    .pipe(parser)
+    .on('data', async (resource) => {
+      // Optional: rewrite references to your test Patient/Encounter if needed
+      await medplum.createResource(resource); // or batch for speed
+    });
+}
+
+// For notes → DocumentReference (MIMIC-IV-Note → FHIR)
+function noteToDocumentReference(noteRow, encounterId) {
+  return {
+    resourceType: 'DocumentReference',
+    status: 'current',
+    type: { coding: [{ system: 'http://loinc.org', code: '11506-3', display: 'Progress note' }] }, // or 34117-2 for H&P
+    subject: { reference: 'Patient/xxx' },
+    context: { encounter: [{ reference: `Encounter/${encounterId}` }] },
+    content: [{ attachment: { contentType: 'text/plain', data: Buffer.from(noteRow.text).toString('base64') } }],
+    // provenance metadata per our cross-report pattern #19
+  };
+}
+```
+
+GitHub repos with conversion scripts / Jupyter notebooks: kind-lab/mimic-fhir (SQL → FHIR) and srdc/mimic-iv-to-fhir (toFHIR engine). Both produce NDJSON ready for Medplum batch create.
+
+### 2. Other rich sources (ranked by FHIR readiness + narrative+time-series density)
+| Source              | Narratives (H&P/Progress) | Time-series (vitals/labs/MAR) | FHIR R4 ready?                  | ICU fidelity | Recommendation |
+|---------------------|---------------------------|-------------------------------|---------------------------------|--------------|----------------|
+| MIMIC-IV on FHIR   | Yes (via separate Note)  | Full                         | Native NDJSON bundles          | Highest     | Primary        |
+| MIMIC-IV-Note      | Full discharge/radiology | —                            | Map to DocumentReference       | Highest     | Pair with above|
+| eICU-CRD / HiRID   | Limited                  | Excellent                    | No (tabular)                   | High        | Deferred       |
+| AmsterdamUMCdb     | Limited                  | Excellent                    | No                             | High        | Deferred       |
+| Synthea            | Synthetic                | Synthetic                    | Native FHIR bundles            | Low         | Use for smoke tests only |
+
+No other public dataset matches MIMIC-IV on FHIR for your exact requirements. The structured + note pairing is the gold standard for agent eval.
+
+### 3. Simulated real-time vitals monitor (ICU fidelity layer)
+**ResusMonitor** (https://www.resusmonitor.com/) is the exact tool you want:  
+- Browser-based patient monitor UI (HR, RR, SpO2, BP, ETCO2 + waveforms).  
+- Real-time remote control from a second device (phone/tablet).  
+- Designed for medical simulation training — you can script physiological responses (e.g., sepsis deterioration, code blue).  
+
+**Integration with Medplum (real-time Observation stream)**:  
+- Run ResusMonitor in one tab.  
+- Simple Node script / Medplum Bot polls the control surface (or you drive it manually) and POSTs `Observation` resources (vital-signs profile) to the patient’s Encounter in real time.  
+- This gives your harness live “monitor” data exactly as it would appear in runtime ICU workflows.
+
+Example skeleton (extendable to full agent-triggered alerts):
+
+```ts
+// resus-to-fhir-stream.ts
+setInterval(async () => {
+  const vitals = getCurrentResusState(); // your polling / webhook
+  await medplum.createResource({
+    resourceType: 'Observation',
+    status: 'final',
+    category: [{ coding: [{ code: 'vital-signs' }] }],
+    code: { coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }] },
+    subject: { reference: 'Patient/xxx' },
+    encounter: { reference: 'Encounter/yyy' },
+    effectiveDateTime: new Date().toISOString(),
+    valueQuantity: { value: vitals.hr, unit: 'beats/min' }
+  });
+}, 5000);
+```
+
+This closes the loop: synthetic/realistic historical data (MIMIC) + live streaming vitals (ResusMonitor) → full runtime simulation inside Medplum.
+
+### Immediate next steps (move the project forward)
+1. **Today**: Download the 100-patient MIMIC-IV on FHIR demo + one MIMIC-IV-Note file. Load into a fresh Medplum project via batch import.
+2. **This week**: Add a Medplum Bot that ingests NDJSON + maps notes → DocumentReference. Tag every resource with provenance (source, version, last-verified) per our knowledge management spec.
+3. **Eval harness**: Point your Phase 2 routing agent + skills at these encounters. Generate golden test cases from real ICU narratives (your clinical eye is still the best annotator).
+4. **Real-time layer**: Spin up ResusMonitor + the streaming script above. Now your shift-report / sepsis / ACLS skills can react to live vitals exactly as they will in production.
+
+This data layer is the foundation everything else rests on. Once it’s live in Medplum we can start formal eval runs (100–150 annotated cases) and cross-skill awareness routing. Let me know when the demo is imported and I’ll give you the exact agent-card + hook templates tuned to this dataset.  
+
+We are building the safest, most evaluable agentic nursing system on the planet — one realistic FHIR encounter at a time.

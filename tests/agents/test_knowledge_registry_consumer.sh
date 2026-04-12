@@ -33,18 +33,18 @@ assert_contains() {
     fi
 }
 
-echo "=== Knowledge Registry Consumer ==="
+echo "=== Clinical Resources Registry Consumer ==="
 
-node "$REPO_ROOT/packages/agent-harness/list-knowledge.mjs" > "$OUT_JSON"
+node "$REPO_ROOT/packages/agent-harness/list-clinical-resources.mjs" > "$OUT_JSON"
 
 COUNT="$(jq 'length' "$OUT_JSON")"
-assert_eq "registry consumer returns 6 knowledge assets" "6" "$COUNT"
+assert_eq "registry consumer returns 6 clinical resource assets" "6" "$COUNT"
 
 ALL_EXIST="$(jq 'all(.[]; .exists == true)' "$OUT_JSON")"
 assert_eq "all registered knowledge source paths exist" "true" "$ALL_EXIST"
 
 AUTHORITATIVE="$(jq -r '.[0].authoritative_surface' "$OUT_JSON")"
-assert_eq "authoritative surface is knowledge" "knowledge" "$AUTHORITATIVE"
+assert_eq "authoritative surface is clinical-resources" "clinical-resources" "$AUTHORITATIVE"
 
 RAW_OUTPUT="$(cat "$OUT_JSON")"
 assert_contains "includes cross-skill-triggers entry" '"name": "cross-skill-triggers"' "$RAW_OUTPUT"

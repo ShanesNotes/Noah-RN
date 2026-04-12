@@ -70,7 +70,7 @@ These apply to every skill without exception:
 
 ## Disclaimer
 
-After every skill response, append one randomly selected disclaimer from `knowledge/templates/disclaimers.md`. Always include — never omit, even on errors or gap prompts.
+After every skill response, append one randomly selected disclaimer from `clinical-resources/templates/disclaimers.md`. Always include — never omit, even on errors or gap prompts.
 
 ---
 
@@ -89,7 +89,7 @@ Replace `<skill-name>`, `<skill-version>`, and `<primary source>` with the invok
 
 ## Cross-Skill Suggestions
 
-If skill output reveals a finding that maps to `knowledge/templates/cross-skill-triggers.md`, add a suggestion after the primary output.
+If skill output reveals a finding that maps to `clinical-resources/templates/cross-skill-triggers.md`, add a suggestion after the primary output.
 
 Format:
 ```
