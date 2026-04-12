@@ -1,4 +1,5 @@
-// FHIR R4 types for dashboard — mirrors mcp-server/src/fhir/types.ts
+// FHIR R4 types for dashboard — intentional subset of services/clinical-mcp/src/fhir/types.ts
+// Kept separate: different build targets (Vite browser vs Node service), different FHIR surface areas
 
 export interface FhirBundle<T = FhirResource> {
   resourceType: 'Bundle';
@@ -105,11 +106,3 @@ export interface Encounter extends FhirResource {
   reasonCode?: CodeableConcept[];
 }
 
-export interface AllergyIntolerance extends FhirResource {
-  resourceType: 'AllergyIntolerance';
-  clinicalStatus?: CodeableConcept;
-  code?: CodeableConcept;
-  reaction?: Array<{ manifestation?: CodeableConcept[] }>;
-}
-
-export type ClinicalResource = Patient | Observation | Condition | MedicationRequest | MedicationAdministration | Encounter | AllergyIntolerance;

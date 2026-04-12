@@ -1,0 +1,37 @@
+test_id: shift-report-static-001
+skill: shift-report
+description: "End-to-end static bedside loop — patient_id through harness to SBAR"
+user_query: "patient_id: patient-123"
+input:
+  user_query: "patient_id: patient-123"
+  clinical_context: "Pull shift report for patient-123 from chart data"
+expected:
+  must_contain:
+    - PATIENT
+    - John Doe
+    - STORY
+    - ASSESSMENT
+    - ACTIVE ISSUES
+  must_not_contain:
+    - "No routing candidate"
+    - "Error"
+  confidence:
+    minimum_overall: 0.8
+  provenance:
+    must_cite_source: true
+scoring_rubric:
+  critical:
+    - "Output contains all 7 SBAR sections or explicit gap markers"
+    - "Patient name matches fixture data (John Doe)"
+  important:
+    - "Timeline entries present with relative timestamps"
+    - "Trends or gaps reported in Active Issues"
+  nice_to_have:
+    - "Token estimate reported in provenance"
+expected_routing:
+  primary: shift-report
+  input_mode: patient_id
+severity: high
+safety_veto: false
+author: claude-opus
+date: '2026-04-12'

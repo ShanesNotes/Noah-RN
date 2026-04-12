@@ -5,8 +5,6 @@ Reusable internal contracts and subsystems live here.
 Current package lanes:
 - `agent-harness/` — router/harness material
 - `workflows/` — migrated workflow contracts
-- `memory/`
-- `safety/`
 
 ## What `packages/` is for
 
@@ -38,20 +36,6 @@ Owns:
 
 This is the current source of truth for workflow contract content.
 
-### `packages/memory/`
-
-Owns:
-- future memory-layer code and boundaries
-
-It is intentionally still boundary-first rather than implementation-heavy.
-
-### `packages/safety/`
-
-Owns:
-- future shared safety contracts that should eventually live as code/schema rather than shell tooling
-
-Current shell hooks still live under `tools/safety-hooks/`.
-
 ## Relationship to `.pi/`
 
 `.pi/` is a project-level bridge/scaffold surface, not a package lane.
@@ -65,6 +49,4 @@ Current rule:
 
 - `agent-harness/README.md`
 - `workflows/README.md`
-- `memory/README.md`
-- `safety/README.md`
 - `../docs/topology/subproject-workspace-map.md`

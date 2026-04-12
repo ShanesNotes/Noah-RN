@@ -43,7 +43,8 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 
 **Primary supporting surfaces**
 - `infrastructure/` for Medplum and environment bring-up
-- `apps/clinician-dashboard/` for sidecar observability and clinician-facing prototyping
+- `apps/nursing-station/` for the Medplum-first clinician workspace path
+- `apps/clinician-dashboard/` for the runtime-console sidecar and future sim observability
 - `docs/foundations/medplum-architecture-packet.md` for current lane-specific reference
 
 **What does not belong here**
@@ -69,7 +70,7 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 **Primary supporting surfaces**
 - `services/clinical-mcp/` registers the sim-harness agent-facing MCP tools (live vitals, waveform vision, administer medication, order intervention). Agents never talk to `services/sim-harness/` directly.
 - `infrastructure/` provides the Medplum FHIR backbone that receives sim-harness write-back.
-- `apps/clinician-dashboard/` renders the waveform viewer and live-vitals panel consuming sim-harness output.
+- `apps/clinician-dashboard/` is the intended observability surface for future waveform viewer and live-vitals panels once the sim runtime exists.
 - `docs/foundations/sim-harness-*.md` holds the canonical specs.
 - `evals/` is the eventual downstream consumer via a Gym-compatible interface for meta-harness work.
 
@@ -138,11 +139,11 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 ### 4. Memory Layer
 
 **Workspace center**
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 
 **Why**
-- Memory is an internal subsystem, not a user-facing app or standalone service at this phase.
-- The package lane already exists and is explicitly reserved for future memory work.
+- Memory is still boundary-first at this phase.
+- The reserved package lane was removed until real runtime code exists again, so the foundation docs are the active center for now.
 
 **Primary supporting surfaces**
 - `services/clinical-mcp/` for encounter-context assembly touchpoints
@@ -156,8 +157,8 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 
 **Future artifact placement**
 - memory boundary notes: `docs/foundations/memory-*.md`
-- runtime memory code: `packages/memory/`
-- policy and persistence rules: `docs/foundations/` first, then package-local docs if implemented
+- runtime memory code: a future `packages/` lane once implementation actually exists
+- policy and persistence rules: `docs/foundations/` first, then package-local docs if runtime code is reintroduced
 
 ### 5. Meta-Harness Optimization
 
@@ -194,7 +195,7 @@ Use this model:
 
 Examples:
 
-- Clinical workspace spans `services/clinical-mcp/`, `infrastructure/`, and `apps/clinician-dashboard/`, but the center is `services/clinical-mcp/`.
+- Clinical workspace spans `services/clinical-mcp/`, `infrastructure/`, `apps/nursing-station/`, and `apps/clinician-dashboard/`, but the center is `services/clinical-mcp/`.
 - Agent harness spans `packages/agent-harness/`, `packages/workflows/`, and `.pi/`, but the center is `packages/agent-harness/`.
 - Clinical resources span `clinical-resources/` and selected workflow packages, but the center is `clinical-resources/`.
 
@@ -216,10 +217,10 @@ The missing canonical artifact was this one:
 
 | Subproject | Workspace center | Primary supporting surfaces |
 |---|---|---|
-| Clinical workspace | `services/clinical-mcp/` | `infrastructure/`, `apps/clinician-dashboard/`, `docs/foundations/medplum-architecture-packet.md` |
+| Clinical workspace | `services/clinical-mcp/` | `infrastructure/`, `apps/nursing-station/`, `apps/clinician-dashboard/`, `docs/foundations/medplum-architecture-packet.md` |
 | Agent harness | `packages/agent-harness/` | `packages/workflows/`, `.pi/`, metadata/contract foundation docs |
 | Clinical resources | `clinical-resources/` | workflow reference packages, metadata-registry foundation docs |
-| Memory layer | `packages/memory/` | `services/clinical-mcp/`, `packages/workflows/`, memory foundation docs |
+| Memory layer | `docs/foundations/memory-layer-scaffold.md` | `services/clinical-mcp/`, `packages/workflows/`, memory foundation docs |
 | Meta-harness optimization | `evals/` | `tools/trace/`, observability foundation docs |
 
 ## Current Rule

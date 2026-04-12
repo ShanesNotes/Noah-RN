@@ -1,0 +1,60 @@
+Summary
+Shift Report assembled from live Medplum context for patient patient-123.
+
+PATIENT
+- John Doe
+- male, DOB: 1962-05-10
+- Hx: Acute kidney injury, Septic shock
+- Admit: 2026-04-09T18:00:00Z, unknown
+
+STORY
+- T-0m: Note: Overnight ICU progress note
+- T-30m: Heart rate: 102 bpm
+- T-30m: Systolic BP: 88 mmHg
+- T-30m: Potassium: 5.2 mmol/L
+- T-45m: MAR: Norepinephrine
+- T-1h: Heart rate: 98 bpm
+- T-1h: Potassium: 4.8 mmol/L
+- T-2h: MAR: Piperacillin-tazobactam
+- T-2h: Heart rate: 94 bpm
+- T-2h: Potassium: 4.4 mmol/L
+- T-3h: Rx: Norepinephrine
+- T-4h: Rx: Piperacillin-tazobactam
+- T-14h: Dx: Acute kidney injury
+- T-15h: Dx: Septic shock
+- T-16h: Note: Admission history and physical
+- T-17h: Encounter: encounter
+
+ASSESSMENT
+Vitals:
+  - Heart rate: 102 bpm (T-30m)
+  - Systolic BP: 88 mmHg (T-30m)
+  - Heart rate: 98 bpm (T-1h)
+  - Heart rate: 94 bpm (T-2h)
+Labs:
+  - Potassium: 5.2 mmol/L (T-30m)
+  - Potassium: 4.8 mmol/L (T-1h)
+  - Potassium: 4.4 mmol/L (T-2h)
+
+LINES & ACCESS
+- [Data not available from current context assembly]
+
+ACTIVE ISSUES & PLAN
+- [!] Heart rate rising: 102 → 98 → 94
+- [!] Potassium rising: 5.2 → 4.8 → 4.4
+
+HOUSEKEEPING
+- [Requires bedside input]
+
+FAMILY
+- [Requires bedside input]
+
+Confidence
+0.90
+
+Provenance
+Source: packages/workflows/shift-report/SKILL.md
+Context: services/clinical-mcp/ (Patient, Observation(vital-signs), Observation(laboratory), Condition, MedicationRequest, MedicationAdministration, Encounter, DocumentReference)
+Assembled: 2026-04-12T17:17:51.543Z
+Token estimate: 1556
+Registry: packages/workflows/registry.json

@@ -2,11 +2,14 @@
 .claude/
 .omc/
 .omx/
+.dev-logs/
+.hermes/
 .codex
 .codex-home/
 .mcp.json
 .scenario-state/
 graphify-out/
+graphify-out.bak-*/
 .graphify_*.json
 .graphify_*.txt
 .graphify_*
@@ -18,7 +21,9 @@ apps/clinician-dashboard/.omc/
 # Dependencies
 node_modules/
 apps/clinician-dashboard/dist/
+apps/nursing-station/dist/
 services/clinical-mcp/dist/
+*.tsbuildinfo
 
 # Downloaded binaries
 *.tar.gz
@@ -26,6 +31,7 @@ gh_*/
 
 # Legacy runtime experiments; pi.dev is the active foundation unless revisited.
 infrastructure/nemoclaw/
+infrastructure/pi/.env
 
 # OS
 .DS_Store
@@ -62,4 +68,10 @@ notify*.js
 # Local/generated cleanup artifacts
 comments.json
 *.patch
+evals/product/results/scores-20*.json
+evals/product/traces/shift-report-20*/
 evals/product/traces/youtube-research-*/
+docs/analysis/session-*.html
+docs/analysis/browser-control-skill-template.SKILL.md
+apps/clinician-dashboard/public/evals/
+apps/clinician-dashboard/public/traces/

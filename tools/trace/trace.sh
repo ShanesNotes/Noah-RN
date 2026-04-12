@@ -14,7 +14,7 @@ case "$cmd" in
             exit 1
         fi
         date_part="$(date -u '+%Y%m%dT%H%M%S')"
-        hex_part="$(head -c 2 /dev/urandom | xxd -p | head -c 4)"
+        hex_part="$(od -An -N2 -tx1 /dev/urandom | tr -d ' \n' | head -c 4)"
         case_id="${skill}-${date_part}-${hex_part}"
         case_dir="$TRACES_DIR/$case_id"
         mkdir -p "$case_dir"
@@ -104,9 +104,9 @@ case "$cmd" in
         jq -n \
             --arg skill "$skill" \
             --arg start "$start_ts" \
-            --arg end "$end_ts" \
+            --arg end_ts "$end_ts" \
             --argjson dur "$duration_ms" \
-            '{"skill":$skill,"start":$start,"end":$end,"duration_ms":$dur,"stages":{}}' \
+            '{"skill":$skill,"start":$start,"end":$end_ts,"duration_ms":$dur,"stages":{}}' \
             > "$case_dir/timing.json"
         echo "trace complete: $case_id (${duration_ms}ms)"
         ;;

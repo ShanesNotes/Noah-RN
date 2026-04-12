@@ -110,6 +110,9 @@ services:
         condition: service_healthy
     ports:
       - '3000:3000'
+    environment:
+      MEDPLUM_BASE_URL: 'http://10.0.0.184:8103/'
+      MEDPLUM_REGISTER_ENABLED: 'false'
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 10s

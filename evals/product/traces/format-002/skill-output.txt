@@ -1,0 +1,19 @@
+Summary
+SBAR shift-report workflow invocation prepared for the Shift Report path.
+
+Evidence
+Workflow: shift-report
+Input mode: clinical_narrative
+Context boundary: services/clinical-mcp/
+Resource access: cross-skill-triggers, disclaimers, four-layer-output, drug-ranges
+Tool families: trace
+Service surfaces: services/clinical-mcp/
+User context: Generate shift handoff report for patient with sepsis, on norepinephrine 0.1 mcg/kg/min, MAP 65
+
+Confidence
+0.95
+
+Provenance
+Source: packages/workflows/shift-report/SKILL.md
+Registry: packages/workflows/registry.json
+Dependencies: packages/agent-harness/workflow-dependencies.json

@@ -27,7 +27,7 @@ Add later when implementing:
 ## Context-Primitive Mapping
 
 ### Write
-- future `packages/memory/`
+- future memory runtime surface once a real implementation lane exists again
 
 ### Select
 - `services/clinical-mcp/`

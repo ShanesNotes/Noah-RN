@@ -51,7 +51,7 @@ Sources:
 
 Attach to current surfaces:
 - `services/clinical-mcp/`
-- `packages/memory/`
+- `docs/foundations/memory-layer-scaffold.md`
 - `.pi/`
 - `clinical-resources/`
 

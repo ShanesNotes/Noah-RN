@@ -24,7 +24,7 @@ Clinical Simulation Harness means:
 - `services/sim-harness/` owns the tickable live runtime, the scenario director, the waveform generation layer, and the FHIR write-back layer.
 - `services/clinical-mcp/` owns the agent-facing MCP boundary; the sim-harness does not register agent-facing tools directly.
 - `infrastructure/` (Medplum + HAPI FHIR R4) is the shared chart substrate; the sim-harness writes Observation / Encounter / MedicationAdministration resources into the same backbone the clinical workspace reads from.
-- `apps/clinician-dashboard/` is the sidecar waveform viewer and live-vitals panel.
+- `apps/clinician-dashboard/` is the intended sidecar waveform/vitals observability surface once the live sim runtime is active.
 - `evals/` is the eventual downstream consumer through a Gym-compatible interface for meta-harness work.
 
 Agents must never talk to `services/sim-harness/` directly. All agent access goes through `services/clinical-mcp/` — either as context reads from Medplum (indistinguishable from static MIMIC reads) or as a small number of sim-only MCP tools registered through the clinical-mcp boundary.
@@ -123,7 +123,7 @@ Both forms are exposed through `services/clinical-mcp/` as MCP tools registered 
 - direct agent-facing MCP tool registration — tools register through `services/clinical-mcp/`
 - clinical knowledge resources — those live in `clinical-resources/`
 - workflow orchestration logic — that is `packages/agent-harness/` + `packages/workflows/`
-- memory persistence — that is `packages/memory/`
+- memory persistence — that is the memory-layer foundation surface now and a future runtime lane later
 - waveform rendering that bypasses the agent vision contract
 
 ## Canonical surfaces now

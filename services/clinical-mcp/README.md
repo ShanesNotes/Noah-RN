@@ -9,6 +9,7 @@ It is the agent-facing boundary between workflow/harness code and chart/simulati
 - MCP server surface for clinical tools
 - patient-context assembly
 - FHIR client and mapping logic
+- draft write-boundary scaffolds for Shift Report and related clinical actions
 - simulation/state progression helpers used by the current clinical workspace lane
 - fixture-backed canonical patient path support
 
@@ -23,7 +24,7 @@ Those live in:
 - `packages/workflows/`
 - `packages/agent-harness/`
 - `clinical-resources/`
-- `packages/memory/`
+- `docs/foundations/memory-tier-boundary.md`
 
 ## Where to look first
 
@@ -31,6 +32,7 @@ Those live in:
 - `src/context/` — patient-context assembly and shaping
 - `src/fhir/` — FHIR fetch and mapping layer
 - `src/events/` — simulation/event progression logic
+- `get-context.mjs` — local bounded patient-context inspection helper
 - `fixtures/` — canonical fixture-backed patient path support
 
 ## What to ignore first
@@ -45,6 +47,7 @@ Treat `src/` as canonical code truth.
 
 Treat `fixtures/` as support for the first bounded patient-context path, not as the product architecture.
 Treat simulation code here as part of the clinical workspace lane, not as a separate platform.
+Treat `src/fhir/writes.ts` as scaffold-only until write semantics are explicitly widened.
 
 ## Read this next
 

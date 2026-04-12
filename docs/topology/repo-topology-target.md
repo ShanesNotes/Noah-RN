@@ -67,8 +67,7 @@ local/
 - Intended homes:
   - `packages/agent-harness/` for future `pi.dev`-aligned harness/routing work
   - `packages/workflows/` for migrated workflow contracts from `plugin/skills/`
-  - `packages/memory/` for mutable encounter/session memory work
-  - `packages/safety/` for shared safety-hook or validation contracts that stay code-level
+  - future internal package lanes when memory or safety code becomes concrete again
 
 ### `clinical-resources/`
 - Remains root-level because it is a first-class product surface, not merely supporting data.

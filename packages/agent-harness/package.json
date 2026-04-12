@@ -1,0 +1,28 @@
+{
+  "name": "@noah-rn/agent-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shift-report-first harness scaffold for Noah RN",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "describe-routing": "node ./describe-routing-candidates.mjs",
+    "select-workflows": "node ./select-workflows.mjs",
+    "invoke": "node ./invoke-workflow.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./index.mjs"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "default": "./src/types.ts"
+    },
+    "./describe-routing-candidates": "./describe-routing-candidates.mjs",
+    "./select-workflows": "./select-workflows.mjs",
+    "./list-skills": "./list-skills.mjs",
+    "./list-tools": "./list-tools.mjs",
+    "./list-clinical-resources": "./list-clinical-resources.mjs"
+  }
+}

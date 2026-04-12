@@ -1,0 +1,15 @@
+{
+  "skill": "shift-report",
+  "timestamp": "2026-04-12T17:17:51Z",
+  "context": {
+    "workflow": "shift-report",
+    "input_mode": "patient_id",
+    "patient_id": "patient-123",
+    "available_context": [
+      "clinical_narrative",
+      "patient_id"
+    ],
+    "raw_input": "patient_id: patient-123",
+    "context_assembled": true
+  }
+}

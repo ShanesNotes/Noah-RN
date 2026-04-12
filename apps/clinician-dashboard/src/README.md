@@ -7,13 +7,13 @@ This folder contains the source-of-truth implementation for the dashboard sideca
 ### `components/`
 
 Owns:
-- patient-facing panels
-- assignment overview
+- runtime-console panels
+- eval and trace surfaces
 - workflow-support panels
 - context inspection surfaces
 
 Start here when work is about:
-- what the clinician sees
+- what the runtime-console user sees
 - panel structure
 - sidecar interaction flow
 
@@ -47,7 +47,7 @@ Owns:
 ## Current rule
 
 If a change affects:
-- sidecar UI or workflow-support display → start in `components/`
+- eval/trace/runtime-console UI or workflow-support display → start in `components/`
 - app fetch behavior → start in `fhir/` or `hooks/`
 - source-of-truth patient-context contract → do not start here; go to `services/clinical-mcp/`
 

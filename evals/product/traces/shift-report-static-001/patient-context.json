@@ -1,0 +1,477 @@
+{
+  "patient": {
+    "id": "patient-123",
+    "name": "John Doe",
+    "dob": "1962-05-10",
+    "gender": "male"
+  },
+  "timeline": [
+    {
+      "type": "note",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "doc-1",
+        "status": "current",
+        "type": {
+          "text": "Progress note"
+        },
+        "description": "Overnight ICU progress note",
+        "date": "2026-04-10T11:30:00Z",
+        "author": [
+          {
+            "display": "Dr. Ada Nguyen"
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "title": "ICU Progress Note",
+              "creation": "2026-04-10T11:30:00Z",
+              "data": "UGF0aWVudCByZXNwb25kaW5nIHRvIHByZXNzb3IgdGl0cmF0aW9uLi4u"
+            }
+          }
+        ]
+      },
+      "timestamp": "2026-04-10T11:30:00Z",
+      "relativeTime": "T-0m",
+      "relativeMinutes": 0
+    },
+    {
+      "type": "observation",
+      "subtype": "vital",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v1",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T11:00:00Z",
+        "valueQuantity": {
+          "value": 102,
+          "unit": "bpm"
+        }
+      },
+      "timestamp": "2026-04-10T11:00:00Z",
+      "relativeTime": "T-30m",
+      "relativeMinutes": 30
+    },
+    {
+      "type": "observation",
+      "subtype": "vital",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v4",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8480-6",
+              "display": "Systolic BP"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T11:00:00Z",
+        "valueQuantity": {
+          "value": 88,
+          "unit": "mmHg"
+        }
+      },
+      "timestamp": "2026-04-10T11:00:00Z",
+      "relativeTime": "T-30m",
+      "relativeMinutes": 30
+    },
+    {
+      "type": "observation",
+      "subtype": "lab",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "l1",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "2823-3",
+              "display": "Potassium"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T11:00:00Z",
+        "valueQuantity": {
+          "value": 5.2,
+          "unit": "mmol/L"
+        }
+      },
+      "timestamp": "2026-04-10T11:00:00Z",
+      "relativeTime": "T-30m",
+      "relativeMinutes": 30
+    },
+    {
+      "type": "medicationAdministration",
+      "resource": {
+        "resourceType": "MedicationAdministration",
+        "id": "ma-1",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Norepinephrine"
+        },
+        "effectiveDateTime": "2026-04-10T10:45:00Z",
+        "dosage": {
+          "text": "0.08 mcg/kg/min IV infusion",
+          "dose": {
+            "value": 0.08,
+            "unit": "mcg/kg/min"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "display": "Nurse Casey Brooks"
+            }
+          }
+        ]
+      },
+      "timestamp": "2026-04-10T10:45:00Z",
+      "relativeTime": "T-45m",
+      "relativeMinutes": 45
+    },
+    {
+      "type": "observation",
+      "subtype": "vital",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v2",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T10:00:00Z",
+        "valueQuantity": {
+          "value": 98,
+          "unit": "bpm"
+        }
+      },
+      "timestamp": "2026-04-10T10:00:00Z",
+      "relativeTime": "T-1h",
+      "relativeMinutes": 90
+    },
+    {
+      "type": "observation",
+      "subtype": "lab",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "l2",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "2823-3",
+              "display": "Potassium"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T10:00:00Z",
+        "valueQuantity": {
+          "value": 4.8,
+          "unit": "mmol/L"
+        }
+      },
+      "timestamp": "2026-04-10T10:00:00Z",
+      "relativeTime": "T-1h",
+      "relativeMinutes": 90
+    },
+    {
+      "type": "medicationAdministration",
+      "resource": {
+        "resourceType": "MedicationAdministration",
+        "id": "ma-2",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "text": "Piperacillin-tazobactam"
+        },
+        "effectiveDateTime": "2026-04-10T09:15:00Z",
+        "dosage": {
+          "text": "3.375 g IV",
+          "dose": {
+            "value": 3.375,
+            "unit": "g"
+          }
+        }
+      },
+      "timestamp": "2026-04-10T09:15:00Z",
+      "relativeTime": "T-2h",
+      "relativeMinutes": 135
+    },
+    {
+      "type": "observation",
+      "subtype": "vital",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "v3",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T09:00:00Z",
+        "valueQuantity": {
+          "value": 94,
+          "unit": "bpm"
+        }
+      },
+      "timestamp": "2026-04-10T09:00:00Z",
+      "relativeTime": "T-2h",
+      "relativeMinutes": 150
+    },
+    {
+      "type": "observation",
+      "subtype": "lab",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "l3",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "2823-3",
+              "display": "Potassium"
+            }
+          ]
+        },
+        "effectiveDateTime": "2026-04-10T09:00:00Z",
+        "valueQuantity": {
+          "value": 4.4,
+          "unit": "mmol/L"
+        }
+      },
+      "timestamp": "2026-04-10T09:00:00Z",
+      "relativeTime": "T-2h",
+      "relativeMinutes": 150
+    },
+    {
+      "type": "medication",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "m1",
+        "medicationCodeableConcept": {
+          "text": "Norepinephrine"
+        },
+        "authoredOn": "2026-04-10T08:00:00Z"
+      },
+      "timestamp": "2026-04-10T08:00:00Z",
+      "relativeTime": "T-3h",
+      "relativeMinutes": 210
+    },
+    {
+      "type": "medication",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "m2",
+        "medicationCodeableConcept": {
+          "text": "Piperacillin-tazobactam"
+        },
+        "authoredOn": "2026-04-10T07:30:00Z"
+      },
+      "timestamp": "2026-04-10T07:30:00Z",
+      "relativeTime": "T-4h",
+      "relativeMinutes": 240
+    },
+    {
+      "type": "condition",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "c2",
+        "code": {
+          "text": "Acute kidney injury"
+        },
+        "recordedDate": "2026-04-09T21:00:00Z"
+      },
+      "timestamp": "2026-04-09T21:00:00Z",
+      "relativeTime": "T-14h",
+      "relativeMinutes": 870
+    },
+    {
+      "type": "condition",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "c1",
+        "code": {
+          "text": "Septic shock"
+        },
+        "recordedDate": "2026-04-09T20:00:00Z"
+      },
+      "timestamp": "2026-04-09T20:00:00Z",
+      "relativeTime": "T-15h",
+      "relativeMinutes": 930
+    },
+    {
+      "type": "note",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "doc-2",
+        "status": "current",
+        "type": {
+          "text": "H&P"
+        },
+        "description": "Admission history and physical",
+        "date": "2026-04-09T19:00:00Z",
+        "author": [
+          {
+            "display": "Dr. Sam Patel"
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "title": "Admission H&P",
+              "creation": "2026-04-09T19:00:00Z",
+              "data": "QWRtaXR0ZWQgd2l0aCBoeXBvdGVuc2lvbiBhbmQgc2Vwc2lzLi4u"
+            }
+          }
+        ]
+      },
+      "timestamp": "2026-04-09T19:00:00Z",
+      "relativeTime": "T-16h",
+      "relativeMinutes": 990
+    },
+    {
+      "type": "encounter",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "e1",
+        "status": "in-progress",
+        "period": {
+          "start": "2026-04-09T18:00:00Z"
+        }
+      },
+      "timestamp": "2026-04-09T18:00:00Z",
+      "relativeTime": "T-17h",
+      "relativeMinutes": 1050
+    }
+  ],
+  "trends": [
+    {
+      "loincCode": "8867-4",
+      "name": "Heart rate",
+      "direction": "rising",
+      "values": [
+        {
+          "value": 102,
+          "relativeTime": "T-30m"
+        },
+        {
+          "value": 98,
+          "relativeTime": "T-1h"
+        },
+        {
+          "value": 94,
+          "relativeTime": "T-2h"
+        }
+      ]
+    },
+    {
+      "loincCode": "2823-3",
+      "name": "Potassium",
+      "direction": "rising",
+      "values": [
+        {
+          "value": 5.2,
+          "relativeTime": "T-30m"
+        },
+        {
+          "value": 4.8,
+          "relativeTime": "T-1h"
+        },
+        {
+          "value": 4.4,
+          "relativeTime": "T-2h"
+        }
+      ]
+    }
+  ],
+  "gaps": [],
+  "assembledAt": "2026-04-12T17:17:51.543Z",
+  "sources": [
+    "Patient",
+    "Observation(vital-signs)",
+    "Observation(laboratory)",
+    "Condition",
+    "MedicationRequest",
+    "MedicationAdministration",
+    "Encounter",
+    "DocumentReference"
+  ],
+  "tokenEstimate": 1556
+}

@@ -24,7 +24,7 @@ Tower is separate from beelink (dev workstation) to keep the FHIR server running
 
 Medplum replaces the previous HAPI FHIR R4 server and provides: TypeScript SDK, built-in
 auth (OAuth2/OIDC), bot automation, access policies, React hooks, and an admin UI.
-The old HAPI compose is archived at `infrastructure/docker-compose.hapi-archive.yml`.
+The old HAPI lane is historical only and no longer ships as an active compose surface in this repo.
 
 ### Current Dataset
 
