@@ -57,6 +57,7 @@ describe('assemblePatientContext', () => {
       getMedicationAdministrations: vi.fn().mockResolvedValue({ data: [], error: null }),
       getEncounters: vi.fn().mockResolvedValue({ data: [], error: null }),
       getDocumentReferences: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getDevices: vi.fn().mockResolvedValue({ data: [], error: null }),
     }));
 
     const { assemblePatientContext } = await import('../context/assembler.js');
@@ -66,5 +67,62 @@ describe('assemblePatientContext', () => {
     expect(ctx.gaps).toContain('No medication administration history found');
     expect(ctx.gaps).not.toContain(expect.stringContaining('MIMIC-IV demo'));
     expect(ctx.gaps).not.toContain(expect.stringContaining('Allergy'));
+  });
+
+  it('keeps untimed devices out of the protected 72h window and compacts observation labels', async () => {
+    vi.doMock('../fhir/client.js', () => ({
+      getPatient: vi.fn().mockResolvedValue({
+        data: {
+          resourceType: 'Patient',
+          id: 'patient-789',
+          name: [{ text: 'Jamie Doe' }],
+          gender: 'female',
+          birthDate: '1970-01-01',
+        },
+        error: null,
+      }),
+      getObservations: vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: [{
+            resourceType: 'Observation',
+            id: 'obs-1',
+            category: [{ coding: [{ code: 'vital-signs' }] }],
+            code: {
+              text: 'Heart rate',
+              coding: [{ code: '8867-4', display: 'Heart rate' }],
+            },
+            effectiveDateTime: '2026-04-12T00:00:00Z',
+            valueQuantity: { value: 88, unit: 'bpm' },
+          }],
+          error: null,
+        })
+        .mockResolvedValueOnce({ data: [], error: null }),
+      getConditions: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getMedicationRequests: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getMedicationAdministrations: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getEncounters: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getDocumentReferences: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getDevices: vi.fn().mockResolvedValue({
+        data: [{
+          resourceType: 'Device',
+          id: 'device-1',
+          type: { text: 'Central line' },
+        }],
+        error: null,
+      }),
+    }));
+
+    const { assemblePatientContext } = await import('../context/assembler.js');
+    const ctx = await assemblePatientContext('patient-789', 20_000);
+
+    const observation = ctx.timeline.find((entry) => entry.type === 'observation');
+    expect(observation?.resource.code?.text).toBe('HR');
+    expect(observation?.resource.code?.coding?.[0]?.display).toBe('HR');
+
+    const device = ctx.timeline.find((entry) => entry.type === 'device');
+    expect(device?.timestamp).toBe('');
+    expect(device?.relativeTime).toBe('T-unknown');
+    expect(device?.relativeMinutes).toBe(Number.MAX_SAFE_INTEGER);
   });
 });

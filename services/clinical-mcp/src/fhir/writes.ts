@@ -4,24 +4,28 @@ import type {
   Provenance,
   Task,
 } from "./types.js";
+import { fhirPost } from "./client.js";
 
-function unresolvedClinicalWrite(operation: string): Promise<never> {
+// --- Resolved: volatile-draft-vs-fhir-queuing → Option A (FHIR-queued) ---
+// PLAN.md Decision Log 2026-04-12: preliminary DocumentReference as first review artifact.
+// Only createDraftShiftReport is implemented. Other writes remain stubs until needed.
+
+function deferredWrite(operation: string): Promise<never> {
   return Promise.reject(
     new Error(
-      `TODO(volatile-draft-vs-fhir-queuing): ${operation} is intentionally unavailable in wave 1 scaffold hardening.`,
+      `${operation} is deferred — not required by the current first-workflow forcing path.`,
     ),
   );
 }
 
-function createUnavailableWrite<TInput>(operation: string) {
-  return (_input: TInput): Promise<never> => unresolvedClinicalWrite(operation);
+function createDeferredWrite<TInput>(operation: string) {
+  return (_input: TInput): Promise<never> => deferredWrite(operation);
 }
 
 export interface DraftShiftReportWriteInput {
   patientId: string;
   encounterId?: string;
   reportMarkdown: string;
-  workflowName: "shift-report";
 }
 
 export interface DraftTaskWriteInput {
@@ -37,16 +41,60 @@ export interface DraftMedicationAdministrationWriteInput {
   note?: string;
 }
 
-export const createDraftShiftReport =
-  createUnavailableWrite<DraftShiftReportWriteInput>(
-    "createDraftShiftReport(DocumentReference)",
-  );
+export async function createDraftShiftReport(
+  input: DraftShiftReportWriteInput,
+): Promise<DocumentReference> {
+  const payload = {
+    resourceType: "DocumentReference" as const,
+    status: "current",
+    docStatus: "preliminary",
+    type: {
+      coding: [
+        {
+          system: "https://noah-rn.dev/artifacts",
+          code: "shift-report-draft",
+          display: "Draft Shift Report",
+        },
+        {
+          system: "http://loinc.org",
+          code: "28651-8",
+          display: "Nurse transfer note",
+        },
+      ],
+      text: "Draft Shift Report",
+    },
+    subject: { reference: `Patient/${input.patientId}` },
+    author: [{ display: "Noah RN Agent" }],
+    description: "Draft Shift Report — requires nurse review",
+    content: [{
+      attachment: {
+        // Contract specifies text/plain; text/markdown is retained here because the artifact content is markdown-formatted.
+        contentType: "text/markdown",
+        title: `shift-report-draft-${Date.now()}`,
+        data: Buffer.from(input.reportMarkdown, "utf-8").toString("base64"),
+      },
+    }],
+    ...(input.encounterId && {
+      context: {
+        encounter: [{ reference: `Encounter/${input.encounterId}` }],
+      },
+    }),
+  };
+
+  const result = await fhirPost<DocumentReference>("DocumentReference", payload);
+
+  if (result.error || !result.data) {
+    throw new Error(`createDraftShiftReport failed: ${result.error}`);
+  }
+
+  return result.data;
+}
 
 export const queueDraftTask =
-  createUnavailableWrite<DraftTaskWriteInput>("queueDraftTask(Task)");
+  createDeferredWrite<DraftTaskWriteInput>("queueDraftTask(Task)");
 
 export const queueDraftMedicationAdministration =
-  createUnavailableWrite<DraftMedicationAdministrationWriteInput>(
+  createDeferredWrite<DraftMedicationAdministrationWriteInput>(
     "queueDraftMedicationAdministration(MedicationAdministration)",
   );
 
@@ -57,5 +105,5 @@ export function recordDraftProvenance(
     | Task
     | Provenance,
 ): Promise<never> {
-  return unresolvedClinicalWrite("recordDraftProvenance(Provenance)");
+  return deferredWrite("recordDraftProvenance(Provenance)");
 }

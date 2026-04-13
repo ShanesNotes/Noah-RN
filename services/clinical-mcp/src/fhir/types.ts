@@ -164,6 +164,7 @@ export interface Encounter extends FhirResource {
 export interface DocumentReference extends FhirResource {
   resourceType: 'DocumentReference';
   status?: string;
+  docStatus?: string;
   type?: CodeableConcept;
   category?: CodeableConcept[];
   subject?: Reference;
@@ -180,16 +181,25 @@ export interface DocumentReference extends FhirResource {
   };
 }
 
+export interface TaskOutput {
+  type?: CodeableConcept;
+  valueReference?: Reference;
+}
+
 export interface Task extends FhirResource {
   resourceType: 'Task';
   status?: string;
   intent?: string;
+  code?: CodeableConcept;
   for?: Reference;
   encounter?: Reference;
   focus?: Reference;
   requester?: Reference;
   owner?: Reference;
+  authoredOn?: string;
   description?: string;
+  statusReason?: CodeableConcept;
+  output?: TaskOutput[];
 }
 
 export interface Provenance extends FhirResource {
@@ -199,6 +209,17 @@ export interface Provenance extends FhirResource {
   agent?: Array<{
     who?: Reference;
     type?: CodeableConcept;
+  }>;
+}
+
+export interface Device extends FhirResource {
+  resourceType: 'Device';
+  status?: string;
+  type?: CodeableConcept;
+  patient?: Reference;
+  deviceName?: Array<{
+    name?: string;
+    type?: string;
   }>;
 }
 
@@ -212,7 +233,8 @@ export type ClinicalResource =
   | DocumentReference
   | Patient
   | Task
-  | Provenance;
+  | Provenance
+  | Device;
 
 export interface FhirResult<T> {
   data: T | null;

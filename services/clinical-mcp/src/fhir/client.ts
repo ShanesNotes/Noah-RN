@@ -5,7 +5,7 @@ import { config } from '../config.js';
 import { loincToItemIds } from './loinc-map.js';
 import type {
   FhirBundle, FhirResult, Patient, Observation,
-  Condition, MedicationRequest, MedicationAdministration, Encounter, DocumentReference,
+  Condition, MedicationRequest, MedicationAdministration, Encounter, DocumentReference, Device, Task,
 } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,16 +44,15 @@ async function fhirFetch<T>(path: string): Promise<FhirResult<T>> {
   }
 
   const url = `${config.fhir.serverUrl}/${path}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.fhir.requestTimeoutMs);
+
   try {
     const token = await getAccessToken();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), config.fhir.requestTimeoutMs);
-
     const res = await fetch(url, {
       signal: controller.signal,
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    clearTimeout(timeout);
 
     if (!res.ok) {
       return { data: null, error: `FHIR ${res.status}: ${res.statusText} for ${path}` };
@@ -71,6 +70,8 @@ async function fhirFetch<T>(path: string): Promise<FhirResult<T>> {
     }
     const msg = err instanceof Error ? err.message : String(err);
     return { data: null, error: `FHIR fetch failed: ${msg}` };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -94,6 +95,72 @@ function readFixture<T>(path: string): FhirResult<T> {
     return { data: JSON.parse(raw) as T, error: null };
   } catch {
     return { data: null, error: 'Failed to read fixture file' };
+  }
+}
+
+// --- FHIR write (POST/PUT) ---
+
+export async function fhirPost<T>(resourceType: string, body: unknown): Promise<FhirResult<T>> {
+  const url = `${config.fhir.serverUrl}/${resourceType}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.fhir.requestTimeoutMs);
+
+  try {
+    const token = await getAccessToken();
+    const res = await fetch(url, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/fhir+json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return { data: null, error: `FHIR POST ${res.status}: ${res.statusText} — ${text}` };
+    }
+
+    const data = await res.json() as T;
+    return { data, error: null };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `FHIR POST failed: ${msg}` };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function fhirPut<T>(path: string, body: unknown): Promise<FhirResult<T>> {
+  const url = `${config.fhir.serverUrl}/${path}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.fhir.requestTimeoutMs);
+
+  try {
+    const token = await getAccessToken();
+    const res = await fetch(url, {
+      method: 'PUT',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/fhir+json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return { data: null, error: `FHIR PUT ${res.status}: ${res.statusText} — ${text}` };
+    }
+
+    const data = await res.json() as T;
+    return { data, error: null };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `FHIR PUT failed: ${msg}` };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -155,10 +222,20 @@ export async function getMedicationRequests(patientId: string): Promise<FhirResu
 }
 
 export async function getMedicationAdministrations(patientId: string): Promise<FhirResult<MedicationAdministration[]>> {
-  const result = await fhirFetch<FhirBundle<MedicationAdministration>>(
+  // Try with _sort first; fall back without it on 400 (some servers don't support sort on this resource)
+  let result = await fhirFetch<FhirBundle<MedicationAdministration>>(
     `MedicationAdministration?patient=${patientId}&_sort=-date&_count=100`,
   );
-  if (result.error || !result.data) return { data: null, error: result.error };
+
+  if (result.error?.includes('FHIR 400')) {
+    result = await fhirFetch<FhirBundle<MedicationAdministration>>(
+      `MedicationAdministration?patient=${patientId}&_count=100`,
+    );
+  }
+
+  if (result.error || !result.data) {
+    return { data: null, error: result.error ? `[GAP: MedicationAdministration query unavailable] ${result.error}` : result.error };
+  }
 
   const administrations = result.data.entry?.map(e => e.resource) ?? [];
   return { data: administrations, error: null };
@@ -182,6 +259,30 @@ export async function getDocumentReferences(patientId: string): Promise<FhirResu
 
   const documents = result.data.entry?.map(e => e.resource) ?? [];
   return { data: documents, error: null };
+}
+
+export async function getDevices(patientId: string): Promise<FhirResult<Device[]>> {
+  const result = await fhirFetch<FhirBundle<Device>>(
+    `Device?patient=${patientId}&_count=50`,
+  );
+  if (result.error || !result.data) return { data: null, error: result.error };
+
+  const devices = result.data.entry?.map(e => e.resource) ?? [];
+  return { data: devices, error: null };
+}
+
+export async function getRequestedShiftReportTasks(count: number = 20): Promise<FhirResult<Task[]>> {
+  const result = await fhirFetch<FhirBundle<Task>>(
+    `Task?code=shift-report&status=requested&_sort=-_lastUpdated&_count=${count}`,
+  );
+  if (result.error || !result.data) return { data: null, error: result.error };
+
+  const tasks = result.data.entry?.map(e => e.resource) ?? [];
+  return { data: tasks, error: null };
+}
+
+export async function updateTask(taskId: string, updates: Task): Promise<FhirResult<Task>> {
+  return fhirPut<Task>(`Task/${taskId}`, updates);
 }
 
 export async function listPatients(count: number = 100): Promise<FhirResult<Array<{ id: string; name: string; gender: string }>>> {
