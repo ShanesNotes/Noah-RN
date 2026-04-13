@@ -1,0 +1,107 @@
+# .pi/skills/shift-report/dependencies.yaml
+#
+# Declarative dependency manifest for the shift-report skill.
+# This is the Pi-native equivalent of the wiring currently spread across:
+#   - packages/agent-harness/workflow-dependencies.json (tool/knowledge refs)
+#   - packages/agent-harness/router/clinical-router.md (routing + context rules)
+#   - .pi/extensions/noah-router/*.mjs (bridge scripts)
+#
+# Authority note:
+#   This file is additive Pi-native metadata.
+#   The authoritative workflow contract remains packages/workflows/shift-report/SKILL.md
+#   until an explicit source-of-truth promotion is recorded.
+
+skill: shift-report
+version: "1.1.0"
+complexity_tier: complex
+
+# --- Input modes -----------------------------------------------------------
+# How the skill can be invoked. The router reads this to decide what to fetch
+# before handing off to the skill.
+input_modes:
+  patient_id:
+    extension: medplum-context
+    tool: get_patient_context
+    then: invoke_skill_with_timeline
+    description: >-
+      Nurse provides a patient ID. The medplum-context extension calls
+      get_patient_context to assemble a timeline, then passes it to the skill
+      as if it were a clinical narrative.
+  clinical_narrative:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides a free-text report dump. The skill parses it directly —
+      no external context fetch needed.
+  missing:
+    action: request_required_context
+    prompt: "Give me the rundown on your patient — I'll structure the handoff."
+
+# --- Extensions -------------------------------------------------------------
+extensions:
+  medplum-context:
+    required: false
+    condition: "input_mode == patient_id"
+    provides:
+      - tool: get_patient_context
+        purpose: "Fetch patient timeline from FHIR/Medplum via clinical-mcp"
+
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing — init → input → output → hooks → done"
+      - tool_family: safety-hooks
+        purpose: "Tier 1 safety validation on output"
+
+# --- Knowledge assets -------------------------------------------------------
+# Referenced at output time for cross-skill suggestions, output structure,
+# and disclaimers. Paths are relative to repo root.
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions (max 2 per invocation)"
+  - name: drug-ranges
+    path: clinical-resources/drug-ranges.json
+    purpose: "Flag out-of-range medication values found in narrative"
+  - name: four-layer-output
+    path: clinical-resources/templates/four-layer-output.md
+    purpose: "Output structure template — summary, evidence, confidence, provenance"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Random disclaimer footer (1 per invocation)"
+
+# --- Service surfaces -------------------------------------------------------
+services:
+  - name: clinical-mcp
+    path: services/clinical-mcp/
+    condition: "input_mode == patient_id"
+    purpose: "MCP server providing get_patient_context, list_patients, scenarios"
+
+# --- Shared conventions -----------------------------------------------------
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+    - acuity_convention
+
+# --- Router integration -----------------------------------------------------
+# Metadata the noah-router extension uses for discovery and dispatch.
+router:
+  scope: shift_handoff
+  trigger_phrases:
+    - "organize my report"
+    - "shift report"
+    - "handoff report"
+    - "give report"
+    - "SBAR"
+    - "nurse report"
+    - "end of shift report"
+  intent: shift_handoff
+  complexity: complex
+  hitl_category: "II"

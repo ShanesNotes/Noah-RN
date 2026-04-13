@@ -1,44 +1,33 @@
-# Noah RN `.pi/` Migration Map
+# `.pi/` Migration Map
 
-This file explains how the current restructured repo maps into the future pi.dev project surface.
+How the repo maps into the Pi-native project surface.
 
-It is intentionally a planning/control artifact, not live runtime wiring.
+## Current State
 
-## Current Source-of-Truth vs Future pi Surface
-
-| Current source | Future pi surface | Status |
+| Source | Pi Surface | Status |
 |---|---|---|
-| `packages/agent-harness/router/clinical-router.md` | `.pi/extensions/noah-router/` + `.pi/AGENTS.md` / `.pi/SYSTEM.md` | planned |
-| `packages/workflows/*/SKILL.md` | `.pi/skills/<name>/SKILL.md` | planned |
-| `tools/safety-hooks/` | `.pi/extensions/noah-clinical-tools/` hook/tool registration wrapper | planned |
-| `services/clinical-mcp/` | `.pi/extensions/medplum-context/` integration surface | planned |
-| `clinical-resources/` | referenced by pi skills/extensions | current external dependency |
-| `docs/topology/*` | migration/architecture reference only | current |
+| `packages/workflows/*/SKILL.md` | `.pi/skills/<name>/SKILL.md` | 9 promoted, 1 remaining |
+| `packages/agent-harness/router/clinical-router.md` | `.pi/extensions/noah-router/` | extension stubs exist |
+| `tools/safety-hooks/` | `.pi/extensions/noah-clinical-tools/` | extension stubs exist |
+| `services/clinical-mcp/` | `.pi/extensions/medplum-context/` | extension stubs exist |
+| `clinical-resources/` | referenced by skill dependencies.yaml | direct reference, no migration needed |
 
-## Migration Principle
+## Content Sync Rule
 
-Until pi.dev runtime glue exists:
+- `packages/workflows/` is authoritative for clinical content
+- `.pi/skills/` is authoritative for Pi-native wiring
+- Change clinical content in `packages/workflows/` first, then sync to `.pi/skills/`
 
-- `packages/workflows/` remains the authoritative workflow contract surface
-- `packages/agent-harness/` remains the authoritative harness/routing surface
-- `.pi/` remains scaffold + mapping + placeholders
+## Promoted Skills
 
-## First Workflow Priority
+See `skills/MIGRATION-MAP.md` for the full promotion log.
 
-The first workflow remains **Shift Report**.
+## Remaining
 
-That means the first meaningful pi-native migration path should eventually connect:
+| Skill | Notes |
+|---|---|
+| shift-assessment | complex narrative synthesis |
 
-1. `.pi/extensions/noah-router/`
-2. `.pi/extensions/medplum-context/`
-3. `.pi/skills/shift-report/`
-4. `services/clinical-mcp/`
-5. `clinical-resources/templates/cross-skill-triggers.md`
+## Exceptions
 
-## Non-goal
-
-Do not duplicate workflow contract content into `.pi/skills/` until there is a clear decision about:
-
-- mirror vs generate vs hand-maintain
-- which fields remain canonical in `packages/workflows/`
-- how pi runtime discovery will coexist with the current test suite
+- **hello-nurse**: `.pi/skills/hello-nurse/SKILL.md` is a behavioral fork of `packages/workflows/hello-nurse/SKILL.md`, not a verbatim copy. The Pi-native version was intentionally rewritten. The content sync rule does not apply to this skill.

@@ -1,37 +1,32 @@
-# Noah RN `.pi` Agent Context
+# Agent Context
 
-This file is the future project-level agent context surface for pi.dev.
+## Canonical sources
 
-Until pi runtime glue exists, use it as a bridge between the current restructured repo and the intended pi-native harness shape.
+- `.pi/SYSTEM.md` — runtime system prompt
+- `.pi/skills/*/SKILL.md` — promoted skill contracts
+- `services/clinical-mcp/` — patient context and FHIR access
+- `clinical-resources/` — curated protocols, reference data, templates
+- `memory/` — patient and session memory (placeholder)
+- `docs/ARCHITECTURE.md` — system boundary map
 
-## Canonical current sources
+## Skill surface
 
-- `PLAN.md` — project direction and decisions
-- `TASKS.md` — active execution queue
-- `packages/agent-harness/` — current harness/routing source of truth
-- `packages/workflows/` — current workflow-contract source of truth
-- `services/clinical-mcp/` — current patient-context and simulation surface
-- `clinical-resources/` — current clinical resource surface
+Nine skills promoted to `.pi/skills/`:
 
-## First workflow priority
+- **shift-report** (2026-04-12) — complex, FHIR context via clinical-mcp
+- **unit-conversion** (2026-04-13) — moderate, pure bash tool
+- **neuro-calculator** (2026-04-13) — moderate, GCS/NIHSS/RASS/CPOT
+- **risk-calculator** (2026-04-13) — moderate, Wells PE/DVT, CURB-65, Braden
+- **acuity-calculator** (2026-04-13) — moderate, APACHE II, NEWS2
+- **drug-reference** (2026-04-13) — moderate, OpenFDA lookup + high-alert list
+- **protocol-reference** (2026-04-13) — moderate, ACLS/Sepsis/Stroke/RRT/RSI knowledge files
+- **io-tracker** (2026-04-13) — moderate, I&O categorization and net balance
+- **hello-nurse** (2026-04-13) — simple, the easter egg
 
-The first workflow remains **Shift Report**.
+Remaining unpromoted: shift-assessment.
 
-If a future pi-native implementation begins, the first meaningful end-to-end path should connect:
+## Content sync rule
 
-1. `.pi/extensions/noah-router/`
-2. `.pi/extensions/medplum-context/`
-3. `.pi/skills/shift-report/`
-4. `services/clinical-mcp/`
-5. `clinical-resources/templates/cross-skill-triggers.md`
+Clinical content in `.pi/skills/` stays in sync with `packages/workflows/`. Change clinical content in `packages/workflows/` first, then sync to `.pi/skills/`.
 
-## Current rule
-
-Do not treat `.pi/` as the authoritative contract surface yet.
-
-Authoritative surfaces remain:
-- `packages/workflows/`
-- `packages/agent-harness/`
-- `tools/safety-hooks/`
-
-`.pi/` is currently scaffold + mapping + placeholders.
+Pi-native wiring (dependencies.yaml, pi: frontmatter, prompt templates) is authored in `.pi/` directly.

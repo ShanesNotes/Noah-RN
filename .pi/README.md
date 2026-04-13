@@ -1,41 +1,34 @@
-# Noah RN `.pi/` Scaffold
+# `.pi/`
 
-This directory is the future project-level pi.dev configuration surface.
+Project-level Pi configuration surface for Noah RN.
 
-It is a bridge/shadow surface for the agent harness subproject, not the current harness source of truth.
+## Contents
 
-It is being introduced as a **non-functional scaffold** so the restructured repo has an obvious home for:
-- project-level pi settings
-- system prompt and context stacking
-- extensions
-- skill discovery
-- workflow prompt templates
+- `SYSTEM.md` — runtime system prompt for the Pi agent
+- `AGENTS.md` — agent context and canonical source map
+- `skills/` — promoted workflow skill contracts
+- `extensions/` — Pi extensions (router, medplum-context, clinical-tools)
+- `prompts/` — reusable prompt templates
 
-Current scaffold contents now include:
-- `.pi/AGENTS.md`
-- `.pi/SYSTEM.md`
-- migration maps
-- extension stubs
-- prompt-template stubs
+## Skills
 
-Current intent:
-- keep runtime behavior unchanged
-- avoid implementing pi.dev integration code yet
-- give future agents a canonical place to continue the harness build
+| Skill | Complexity | Tools | Promoted |
+|-------|-----------|-------|----------|
+| shift-report | complex | clinical-mcp | 2026-04-12 |
+| unit-conversion | moderate | convert.sh | 2026-04-13 |
+| neuro-calculator | moderate | gcs.sh, nihss.sh, rass.sh, cpot.sh | 2026-04-13 |
+| risk-calculator | moderate | wells-pe.sh, wells-dvt.sh, curb65.sh, braden.sh | 2026-04-13 |
+| acuity-calculator | moderate | apache2.sh, news2.sh | 2026-04-13 |
+| drug-reference | moderate | lookup.sh (OpenFDA) | 2026-04-13 |
+| protocol-reference | moderate | knowledge files | 2026-04-13 |
+| io-tracker | moderate | track.sh | 2026-04-13 |
+| hello-nurse | simple | — | 2026-04-13 |
 
-## Relationship to `packages/agent-harness/`
+Discovery: `skills/SELECTION-BRIDGE.md`
+Migration: `skills/MIGRATION-MAP.md`
 
-Current rule:
-- `packages/agent-harness/` is authoritative now
-- `.pi/` is the project-level bridge/shadow for future pi-native runtime work
-- if a change is about current routing truth, start in `packages/agent-harness/`
-- if a change is about future pi-facing shape or bridge wiring, start here only after reading the authoritative harness docs
+## Relationship to `packages/`
 
-Why `.pi/` is still at repo root:
-- it is a project-level runtime/scaffold exception
-- its placement reflects future runtime shape, not current authority
-
-Reference basis:
-- `.omc/research/pidev-harness-skeleton.md`
-- `packages/agent-harness/`
-- `packages/workflows/`
+- `packages/workflows/` remains authoritative for clinical content
+- `.pi/skills/` is authoritative for Pi-native wiring (dependencies.yaml, pi: frontmatter)
+- If clinical content changes, change it in `packages/workflows/` first, then sync to `.pi/skills/`

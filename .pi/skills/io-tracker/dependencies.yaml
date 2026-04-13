@@ -1,0 +1,70 @@
+# .pi/skills/io-tracker/dependencies.yaml
+# Promoted to Pi-native: 2026-04-13
+
+skill: io-tracker
+version: "1.2.0"
+complexity_tier: moderate
+
+input_modes:
+  direct:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides free-text fluid entries. The skill parses, categorizes,
+      and calls the tracking tool for arithmetic.
+  incremental:
+    extension: none
+    then: invoke_skill_with_prior_state
+    description: >-
+      Nurse adds new entries to a running I&O. Prior state is passed to the
+      tool alongside new entries.
+  missing:
+    action: request_required_context
+    prompt: "What are the fluid entries you need categorized?"
+
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing"
+
+tools:
+  - name: track.sh
+    path: tools/io-tracker/track.sh
+    purpose: "I&O categorization and arithmetic — accepts JSON via stdin"
+
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Disclaimer footer"
+
+services: []
+
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+
+router:
+  scope: fluid_balance
+  trigger_phrases:
+    - "I&O"
+    - "intake and output"
+    - "fluid balance"
+    - "urine output"
+    - "net balance"
+    - "document fluids"
+    - "how much in"
+    - "how much out"
+  intent: fluid_balance
+  complexity: moderate
+  hitl_category: "II"

@@ -1,0 +1,73 @@
+# .pi/skills/risk-calculator/dependencies.yaml
+# Promoted to Pi-native: 2026-04-13
+
+skill: risk-calculator
+version: "1.0.0"
+complexity_tier: moderate
+
+input_modes:
+  direct:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides component values for Wells PE, Wells DVT, CURB-65, or Braden.
+      The skill calls the corresponding bash calculator tool.
+  missing:
+    action: request_required_context
+    prompt: "Which risk score, and what are the component values?"
+
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing"
+
+tools:
+  - name: wells-pe.sh
+    path: tools/clinical-calculators/wells-pe.sh
+    purpose: "Wells PE probability score"
+  - name: wells-dvt.sh
+    path: tools/clinical-calculators/wells-dvt.sh
+    purpose: "Wells DVT probability score"
+  - name: curb65.sh
+    path: tools/clinical-calculators/curb65.sh
+    purpose: "CURB-65 pneumonia severity"
+  - name: braden.sh
+    path: tools/clinical-calculators/braden.sh
+    purpose: "Braden pressure injury risk"
+
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Disclaimer footer"
+
+services: []
+
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+
+router:
+  scope: clinical_scoring
+  trigger_phrases:
+    - "Wells"
+    - "PE risk"
+    - "DVT"
+    - "CURB-65"
+    - "pneumonia severity"
+    - "Braden"
+    - "pressure injury"
+    - "skin risk"
+  intent: risk_scoring
+  complexity: moderate
+  hitl_category: "II"

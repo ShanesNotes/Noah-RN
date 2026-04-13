@@ -4,15 +4,9 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
 
 ## Now
 
-1. **Reconcile the refreshed Graphify output against the current plan**
-   - Check whether the rebuilt `graphify-out/` changes the dependency order of the current scaffolding work.
-   - Update sequencing only if the new graph shows a stronger cross-surface dependency than the current plan.
+1. ~~Reconcile the refreshed Graphify output against the current plan~~ — **Done 2026-04-12.** Graph rebuild (456 nodes, 533 edges) confirmed clinical-mcp as structural center. 8 wiki concepts promoted to stable. No dependency order changes needed.
 
-2. **Run the Medplum preliminary-resource visibility test**
-   - Use `docs/foundations/medplum-draft-review-lifecycle.md` as the governing decision.
-   - Create a representative preliminary Shift Report draft artifact.
-   - Inspect the relevant Medplum UI surfaces and record exactly where draft artifacts appear.
-   - Decide whether task-scoped filtering is sufficient before wider rollout.
+2. ~~Run the Medplum preliminary-resource visibility test~~ — **Done 2026-04-12.** Preliminary DocumentReference surfaces in unfiltered search but `doc-status` SearchParameter works natively. Decision: task-scoped filtering sufficient. See `docs/foundations/medplum-draft-review-lifecycle.md` §Empirical results.
 
 3. **Harden the first Medplum-native Shift Report review loop**
    - Treat `Task -> clinical-mcp -> agent-harness -> shift-report -> DocumentReference` as the active forcing path.
