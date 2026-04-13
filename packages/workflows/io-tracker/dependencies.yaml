@@ -1,7 +1,7 @@
-# .pi/skills/drug-reference/dependencies.yaml
+# .noah-pi-runtime/skills/io-tracker/dependencies.yaml
 # Promoted to Pi-native: 2026-04-13
 
-skill: drug-reference
+skill: io-tracker
 version: "1.2.0"
 complexity_tier: moderate
 
@@ -10,11 +10,17 @@ input_modes:
     extension: none
     then: invoke_skill_directly
     description: >-
-      Nurse provides a medication name. The skill checks the high-alert list,
-      calls the OpenFDA lookup tool, and returns a bedside summary.
+      Nurse provides free-text fluid entries. The skill parses, categorizes,
+      and calls the tracking tool for arithmetic.
+  incremental:
+    extension: none
+    then: invoke_skill_with_prior_state
+    description: >-
+      Nurse adds new entries to a running I&O. Prior state is passed to the
+      tool alongside new entries.
   missing:
     action: request_required_context
-    prompt: "Which medication are you asking about?"
+    prompt: "What are the fluid entries you need categorized?"
 
 extensions:
   noah-clinical-tools:
@@ -24,10 +30,9 @@ extensions:
         purpose: "Invocation tracing"
 
 tools:
-  - name: lookup.sh
-    path: tools/drug-lookup/lookup.sh
-    purpose: "OpenFDA drug label lookup — returns structured JSON"
-    note: "Requires network access to api.fda.gov"
+  - name: track.sh
+    path: tools/io-tracker/track.sh
+    purpose: "I&O categorization and arithmetic — accepts JSON via stdin"
 
 knowledge_assets:
   - name: cross-skill-triggers
@@ -50,18 +55,16 @@ conventions:
     - cross_skill_suggestions
 
 router:
-  scope: medication_reference
+  scope: fluid_balance
   trigger_phrases:
-    - "look up"
-    - "drug reference"
-    - "what is"
-    - "tell me about"
-    - "hold parameters"
-    - "side effects"
-    - "black box"
-    - "high alert"
-    - "interactions"
-    - "dosing"
-  intent: medication_query
+    - "I&O"
+    - "intake and output"
+    - "fluid balance"
+    - "urine output"
+    - "net balance"
+    - "document fluids"
+    - "how much in"
+    - "how much out"
+  intent: fluid_balance
   complexity: moderate
   hitl_category: "II"

@@ -1,4 +1,4 @@
-# .pi/skills/hello-nurse/dependencies.yaml
+# .noah-pi-runtime/skills/hello-nurse/dependencies.yaml
 # Promoted to Pi-native: 2026-04-13
 #
 # The simplest skill. No tools, no services, no knowledge assets.

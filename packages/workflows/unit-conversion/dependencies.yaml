@@ -1,4 +1,4 @@
-# .pi/skills/unit-conversion/dependencies.yaml
+# .noah-pi-runtime/skills/unit-conversion/dependencies.yaml
 #
 # Declarative dependency manifest for the unit-conversion skill.
 # Promoted to Pi-native: 2026-04-13

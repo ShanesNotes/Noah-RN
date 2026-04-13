@@ -1,7 +1,7 @@
-# .pi/skills/io-tracker/dependencies.yaml
+# .noah-pi-runtime/skills/drug-reference/dependencies.yaml
 # Promoted to Pi-native: 2026-04-13
 
-skill: io-tracker
+skill: drug-reference
 version: "1.2.0"
 complexity_tier: moderate
 
@@ -10,17 +10,11 @@ input_modes:
     extension: none
     then: invoke_skill_directly
     description: >-
-      Nurse provides free-text fluid entries. The skill parses, categorizes,
-      and calls the tracking tool for arithmetic.
-  incremental:
-    extension: none
-    then: invoke_skill_with_prior_state
-    description: >-
-      Nurse adds new entries to a running I&O. Prior state is passed to the
-      tool alongside new entries.
+      Nurse provides a medication name. The skill checks the high-alert list,
+      calls the OpenFDA lookup tool, and returns a bedside summary.
   missing:
     action: request_required_context
-    prompt: "What are the fluid entries you need categorized?"
+    prompt: "Which medication are you asking about?"
 
 extensions:
   noah-clinical-tools:
@@ -30,9 +24,10 @@ extensions:
         purpose: "Invocation tracing"
 
 tools:
-  - name: track.sh
-    path: tools/io-tracker/track.sh
-    purpose: "I&O categorization and arithmetic — accepts JSON via stdin"
+  - name: lookup.sh
+    path: tools/drug-lookup/lookup.sh
+    purpose: "OpenFDA drug label lookup — returns structured JSON"
+    note: "Requires network access to api.fda.gov"
 
 knowledge_assets:
   - name: cross-skill-triggers
@@ -55,16 +50,18 @@ conventions:
     - cross_skill_suggestions
 
 router:
-  scope: fluid_balance
+  scope: medication_reference
   trigger_phrases:
-    - "I&O"
-    - "intake and output"
-    - "fluid balance"
-    - "urine output"
-    - "net balance"
-    - "document fluids"
-    - "how much in"
-    - "how much out"
-  intent: fluid_balance
+    - "look up"
+    - "drug reference"
+    - "what is"
+    - "tell me about"
+    - "hold parameters"
+    - "side effects"
+    - "black box"
+    - "high alert"
+    - "interactions"
+    - "dosing"
+  intent: medication_query
   complexity: moderate
   hitl_category: "II"

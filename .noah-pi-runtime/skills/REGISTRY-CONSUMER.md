@@ -1,22 +1,18 @@
-# `.pi/skills/` Registry Consumer Note
+# `.noah-pi-runtime/skills/` Registry Consumer Note
 
-Repo note: this surface is stored at `.noah-pi-runtime/skills/` and mounts as `/runtime/.pi/skills/`.
+## Namespace rule
 
-Future pi-native skill discovery should consume the current readiness artifacts in this order:
+- **`.noah-pi-runtime/skills/`** — Dev skills only (Pi agent discovery)
+- **`packages/workflows/`** — Product skills only (Noah-RN discovery)
+
+## Noah-RN skill discovery order
 
 1. `packages/workflows/registry.json`
 2. `packages/workflows/*/SKILL.md`
-3. `.pi/skills/*` scaffold paths (repo-hosted under `.noah-pi-runtime/skills/*`)
+3. `packages/workflows/*/dependencies.yaml`
 
-## Rule
+## Dev skill discovery order
 
-- `packages/workflows/` is still canonical
-- `.pi/skills/` is still scaffold-first
-- any promotion of `.pi/skills/` to runtime truth must be recorded explicitly before discovery logic depends on it
-- repo-side edits should happen in `.noah-pi-runtime/skills/`, not a root `.pi/` directory
+1. `.noah-pi-runtime/skills/*/SKILL.md`
 
-## First workflow target
-
-The first skill path to promote, if and when that happens, should be:
-
-- `shift-report`
+Currently no dev skills defined. Add as needed.

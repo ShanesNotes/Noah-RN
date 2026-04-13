@@ -1,10 +1,10 @@
-# .pi/skills/shift-report/dependencies.yaml
+# .noah-pi-runtime/skills/shift-report/dependencies.yaml
 #
 # Declarative dependency manifest for the shift-report skill.
 # This is the Pi-native equivalent of the wiring currently spread across:
 #   - packages/agent-harness/workflow-dependencies.json (tool/knowledge refs)
 #   - packages/agent-harness/router/clinical-router.md (routing + context rules)
-#   - .pi/extensions/noah-router/*.mjs (bridge scripts)
+#   - .noah-pi-runtime/extensions/noah-router/*.mjs (bridge scripts)
 #
 # Authority note:
 #   This file is additive Pi-native metadata.
