@@ -7,7 +7,10 @@ import {
   getMedicationAdministrations,
   getEncounters,
   getDocumentReferences,
+  getDevices,
 } from '../fhir/client.js';
+import { compactDisplayName } from '../fhir/loinc-map.js';
+import type { Device, Observation } from '../fhir/types.js';
 import type { PatientContext, TimelineEntry, ObservationEntry } from './types.js';
 import {
   computeRelativeMinutes, formatRelativeTime, findMostRecentTimestamp,
@@ -32,6 +35,7 @@ export async function assemblePatientContext(
     medAdminsResult,
     encountersResult,
     documentReferencesResult,
+    devicesResult,
   ] = await Promise.all([
     getPatient(patientId),
     getObservations(patientId, { category: 'vital-signs' }),
@@ -41,6 +45,7 @@ export async function assemblePatientContext(
     getMedicationAdministrations(patientId),
     getEncounters(patientId),
     getDocumentReferences(patientId),
+    getDevices(patientId),
   ]);
 
   sources.push(
@@ -52,6 +57,7 @@ export async function assemblePatientContext(
     'MedicationAdministration',
     'Encounter',
     'DocumentReference',
+    'Device',
   );
 
   // Patient demographics
@@ -75,16 +81,18 @@ export async function assemblePatientContext(
   if (medAdminsResult.error) gaps.push(`Medication administration query failed: ${medAdminsResult.error}`);
   if (encountersResult.error) gaps.push(`Encounters query failed: ${encountersResult.error}`);
   if (documentReferencesResult.error) gaps.push(`Provider notes query failed: ${documentReferencesResult.error}`);
+  if (devicesResult.error) gaps.push(`Devices query failed: ${devicesResult.error}`);
 
   // Collect all timestamps to find reference point
   const allTimestamps: string[] = [];
-  const vitals = vitalsResult.data ?? [];
-  const labs = labsResult.data ?? [];
+  const vitals = (vitalsResult.data ?? []).map(compactObservationLabels);
+  const labs = (labsResult.data ?? []).map(compactObservationLabels);
   const conditions = conditionsResult.data ?? [];
   const meds = medsResult.data ?? [];
   const medicationAdministrations = medAdminsResult.data ?? [];
   const encounters = encountersResult.data ?? [];
   const documentReferences = documentReferencesResult.data ?? [];
+  const devices = devicesResult.data ?? [];
 
   for (const v of vitals) if (v.effectiveDateTime) allTimestamps.push(v.effectiveDateTime);
   for (const l of labs) if (l.effectiveDateTime) allTimestamps.push(l.effectiveDateTime);
@@ -193,6 +201,19 @@ export async function assemblePatientContext(
     });
   }
 
+  // Devices (Lines/Access — IV lines, central lines, airway devices)
+  for (const dev of devices) {
+    const ts = getDeviceTimestamp(dev);
+    const relMin = ts ? computeRelativeMinutes(ts, referenceTimestamp) : Number.MAX_SAFE_INTEGER;
+    timeline.push({
+      type: 'device',
+      resource: dev,
+      timestamp: ts,
+      relativeTime: ts ? formatRelativeTime(relMin) : 'T-unknown',
+      relativeMinutes: relMin,
+    });
+  }
+
   // Sort by relative time (most recent first)
   const sorted = sortTimeline(timeline);
 
@@ -206,21 +227,31 @@ export async function assemblePatientContext(
   if (!meds.length) gaps.push('No medication requests found');
   if (!medicationAdministrations.length) gaps.push('No medication administration history found');
   if (!documentReferences.length) gaps.push('No provider notes found');
+  if (!devices.length) gaps.push('[GAP: Lines/Access] No device data (IV lines, central lines, airway) found');
 
-  // Apply context budget — truncate oldest entries first
+  // Apply context budget — 72h priority window protects recent entries from truncation
+  const PRIORITY_WINDOW_MINUTES = 72 * 60; // 72 hours
   let truncated = sorted;
   let budgetTruncated = false;
+  let truncatedCount = 0;
   const estimateTokens = (entries: TimelineEntry[]) =>
     Math.round(JSON.stringify(entries).length * config.context.tokenCharRatio);
 
   while (truncated.length > 10 && estimateTokens(truncated) > budget) {
-    truncated = truncated.slice(0, -1); // drop oldest
+    // Find the oldest entry outside the 72h priority window to drop
+    const dropIdx = findOldestOutsidePriorityWindow(truncated, PRIORITY_WINDOW_MINUTES);
+    if (dropIdx === -1) {
+      // All remaining entries are within 72h — drop from the end as last resort
+      truncated = truncated.slice(0, -1);
+    } else {
+      truncated = [...truncated.slice(0, dropIdx), ...truncated.slice(dropIdx + 1)];
+    }
     budgetTruncated = true;
+    truncatedCount++;
   }
 
   if (budgetTruncated) {
-    const dropped = sorted.length - truncated.length;
-    gaps.push(`Context budget: ${dropped} oldest entries truncated to fit ~${budget} tokens`);
+    gaps.push(`Context budget: ${truncatedCount} entries truncated to fit ~${budget} tokens (72h priority window active)`);
   }
 
   const tokenEstimate = estimateTokens(truncated);
@@ -233,9 +264,50 @@ export async function assemblePatientContext(
     assembledAt: new Date().toISOString(),
     sources,
     tokenEstimate,
+    budgetTruncated,
+    truncatedCount,
   };
 }
 
 function getDocumentReferenceTimestamp(doc: { date?: string; content?: Array<{ attachment?: { creation?: string } }> }): string {
   return doc.date ?? doc.content?.[0]?.attachment?.creation ?? '';
+}
+
+function getDeviceTimestamp(device: Device): string {
+  return device.meta?.lastUpdated ?? '';
+}
+
+function findOldestOutsidePriorityWindow(entries: TimelineEntry[], windowMinutes: number): number {
+  // Search from the end (oldest) for the first entry outside the priority window
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].relativeMinutes > windowMinutes) {
+      return i;
+    }
+  }
+  return -1; // all entries within window
+}
+
+function compactObservationLabels(observation: Observation): Observation {
+  const compactCode = compactCodeableConcept(observation.code);
+  const compactComponents = observation.component?.map((component) => ({
+    ...component,
+    code: compactCodeableConcept(component.code),
+  }));
+
+  return {
+    ...observation,
+    code: compactCode,
+    component: compactComponents,
+  };
+}
+
+function compactCodeableConcept<T extends { text?: string; coding?: Array<{ display?: string }> }>(concept: T): T {
+  return {
+    ...concept,
+    ...(concept.text ? { text: compactDisplayName(concept.text) } : {}),
+    coding: concept.coding?.map((coding) => ({
+      ...coding,
+      ...(coding.display ? { display: compactDisplayName(coding.display) } : {}),
+    })),
+  };
 }

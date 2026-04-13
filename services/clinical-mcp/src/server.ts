@@ -1,6 +1,16 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
+function jsonToolResult(data: unknown): {
+  content: Array<{ type: 'text'; text: string }>;
+  structuredContent: Record<string, unknown>;
+} {
+  return {
+    content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+    structuredContent: JSON.parse(JSON.stringify(data)) as Record<string, unknown>,
+  };
+}
+
 export function createServer(): McpServer {
   const server = new McpServer({
     name: 'noah-rn-clinical',
@@ -19,7 +29,7 @@ export function createServer(): McpServer {
       // Implemented in Step 3
       const { assemblePatientContext } = await import('./context/assembler.js');
       const ctx = await assemblePatientContext(patient_id, context_budget);
-      return { content: [{ type: 'text' as const, text: JSON.stringify(ctx, null, 2) }] };
+      return jsonToolResult(ctx);
     },
   );
 
@@ -33,7 +43,7 @@ export function createServer(): McpServer {
     async ({ count }) => {
       const { listPatients } = await import('./fhir/client.js');
       const patients = await listPatients(count ?? 100);
-      return { content: [{ type: 'text' as const, text: JSON.stringify(patients, null, 2) }] };
+      return jsonToolResult(patients);
     },
   );
 
@@ -47,7 +57,7 @@ export function createServer(): McpServer {
     async ({ patient_id }) => {
       const { inspectContext } = await import('./tools/inspector.js');
       const inspection = await inspectContext(patient_id);
-      return { content: [{ type: 'text' as const, text: JSON.stringify(inspection, null, 2) }] };
+      return jsonToolResult(inspection);
     },
   );
 
@@ -61,7 +71,7 @@ export function createServer(): McpServer {
     async ({ scenario_id }) => {
       const { getScenario } = await import('./events/generator.js');
       const scenario = await getScenario(scenario_id);
-      return { content: [{ type: 'text' as const, text: JSON.stringify(scenario, null, 2) }] };
+      return jsonToolResult(scenario);
     },
   );
 
@@ -79,7 +89,7 @@ export function createServer(): McpServer {
     async ({ scenario_id, action, medication, new_dose, volume_ml }) => {
       const { advanceScenario } = await import('./events/generator.js');
       const result = await advanceScenario(scenario_id, { action, medication, new_dose, volume_ml });
-      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+      return jsonToolResult(result);
     },
   );
 
@@ -94,6 +104,20 @@ export function createServer(): McpServer {
       const { resetScenario } = await import('./events/generator.js');
       await resetScenario(scenario_id);
       return { content: [{ type: 'text' as const, text: `Scenario "${scenario_id}" reset to initial state.` }] };
+    },
+  );
+
+  // Tool: poll_shift_report_tasks
+  server.tool(
+    'poll_shift_report_tasks',
+    'Poll Medplum for requested shift-report Tasks, create draft DocumentReferences, and complete or fail each Task.',
+    {
+      count: z.number().int().min(1).max(100).optional().describe('Max tasks to process in a single poll pass (default: 20)'),
+    },
+    async ({ count }) => {
+      const { pollOnce } = await import('./worker/shift-report-worker.js');
+      const summary = await pollOnce(count ?? 20);
+      return jsonToolResult(summary);
     },
   );
 

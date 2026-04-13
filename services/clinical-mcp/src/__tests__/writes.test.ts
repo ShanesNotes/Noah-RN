@@ -1,27 +1,109 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DocumentReference } from "../fhir/types.js";
 
-import {
-  createDraftShiftReport,
-  queueDraftMedicationAdministration,
-  queueDraftTask,
-  recordDraftProvenance,
-} from "../fhir/writes.js";
-
 describe("FHIR draft write scaffolds", () => {
-  it("rejects shift-report draft writes with the current scaffold contract", async () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-12T20:00:00Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    vi.doUnmock("../fhir/client.js");
+  });
+
+  it("createDraftShiftReport posts a preliminary DocumentReference payload", async () => {
+    const fhirPost = vi.fn().mockResolvedValue({
+      data: {
+        resourceType: "DocumentReference",
+        id: "doc-123",
+        status: "current",
+        docStatus: "preliminary",
+      },
+      error: null,
+    });
+    vi.doMock("../fhir/client.js", () => ({ fhirPost }));
+
+    const { createDraftShiftReport } = await import("../fhir/writes.js");
+    const result = await createDraftShiftReport({
+      patientId: "patient-123",
+      encounterId: "enc-456",
+      reportMarkdown: "# Shift Report",
+    });
+
+    expect(result).toMatchObject({
+      resourceType: "DocumentReference",
+      id: "doc-123",
+      status: "current",
+      docStatus: "preliminary",
+    });
+    expect(fhirPost).toHaveBeenCalledTimes(1);
+    expect(fhirPost).toHaveBeenCalledWith(
+      "DocumentReference",
+      expect.objectContaining({
+        resourceType: "DocumentReference",
+        status: "current",
+        docStatus: "preliminary",
+        type: {
+          coding: [
+            {
+              system: "https://noah-rn.dev/artifacts",
+              code: "shift-report-draft",
+              display: "Draft Shift Report",
+            },
+            {
+              system: "http://loinc.org",
+              code: "28651-8",
+              display: "Nurse transfer note",
+            },
+          ],
+          text: "Draft Shift Report",
+        },
+        subject: { reference: "Patient/patient-123" },
+        description: "Draft Shift Report — requires nurse review",
+        content: [{
+          attachment: expect.objectContaining({
+            contentType: "text/markdown",
+            title: "shift-report-draft-1776024000000",
+            data: Buffer.from("# Shift Report", "utf-8").toString("base64"),
+          }),
+        }],
+        context: {
+          encounter: [{ reference: "Encounter/enc-456" }],
+        },
+      }),
+    );
+  });
+
+  it("createDraftShiftReport surfaces FHIR write failures", async () => {
+    vi.doMock("../fhir/client.js", () => ({
+      fhirPost: vi.fn().mockResolvedValue({
+        data: null,
+        error: "FHIR POST failed: fetch failed",
+      }),
+    }));
+
+    const { createDraftShiftReport } = await import("../fhir/writes.js");
+
     await expect(
       createDraftShiftReport({
         patientId: "patient-123",
         reportMarkdown: "# Shift Report",
-        workflowName: "shift-report",
       }),
     ).rejects.toThrow(
-      "TODO(volatile-draft-vs-fhir-queuing): createDraftShiftReport(DocumentReference) is intentionally unavailable in wave 1 scaffold hardening.",
+      "createDraftShiftReport failed: FHIR POST failed: fetch failed",
     );
   });
 
-  it("rejects task, medication, and provenance writes with explicit operation names", async () => {
+  it("deferred writes reject with explicit operation names", async () => {
+    const {
+      queueDraftMedicationAdministration,
+      queueDraftTask,
+      recordDraftProvenance,
+    } = await import("../fhir/writes.js");
+
     await expect(
       queueDraftTask({
         patientId: "patient-123",

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Task } from '../fhir/types.js';
 
 function createJsonResponse(body: unknown) {
   return {
@@ -9,7 +10,7 @@ function createJsonResponse(body: unknown) {
   };
 }
 
-describe('FHIR client read-path enrichment', () => {
+describe('FHIR client read/write enrichment', () => {
   beforeEach(() => {
     vi.resetModules();
     delete process.env.FHIR_FIXTURE_DIR;
@@ -70,5 +71,71 @@ describe('FHIR client read-path enrichment', () => {
     expect(result.error).toBeNull();
     expect(result.data).toHaveLength(1);
     expect(String(fetchMock.mock.calls[1][0])).toContain('MedicationAdministration?patient=patient-123&_sort=-date&_count=100');
+  });
+
+  it('retrieves requested shift report Tasks', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(createJsonResponse({ access_token: 'token', expires_in: 3600 }))
+      .mockResolvedValueOnce(createJsonResponse({
+        resourceType: 'Bundle',
+        type: 'searchset',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Task',
+              id: 'task-1',
+              status: 'requested',
+              for: { reference: 'Patient/patient-123' },
+            },
+          },
+        ],
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { getRequestedShiftReportTasks } = await import('../fhir/client.js');
+    const result = await getRequestedShiftReportTasks(5);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(1);
+    expect(result.data?.[0]?.id).toBe('task-1');
+    expect(String(fetchMock.mock.calls[1][0])).toContain('Task?code=shift-report&status=requested&_sort=-_lastUpdated&_count=5');
+  });
+
+  it('updates a Task with PUT', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(createJsonResponse({ access_token: 'token', expires_in: 3600 }))
+      .mockResolvedValueOnce(createJsonResponse({
+        resourceType: 'Task',
+        id: 'task-1',
+        status: 'completed',
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { updateTask } = await import('../fhir/client.js');
+    const task: Task = {
+      resourceType: 'Task',
+      id: 'task-1',
+      status: 'completed',
+      output: [{
+        type: { text: 'shift-report-draft' },
+        valueReference: { reference: 'DocumentReference/doc-123' },
+      }],
+    };
+    const result = await updateTask('task-1', task);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toMatchObject({
+      resourceType: 'Task',
+      id: 'task-1',
+      status: 'completed',
+    });
+    expect(String(fetchMock.mock.calls[1][0])).toContain('/Task/task-1');
+    expect(fetchMock.mock.calls[1][1]).toMatchObject({
+      method: 'PUT',
+      headers: expect.objectContaining({
+        'Content-Type': 'application/fhir+json',
+      }),
+      body: JSON.stringify(task),
+    });
   });
 });

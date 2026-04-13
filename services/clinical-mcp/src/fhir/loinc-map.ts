@@ -61,3 +61,47 @@ export function getAllMappedLoinc(): string[] {
   const index = getLoincIndex();
   return [...index.keys()];
 }
+
+// Compact clinical abbreviations for token-efficient context bundles
+// SQL-on-FHIR-style projection: ~60-80% token savings on verbose LOINC display names
+const COMPACT_NAMES: Record<string, string> = {
+  'Heart rate': 'HR',
+  'Heart Rate': 'HR',
+  'Respiratory rate': 'RR',
+  'Respiratory Rate': 'RR',
+  'Body temperature': 'Temp',
+  'Body Temperature': 'Temp',
+  'Systolic blood pressure': 'SBP',
+  'Diastolic blood pressure': 'DBP',
+  'Blood pressure systolic': 'SBP',
+  'Blood pressure diastolic': 'DBP',
+  'Body weight': 'Wt',
+  'Body Weight': 'Wt',
+  'Body height': 'Ht',
+  'Body Height': 'Ht',
+  'Oxygen saturation': 'SpO2',
+  'Oxygen saturation in Arterial blood by Pulse oximetry': 'SpO2',
+  'Mean blood pressure': 'MAP',
+  'Mean Arterial Pressure': 'MAP',
+  'Potassium [Moles/volume] in Serum or Plasma': 'K+',
+  'Sodium [Moles/volume] in Serum or Plasma': 'Na+',
+  'Creatinine [Mass/volume] in Serum or Plasma': 'Cr',
+  'Glucose [Mass/volume] in Blood': 'Gluc',
+  'Hemoglobin [Mass/volume] in Blood': 'Hgb',
+  'Hematocrit [Volume Fraction] of Blood': 'Hct',
+  'Leukocytes [#/volume] in Blood by Automated count': 'WBC',
+  'Platelets [#/volume] in Blood by Automated count': 'Plt',
+  'Lactate [Moles/volume] in Blood': 'Lactate',
+  'Carbon dioxide, total [Moles/volume] in Serum or Plasma': 'CO2',
+  'Calcium [Mass/volume] in Serum or Plasma': 'Ca',
+  'Chloride [Moles/volume] in Serum or Plasma': 'Cl',
+  'Urea nitrogen [Mass/volume] in Serum or Plasma': 'BUN',
+  'pH of Arterial blood': 'ABG pH',
+  'Weight-for-length Per age and sex': 'WFL %ile',
+  'Head Occipital-frontal circumference Percentile': 'HC %ile',
+  'Body mass index (BMI) [Ratio]': 'BMI',
+};
+
+export function compactDisplayName(display: string): string {
+  return COMPACT_NAMES[display] ?? display;
+}

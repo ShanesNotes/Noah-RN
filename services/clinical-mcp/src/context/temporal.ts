@@ -1,6 +1,6 @@
 import type { TimelineEntry, TrendSummary, ObservationEntry } from './types.js';
 import type { Observation } from '../fhir/types.js';
-import { getLoincName } from '../fhir/loinc-map.js';
+import { compactDisplayName, getLoincName } from '../fhir/loinc-map.js';
 
 // Compute relative minutes from a reference timestamp
 export function computeRelativeMinutes(timestamp: string, referenceTimestamp: string): number {
@@ -104,7 +104,7 @@ export function computeTrends(observations: ObservationEntry[]): TrendSummary[] 
 
     trends.push({
       loincCode: code,
-      name: getLoincName(code) ?? code,
+      name: compactDisplayName(getLoincName(code) ?? code),
       direction,
       values,
     });

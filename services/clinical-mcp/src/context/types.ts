@@ -5,6 +5,7 @@ import type {
   MedicationAdministration,
   Encounter,
   DocumentReference,
+  Device,
 } from '../fhir/types.js';
 
 // Discriminated union for timeline entries — the single canonical data structure
@@ -14,7 +15,8 @@ export type TimelineEntry =
   | MedicationEntry
   | MedicationAdministrationEntry
   | NoteEntry
-  | EncounterEntry;
+  | EncounterEntry
+  | DeviceEntry;
 
 export interface ObservationEntry {
   type: 'observation';
@@ -65,6 +67,14 @@ export interface NoteEntry {
   relativeMinutes: number;
 }
 
+export interface DeviceEntry {
+  type: 'device';
+  resource: Device;
+  timestamp: string;
+  relativeTime: string;
+  relativeMinutes: number;
+}
+
 export interface TrendSummary {
   loincCode: string;
   name: string;
@@ -85,4 +95,6 @@ export interface PatientContext {
   assembledAt: string;
   sources: string[];
   tokenEstimate: number;
+  budgetTruncated: boolean;
+  truncatedCount: number;
 }
