@@ -94,7 +94,7 @@ All three new skills reclassified to `moderate` tier (each carries multi-calcula
 - `tests/agents/test_workflow_registry_consumer.sh` — Asserts 10 skills + new names
 - `tests/agents/test_clinical_router.sh` — Asserts 3 new intents; gracefully skips `status: split` skills; filters retired skills from directory comparison
 - `tests/clinical-scenarios/MANIFEST.md` — All 14 encounter rows + 6 legacy calc rows updated to new skill names
-- 12 encounter YAML fixtures updated (`skill: clinical-calculator` → appropriate neuro/risk/acuity-calculator)
+- 12 encounter YAML fixtures updated (`skill: clinical-calculator` → appropriate neuro/risk/acuity-calculator, with qSOFA scenarios remapped to `protocol-reference`)
 - 6 legacy per-skill YAML fixtures in `tests/clinical-scenarios/clinical-calculator/` updated
 
 **Files created (1):**
