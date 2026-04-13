@@ -109,7 +109,7 @@ skills_exercised:
     must_not_contain:
       - fabricated_output_volumes
 
-  - skill: clinical-calculator
+  - skill: protocol-reference
     trigger: "What's the qSOFA on this guy?"
     must_contain:
       - score_calculation

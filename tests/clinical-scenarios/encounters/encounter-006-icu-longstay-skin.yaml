@@ -59,7 +59,7 @@ patient_handoff: |
   Just keep the pressure redistribution consistent.
 
 skills_exercised:
-  - skill: clinical-calculator
+  - skill: risk-calculator
     trigger: "Run a Braden score on her"
     must_contain:
       - score_calculation
@@ -77,7 +77,7 @@ skills_exercised:
       - missing_risk_category
       - low_risk_designation
 
-  - skill: clinical-calculator
+  - skill: acuity-calculator
     trigger: "What's her APACHE II look like?"
     must_contain:
       - score_components_listed
@@ -90,7 +90,7 @@ skills_exercised:
       - fabricated_vital_signs
       - mortality_stated_as_certain
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "Give me her GCS broken down"
     must_contain:
       - eye_opening_score_4
@@ -102,7 +102,7 @@ skills_exercised:
       - verbal_scored_without_trach_notation
       - fabricated_component_values
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "What's her RASS?"
     must_contain:
       - rass_0_identified

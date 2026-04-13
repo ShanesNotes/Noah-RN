@@ -1,6 +1,6 @@
 ---
 test_id: "calc-003"
-skill: "clinical-calculator"
+skill: "acuity-calculator"
 description: "APACHE II complex ICU patient — all 14 components, high score"
 severity: moderate
 input: |

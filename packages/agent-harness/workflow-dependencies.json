@@ -1,12 +1,25 @@
 {
-  "version": 1,
-  "status": "scaffold",
+  "version": 2,
+  "status": "active",
   "authoritative_surface": "packages/agent-harness",
   "workflows": {
-    "clinical-calculator": {
+    "neuro-calculator": {
       "tool_family_refs": ["clinical-calculators", "trace", "safety-hooks"],
       "knowledge_asset_refs": ["cross-skill-triggers", "four-layer-output", "disclaimers"],
-      "service_surface_refs": []
+      "service_surface_refs": [],
+      "split_from": "clinical-calculator"
+    },
+    "risk-calculator": {
+      "tool_family_refs": ["clinical-calculators", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["cross-skill-triggers", "four-layer-output", "disclaimers"],
+      "service_surface_refs": [],
+      "split_from": "clinical-calculator"
+    },
+    "acuity-calculator": {
+      "tool_family_refs": ["clinical-calculators", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["cross-skill-triggers", "four-layer-output", "disclaimers"],
+      "service_surface_refs": [],
+      "split_from": "clinical-calculator"
     },
     "drug-reference": {
       "tool_family_refs": ["drug-lookup", "trace", "safety-hooks"],

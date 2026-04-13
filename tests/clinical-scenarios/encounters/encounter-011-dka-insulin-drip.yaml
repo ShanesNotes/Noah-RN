@@ -103,7 +103,7 @@ skills_exercised:
       - fabricated_output_volumes
       - positive_balance_flagged_as_problem_in_dka_context
 
-  - skill: clinical-calculator
+  - skill: acuity-calculator
     trigger: "APACHE II on her — what's her score based on what we have?"
     must_contain:
       - score_calculation

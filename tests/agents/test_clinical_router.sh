@@ -113,6 +113,11 @@ ROUTER_CONTENT=$(cat "$ROUTER")
 
 for skill_dir in "$SKILLS_DIR"/*/; do
     [[ -f "$skill_dir/SKILL.md" ]] || continue
+    # Skip retired/split skills
+    if grep -q '^status: split' "$skill_dir/SKILL.md" 2>/dev/null; then
+        echo "  SKIP: $(basename "$skill_dir") (retired — split into sub-skills)"
+        continue
+    fi
     skill_name=$(basename "$skill_dir")
     assert_contains "router references skill: $skill_name" "$skill_name" "$ROUTER_CONTENT"
 done
@@ -123,7 +128,9 @@ echo ""
 echo "=== Intent Map ==="
 
 assert_contains "has intent map section" "Intent Map" "$ROUTER_CONTENT"
-assert_contains "maps score_calculation intent" "score_calculation" "$ROUTER_CONTENT"
+assert_contains "maps neuro_scoring intent" "neuro_scoring" "$ROUTER_CONTENT"
+assert_contains "maps risk_scoring intent" "risk_scoring" "$ROUTER_CONTENT"
+assert_contains "maps acuity_scoring intent" "acuity_scoring" "$ROUTER_CONTENT"
 assert_contains "maps medication_query intent" "medication_query" "$ROUTER_CONTENT"
 assert_contains "maps fluid_balance intent" "fluid_balance" "$ROUTER_CONTENT"
 assert_contains "maps protocol_lookup intent" "protocol_lookup" "$ROUTER_CONTENT"
@@ -138,7 +145,7 @@ echo ""
 echo "=== Context Requirements ==="
 
 assert_contains "has context requirements section" "Context Requirements" "$ROUTER_CONTENT"
-assert_contains "clinical-calculator needs component values" "component values" "$ROUTER_CONTENT"
+assert_contains "neuro-calculator needs component values" "component values" "$ROUTER_CONTENT"
 assert_contains "drug-reference needs medication name" "medication name" "$ROUTER_CONTENT"
 assert_contains "io-tracker needs fluid entries" "fluid entries" "$ROUTER_CONTENT"
 assert_contains "shift-assessment needs clinical narrative" "clinical narrative" "$ROUTER_CONTENT"
@@ -229,7 +236,12 @@ echo ""
 echo "=== Agent Card Skills vs Actual Skills ==="
 
 AGENT_CARD_SKILLS=$(sed -n '/supported_skills:/,/^[^ ]/p' "$ROUTER" | grep '^\s*- ' | sed 's/.*- //' | sort)
-ACTUAL_SKILLS=$(find "$SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d -exec test -f "{}/SKILL.md" \; -printf '%f\n' | sort)
+# Filter out retired/split skills from directory listing
+ACTUAL_SKILLS=$(for d in "$SKILLS_DIR"/*/; do
+    [[ -f "$d/SKILL.md" ]] || continue
+    grep -q '^status: split' "$d/SKILL.md" 2>/dev/null && continue
+    basename "$d"
+done | sort)
 
 assert_eq "supported_skills matches skill directories" "$ACTUAL_SKILLS" "$AGENT_CARD_SKILLS"
 

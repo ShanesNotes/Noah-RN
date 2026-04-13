@@ -3,14 +3,19 @@
 This lane holds the authoritative workflow contracts for Noah RN.
 
 Current workflows:
-- `clinical-calculator`
-- `drug-reference`
-- `hello-nurse`
-- `io-tracker`
-- `protocol-reference`
-- `shift-assessment`
-- `shift-report`
-- `unit-conversion`
+- `acuity-calculator` — APACHE II, NEWS2
+- `drug-reference` — OpenFDA drug label lookup
+- `hello-nurse` — plugin verification
+- `io-tracker` — intake & output fluid balance
+- `neuro-calculator` — GCS, NIHSS, RASS, CPOT
+- `protocol-reference` — ACLS, sepsis, stroke, rapid response, RSI
+- `risk-calculator` — Wells PE/DVT, CURB-65, Braden
+- `shift-assessment` — 15-system structured assessment
+- `shift-report` — 7-section shift handoff
+- `unit-conversion` — weight-based dosing, drip rates, unit conversions
+
+Retired:
+- `clinical-calculator` — split into `neuro-calculator`, `risk-calculator`, `acuity-calculator` (2026-04-12)
 
 Shared references:
 - `CONVENTIONS.md`

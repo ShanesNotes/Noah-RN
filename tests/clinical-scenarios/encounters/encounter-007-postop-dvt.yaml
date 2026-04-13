@@ -48,7 +48,7 @@ patient_handoff: |
   drip order. Worth knowing where your heparin protocol is before that call comes in.
 
 skills_exercised:
-  - skill: clinical-calculator
+  - skill: risk-calculator
     trigger: "Run a Wells DVT score on her"
     must_contain:
       - score_calculation
@@ -64,7 +64,7 @@ skills_exercised:
       - fabricated_component_values
       - score_as_low_risk_without_justification
 
-  - skill: clinical-calculator
+  - skill: risk-calculator
     trigger: "She has no respiratory symptoms but should I run a Wells PE score anyway given what we're thinking?"
     must_contain:
       - wells_pe_score_components

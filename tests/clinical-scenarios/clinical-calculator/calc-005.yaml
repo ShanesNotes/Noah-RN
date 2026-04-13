@@ -1,6 +1,6 @@
 ---
 test_id: "calc-005"
-skill: "clinical-calculator"
+skill: "risk-calculator"
 description: "Braden scale very high risk (score 9) — should trigger skin care and pressure injury prevention flags"
 severity: moderate
 input: |

@@ -38,7 +38,7 @@ echo "=== Workflow Registry Consumer ==="
 node "$REPO_ROOT/packages/agent-harness/list-skills.mjs" > "$OUT_JSON"
 
 COUNT="$(jq 'length' "$OUT_JSON")"
-assert_eq "registry consumer returns 8 active workflows" "8" "$COUNT"
+assert_eq "registry consumer returns 10 active workflows" "10" "$COUNT"
 
 ALL_EXIST="$(jq 'all(.[]; .exists == true)' "$OUT_JSON")"
 assert_eq "all registered workflow source paths exist" "true" "$ALL_EXIST"
@@ -53,7 +53,9 @@ AUTHORITATIVE="$(jq -r '.[0].authoritative_surface' "$OUT_JSON")"
 assert_eq "authoritative surface is packages/workflows" "packages/workflows" "$AUTHORITATIVE"
 
 RAW_OUTPUT="$(cat "$OUT_JSON")"
-assert_contains "includes clinical-calculator entry" '"name": "clinical-calculator"' "$RAW_OUTPUT"
+assert_contains "includes neuro-calculator entry" '"name": "neuro-calculator"' "$RAW_OUTPUT"
+assert_contains "includes risk-calculator entry" '"name": "risk-calculator"' "$RAW_OUTPUT"
+assert_contains "includes acuity-calculator entry" '"name": "acuity-calculator"' "$RAW_OUTPUT"
 assert_contains "includes protocol-reference entry" '"name": "protocol-reference"' "$RAW_OUTPUT"
 
 echo ""

@@ -47,7 +47,9 @@ agent_card:
     - no_autonomous_clinical_decisions
     - no_phi_storage
   supported_skills:
-    - clinical-calculator
+    - neuro-calculator
+    - risk-calculator
+    - acuity-calculator
     - drug-reference
     - io-tracker
     - protocol-reference
@@ -71,7 +73,9 @@ keywords, clinical patterns, and contextual cues — not just exact strings.
 
 | Intent | Skill | Trigger Patterns |
 |--------|-------|-----------------|
-| `score_calculation` | `clinical-calculator` | GCS, NIHSS, APACHE II, Wells PE, Wells DVT, CURB-65, Braden, RASS, CPOT, "calculate", "score", "scale" + clinical context |
+| `neuro_scoring` | `neuro-calculator` | GCS, NIHSS, RASS, CPOT, "neuro check", "sedation score", "pain score", "stroke scale" + clinical context |
+| `risk_scoring` | `risk-calculator` | Wells PE, Wells DVT, CURB-65, Braden, "PE risk", "DVT risk", "pressure injury", "pneumonia severity" |
+| `acuity_scoring` | `acuity-calculator` | APACHE II, NEWS2, "severity score", "early warning", "deterioration", "track and trigger" |
 | `medication_query` | `drug-reference` | Drug names, "look up", "what is [med]", "interactions", "hold parameters", "black box", "high alert", "side effects", "dosing" |
 | `fluid_balance` | `io-tracker` | "I&O", "intake and output", "fluid balance", "urine output", "net balance", "how much in/out", "document fluids" |
 | `protocol_lookup` | `protocol-reference` | ACLS, code blue, cardiac arrest, bradycardia, tachycardia, sepsis, qSOFA, stroke, tPA, rapid response, RSI, intubation, "what's the protocol" |
@@ -95,7 +99,9 @@ context for each selected skill.
 
 | Skill | Mandatory Context | What to Request If Missing |
 |-------|------------------|---------------------------|
-| `clinical-calculator` | Component values for the specific scoring tool | "Which score do you need, and what are the component values?" |
+| `neuro-calculator` | Component values for GCS, NIHSS, RASS, or CPOT | "Which neuro/sedation/pain score, and what are the component values?" |
+| `risk-calculator` | Component values for Wells PE/DVT, CURB-65, or Braden | "Which risk score, and what are the component values?" |
+| `acuity-calculator` | Component values for APACHE II or NEWS2 | "Which severity score, and what are the component values?" |
 | `drug-reference` | Medication name | "Which medication are you asking about?" |
 | `io-tracker` | Fluid entries (intake and/or output items) | "What are the fluid entries you need categorized?" |
 | `protocol-reference` | (none mandatory — but rhythm needed for ACLS, time-of-onset for stroke) | "What rhythm are you seeing?" / "When did symptoms start?" |
@@ -169,8 +175,9 @@ If no skill matches the intent:
 ```
 This is outside Noah RN's current capabilities.
 
-Available skills: clinical-calculator, drug-reference, io-tracker,
-protocol-reference, shift-assessment, shift-report, unit-conversion.
+Available skills: neuro-calculator, risk-calculator, acuity-calculator,
+drug-reference, io-tracker, protocol-reference, shift-assessment,
+shift-report, unit-conversion.
 
 Nearest match: [closest skill and why]
 ```

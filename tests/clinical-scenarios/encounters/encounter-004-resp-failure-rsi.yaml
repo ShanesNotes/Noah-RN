@@ -176,7 +176,7 @@ skills_exercised:
     must_not_contain:
       - incorrect_calculation
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "GCS on this patient before intubation — she's awake but exhausted"
     must_contain:
       - score_calculation

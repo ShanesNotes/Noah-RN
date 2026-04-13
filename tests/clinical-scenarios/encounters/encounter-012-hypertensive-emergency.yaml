@@ -87,7 +87,7 @@ skills_exercised:
       - fabricated_drug_information
       - central_line_required_for_nicardipine
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "GCS — eyes open spontaneously, oriented times 2, following commands. Walk me through his score."
     must_contain:
       - eyes_component_4

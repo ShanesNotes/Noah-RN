@@ -116,7 +116,7 @@ skills_exercised:
       - tpa_contraindicated_for_this_patient
       - fabricated_exclusion_criteria
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "NIHSS was 14 on admission — walk me through what that score means"
     must_contain:
       - nihss_domain_breakdown

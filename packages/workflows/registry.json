@@ -1,12 +1,25 @@
 {
-  "version": 1,
-  "status": "scaffold",
+  "version": 2,
+  "status": "active",
   "authoritative_surface": "packages/workflows",
   "skills": [
     {
-      "name": "clinical-calculator",
-      "source_path": "packages/workflows/clinical-calculator/SKILL.md",
-      "scope": ["clinical_scoring"]
+      "name": "neuro-calculator",
+      "source_path": "packages/workflows/neuro-calculator/SKILL.md",
+      "scope": ["clinical_scoring", "consciousness", "stroke", "sedation", "pain_assessment"],
+      "split_from": "clinical-calculator"
+    },
+    {
+      "name": "risk-calculator",
+      "source_path": "packages/workflows/risk-calculator/SKILL.md",
+      "scope": ["clinical_scoring", "pe_risk", "dvt_risk", "pneumonia", "pressure_injury"],
+      "split_from": "clinical-calculator"
+    },
+    {
+      "name": "acuity-calculator",
+      "source_path": "packages/workflows/acuity-calculator/SKILL.md",
+      "scope": ["clinical_scoring", "icu_severity", "early_warning"],
+      "split_from": "clinical-calculator"
     },
     {
       "name": "drug-reference",
@@ -42,6 +55,14 @@
       "name": "unit-conversion",
       "source_path": "packages/workflows/unit-conversion/SKILL.md",
       "scope": ["dose_math", "unit_conversion"]
+    }
+  ],
+  "retired": [
+    {
+      "name": "clinical-calculator",
+      "reason": "split into neuro-calculator, risk-calculator, acuity-calculator",
+      "date": "2026-04-12",
+      "redirect": "packages/workflows/clinical-calculator/SKILL.md"
     }
   ]
 }

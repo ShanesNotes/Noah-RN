@@ -1,6 +1,6 @@
 ---
 test_id: "calc-004"
-skill: "clinical-calculator"
+skill: "risk-calculator"
 description: "Wells PE score — high probability, should suggest CT-PA workup"
 severity: critical
 input: |

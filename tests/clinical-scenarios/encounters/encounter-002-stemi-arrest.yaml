@@ -111,7 +111,7 @@ skills_exercised:
       - ttm_routine_cooling_stated_as_standard_without_ttm2_caveat
       - discharge_criteria
 
-  - skill: clinical-calculator
+  - skill: neuro-calculator
     trigger: "GCS on this guy — he's intubated and sedated on propofol. Walk me through it."
     must_contain:
       - score_calculation

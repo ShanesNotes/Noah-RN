@@ -47,9 +47,13 @@ async function fetchPatientContext(patientId) {
   return assemblePatientContext(patientId);
 }
 
-function formatContextSBAR(context) {
+export function formatContextSBAR(context) {
   const { patient, timeline, trends, gaps } = context;
   const sections = [];
+  const linesAccessGap = gaps.find((gap) => gap.includes("[GAP: Lines/Access]"));
+  const genericGaps = gaps.filter(
+    (gap) => !gap.includes("[GAP: Lines/Access]") && !gap.startsWith("Context budget:"),
+  );
 
   // 1. PATIENT
   const patientLines = ["PATIENT"];
@@ -113,7 +117,18 @@ function formatContextSBAR(context) {
   sections.push(assessmentLines.join("\n"));
 
   // 4. LINES & ACCESS
-  sections.push("LINES & ACCESS\n- [Data not available from current context assembly]");
+  const linesAccessLines = ["LINES & ACCESS"];
+  const devices = timeline.filter((e) => e.type === "device");
+  if (devices.length > 0) {
+    for (const device of devices.slice(0, 10)) {
+      const label = deviceLabel(device);
+      const timing = device.relativeTime === "T-unknown" ? "timing unknown" : device.relativeTime;
+      linesAccessLines.push(`- ${label} (${timing})`);
+    }
+  } else {
+    linesAccessLines.push(`- ${linesAccessGap || "No device data available"}`);
+  }
+  sections.push(linesAccessLines.join("\n"));
 
   // 5. ACTIVE ISSUES & PLAN
   const issueLines = ["ACTIVE ISSUES & PLAN"];
@@ -124,13 +139,16 @@ function formatContextSBAR(context) {
       issueLines.push(`- ${flag}${t.name} ${t.direction}: ${vals}`);
     }
   }
-  if (gaps.length > 0) {
+  if (genericGaps.length > 0) {
     issueLines.push("Gaps:");
-    for (const g of gaps) {
+    for (const g of genericGaps) {
       issueLines.push(`  - ${g}`);
     }
   }
-  if (trends.length === 0 && gaps.length === 0) {
+  if (context.budgetTruncated) {
+    issueLines.push(`- Context budget truncated ${context.truncatedCount} older entries to fit the output window`);
+  }
+  if (trends.length === 0 && genericGaps.length === 0 && !context.budgetTruncated) {
     issueLines.push("- No active issues identified from available data");
   }
   sections.push(issueLines.join("\n"));
@@ -165,9 +183,21 @@ function entryLabel(entry) {
     case "note": {
       return `Note: ${entry.resource.type?.coding?.[0]?.display || entry.resource.description || "document"}`;
     }
+    case "device": {
+      return `Access: ${deviceLabel(entry)}`;
+    }
     default:
       return entry.type;
   }
+}
+
+function deviceLabel(entry) {
+  return (
+    entry.resource.deviceName?.[0]?.name
+    || entry.resource.type?.text
+    || entry.resource.type?.coding?.[0]?.display
+    || "device"
+  );
 }
 
 function formatObsValue(obs) {
@@ -369,4 +399,6 @@ async function main() {
   process.stdout.write(output);
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

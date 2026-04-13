@@ -1,6 +1,6 @@
 ---
 test_id: "calc-001"
-skill: "clinical-calculator"
+skill: "neuro-calculator"
 description: "GCS on intubated patient — verbal scored as 1 (numeric only), intubation context noted in output"
 severity: moderate
 input: |

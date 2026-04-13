@@ -56,15 +56,17 @@ When triggered, respond with:
 Noah RN v0.2.0 — Online
 
 Plugin: loaded
-Skills: 8 clinical skills active
-  - clinical-calculator (GCS, NIHSS, APACHE II, Wells PE/DVT, CURB-65, Braden, RASS, CPOT)
+Skills: 10 clinical skills active
+  - neuro-calculator (GCS, NIHSS, RASS, CPOT)
+  - risk-calculator (Wells PE/DVT, CURB-65, Braden)
+  - acuity-calculator (APACHE II, NEWS2)
   - drug-reference (OpenFDA lookup)
   - io-tracker (intake & output)
   - protocol-reference (ACLS, sepsis, stroke, rapid response, RSI)
   - shift-assessment (15-system structured assessment)
   - shift-report (7-section handoff)
   - unit-conversion (weight-based dosing, drip rates)
-Tools: 9 deterministic calculators, drug lookup, unit converter
+Tools: 10 deterministic calculators, drug lookup, unit converter
 Hooks: Tier 1 safety checks active
 Status: Phase 2 — clinical decision support
 

@@ -1,6 +1,6 @@
 ---
 test_id: "calc-006"
-skill: "clinical-calculator"
+skill: "neuro-calculator"
 description: "RASS -4 on sedation drip — deep sedation flag, SAT consideration"
 severity: moderate
 input: |

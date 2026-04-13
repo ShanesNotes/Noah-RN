@@ -50,7 +50,7 @@ patient_handoff: |
   as a 3. Does he need to be stepped up?
 
 skills_exercised:
-  - skill: clinical-calculator
+  - skill: risk-calculator
     trigger: "Run a CURB-65 on this patient"
     must_contain:
       - score_calculation
@@ -68,7 +68,7 @@ skills_exercised:
       - missing_urea_conversion
       - fabricated_component_values
 
-  - skill: clinical-calculator
+  - skill: risk-calculator
     trigger: "Give me a Braden on him"
     must_contain:
       - score_calculation

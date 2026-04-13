@@ -1,6 +1,6 @@
 ---
 test_id: "calc-002"
-skill: "clinical-calculator"
+skill: "neuro-calculator"
 description: "NIHSS acute stroke — calculate score and suggest stroke protocol trigger"
 severity: critical
 input: |

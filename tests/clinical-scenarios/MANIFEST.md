@@ -11,20 +11,20 @@ Multi-skill, patient encounter format. Each encounter exercises 5–8 skills in 
 
 | ID | Description | Severity | Skills Exercised |
 |----|-------------|----------|-----------------|
-| encounter-001 | Urosepsis — vasopressors, trending lactate, confused patient | critical | shift-report, drug-reference ×2, io-tracker, clinical-calculator (qSOFA), protocol-reference (sepsis), shift-assessment |
-| encounter-002 | STEMI arrest — shockable rhythm, post-ROSC care, cath lab prep | critical | protocol-reference (ACLS), drug-reference ×2, clinical-calculator (GCS), shift-assessment, shift-report, unit-conversion |
-| encounter-003 | Acute ischemic stroke — tPA candidacy, time-sensitive decision | critical | protocol-reference (stroke), drug-reference (tPA), clinical-calculator (NIHSS, GCS), shift-assessment, shift-report |
-| encounter-004 | Respiratory failure RSI — emergent intubation, post-intubation | critical | protocol-reference (RSI), drug-reference ×2, unit-conversion, clinical-calculator (GCS), shift-assessment, shift-report, io-tracker |
-| encounter-005 | Pneumonia med-surg — lower acuity, standard floor assessment | moderate | drug-reference, shift-assessment, io-tracker, clinical-calculator (CURB-65), shift-report |
-| encounter-006 | ICU long-stay skin integrity — pressure injury prevention | moderate | clinical-calculator (Braden), shift-assessment ×2, drug-reference, shift-report, unit-conversion, io-tracker |
-| encounter-007 | Post-op DVT workup — anticoagulation, Wells scoring | moderate | clinical-calculator (Wells DVT), drug-reference ×2, shift-assessment, shift-report, unit-conversion |
+| encounter-001 | Urosepsis — vasopressors, trending lactate, confused patient | critical | shift-report, drug-reference ×2, io-tracker, protocol-reference (sepsis, qSOFA), shift-assessment |
+| encounter-002 | STEMI arrest — shockable rhythm, post-ROSC care, cath lab prep | critical | protocol-reference (ACLS), drug-reference ×2, neuro-calculator (GCS), shift-assessment, shift-report, unit-conversion |
+| encounter-003 | Acute ischemic stroke — tPA candidacy, time-sensitive decision | critical | protocol-reference (stroke), drug-reference (tPA), neuro-calculator (NIHSS, GCS), shift-assessment, shift-report |
+| encounter-004 | Respiratory failure RSI — emergent intubation, post-intubation | critical | protocol-reference (RSI), drug-reference ×2, unit-conversion, neuro-calculator (GCS), shift-assessment, shift-report, io-tracker |
+| encounter-005 | Pneumonia med-surg — lower acuity, standard floor assessment | moderate | drug-reference, shift-assessment, io-tracker, risk-calculator (CURB-65), shift-report |
+| encounter-006 | ICU long-stay skin integrity — pressure injury prevention | moderate | risk-calculator (Braden), shift-assessment ×2, drug-reference, shift-report, unit-conversion, io-tracker |
+| encounter-007 | Post-op DVT workup — anticoagulation, Wells scoring | moderate | risk-calculator (Wells DVT), drug-reference ×2, shift-assessment, shift-report, unit-conversion |
 | encounter-008 | Medication reconciliation, unknown drug, polypharmacy — 83F syncopal fall | moderate | drug-reference ×3, shift-report, shift-assessment |
-| encounter-009 | Rapid response — deteriorating floor patient, activation criteria | critical | protocol-reference (rapid response), shift-assessment, clinical-calculator (RASS, CPOT), drug-reference, shift-report |
+| encounter-009 | Rapid response — deteriorating floor patient, activation criteria | critical | protocol-reference (rapid response, qSOFA), shift-assessment, neuro-calculator (GCS), drug-reference, shift-report |
 | encounter-010 | ICU drip math — dobutamine and heparin, CHF wean | moderate | unit-conversion ×3, io-tracker, drug-reference, shift-report |
-| encounter-011 | DKA — insulin drip, potassium replacement, aggressive resuscitation | critical | unit-conversion, drug-reference, io-tracker, clinical-calculator (APACHE II), shift-assessment, shift-report |
-| encounter-012 | Hypertensive emergency — nicardipine drip, encephalopathy, stroke workup | critical | unit-conversion (MAP), drug-reference, clinical-calculator (GCS), protocol-reference (stroke/rapid response), shift-assessment, shift-report |
-| encounter-013 | Out-of-scope edge cases — diagnostic questions, prescribing requests, unknown drug | moderate | drug-reference ×2, protocol-reference, clinical-calculator, shift-assessment |
-| encounter-014 | ARDS with paralytic — cisatracurium, ARDSnet, prone positioning, sedation | critical | unit-conversion, drug-reference ×2, clinical-calculator (RASS, CPOT), shift-assessment, shift-report |
+| encounter-011 | DKA — insulin drip, potassium replacement, aggressive resuscitation | critical | unit-conversion, drug-reference, io-tracker, acuity-calculator (APACHE II), shift-assessment, shift-report |
+| encounter-012 | Hypertensive emergency — nicardipine drip, encephalopathy, stroke workup | critical | unit-conversion (MAP), drug-reference, neuro-calculator (GCS), protocol-reference (stroke/rapid response), shift-assessment, shift-report |
+| encounter-013 | Out-of-scope edge cases — diagnostic questions, prescribing requests, unknown drug | moderate | drug-reference ×2, protocol-reference, neuro-calculator, shift-assessment |
+| encounter-014 | ARDS with paralytic — cisatracurium, ARDSnet, prone positioning, sedation | critical | unit-conversion, drug-reference ×2, neuro-calculator (RASS, CPOT), shift-assessment, shift-report |
 
 ---
 
@@ -60,16 +60,16 @@ Isolated single-skill scenarios. Superseded by encounter format but retained for
 | drug-005 | Insulin lispro — sliding scale vs basal-bolus, hypoglycemia protocol | moderate |
 | drug-006 | Potassium chloride IV — peripheral limits, rate restrictions, monitoring | critical |
 
-### Clinical Calculator (6)
+### Clinical Calculators (6) — legacy directory `clinical-calculator/`, skill refs updated
 
-| ID | Description | Severity |
-|----|-------------|----------|
-| calc-001 | GCS — low-scoring trauma patient, motor-only response | critical |
-| calc-002 | APACHE II — full ICU admission scoring | moderate |
-| calc-003 | qSOFA + SOFA — sepsis screening in MICU patient | critical |
-| calc-004 | RASS — mechanically ventilated patient, sedation titration | moderate |
-| calc-005 | CPOT — non-verbal intubated patient pain assessment | moderate |
-| calc-006 | Wells DVT — pre-test probability, clinical decision point | moderate |
+| ID | Skill | Description | Severity |
+|----|-------|-------------|----------|
+| calc-001 | neuro-calculator | GCS — low-scoring trauma patient, motor-only response | critical |
+| calc-002 | neuro-calculator | NIHSS — acute stroke scoring | critical |
+| calc-003 | acuity-calculator | APACHE II — full ICU admission scoring | moderate |
+| calc-004 | risk-calculator | Wells PE — high probability, CT-PA workup | critical |
+| calc-005 | risk-calculator | Braden — very high risk, pressure injury prevention | moderate |
+| calc-006 | neuro-calculator | RASS — deep sedation, SAT consideration | moderate |
 
 ### Shift Assessment (3)
 
@@ -110,7 +110,7 @@ Isolated single-skill scenarios. Superseded by encounter format but retained for
 | Domain | Scenarios | Target | Status |
 |--------|-----------|--------|--------|
 | Protocol-reference (ACLS, sepsis, stroke, RSI, rapid response) | 12 legacy + encounters 001–005, 009, 012 | 10 | ✅ exceeded |
-| Clinical-calculator | 6 legacy + in every encounter | 8 | ✅ exceeded |
+| Neuro/risk/acuity-calculator | 6 legacy + in every encounter | 8 | ✅ exceeded |
 | Drug-reference | 6 legacy + all encounters | 5 | ✅ exceeded |
 | Shift-assessment/report | 6 legacy + all encounters | 5 | ✅ exceeded |
 | Unit-conversion / io-tracker | 6 legacy + encounters 004, 006, 007, 010, 011, 012, 014 | 5 | ✅ exceeded |
