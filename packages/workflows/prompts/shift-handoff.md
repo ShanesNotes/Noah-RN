@@ -4,8 +4,8 @@ Reusable prompt surface for invoking the shift-report skill through the Pi runti
 
 ## Skill target
 
-- `.pi/skills/shift-report/SKILL.md`
-- Dependencies: `.pi/skills/shift-report/dependencies.yaml`
+- `packages/workflows/shift-report/SKILL.md`
+- Dependencies: `packages/workflows/shift-report/dependencies.yaml`
 
 ## When to use this prompt
 

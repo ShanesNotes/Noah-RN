@@ -1,68 +1,33 @@
 # `.pi/skills/` Selection Bridge
 
-This note explains how future pi-native skill discovery should bridge from current canonical workflow contracts.
+## Namespace boundary
 
-## Current discovery order
+- **`.pi/skills/`** — Dev-facing skills (Pi agent persona: build, test, deploy)
+- **`packages/workflows/`** — Product-facing skills (Noah-RN persona: clinical decision support)
 
-1. `packages/workflows/registry.json`
-2. `packages/workflows/*/SKILL.md`
-3. `packages/agent-harness/SELECTION-POLICY.md`
-4. `.pi/skills/*` — scaffold paths for unpromoted skills, full contract for promoted skills
+These namespaces must not overlap. Pi agents discover `.pi/skills/` automatically;
+Noah-RN discovers `packages/workflows/registry.json` at runtime.
 
-## Promoted skills
+## Dev skill discovery
 
-- **shift-report** — promoted 2026-04-12
-  - `.pi/skills/shift-report/SKILL.md` — full contract with `pi:` metadata
-  - `.pi/skills/shift-report/dependencies.yaml` — declarative dependency manifest
-  - Clinical content stays in sync with `packages/workflows/shift-report/SKILL.md`
+1. `.pi/skills/*/SKILL.md`
 
-- **unit-conversion** — promoted 2026-04-13
-  - `.pi/skills/unit-conversion/SKILL.md` — full contract with `pi:` metadata
-  - `.pi/skills/unit-conversion/dependencies.yaml` — declarative dependency manifest
-  - Simplest skill: pure deterministic computation via `tools/unit-conversions/convert.sh`
-  - Clinical content stays in sync with `packages/workflows/unit-conversion/SKILL.md`
+Active dev skills:
 
-- **neuro-calculator** — promoted 2026-04-13
-  - `.pi/skills/neuro-calculator/SKILL.md` — GCS, NIHSS, RASS, CPOT
-  - `.pi/skills/neuro-calculator/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/neuro-calculator/SKILL.md`
+- **ui-generation** — React/CSS component generation following Pi Minimalism
+  design language. Delegated to `gemini-3.1-pro-preview` via `google-gemini-cli`.
 
-- **risk-calculator** — promoted 2026-04-13
-  - `.pi/skills/risk-calculator/SKILL.md` — Wells PE, Wells DVT, CURB-65, Braden
-  - `.pi/skills/risk-calculator/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/risk-calculator/SKILL.md`
+## Product skill discovery
 
-- **acuity-calculator** — promoted 2026-04-13
-  - `.pi/skills/acuity-calculator/SKILL.md` — APACHE II, NEWS2
-  - `.pi/skills/acuity-calculator/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/acuity-calculator/SKILL.md`
+Noah-RN resolves skills from:
 
-- **drug-reference** — promoted 2026-04-13
-  - `.pi/skills/drug-reference/SKILL.md` — OpenFDA lookup, high-alert list
-  - `.pi/skills/drug-reference/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/drug-reference/SKILL.md`
+1. `packages/workflows/registry.json` — canonical skill registry
+2. `packages/workflows/*/SKILL.md` — full contracts
+3. `packages/workflows/*/dependencies.yaml` — dependency manifests
+4. `packages/workflows/CONVENTIONS.md` — shared conventions
 
-- **protocol-reference** — promoted 2026-04-13
-  - `.pi/skills/protocol-reference/SKILL.md` — ACLS, Sepsis, Stroke, RRT, RSI
-  - `.pi/skills/protocol-reference/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/protocol-reference/SKILL.md`
+## History
 
-- **io-tracker** — promoted 2026-04-13
-  - `.pi/skills/io-tracker/SKILL.md` — I&O categorization, net balance
-  - `.pi/skills/io-tracker/dependencies.yaml`
-  - Clinical content stays in sync with `packages/workflows/io-tracker/SKILL.md`
-
-## Rule
-
-- `packages/workflows/` remains authoritative for clinical content
-- `.pi/skills/shift-report/` is the Pi-native discovery surface (clinical content + Pi wiring)
-- remaining `.pi/skills/*` paths are scaffold only until explicitly promoted
-- future pi-native discovery should consume promoted skills directly and fall back to `packages/workflows/` for the rest
-
-- **hello-nurse** — promoted 2026-04-13
-  - `.pi/skills/hello-nurse/SKILL.md` — the one skill that gets to have a personality
-  - `.pi/skills/hello-nurse/dependencies.yaml`
-
-## Next promotion candidates
-
-- `shift-assessment` (complex — narrative synthesis, similar to shift-report)
+Previously, clinical skills were promoted (copied) from `packages/workflows/`
+into `.pi/skills/` with added `pi:` metadata. This created a sync obligation
+and polluted the dev namespace. Consolidated 2026-04-13.
