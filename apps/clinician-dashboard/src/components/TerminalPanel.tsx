@@ -6,43 +6,40 @@ export function TerminalPanel() {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'center',
       height: '100%',
-      gap: 16,
+      padding: '0 48px',
+      gap: 32,
     }}>
-      <Text ff="monospace" fz={10} fw={700} c={colors.textMuted} style={{ letterSpacing: '0.15em' }}>
-        PI.DEV AGENT TERMINAL
+      <Text fz={12} fw={500} c={colors.textMuted} style={{ letterSpacing: '0.05em' }}>
+        AGENT TERMINAL
       </Text>
-      <div style={{
-        background: colors.surface,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 8,
-        padding: 24,
-        maxWidth: 480,
-        width: '100%',
-      }}>
-        <Text fz="sm" c={colors.textSecondary} mb={12}>
-          Agent runtime on <code style={{ color: colors.info }}>tower (10.0.0.184)</code>
+      <div>
+        <Text fz={14} c={colors.textPrimary} mb={16} ff="monospace">
+          System <span style={{ color: colors.textSecondary }}>boot</span> ... [OK]<br/>
+          Agent runtime on <span style={{ color: colors.accent }}>tower (10.0.0.184)</span><br/>
+          Awaiting connection <span className="animate-blink" style={{ color: colors.textPrimary }}>█</span>
         </Text>
-        <Text fz={11} c={colors.textMuted} ff="monospace" mb={8}>
-          Connect via SSH:
-        </Text>
-        <pre style={{
-          margin: 0,
-          padding: 10,
-          background: colors.bg,
-          borderRadius: 4,
-          fontSize: 12,
-          fontFamily: '"JetBrains Mono", monospace',
-          color: colors.normal,
-        }}>
-          ssh tower
-        </pre>
-        <Text fz={10} c={colors.textMuted} mt={16}>
-          xterm.js WebSocket integration planned — will embed live agent terminal here.
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
+          <Text fz={12} c={colors.textSecondary}>
+            Connect via SSH:
+          </Text>
+          <pre style={{
+            margin: 0,
+            padding: '8px 16px',
+            background: colors.surface,
+            fontSize: 13,
+            fontFamily: '"JetBrains Mono", monospace',
+            color: colors.textPrimary,
+          }}>
+            ssh tower
+          </pre>
+        </div>
       </div>
+      <Text fz={12} c={colors.textMuted}>
+        xterm.js WebSocket integration planned — will embed live agent terminal here.
+      </Text>
     </div>
   );
 }

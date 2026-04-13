@@ -1,4 +1,4 @@
-import { MantineProvider, createTheme } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
@@ -9,23 +9,14 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 import { App } from './App';
+import { theme } from './theme';
+import './index.css';
 
 const medplum = new MedplumClient({
   baseUrl: import.meta.env.VITE_MEDPLUM_BASE_URL || 'http://10.0.0.184:8103/',
   onUnauthenticated: () => (window.location.href = '/'),
   cacheTime: 60000,
   autoBatchTime: 100,
-});
-
-const theme = createTheme({
-  primaryColor: 'teal',
-  fontSizes: {
-    xs: '0.6875rem',
-    sm: '0.875rem',
-    md: '0.875rem',
-    lg: '1.0rem',
-    xl: '1.125rem',
-  },
 });
 
 const router = createBrowserRouter([{ path: '*', element: <App /> }]);

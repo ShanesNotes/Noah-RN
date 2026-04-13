@@ -62,34 +62,40 @@ export function TraceViewer() {
       {/* Trace list */}
       <div style={{ width: 360, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
         <TextInput
-          placeholder="Filter by ID, skill, or status..."
+          placeholder="Filter traces..."
           value={filter}
           onChange={e => setFilter(e.currentTarget.value)}
           size="xs"
-          styles={{ input: { background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: '"JetBrains Mono", monospace', fontSize: 11 } }}
+          variant="unstyled"
+          styles={{ input: { borderBottom: `1px solid ${colors.border}`, borderRadius: 0, paddingLeft: 0, color: colors.textPrimary, fontFamily: '"Outfit", sans-serif', fontSize: 13 } }}
         />
-        <Text fz={10} c={colors.textMuted} mt={6} mb={4} ff="monospace">{filtered.length} traces</Text>
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {filtered.map(t => (
-            <div
-              key={t.id}
-              onClick={() => setSelected(t.id)}
-              style={{
-                padding: '8px 10px',
-                cursor: 'pointer',
-                background: selected === t.id ? colors.surfaceHover : 'transparent',
-                borderBottom: `1px solid ${colors.border}`,
-                borderLeft: `3px solid ${t.status.startsWith('PASS') ? colors.normal : t.status.startsWith('FAIL') ? colors.critical : colors.textMuted}`,
-              }}
-            >
-              <Text ff="monospace" fz={11} c={colors.textPrimary} lineClamp={1}>{t.id}</Text>
-              <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
-                <Text fz={9} c={colors.textMuted} ff="monospace">{t.skill}</Text>
-                {t.duration_ms !== null && <Text fz={9} c={colors.textMuted} ff="monospace">{t.duration_ms}ms</Text>}
-                <Text fz={9} c={t.status.startsWith('PASS') ? colors.normal : colors.critical} ff="monospace">{t.status.slice(0, 12)}</Text>
+        <div style={{ flex: 1, overflowY: 'auto', marginTop: 16 }}>
+          {filtered.map(t => {
+            const isPassing = t.status.startsWith('PASS');
+            const isSelected = selected === t.id;
+            return (
+              <div
+                key={t.id}
+                onClick={() => setSelected(t.id)}
+                style={{
+                  padding: '12px 0',
+                  cursor: 'pointer',
+                  borderBottom: `1px solid ${colors.borderLight}`,
+                  opacity: isSelected ? 1 : 0.85,
+                  transition: 'opacity 0.15s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: isPassing ? colors.accent : colors.critical }} />
+                  <Text ff="monospace" fz={12} fw={isSelected ? 600 : 400} c={isSelected ? colors.textPrimary : colors.textSecondary} lineClamp={1}>{t.id}</Text>
+                </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 4, paddingLeft: 14 }}>
+                  <Text fz={11} c={colors.textMuted}>{t.skill}</Text>
+                  {t.duration_ms !== null && <Text fz={11} c={colors.textMuted}>{t.duration_ms}ms</Text>}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -100,7 +106,7 @@ export function TraceViewer() {
         ) : !detail ? (
           <Text c={colors.textMuted}>Loading...</Text>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 48 }}>
             <DetailSection title="STATUS">
               <Badge status={detail.hookResults} />
             </DetailSection>
@@ -131,8 +137,8 @@ export function TraceViewer() {
 
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: 8, padding: 12 }}>
-      <Text ff="monospace" fz={9} fw={700} c={colors.textMuted} mb={8} style={{ letterSpacing: '0.12em' }}>{title}</Text>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <Text fz={11} fw={500} c={colors.textMuted} style={{ letterSpacing: '0.05em' }}>{title}</Text>
       {children}
     </div>
   );
@@ -141,18 +147,9 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
 function Badge({ status }: { status: string }) {
   const isPassing = status.startsWith('PASS');
   return (
-    <span style={{
-      display: 'inline-block',
-      padding: '4px 10px',
-      borderRadius: 4,
-      fontFamily: '"JetBrains Mono", monospace',
-      fontSize: 12,
-      fontWeight: 700,
-      background: isPassing ? 'rgba(81, 207, 102, 0.15)' : 'rgba(255, 68, 68, 0.15)',
-      color: isPassing ? colors.normal : colors.critical,
-    }}>
+    <Text ff="monospace" fz={13} fw={500} c={isPassing ? colors.accent : colors.critical}>
       {status}
-    </span>
+    </Text>
   );
 }
 
@@ -160,17 +157,18 @@ function Pre({ children }: { children: string }) {
   return (
     <pre style={{
       margin: 0,
-      padding: 8,
-      background: colors.bg,
+      padding: 16,
+      background: colors.surface,
       borderRadius: 4,
-      fontSize: 11,
+      fontSize: 12,
       fontFamily: '"JetBrains Mono", monospace',
       color: colors.textSecondary,
       overflowX: 'auto',
       whiteSpace: 'pre-wrap',
       wordBreak: 'break-word',
-      maxHeight: 400,
+      maxHeight: 600,
       overflowY: 'auto',
+      border: 'none',
     }}>
       {children}
     </pre>

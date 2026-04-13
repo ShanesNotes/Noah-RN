@@ -167,27 +167,30 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
   }, [patientId]);
 
   const patientInput = (
-    <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
-      <Text ff="monospace" fz={10} c={colors.textMuted} style={{ letterSpacing: '0.1em' }}>PATIENT ID</Text>
+    <div style={{ display: 'flex', gap: 16, marginBottom: 32, alignItems: 'center' }}>
+      <Text ff="monospace" fz={11} c={colors.textSecondary}>patient-id:</Text>
       <input
         value={inputId}
         onChange={e => setInputId(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') setPatientId(inputId); }}
-        placeholder="Enter FHIR Patient ID..."
+        placeholder="Enter FHIR ID"
         style={{
-          flex: 1, maxWidth: 360, background: colors.surface, border: `1px solid ${colors.border}`,
-          borderRadius: 4, padding: '6px 10px', color: colors.textPrimary,
-          fontFamily: '"JetBrains Mono", monospace', fontSize: 12, outline: 'none',
+          width: 240, background: 'transparent', border: 'none', borderBottom: `1px solid ${colors.borderLight}`,
+          padding: '4px 0', color: colors.textPrimary,
+          fontFamily: '"JetBrains Mono", monospace', fontSize: 13, outline: 'none',
+          transition: 'border-color 0.15s ease',
         }}
       />
       <button
         onClick={() => setPatientId(inputId)}
         style={{
-          background: colors.border, border: 'none', borderRadius: 4, padding: '6px 12px',
-          color: colors.textPrimary, fontFamily: '"JetBrains Mono", monospace', fontSize: 11,
-          cursor: 'pointer',
+          background: 'transparent', border: 'none',
+          color: colors.accent, fontFamily: '"Outfit", sans-serif', fontSize: 13,
+          fontWeight: 500, cursor: 'pointer', padding: '4px 8px',
         }}
-      >LOAD</button>
+      >
+        Load
+      </button>
     </div>
   );
 
@@ -207,30 +210,29 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
   return (
     <div>
       {patientInput}
-    <div style={{ display: 'flex', gap: 24, height: '100%' }}>
+    <div style={{ display: 'flex', gap: 48, height: '100%' }}>
       {/* Left: Timeline */}
       <div style={{ flex: 2, overflowY: 'auto' }}>
-        <Text ff="monospace" fz={11} fw={600} c={colors.textSecondary} mb={12} style={{ letterSpacing: '0.1em' }}>
-          ASSEMBLED TIMELINE ({bundle.timeline.length} entries)
+        <Text fz={12} fw={500} c={colors.textMuted} mb={16} style={{ letterSpacing: '0.05em' }}>
+          TIMELINE ({bundle.timeline.length})
         </Text>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {bundle.timeline.map((entry, i) => {
             const colorKey = entry.subtype ? `${entry.type}:${entry.subtype}` : entry.type;
             return (
               <div key={i} style={{
-                display: 'flex', gap: 8, padding: '4px 8px', borderRadius: 4,
-                background: i % 2 === 0 ? 'transparent' : `${colors.surface}80`,
-                fontFamily: '"JetBrains Mono", monospace', fontSize: 11,
+                display: 'flex', gap: 16, padding: '8px 0', borderBottom: `1px solid ${colors.border}`,
+                fontFamily: '"JetBrains Mono", monospace', fontSize: 12, alignItems: 'baseline',
               }}>
-                <span style={{ color: colors.textMuted, minWidth: 50 }}>{entry.relativeTime}</span>
+                <span style={{ color: colors.textSecondary, width: 64, flexShrink: 0 }}>{entry.relativeTime}</span>
                 <span style={{
                   color: typeColors[colorKey] ?? colors.textSecondary,
-                  minWidth: 60, fontWeight: 600,
+                  width: 50, flexShrink: 0, fontSize: 11, opacity: 0.9,
                 }}>
-                  {entry.type === 'observation' ? entry.subtype?.toUpperCase() : entry.type.toUpperCase()}
+                  {entry.type === 'observation' ? entry.subtype?.slice(0,3).toUpperCase() : entry.type.slice(0,3).toUpperCase()}
                 </span>
-                <span style={{ color: colors.textPrimary, flex: 1 }}>{entry.display}</span>
-                <span style={{ color: colors.textSecondary }}>{entry.value}</span>
+                <span style={{ color: colors.textPrimary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.display}</span>
+                <span style={{ color: colors.textSecondary, width: 140, flexShrink: 0, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.value}</span>
               </div>
             );
           })}
@@ -238,25 +240,25 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
       </div>
 
       {/* Right: Metadata */}
-      <div style={{ flex: 1, borderLeft: `1px solid ${colors.border}`, paddingLeft: 24 }}>
-        <Text ff="monospace" fz={11} fw={600} c={colors.textSecondary} mb={12} style={{ letterSpacing: '0.1em' }}>
-          CONTEXT METADATA
+      <div style={{ flex: 1 }}>
+        <Text fz={12} fw={500} c={colors.textMuted} mb={24} style={{ letterSpacing: '0.05em' }}>
+          METADATA
         </Text>
 
-        <div style={{ marginBottom: 16 }}>
-          <Text fz={11} c={colors.textMuted} mb={4}>Token Estimate</Text>
-          <Text ff="monospace" fz="lg" fw={700} c={colors.info}>{bundle.tokenEstimate.toLocaleString()}</Text>
+        <div style={{ marginBottom: 32 }}>
+          <Text fz={12} c={colors.textSecondary} mb={8}>Tokens</Text>
+          <Text ff="monospace" fz={24} fw={500} c={colors.textPrimary}>{bundle.tokenEstimate.toLocaleString()}</Text>
         </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <Text fz={11} c={colors.textMuted} mb={4}>Queries Executed</Text>
+        <div style={{ marginBottom: 32 }}>
+          <Text fz={12} c={colors.textSecondary} mb={8}>Queries</Text>
           {bundle.queriesExecuted.map(q => (
-            <Text key={q} ff="monospace" fz={10} c={colors.textSecondary}>{q}</Text>
+            <Text key={q} ff="monospace" fz={11} c={colors.textPrimary} mb={4}>{q}</Text>
           ))}
         </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <Text fz={11} c={colors.textMuted} mb={4}>Entry Counts</Text>
+        <div style={{ marginBottom: 32 }}>
+          <Text fz={12} c={colors.textSecondary} mb={8}>Counts</Text>
           {Object.entries(
             bundle.timeline.reduce((acc, e) => {
               const key = e.subtype ? `${e.type}:${e.subtype}` : e.type;
@@ -264,17 +266,17 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
               return acc;
             }, {} as Record<string, number>),
           ).map(([key, count]) => (
-            <div key={key} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-              <Text ff="monospace" fz={10} c={typeColors[key] ?? colors.textSecondary}>{key}</Text>
-              <Text ff="monospace" fz={10} c={colors.textPrimary}>{count}</Text>
+            <div key={key} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text ff="monospace" fz={11} c={typeColors[key] ?? colors.textSecondary}>{key}</Text>
+              <Text ff="monospace" fz={11} c={colors.textPrimary}>{count}</Text>
             </div>
           ))}
         </div>
 
         <div>
-          <Text fz={11} c={colors.textMuted} mb={4}>Known Gaps</Text>
+          <Text fz={12} c={colors.textSecondary} mb={8}>Gaps</Text>
           {bundle.gaps.map(g => (
-            <Text key={g} fz={10} c={colors.warning} mb={2}>{g}</Text>
+            <Text key={g} fz={12} c={colors.warning} mb={4}>{g}</Text>
           ))}
         </div>
       </div>

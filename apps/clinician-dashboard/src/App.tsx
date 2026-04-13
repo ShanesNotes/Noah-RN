@@ -34,49 +34,51 @@ function App() {
       }}>
         {/* Header */}
         <header style={{
-          padding: '10px 24px',
-          borderBottom: `1px solid ${colors.border}`,
+          height: 64,
+          padding: '0 32px',
           display: 'flex',
           alignItems: 'center',
-          gap: 24,
-          background: colors.surface,
+          gap: 48,
+          background: 'rgba(9, 9, 11, 0.8)',
+          backdropFilter: 'blur(8px)',
+          borderBottom: `1px solid ${colors.border}`,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
         }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <Text ff="monospace" fz="xs" fw={700} c={colors.info} style={{ letterSpacing: '0.15em' }}>
-              NOAH RN
-            </Text>
-            <Text fz={10} c={colors.textMuted}>
-              Runtime Console
+            <Text ff="monospace" fz="sm" fw={600} c={colors.textPrimary}>
+              noah-rn
             </Text>
           </div>
-          <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: 0 }}>
+          <div style={{ display: 'flex', gap: 32, height: '100%' }}>
             {TABS.map(t => (
               <button
                 key={t.key}
                 onClick={() => setActiveTab(t.key)}
                 style={{
-                  background: activeTab === t.key ? colors.border : 'transparent',
+                  background: 'transparent',
                   color: activeTab === t.key ? colors.textPrimary : colors.textSecondary,
                   border: 'none',
-                  padding: '6px 16px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
+                  borderBottom: activeTab === t.key ? `2px solid ${colors.textPrimary}` : '2px solid transparent',
+                  padding: '0',
+                  height: '100%',
+                  fontFamily: '"Outfit", sans-serif',
+                  fontSize: 13,
+                  fontWeight: activeTab === t.key ? 500 : 400,
                   cursor: 'pointer',
-                  borderRadius: 4,
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.2s ease',
+                  marginTop: 2, // optical alignment
                 }}
               >
-                {t.label}
+                {t.label.toLowerCase()}
               </button>
             ))}
           </div>
         </header>
 
         {/* Panel content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '40px 32px' }}>
           {activeTab === 'evals' && <ErrorBoundary panel="Evals"><EvalDashboard /></ErrorBoundary>}
           {activeTab === 'traces' && <ErrorBoundary panel="Traces"><TraceViewer /></ErrorBoundary>}
           {activeTab === 'context' && <ErrorBoundary panel="Context"><ContextInspector /></ErrorBoundary>}
