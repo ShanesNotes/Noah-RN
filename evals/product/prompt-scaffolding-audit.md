@@ -3,6 +3,8 @@
 **NOA-121** | Author: Claude (Founding Engineer) | Date: 2026-04-04
 **Parent**: NOA-104 Refactor - Reorg
 
+> **Update 2026-04-12**: `clinical-calculator` was subsequently split into `neuro-calculator`, `risk-calculator`, and `acuity-calculator`. All skills were optimized per this audit's recommendations. See `packages/workflows/clinical-calculator/SKILL.md` for the split notice.
+
 ## Executive Summary
 
 Audited all 7 skill prompts in `plugin/skills/*/SKILL.md` for procedural scaffolding that constrains SOTA models. Found **35-45% of prompt content is reducible** across skills, driven by three systemic patterns:

@@ -176,10 +176,27 @@ It must be closed by an empirical Medplum visibility test:
 3. record exactly where it appears
 4. decide whether task-scoped review plus filtering is sufficient
 
-Until that test is run, this decision is:
+### Empirical results (2026-04-12)
+
+Test performed: created a preliminary `DocumentReference` (`docStatus=preliminary`, LOINC 28651-8 Nurse transfer note, author=Noah RN Agent) for patient `04fd71c5-3a02-4ad4-8712-3317ed86fd49` (Ivan258 Goodwin327). Resource ID: `fc811c55-8c10-452b-9bd3-e1d260aeeb31`.
+
+**Findings:**
+
+1. **Unfiltered search surfaces drafts.** `DocumentReference?patient=X` returns preliminary docs in the same result set as final docs. No automatic exclusion. The default Medplum UI patient document list will show drafts.
+2. **`doc-status` SearchParameter works.** `DocumentReference?patient=X&doc-status=preliminary` returns only drafts. `doc-status=final` excludes them. Medplum supports this filter natively.
+3. **Multiple prior drafts are visible.** 5+ preliminary DocumentReferences from prior test runs are visible in the unfiltered search, confirming the pattern is durable.
+4. **Direct resource read works.** `DocumentReference/{id}` returns the full resource with `docStatus=preliminary` intact.
+
+**Decision: task-scoped filtering is sufficient.**
+
+- The nursing-station app should use `doc-status=final` in default patient document views to exclude agent drafts.
+- The review queue should use `doc-status=preliminary` to show only pending drafts.
+- No additional AccessPolicy or SearchParameter work is needed for the first workflow.
+
+This decision is now:
 
 - **approved for implementation planning**
-- **conditionally approved for runtime rollout**
+- **approved for runtime rollout** (visibility gate closed)
 
 ## Default rule going forward
 
@@ -203,8 +220,8 @@ Until a stronger contrary decision is recorded:
 
 ### Costs
 
-- requires clear draft filtering discipline
-- requires one empirical Medplum UI visibility test
+- requires clear draft filtering discipline (use `doc-status=final` in production views)
+- ~~requires one empirical Medplum UI visibility test~~ (completed 2026-04-12 — task-scoped filtering sufficient)
 - requires later explicit promotion/finalization design
 
 ## Related

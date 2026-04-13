@@ -3,6 +3,8 @@
 Last updated: 2026-03-31
 Eval harness run: scores-latest.json
 
+> **Note (2026-04-12)**: `clinical-calculator` was split into `neuro-calculator`, `risk-calculator`, and `acuity-calculator`. Historical references below reflect pre-split state.
+
 ## Current State
 
 All 53 golden test cases pass structural validation. This validates that skill files contain:

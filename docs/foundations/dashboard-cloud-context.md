@@ -23,7 +23,7 @@ Shane. 14-year RN, 13yr critical care Level 1 trauma (Grand Rapids, MI). Deep IC
 - **Deterministic first.** Computable items (scores, interactions, conversions) → tool, not LLM math.
 
 ### What Exists Today (Phase 2 complete)
-- **8 clinical skills:** shift-assessment, drug-reference, protocol-reference, shift-report, clinical-calculator, io-tracker, unit-conversion, hello-nurse (scaffold)
+- **10 clinical skills:** shift-assessment, drug-reference, protocol-reference, shift-report, neuro-calculator, risk-calculator, acuity-calculator, io-tracker, unit-conversion, hello-nurse (scaffold)
 - **9 deterministic calculators:** GCS, NIHSS, APACHE-II, Wells PE, Wells DVT, CURB-65, Braden, RASS, CPOT
 - **Clinical router agent** with cross-skill awareness
 - **4 safety hooks:** input sanitization, calculator validation, dosage validation, unit validation

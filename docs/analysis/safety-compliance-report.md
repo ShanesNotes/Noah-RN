@@ -493,7 +493,7 @@ Based on HIPAA 45 CFR §164.312(b) and the 2026 Security Rule update:
     {"hook": "validate-vitals-plausibility", "decision": "advisory", "reason": "HR 150 at upper plausible limit"}
   ],
   "outcome": "SUCCESS",
-  "source": "clinical-calculator-skill",
+  "source": "neuro-calculator-skill",
   "previous_log_hash": "sha256:c3b4a1f8..."
 }
 ```

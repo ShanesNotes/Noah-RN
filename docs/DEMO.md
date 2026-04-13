@@ -8,7 +8,7 @@ NOA-28 acceptance checklist covered by this walkthrough:
 - shift assessment workflow
 - vasopressor drug-reference interaction lookup
 - sepsis bundle protocol reference
-- clinical calculator for GCS and APACHE II
+- neuro-calculator for GCS and acuity-calculator for APACHE II
 - I&O tracking
 - weight-based unit conversion
 - end-of-scenario shift report
@@ -18,7 +18,7 @@ Source material to keep open while you run the demo:
 - [encounter-001-urosepsis.yaml](../tests/clinical-scenarios/encounters/encounter-001-urosepsis.yaml): base septic ICU handoff voice and sepsis details
 - [encounter-009-rapid-response.yaml](../tests/clinical-scenarios/encounters/encounter-009-rapid-response.yaml): deterioration/escalation phrasing for the mid-scenario update
 - [encounter-010-drip-calc.yaml](../tests/clinical-scenarios/encounters/encounter-010-drip-calc.yaml): deterministic drip-math and I&O walkthrough pattern
-- [calc-003.yaml](../tests/clinical-scenarios/clinical-calculator/calc-003.yaml): APACHE II prompt shape; exact numeric inputs in this demo are synthetic and validated against the local calculator
+- [calc-003.yaml](../tests/clinical-scenarios/clinical-calculator/calc-003.yaml): APACHE II prompt shape; exact numeric inputs in this demo are synthetic and validated against the local calculator (note: `clinical-calculator` was split into `neuro-calculator`, `risk-calculator`, and `acuity-calculator` on 2026-04-12)
 
 ## Setup
 
@@ -214,7 +214,7 @@ Hct 28, WBC 22, age 62, chronic 0.
 Prompt to type:
 
 ```text
-/clinical-calculator GCS — E2 V2 M4
+/neuro-calculator GCS — E2 V2 M4
 ```
 
 What Noah should produce:
@@ -232,7 +232,7 @@ Why it matters clinically:
 Prompt to type:
 
 ```text
-/clinical-calculator APACHE II with Temp 38.8C, MAP 58, HR 118, RR 28, FiO2 0.60, PaO2 72, pH 7.28, Na 132, K 5.1, Cr 2.8, Hct 28, WBC 22, GCS 8, age 62, chronic 0
+/acuity-calculator APACHE II with Temp 38.8C, MAP 58, HR 118, RR 28, FiO2 0.60, PaO2 72, pH 7.28, Na 132, K 5.1, Cr 2.8, Hct 28, WBC 22, GCS 8, age 62, chronic 0
 ```
 
 What Noah should produce:

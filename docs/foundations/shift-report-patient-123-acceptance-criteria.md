@@ -61,13 +61,16 @@ The path is:
 10. The patient-context output includes a patient line for `patient-123`.
 11. The patient-context output includes at least one active medication when present in fixture context.
 12. The output includes an explicit gap count or equivalent missing-data signal.
+13. If `Device` data exists, `LINES & ACCESS` renders concrete device lines instead of a generic placeholder.
+14. If `Device` timestamps are absent, the renderer says `timing unknown` rather than assigning false recency.
+15. If the context bundle was truncated to fit budget, `ACTIVE ISSUES & PLAN` includes an explicit truncation notice.
 
 ### D. Boundary/safety behavior
 
-13. The path remains draft-oriented.
-14. The path does not perform autonomous chart write-back.
-15. The path does not fabricate details for missing sections.
-16. If the required input is missing, the path blocks cleanly and reports the missing required-context options.
+16. The path remains draft-oriented.
+17. The path does not perform autonomous chart write-back.
+18. The path does not fabricate details for missing sections.
+19. If the required input is missing, the path blocks cleanly and reports the missing required-context options.
 
 ## Current repo evidence
 
@@ -87,6 +90,8 @@ The scaffold is acceptable for the next lane when:
 - `patient-123` context loads through the canonical path
 - the renderer emits the seven sections
 - output remains draft-oriented and gap-explicit
+- lines/access output reflects actual assembled `Device` data when available
+- truncation is surfaced explicitly instead of silently hiding dropped history
 
 It is not yet required that:
 

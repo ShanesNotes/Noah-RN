@@ -4,6 +4,8 @@ Last updated: 2026-04-01
 Eval harness run: scores-20260401-150307.json
 Candidate: 1 (Dynamic Validation Enhancement)
 
+> **Note (2026-04-12)**: `clinical-calculator` was split into `neuro-calculator`, `risk-calculator`, and `acuity-calculator`. Historical references below reflect pre-split state.
+
 ## Current State
 
 All 53 golden test cases pass structural validation (80/80 including schema v2 cases). This validates that skill files contain:

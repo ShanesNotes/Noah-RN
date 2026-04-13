@@ -38,7 +38,7 @@
 
 ### 1.3 The Core Problem
 
-100% pass rate is structural validation (grep for "safety disclaimer" in SKILL.md). Never tests actual output. When nurse asks "Patient in VFib, what do I do?", harness doesn't check if clinical-calculator/protocol-reference returns correct, complete, safe output.
+100% pass rate is structural validation (grep for "safety disclaimer" in SKILL.md). Never tests actual output. When nurse asks "Patient in VFib, what do I do?", harness doesn't check if neuro-calculator/protocol-reference returns correct, complete, safe output.
 
 Phase B blocked: optimizer needs signal (measurable diff between variants). All score 100% because eval doesn't test anything that varies.
 
@@ -116,7 +116,7 @@ expected:
   # NEW: routing validation
   expected_routing:
     primary_skill: protocol-reference
-    secondary_skills: [clinical-calculator]  # for NIHSS if neuro involvement
+    secondary_skills: [neuro-calculator]  # for NIHSS if neuro involvement
     cross_skill_triggers: [post-ROSC assessment]
 severity: critical
 clinical_veto: true  # explicit tagging for veto subset

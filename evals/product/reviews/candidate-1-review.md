@@ -2,6 +2,8 @@
 
 **Reviewer:** Rex (Chief of Research)
 **Date:** 2026-04-01
+
+> **Note (2026-04-12)**: `clinical-calculator` references below reflect pre-split state. Now split into `neuro-calculator`, `risk-calculator`, `acuity-calculator`.
 **Proposer:** Forge
 **Decision:** CONDITIONAL ACCEPT — fix required before application
 

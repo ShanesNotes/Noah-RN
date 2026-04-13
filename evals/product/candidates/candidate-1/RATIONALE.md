@@ -1,5 +1,7 @@
 # Candidate 1: Dynamic Validation Harness
 
+> **Note (2026-04-12)**: `clinical-calculator` references below reflect pre-split state. Now split into `neuro-calculator`, `risk-calculator`, `acuity-calculator`.
+
 ## Diagnosed failure mode
 
 The current eval harness (Phase B) performs only **static structural validation** — it checks that skill files contain required elements (safety disclaimers, four-layer format references, completeness checklists, HITL requirements) but does NOT:

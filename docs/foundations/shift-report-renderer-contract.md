@@ -61,6 +61,9 @@ Renderer should:
 - render from assembled bundle
 - surface known facts
 - emit explicit gaps where the bundle is thin
+- render `LINES & ACCESS` from `Device` timeline entries when present
+- render `timing unknown` rather than inventing recency for untimed devices
+- surface context-budget truncation explicitly when older entries were dropped
 
 ## Non-goals
 
@@ -72,10 +75,15 @@ The first renderer should not:
 
 ## Current scaffold limitations
 
-The current dry-run renderer still contains placeholder bodies in several sections.
+The current renderer now uses real assembled data for:
+- `PATIENT`
+- `STORY`
+- `ASSESSMENT`
+- `LINES & ACCESS`
+- `ACTIVE ISSUES & PLAN`
 
-That is acceptable for the current scaffold state.
-The next granular implementation lane should improve section fidelity while preserving the current output boundary.
+Remaining sections may still contain bounded placeholders where bedside-only detail is unavailable.
+That is acceptable for the current scaffold state as long as the placeholders remain explicit.
 
 ## Success condition
 
