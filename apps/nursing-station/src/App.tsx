@@ -120,7 +120,7 @@ export function App(): JSX.Element {
         <div style={{ height: '100%', overflowY: 'auto' }}>
           <Routes>
             <Route path="/" element={<PatientListPage />} />
-            <Route path="/Patient/:id" element={<PatientChartPage />} />
+            <Route path="/Patient/:id/:section?" element={<PatientChartPage />} />
             <Route path="/Task" element={<TaskListPage />} />
           </Routes>
         </div>

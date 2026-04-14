@@ -125,6 +125,12 @@ Targets:
 - stable waits for skeleton/data resolution
 - basic a11y checks for clinician-facing surfaces
 
+Current repo-local verification surface now available:
+
+- `npm run playwright:nursing-station:signin`
+- artifact output: `artifacts/playwright/nursing-station-signin/`
+- current expectation: sign-in surface renders even if Medplum healthcheck fails from browser CORS in manual-auth mode
+
 ### C2. Create canonical acceptance tests for P0 surfaces
 
 Minimum target set:

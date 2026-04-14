@@ -13,6 +13,7 @@
     "playwright:medplum": "node scripts/browser-playwright-smoke.mjs http://10.0.0.184:3000/signin medplum-signin",
     "playwright:medplum:debug": "node scripts/browser-playwright-medplum-debug.mjs",
     "playwright:dashboard": "node scripts/browser-playwright-smoke.mjs http://localhost:5173 noah-dashboard",
+    "playwright:nursing-station:signin": "node scripts/browser-playwright-nursing-station-signin.mjs",
     "dev:dashboard": "npm run dev --workspace apps/clinician-dashboard",
     "build": "npm run build:dashboard && npm run build:nursing-station && npm run build:clinical-mcp",
     "test": "npm run test:dashboard && npm run test:clinical-mcp"

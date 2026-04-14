@@ -91,6 +91,7 @@ npm run build:clinical-mcp
 npm run test:clinical-mcp
 npm run playwright:install
 npm run playwright:dashboard
+npm run playwright:nursing-station:signin
 ```
 
 Workspace-local examples:

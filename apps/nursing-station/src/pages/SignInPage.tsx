@@ -82,6 +82,7 @@ export function SignInPage({ autoLoginEnabled = false, autoLoginError }: SignInP
 
   return (
     <div
+      data-testid="sign-in-page"
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -211,6 +212,7 @@ export function SignInPage({ autoLoginEnabled = false, autoLoginError }: SignInP
         </Stack>
 
         <Box
+          data-testid="sign-in-panel"
           w="100%"
           style={{
             background: 'rgba(9, 9, 11, 0.92)',
