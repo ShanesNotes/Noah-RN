@@ -1,5 +1,14 @@
 # Clinical Simulation Harness Runtime Access Contract
 
+> **Status (2026-04-13): working reference, superseded for authority.** The scaffold-salvage audit classified this document **REWRITE**. The canonical tool-surface authority is now:
+>
+> - Contract 4 (Monitor Telemetry, Alarm, and Artifact) in `docs/foundations/foundational-contracts-simulation-architecture.md` for live-vitals, waveform, alarm, signal-quality, and artifact tools.
+> - Contract 6 (Scenario and Intervention) in the same file for intervention, medication, and scenario-state tools.
+> - Contract 5 (Charting Policy and Provenance) for charting tools — which this document does **not** yet cover.
+> - Contract 7 (Workspace and Obligation) for obligation tools — also not yet covered.
+>
+> The 8-tool surface below is retained as a working reference during implementation. It will be replaced incrementally as per-contract tool specs are produced (execution-packet Lanes D, E). Treat this document as a starting vocabulary, not a locked surface. `sim_read_current_encounter` in particular leaks L0 internals and must be re-specified with explicit layer annotations before implementation.
+
 ## Purpose
 
 Define the agent-facing surface for interacting with a live Clinical Simulation Harness encounter. Agents never talk to `services/sim-harness/` directly. They reach it through `services/clinical-mcp/` — either as ordinary FHIR context reads that happen to be sim-backed, or through a small number of sim-only MCP tools registered at the clinical-mcp boundary.

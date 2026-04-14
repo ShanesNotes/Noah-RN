@@ -1,5 +1,7 @@
 # Clinical Simulation Harness Engine Wrapping
 
+> **Status (2026-04-13): research context only — not binding architecture.** This document is classified **DEFER** by the scaffold-salvage audit. It is valuable reference material for future engine selection but the invariant kernel (`docs/foundations/invariant-kernel-simulation-architecture.md`) explicitly defers all engine, transport, and vendor decisions to **Contract 9 (Research-Hook Decision Contract)** in `docs/foundations/foundational-contracts-simulation-architecture.md`. No decision recorded here is binding until a specific trigger condition is met and a Contract 9 decision record is produced. Treat the contents as surveyed options, not as an implementation plan.
+
 ## Purpose
 
 Lock the strategy for leveraging validated open-source clinical simulation projects inside the Clinical Simulation Harness. The rule is: **wrap, don't rebuild**. Physiology, rhythm taxonomies, and device-layer waveform patterns are solved problems in the open-source community; Noah RN's job is to adopt them through thin adapters, not to reinvent them.

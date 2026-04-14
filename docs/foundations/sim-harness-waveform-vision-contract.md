@@ -1,5 +1,7 @@
 # Clinical Simulation Harness Waveform Vision Contract
 
+> **Status (2026-04-13):** classified **KEEP** by the scaffold-salvage audit. Fully aligned with the invariant kernel (`docs/foundations/invariant-kernel-simulation-architecture.md`). Positions the waveform as the **L1** projection surface enforcing the monitor-as-avatar invariant. Referenced by Contract 4 (Monitor) and Contract 8 (Eval) in `docs/foundations/foundational-contracts-simulation-architecture.md`.
+
 ## Purpose
 
 Define the non-negotiable requirement that the agent running inside Noah RN **must** have direct vision on the raw waveform surface of any live-simulated clinical encounter. Rhythm labels and numeric vitals alone are not sufficient — they bake a silent-failure surface into the harness.
@@ -9,8 +11,10 @@ A nurse validates a rhythm reading by looking at the strip. The agent must do th
 ## Governing alignment
 
 - `PLAN.md` Decision Log 2026-04-11 — agent must have vision on raw waveform for clinical validation
-- `docs/foundations/sim-harness-scaffold.md` — Layer 3 (waveform generation) and Layer 5 (agent-facing MCP tool surface)
-- `docs/foundations/sim-harness-runtime-access-contract.md` — the `sim_get_waveform_samples` and `sim_get_waveform_image` MCP tools are the enforcement surface of this contract
+- `docs/foundations/invariant-kernel-simulation-architecture.md` — canonical kernel (monitor-as-avatar invariant)
+- `docs/foundations/foundational-contracts-simulation-architecture.md` — Contracts 4 and 8 reference this document as authoritative
+- `docs/foundations/sim-harness-scaffold.md` — historical pointer (superseded by kernel + contracts)
+- `docs/foundations/sim-harness-runtime-access-contract.md` — working reference for the `sim_get_waveform_samples` and `sim_get_waveform_image` tool shapes (superseded by Contracts 4/6)
 - `wiki/concepts/emergent-vitals-from-physics.md` — why waveforms are the right ground truth for hemodynamic and rhythm claims
 - `wiki/concepts/computational-physiology-engine.md` — why labels alone decouple claims from the physics
 
