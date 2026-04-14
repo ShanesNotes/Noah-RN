@@ -17,12 +17,16 @@ Current contents:
 - `ui-ux-foundations-caveman.md`
 - `ui-resource-ledger.md`
 - `epic-source-triage.md`
+- `hidden-docs-reconciliation-note-2026-04-14.md`
 - `distillation-cross-reference.md`
 - `safety-compliance-report.md`
 - `2026-04-12-session-closeout-audit.md`
 
 Recommended entrypoint for clinician workspace planning:
 - `ehr-ui-ux-start-here.md`
+
+Recommended entrypoint for hidden-doc cleanup / promotion work:
+- `hidden-docs-reconciliation-note-2026-04-14.md`
 
 Rule:
 - if a doc analyzes the repo, compares sources, or builds a backlog from research, it likely belongs here.

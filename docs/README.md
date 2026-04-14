@@ -126,6 +126,7 @@ Current docs:
 - [analysis/ui-ux-foundations-caveman.md](analysis/ui-ux-foundations-caveman.md)
 - [analysis/ui-resource-ledger.md](analysis/ui-resource-ledger.md)
 - [analysis/epic-source-triage.md](analysis/epic-source-triage.md)
+- [analysis/hidden-docs-reconciliation-note-2026-04-14.md](analysis/hidden-docs-reconciliation-note-2026-04-14.md)
 - [analysis/distillation-cross-reference.md](analysis/distillation-cross-reference.md)
 - [analysis/safety-compliance-report.md](analysis/safety-compliance-report.md)
 - [analysis/2026-04-12-session-closeout-audit.md](analysis/2026-04-12-session-closeout-audit.md)
