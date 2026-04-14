@@ -134,6 +134,9 @@ Current docs:
 Read first for current clinician workspace planning:
 - [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)
 
+Read first for hidden-doc cleanup / promotion work:
+- [analysis/hidden-docs-reconciliation-note-2026-04-14.md](analysis/hidden-docs-reconciliation-note-2026-04-14.md)
+
 ### `docs/plans/`
 
 Purpose:
@@ -145,8 +148,10 @@ Read first when:
 - starting implementation on a named lane or feature
 - picking up a plan another agent drafted
 
-Active plans:
+Active plans (execute in order — each depends on the previous):
 - [plans/p0.1-persistent-patient-header.md](plans/p0.1-persistent-patient-header.md) — persistent patient header for `apps/nursing-station/`
+- [plans/p0.2-chart-shell-and-nav.md](plans/p0.2-chart-shell-and-nav.md) — left rail + nested routes; depends on P0.1
+- [plans/p0.3-overview-page.md](plans/p0.3-overview-page.md) — populate default landing view; depends on P0.2
 
 Rule:
 - planning output must land here (or `docs/analysis/` if analysis-heavy), never in hidden folders like `~/.claude/plans/`, `.hermes/`, or `.omx/`
