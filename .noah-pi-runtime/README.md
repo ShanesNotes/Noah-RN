@@ -1,6 +1,6 @@
 # `.pi/`
 
-Repo-hosted Pi configuration surface for Noah RN.
+Repo-hosted pi.dev configuration surface for Noah RN. pi.dev is the active agent harness foundation (Decision 2026-04-10); this surface is subordinate to `packages/agent-harness/` + `packages/workflows/`.
 
 In this repository, these files live under `.noah-pi-runtime/`.
 Inside the isolated runtime lane, this directory mounts as `/runtime/.pi`.

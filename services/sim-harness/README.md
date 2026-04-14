@@ -2,7 +2,7 @@
 
 Clinical Simulation Harness workspace center. Live-runtime boundary inside the Clinical Workspace lane.
 
-**Status:** scaffold + type contracts + relocated reference pharmacokinetics. Runtime lanes A–F are deferred to the execution packet. No engine, clock, projection, alarm, charting, or obligation runtime code ships from this workspace yet.
+**Status:** scaffold + type contracts + relocated reference pharmacokinetics + simulation clock (Lane A partial — wall/accelerated/frozen/skip-ahead modes and the engine-adapter boundary). Pulse Physiology Engine (Kitware, Apache-2.0) is the locked L0 substrate per Contract 9 (2026-04-13). Lanes B–F remain deferred to the execution packet.
 
 ## Canonical architecture
 
@@ -34,7 +34,8 @@ Monitor-as-avatar is non-negotiable: rhythm and hemodynamic claims must be valid
 
 - `src/index.ts` — type vocabulary mirroring Contracts 4, 5, 6, 7. Layer annotations on every surface. Placeholder types for alarm / charting-authority / obligation reserve the shape pending the runtime-access contract rewrite.
 - `src/config.ts` — scenarios + reference pharmacokinetic parameters (relocated from clinical-mcp per brownfield mapping; L0 config belongs here, not at the L3 boundary).
-- `src/reference/pharmacokinetics.ts` — Hill-equation dose-response, first-order onset delay, fluid bolus decay, AR(1) bounded noise, baroreflex HR compensation. Reference implementations that will back the L0 engine adapter until a Contract 9 decision selects a validated external engine (Pulse, BioGears).
+- `src/reference/pharmacokinetics.ts` — Hill-equation dose-response, first-order onset delay, fluid bolus decay, AR(1) bounded noise, baroreflex HR compensation. Reference implementations that back the L0 engine adapter alongside the Pulse Physiology Engine (locked per Contract 9, 2026-04-13).
+- `src/clock.ts` — simulation clock (Contract 3) with wall / accelerated / frozen / skip-ahead modes. Engine-adapter boundary in `src/reference/adapter.ts`.
 - `src/scenario/types.ts` + `src/scenario/controller.ts` — scenario-director scaffolding (Contract 6): state management, disk persistence, advance logic.
 - `scenarios/pressor-titration.ts` + `fluid-responsive.ts` + `hyporesponsive.ts` — three seed ICU scenarios.
 - `__tests__/pharmacokinetics.test.ts` + `__tests__/scenario-controller.test.ts` — coverage for the reference math and the controller.

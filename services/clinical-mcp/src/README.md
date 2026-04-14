@@ -32,14 +32,17 @@ Start here when work is about:
 ### `events/`
 
 Owns:
-- scenario generation
-- physiology progression helpers
-- scenario-specific state transitions
+- event-surface shaping at the L3 boundary
+- historical event helpers retained until the Lane F sim-tool seam lights up
+
+Does not own:
+- L0 physiology, reference pharmacokinetics, or scenario direction — those live in `services/sim-harness/` as of 2026-04-13 (brownfield relocation)
 
 Start here when work is about:
-- simulated patient-state changes
-- progression logic
-- scenario-specific interventions
+- how events surface to the agent at the L3 boundary
+
+Go to `services/sim-harness/` when work is about:
+- simulated patient-state changes, scenario progression, or intervention effects on L0 truth
 
 ### `tools/`
 
@@ -54,7 +57,7 @@ Owns:
 ### top-level files
 
 - `index.ts` — service entry
-- `server.ts` — MCP tool registration
+- `server.ts` — MCP tool registration (sim tools attach through the `registerSimTools()` seam — no-op until Lane F)
 - `config.ts` — config and path resolution
 
 ## Current rule
@@ -62,7 +65,8 @@ Owns:
 If a change affects:
 - bundle shape → `context/`
 - FHIR querying → `fhir/`
-- simulation progression → `events/`
+- event surfacing at the L3 boundary → `events/`
+- simulation progression / L0 physiology / scenario direction → `services/sim-harness/` (not here)
 - MCP tool surface → `server.ts` and the relevant subarea
 
 ## Read this next

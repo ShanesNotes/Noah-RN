@@ -87,6 +87,10 @@ Read first when:
 - narrowing a high-level plan into implementation-ready artifacts
 
 Key docs:
+- [foundations/invariant-kernel-simulation-architecture.md](foundations/invariant-kernel-simulation-architecture.md) — canonical sim authority (kernel)
+- [foundations/foundational-contracts-simulation-architecture.md](foundations/foundational-contracts-simulation-architecture.md) — canonical sim authority (9 contracts, Contract 9 locks Pulse)
+- [foundations/first-bedside-workflow-spec.md](foundations/first-bedside-workflow-spec.md) — first bedside workflow (ICU respiratory decompensation)
+- [foundations/medplum-write-path-expansion.md](foundations/medplum-write-path-expansion.md) — Contract 5 charting write-path
 - [foundations/scaffolding-alignment.md](foundations/scaffolding-alignment.md)
 - [foundations/first-scaffold-batch.md](foundations/first-scaffold-batch.md)
 - [foundations/patient-context-bundle-contract.md](foundations/patient-context-bundle-contract.md)

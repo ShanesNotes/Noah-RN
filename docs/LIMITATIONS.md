@@ -1,5 +1,7 @@
 # Noah RN — Known Limitations
 
+> **Scope note (2026-04-14):** the technical/safety rows below describe the legacy Claude Code plugin surface (skills, Tier 1 hooks, golden test suite). The active agent harness foundation is now `pi.dev` and Medplum is the primary clinician workspace. The clinical-scope, data-privacy, regulatory, and HITL principles carry forward unchanged; the Claude-Code-specific rows should be read as legacy-era constraints being restated against the new foundation.
+
 ## Patient Population
 
 | Limitation | Rationale |
@@ -29,7 +31,7 @@
 
 | Limitation | Rationale |
 |-----------|-----------|
-| Requires Claude Code runtime | Skills are prompt-based and non-functional without Claude Code. Not a standalone application. |
+| Legacy skills required Claude Code runtime | Legacy skill surface was prompt-based and non-functional without Claude Code. Current architecture targets `pi.dev` as the agent harness foundation; see `docs/ARCHITECTURE.md`. |
 | Drug lookup requires network (OpenFDA API) | External API dependency. No offline cache implemented. See DEGRADATION.md for fallback. |
 | Output quality is model-dependent | Prompt behavior may shift across model versions. Re-run golden test suite after any model update before clinical use. |
 | Calculators work offline; skills do not | Calculators are standalone bash scripts. Skills require the model for synthesis and reasoning. |

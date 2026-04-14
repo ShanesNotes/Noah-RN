@@ -31,7 +31,7 @@ Not all noah-rn functions sit equally under the CDS exemption. FDA's January 202
 | Clinical calculators | Needs careful positioning | Risk scoring tools (GCS, APACHE II, Wells) could be viewed as disease risk stratification under updated Criterion 3. However, these are published scoring systems presented as calculation aids, not proprietary algorithms. |
 | Protocol reference | Needs careful positioning | Time-critical protocol guidance (ACLS, stroke tPA window) could be viewed as addressing time-critical decisions. However, these are reference materials (equivalent to a pocket card), not autonomous alerting. |
 
-**Current risk:** LOW. noah-rn is a local CLI plugin — no PHI, no deployment, no commercial distribution. These distinctions matter for future commercialization, not current use.
+**Current risk:** LOW. noah-rn is a local, non-production system (legacy Claude Code plugin surface plus the current `pi.dev` / Medplum-backed local lane) — no PHI, no deployment, no commercial distribution. These distinctions matter for future commercialization, not current use.
 
 ---
 

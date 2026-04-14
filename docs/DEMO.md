@@ -1,5 +1,7 @@
 # Noah RN Demo Walkthrough
 
+> **Status: legacy reference.** This walkthrough predates the current architecture. The active agent harness foundation is `pi.dev` (Decision 2026-04-10); the Claude Code plugin / skills shown below are not the active runtime. Medplum is the primary clinician workspace (`apps/nursing-station/`), and the first live bedside workflow is defined in [`foundations/first-bedside-workflow-spec.md`](foundations/first-bedside-workflow-spec.md) (ICU respiratory decompensation). Keep this doc as a deterministic-checkpoint reference for legacy skill outputs; do not treat it as the current demo surface.
+
 Purpose: run a concise, reproducible Claude Code demo of Noah RN as one continuous ICU sepsis shift-change scenario.
 
 This walkthrough is a synthetic composite derived from the repo's current encounter fixtures plus deterministic tool inputs. It uses the manual scenario-testing pattern documented in [tests/clinical-scenarios/README.md](../tests/clinical-scenarios/README.md) and the deterministic-first architecture described in [docs/ARCHITECTURE.md](./ARCHITECTURE.md): structured skills for bedside workflow, exact tools for math and scoring, explicit trust boundaries, and safety disclaimers.

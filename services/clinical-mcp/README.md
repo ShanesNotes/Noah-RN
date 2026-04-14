@@ -9,8 +9,8 @@ It is the agent-facing boundary between workflow/harness code and chart/simulati
 - MCP server surface for clinical tools
 - patient-context assembly
 - FHIR client and mapping logic
-- draft write-boundary scaffolds for Shift Report and related clinical actions
-- simulation/state progression helpers used by the current clinical workspace lane
+- FHIR-queued draft write path for Shift Report and related clinical actions (Contract 5: `Task(status=requested)` → runtime executes → draft `DocumentReference(status=current, docStatus=preliminary)` → `Task.output` links artifact)
+- the agent-facing boundary that sim tools register through via the `registerSimTools()` seam (no-op until Lane F) — L0 physiology, reference pharmacokinetics, and scenario direction live in `services/sim-harness/` as of 2026-04-13
 - fixture-backed canonical patient path support
 
 ## What this folder does not own
@@ -37,10 +37,10 @@ npm run get-context --workspace services/clinical-mcp
 
 ## Where to look first
 
-- `src/server.ts` — MCP tool registration and service boundary
+- `src/server.ts` — MCP tool registration and service boundary (sim tools register through the `registerSimTools()` seam — no-op until Lane F)
 - `src/context/` — patient-context assembly and shaping
 - `src/fhir/` — FHIR fetch and mapping layer
-- `src/events/` — simulation/event progression logic
+- `src/events/` — event-surface shaping at the L3 boundary (L0 physiology and scenario direction live in `services/sim-harness/`)
 - `get-context.mjs` — local bounded patient-context inspection helper
 - `fixtures/` — canonical fixture-backed patient path support
 
@@ -55,8 +55,8 @@ npm run get-context --workspace services/clinical-mcp
 Treat `src/` as canonical code truth.
 
 Treat `fixtures/` as support for the first bounded patient-context path, not as the product architecture.
-Treat simulation code here as part of the clinical workspace lane, not as a separate platform.
-Treat `src/fhir/writes.ts` as scaffold-only until write semantics are explicitly widened.
+Treat this service as the agent-facing context boundary; live-runtime physiology is in `services/sim-harness/`.
+Treat `src/fhir/writes.ts` as the Contract 5 draft write-back surface — expand only per the medplum write-path expansion spec.
 
 ## Read this next
 
@@ -65,3 +65,6 @@ Treat `src/fhir/writes.ts` as scaffold-only until write semantics are explicitly
 - `../../docs/foundations/patient-context-bundle-contract.md`
 - `../../docs/foundations/shift-report-canonical-patient-path.md`
 - `../../docs/foundations/medplum-architecture-packet.md`
+- `../../docs/foundations/medplum-write-path-expansion.md`
+- `../../docs/foundations/invariant-kernel-simulation-architecture.md`
+- `../../docs/foundations/foundational-contracts-simulation-architecture.md`

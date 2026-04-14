@@ -1,5 +1,7 @@
 # Noah RN — Degradation & Fallback
 
+> **Scope note (2026-04-14):** this matrix was authored against the legacy Claude Code plugin surface (skills, router, Tier 1 hooks). The active agent harness foundation is now `pi.dev` (Decision 2026-04-10) and Medplum is the primary clinician workspace. The principles below (augment-never-replace, return-to-baseline, loud failure) still govern; the specific component rows refer to legacy skill surfaces and should be read as a reference for that era.
+
 ## Availability Tier
 
 **Tier 2 — 99.9% / ~8.76 hr annual downtime acceptable.**
@@ -9,12 +11,12 @@ Noah is documentation AI, not life-critical infrastructure. When unavailable, th
 
 | Component | Depends On | Failure Mode | Nurse Impact | Fallback |
 |-----------|-----------|--------------|-------------|---------|
-| Clinical skills | Claude Code + model | Model unavailable or rate-limited | No structured output | Chart manually, paper references |
+| Clinical skills (legacy surface) | Claude Code + model | Model unavailable or rate-limited | No structured output | Chart manually, paper references |
 | Calculators | Bash + jq | Local execution — near-zero failure risk | None unless OS down | Bedside reference cards, manual calc |
 | Drug lookup | Network + OpenFDA API | API down, 429 rate-limit, or network outage | No drug reference | Facility formulary, Lexicomp, call pharmacy |
 | Knowledge files | Local filesystem | Only if filesystem corrupted | None practically | Paper protocol binders |
 | Tier 1 hooks | Bash + jq | Same as calculators — local execution | Safety checks unavailable | Nurse's clinical judgment (always primary) |
-| Router agent | Claude Code + model | Same as skills | No intelligent routing | Invoke skills directly by name |
+| Router agent (legacy) | Claude Code + model | Same as skills | No intelligent routing | Invoke skills directly by name |
 
 ## Core Principle
 

@@ -12,9 +12,9 @@ This folder holds environment and platform bring-up material for Noah RN.
 Current contents:
 - `docker-compose.yml` — active Medplum local stack
 - `medplum/` — Medplum operator scripts and app config for the current Shift Report lane
-- `pi/` — pi-runtime environment scaffolding for the tower/operator lane
-- `load-mimic.sh` — dataset loading helper
-- `nemoclaw/` — historical exploratory integration material; not the active foundation
+- `pi/` — pi-runtime environment scaffolding for the tower/operator lane (`pi.dev` is the active agent harness foundation per 2026-04-10 decision)
+- `load-mimic.sh` — legacy MIMIC-IV dataset loading helper (current active dataset is Synthea; MIMIC migration is future)
+- `nemoclaw/` — **legacy** exploratory NemoClaw/OpenClaw sandbox material; not the active foundation
 
 ## What this folder does not own
 
@@ -24,10 +24,11 @@ Current contents:
 - evaluation traces
 
 Those live in:
-- `services/clinical-mcp/`
-- `packages/workflows/`
+- `services/clinical-mcp/` — agent-facing context boundary
+- `services/sim-harness/` — Clinical Sim Harness (L0 physiology via Pulse, scenario controller, monitor projection); owns live-runtime boundary
+- `packages/workflows/` — authoritative workflow contracts
 - `clinical-resources/`
-- `evals/`
+- `evals/` — meta-harness center
 
 ## Current rule
 

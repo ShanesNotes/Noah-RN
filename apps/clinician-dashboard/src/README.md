@@ -7,10 +7,12 @@ This folder contains the source-of-truth implementation for the dashboard sideca
 ### `components/`
 
 Owns:
-- runtime-console panels
+- runtime-console panels (eval, trace, context inspector, skill, terminal)
 - eval and trace surfaces
 - workflow-support panels
 - context inspection surfaces
+
+Does NOT own the clinician chart UI — that is `apps/nursing-station/`.
 
 Start here when work is about:
 - what the runtime-console user sees
@@ -20,11 +22,11 @@ Start here when work is about:
 ### `fhir/`
 
 Owns:
-- app-side FHIR fetch helpers
+- app-side FHIR fetch helpers used for runtime-console signals (context inspection, trace rendering)
 - app-specific response shaping
 
 Start here when work is about:
-- how the dashboard fetches data
+- how the dashboard fetches runtime-console data
 - app-side auth/fetch behavior
 
 ### `hooks/`

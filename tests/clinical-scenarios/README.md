@@ -71,7 +71,7 @@ notes: |
 
 1. Open the encounter YAML file.
 2. Read the `patient_handoff` — this is the context for the session.
-3. For each entry in `skills_exercised`, copy the `trigger` text and invoke the skill in Claude Code (e.g., `/shift-report` followed by the trigger, with the handoff as context).
+3. For each entry in `skills_exercised`, copy the `trigger` text and invoke the skill through the active agent harness (pi.dev) — e.g., `/shift-report` followed by the trigger, with the handoff as context.
 4. Compare the output against `must_contain` and `must_not_contain` concepts for that skill.
 5. After reviewing all skills, fill in `result`, `result_date`, and `notes` in the file.
 

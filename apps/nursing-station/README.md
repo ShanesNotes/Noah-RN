@@ -15,12 +15,14 @@ This folder holds the Medplum-first clinician workspace app for Noah RN.
 - patient-context assembly logic
 - workflow contract truth
 - eval/trace observability
+- L0 physiology or scenario control
 
 Those live in:
-- `packages/agent-harness/`
-- `services/clinical-mcp/`
+- `packages/agent-harness/` (pi.dev is the active harness foundation, Decision 2026-04-10)
+- `services/clinical-mcp/` — agent-facing context boundary
+- `services/sim-harness/` — Clinical Simulation Harness runtime center (Pulse L0 substrate, Contract 9)
 - `packages/workflows/`
-- `apps/clinician-dashboard/`
+- `apps/clinician-dashboard/` — runtime-console sidecar (evals/traces/context/skills/terminal)
 
 ## Useful commands
 

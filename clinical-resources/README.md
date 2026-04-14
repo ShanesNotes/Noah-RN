@@ -27,8 +27,9 @@ Current contents:
 
 Those live elsewhere:
 - routing: `packages/agent-harness/`
-- workflows: `packages/workflows/`
-- patient context: `services/clinical-mcp/`
+- workflows: `packages/workflows/` (authoritative for workflow contracts)
+- patient context / agent-facing boundary: `services/clinical-mcp/`
+- L0 physiology substrate (Pulse): `services/sim-harness/`
 
 ## Current rule
 

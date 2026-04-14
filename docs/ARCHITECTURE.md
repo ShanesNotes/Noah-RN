@@ -49,7 +49,7 @@ Role of `services/clinical-mcp/`:
 
 Role of `services/sim-harness/`:
 - own the **L0–L4 projection model** per the invariant kernel: L0 hidden patient truth (engine adapter, eval-recorder-only access), L1 monitor projection (primary patient avatar; numeric telemetry + waveforms + alarms + signal quality), L2 events (two-stage release: L0 eligibility + scenario-controller release per amendment D2), L3 chart (written through clinical-mcp to Medplum), L4 obligations (documentation duties, follow-up windows, workflow pressure)
-- wrap a validated external physiology engine behind the L0 adapter — engine choice deferred to Contract 9 (Research-Hook); Pulse and BioGears are candidates, not decisions
+- wrap a validated external physiology engine behind the L0 adapter — Contract 9 (2026-04-13) locked **Pulse Physiology Engine** (Kitware, Apache-2.0) as the L0 substrate
 - drive the **simulation clock** (single time authority — wall-clock, accelerated(N), frozen, skip-ahead per Contract 3)
 - enforce **monitor-as-avatar**: rhythm and hemodynamic claims must validate against raw waveform surface (samples + rendered image), not against labels (see `docs/foundations/sim-harness-waveform-vision-contract.md`)
 - write Observation / Encounter / MedicationAdministration / Provenance resources through the clinical-mcp boundary into the same FHIR backbone
@@ -123,7 +123,7 @@ When the encounter is a live simulation, an additional path runs continuously in
 
 ```text
 services/sim-harness/
-  -> (wraps Pulse/BioGears physiology engine + scenario director + waveform generators)
+  -> (wraps Pulse Physiology Engine (L0) + scenario director + waveform generators)
   -> infrastructure/ (Medplum FHIR) -> services/clinical-mcp/ -> packages/agent-harness/
   -> apps/clinician-dashboard/ (future waveform/vitals observability surface)
 ```
@@ -146,7 +146,7 @@ Sidecar now:
 Deferred:
 - broad memory persistence
 - broad runtime promotion beyond the first workflow
-- in-house physiology modeling (explicitly superseded — L0 is always an adapter over a wrapped external engine; engine choice is gated on Contract 9 / Research-Hook)
+- in-house physiology modeling (explicitly superseded — L0 is always an adapter over a wrapped external engine; Contract 9 locked Pulse as that engine on 2026-04-13)
 - alternative harness foundations
 
 ## Active Subsystems Summary
@@ -177,6 +177,8 @@ For more detail, read:
 - [foundations/encounter-validation-simulation-architecture.md](foundations/encounter-validation-simulation-architecture.md)
 - [foundations/contract-consistency-review-simulation-architecture.md](foundations/contract-consistency-review-simulation-architecture.md)
 - [foundations/execution-packet-simulation-architecture.md](foundations/execution-packet-simulation-architecture.md) — Lanes A–F
+- [foundations/first-bedside-workflow-spec.md](foundations/first-bedside-workflow-spec.md) — first bedside workflow (ICU respiratory decompensation)
+- [foundations/medplum-write-path-expansion.md](foundations/medplum-write-path-expansion.md) — Contract 5 charting write-path expansion
 - [foundations/sim-harness-waveform-vision-contract.md](foundations/sim-harness-waveform-vision-contract.md) — KEPT
 - [foundations/sim-harness-scaffold.md](foundations/sim-harness-scaffold.md) — historical pointer
 - [foundations/sim-harness-runtime-access-contract.md](foundations/sim-harness-runtime-access-contract.md) — working reference (superseded for authority)

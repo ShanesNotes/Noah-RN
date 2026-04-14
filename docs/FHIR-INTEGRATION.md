@@ -103,6 +103,8 @@ before MIMIC data can be loaded into the new platform.
 
 ## 2. Use Cases for Noah-RN Skills
 
+> **Legacy skill surface.** The skill names below (`drug-reference`, `io-tracker`, `clinical-calculator`, etc.) refer to the Claude Code plugin era. They are retained as FHIR-shape reference for the equivalent workflows now being rebuilt under the Medplum-first / pi.dev architecture. Current authoritative workflow surface: `packages/workflows/` and `docs/foundations/first-bedside-workflow-spec.md`.
+
 How each existing skill is expected to leverage FHIR patient context for testing and skill development.
 On the current server, patient, encounter, condition, medication-history, and Observation data are available with demo-specific limits around active-state filtering and missing allergy/current-encounter coverage.
 
@@ -376,9 +378,11 @@ the Medplum/Synthea stack but remain in the repo for future MIMIC migration refe
 
 ---
 
-## 7. Data Regeneration Playbook
+## 7. MIMIC-IV Data Regeneration Playbook (future-migration reference)
 
-The canonical flow is `download -> decompress -> load -> verify`. Use this for a fresh import or a full reset.
+> The current active dataset is Synthea (see Section 6). The MIMIC-IV flow below is retained as a reference for the planned future migration into Medplum; the `load-mimic.sh` script still targets the prior HAPI-era shape and will need Medplum-auth adaptation before it is usable end-to-end.
+
+The legacy flow is `download -> decompress -> load -> verify`. Use this for a fresh MIMIC-IV import or a full reset.
 
 ```bash
 ./infrastructure/load-mimic.sh download
