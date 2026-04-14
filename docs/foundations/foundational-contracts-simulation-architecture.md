@@ -428,6 +428,10 @@ Define how clinical scenarios are authored, how they schedule events on the simu
 - **Intervention during intervention:** Agent titrates a pressor while a bolus onset is still in progress. Both must coexist in the engine's state. This is normal clinical reality, not an error.
 - **Scenario timeline conflict:** Two events scheduled for the same simulation time. Process in definition order; log if ordering matters clinically.
 - **Cascade failure:** Intervention triggers iatrogenic event that triggers alarm that triggers obligation. The cascade must complete within one logical tick without infinite loops.
+- **Provider reactive-response out of latency (amendment D6).** Scenario controller fails to produce a provider response within `latency_window` for a Noah escalation. Either the window is exceeded silently (defect) or the controller emits an explicit `provider_timeout` event that is itself eval-visible.
+- **Provider event on wall-clock (amendment D6).** A provider event dispatches from wall-clock time rather than simulation time. All provider dispatching must consult Contract 3 clock. Defect regardless of whether the timing looks correct.
+- **Runtime `historical-seed` write attempt (amendment T6).** Any L3 write request carrying `agent.who = historical-seed` outside the one-shot T=0 load pass must be rejected by Contract 5 and logged by Contract 8.
+- **Cross-instance write bleed (amendment T6).** A scenario run's runtime writes appear in a subsequent run's T=0 baseline. Instance scoping is a CCPS-1 enforcement surface.
 
 ### Deferred Decisions
 
@@ -448,6 +452,10 @@ Intervention closure is the feedback loop that makes the simulation a living sys
 - [ ] L2 events release at scenario-controlled times, not at L0 state-change times.
 - [ ] Scenario visibility rules are enforced (agent cannot see hidden future events in eval mode).
 - [ ] Two concurrent interventions coexist without conflict.
+- [ ] Scenario definition includes `source_patient`, `history_window`, `provider_schedule` per amendment T5.
+- [ ] T=0 load pass seeds chart under `historical-seed` Provenance; runtime `historical-seed` writes rejected.
+- [ ] Provider reactive-response to Noah escalation lands within scenario-configured `latency_window`.
+- [ ] At least one scenario run demonstrates a reactive provider response producing an L2/L3 write (e.g., accept intubation request → RSI orders + procedure response).
 
 ---
 
@@ -706,3 +714,25 @@ Source: `docs/foundations/contract-9-research-brief-physiology-engine.md`. Trigg
 | 1 | Deferred-decision entry "Which engine (Pulse, BioGears, other)" replaced with a resolution entry locking Pulse as the primary L0 engine, BioGears as fallback, Phase 2 sidecar as integration pattern. State-serialization entry updated to reference Pulse protobuf. |
 
 This is the first exercise of Contract 9's research-hook process. Scope intentionally narrow: cardiopulmonary + hemodynamic + basic renal only. Future triggers required for neurological, endocrine, hepatic, tissue-level modeling.
+
+### 2026-04-14 — Vision-alignment amendments (T1–T6, D5–D7)
+
+Source: user vision pass recorded in `/home/ark/.claude/plans/sunny-noodling-stearns.md` Session 1. Kernel anchor: `docs/foundations/invariant-kernel-simulation-architecture.md` Appendix A. Governing new foundation docs: `data-partition-contract-simulation-architecture.md` (CCPS-1) and `scenario-authoring-contract-simulation-architecture.md` (SAC-1), landing in the same session.
+
+**Motivation.** The vision treats scenarios as grounded-patient runs (MIMIC-IV / Synthea) where the chart at T=0 is a pruned historical snapshot, post-T=0 chart state arrives via exactly two runtime authors (Noah and a lightweight-behavioral provider actor), the monitor is a read-only sibling surface that posts `preliminary` Observations which Noah validates to `final`, and alarms route attention to wake the agent. The prior contracts did not state the history-vs-present partition, did not model the provider as a first-class authored writer, did not name the monitor-to-chart preliminary-validation bridge, and did not contractualize alarm-mediated agent wake. These amendments close those gaps without renumbering Contracts 1–9.
+
+| ID | Severity | Contract(s) | Change |
+|----|----------|-------------|--------|
+| T1 | Medium | 1 | Grounded-seed clause. MIMIC-IV or Synthea is the preferred seed substrate; synthetic seeds only for engine unit-test fixtures. |
+| T2 | High | 1 | Historical-state carry-over. L0 at T=0 initialized from the source patient's state at the scenario-declared cut-point; post-T=0 source trajectory is engine ground-truth driving input only, never rendered into any agent-readable projection. Leak is a contract violation. |
+| T3 | High | 2 | Temporal-visibility invariant (new invariant 7). Chart queries at simulation time T return only resources with authoritative timestamp ≤ T and release-state = `released`. Enforcement in clinical-mcp read layer. Failure mode added. |
+| T4 | Medium | 2 | Monitor read-only / no auto-write (strengthens invariant 3). Monitor is read-only to the agent. L3 writes originate only in `noah-nurse`, `provider`, or the narrow `device-auto` preliminary-only path. Nothing flows implicitly to `status=final`. |
+| T5 | Medium | 6 | History-vs-present partition in scenario definition. Required new fields: `source_patient`, `history_window` (default `full` stay up to cut-point), `provider_schedule`. |
+| T6 | High | 5, 6 | Scenario loader responsibility and run-scoped instantiation. One-shot T=0 load pass with `historical-seed` Provenance; runtime `historical-seed` writes rejected; each run is a fresh instance with no cross-run write bleed. |
+| D5 | High | 5 | Authored-actor taxonomy (closed set): `noah-nurse`, `provider`, `scenario-director`, `device-auto`, `historical-seed`. Vital-sign validation path (promote-preliminary vs fresh-author). |
+| D6 | High | 6 | Provider actor as first-class authored writer, lightweight-behavioral. Two event classes: scheduled (sim-clock) and reactive (responds to Noah escalation within `latency_window` with decision in `{ accept, defer, modify, decline }`). |
+| D7 | Medium | 4 | Alarm-mediated agent wake. Each alarm carries `attention_class` in `{ wake, notify, ambient }`. Default mapping high→wake, medium→notify, low→ambient; scenario-configurable. Attention routing is first-class, traced. |
+
+**Non-renumbering.** Invariants 1–8 in the kernel are unchanged. Contracts 1, 2, 4, 5, 6 gain new invariants (numbered as continuations: Contract 1 adds invariant 6; Contract 2 adds invariant 7; Contract 4 adds invariant 7; Contract 5 adds invariants 7 and 8; Contract 6 adds invariants 8 and 9). Acceptance criteria and failure modes are extended, not replaced.
+
+**Lane impact.** Lane A (LIVE) gains a verification that the engine adapter accepts grounded L0 initial state but requires no rework. Lane B (partial) gains scenario-loader + visibility-filter + per-run instance isolation criteria. Lane C (not started) gains `attention_class` tagging and the monitor-preliminary-Observation bridge. Lane D (not started) gains the closed-set `agent.who` enforcement, the provider reactive-response path, and the vital-sign promote path. Lane F (not started) gains three leak-detection classes and the cross-instance isolation test. Execution-packet lane updates land in Session 2.
