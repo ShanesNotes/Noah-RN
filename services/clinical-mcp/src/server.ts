@@ -11,6 +11,23 @@ function jsonToolResult(data: unknown): {
   };
 }
 
+/**
+ * Conditional sim-tool registration seam.
+ *
+ * The clinical-mcp server is the single agent-facing MCP boundary. Per the
+ * invariant kernel, agents never talk to services/sim-harness/ directly —
+ * sim tools register here and only when a sim-harness runtime is present.
+ *
+ * This function is intentionally a no-op today. Runtime wiring for live
+ * vitals, waveform vision, medication administration, intervention, scenario
+ * control, charting authority, and obligation tools lands in execution-packet
+ * Lane F per docs/foundations/execution-packet-simulation-architecture.md,
+ * shaped by Contracts 4, 5, 6, 7 in the foundational contracts document.
+ */
+function registerSimTools(_server: McpServer): void {
+  // no-op until Lane F
+}
+
 export function createServer(): McpServer {
   const server = new McpServer({
     name: 'noah-rn-clinical',
@@ -61,51 +78,12 @@ export function createServer(): McpServer {
     },
   );
 
-  // Tool: get_scenario
-  server.tool(
-    'get_scenario',
-    'Get an ICU simulation scenario with current physiologic state.',
-    {
-      scenario_id: z.enum(['pressor-titration', 'fluid-responsive', 'hyporesponsive']).describe('Scenario ID'),
-    },
-    async ({ scenario_id }) => {
-      const { getScenario } = await import('./events/generator.js');
-      const scenario = await getScenario(scenario_id);
-      return jsonToolResult(scenario);
-    },
-  );
-
-  // Tool: advance_scenario
-  server.tool(
-    'advance_scenario',
-    'Apply a clinical action to a scenario (titrate medication, give fluid bolus) and return updated physiologic state.',
-    {
-      scenario_id: z.enum(['pressor-titration', 'fluid-responsive', 'hyporesponsive']).describe('Scenario ID'),
-      action: z.enum(['titrate', 'bolus', 'add_medication']).describe('Action type'),
-      medication: z.string().optional().describe('Medication name (for titrate/add_medication)'),
-      new_dose: z.number().optional().describe('New dose value (for titrate)'),
-      volume_ml: z.number().optional().describe('Fluid volume in mL (for bolus)'),
-    },
-    async ({ scenario_id, action, medication, new_dose, volume_ml }) => {
-      const { advanceScenario } = await import('./events/generator.js');
-      const result = await advanceScenario(scenario_id, { action, medication, new_dose, volume_ml });
-      return jsonToolResult(result);
-    },
-  );
-
-  // Tool: reset_scenario
-  server.tool(
-    'reset_scenario',
-    'Reset a scenario to its initial state, clearing all persisted state.',
-    {
-      scenario_id: z.enum(['pressor-titration', 'fluid-responsive', 'hyporesponsive']).describe('Scenario ID to reset'),
-    },
-    async ({ scenario_id }) => {
-      const { resetScenario } = await import('./events/generator.js');
-      await resetScenario(scenario_id);
-      return { content: [{ type: 'text' as const, text: `Scenario "${scenario_id}" reset to initial state.` }] };
-    },
-  );
+  // Sim-harness tools register conditionally through registerSimTools().
+  // See docs/foundations/sim-harness-runtime-access-contract.md (working reference)
+  // and Contracts 4 + 6 in docs/foundations/foundational-contracts-simulation-architecture.md
+  // for the authoritative tool surface. No sim-harness runtime is wired in this build,
+  // so the helper is a no-op. Wiring lands with execution-packet Lane F.
+  registerSimTools(server);
 
   // Tool: poll_shift_report_tasks
   server.tool(

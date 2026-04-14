@@ -21,7 +21,6 @@ describe('MCP server structuredContent consistency', () => {
     vi.doUnmock('../context/assembler.js');
     vi.doUnmock('../fhir/client.js');
     vi.doUnmock('../tools/inspector.js');
-    vi.doUnmock('../events/generator.js');
   });
 
   it('returns structuredContent for get_patient_context', async () => {
@@ -69,40 +68,8 @@ describe('MCP server structuredContent consistency', () => {
     expect(result.content[0]?.text).toBe(JSON.stringify(inspection, null, 2));
   });
 
-  it('returns structuredContent for get_scenario', async () => {
-    const scenario = { id: 'pressor-titration', state: { map: 58 } };
-    vi.doMock('../events/generator.js', () => ({
-      getScenario: vi.fn().mockResolvedValue(scenario),
-      advanceScenario: vi.fn(),
-      resetScenario: vi.fn(),
-    }));
-
-    const { createServer } = await import('../server.js');
-    const server = createServer() as unknown as McpServerWithTools;
-    const result = await server._registeredTools.get_scenario.handler({ scenario_id: 'pressor-titration' });
-
-    expect(result.structuredContent).toEqual(scenario);
-    expect(result.content[0]?.text).toBe(JSON.stringify(scenario, null, 2));
-  });
-
-  it('returns structuredContent for advance_scenario', async () => {
-    const advanced = { id: 'pressor-titration', state: { map: 65 }, actionApplied: 'titrate' };
-    vi.doMock('../events/generator.js', () => ({
-      getScenario: vi.fn(),
-      advanceScenario: vi.fn().mockResolvedValue(advanced),
-      resetScenario: vi.fn(),
-    }));
-
-    const { createServer } = await import('../server.js');
-    const server = createServer() as unknown as McpServerWithTools;
-    const result = await server._registeredTools.advance_scenario.handler({
-      scenario_id: 'pressor-titration',
-      action: 'titrate',
-      medication: 'norepinephrine',
-      new_dose: 0.08,
-    });
-
-    expect(result.structuredContent).toEqual(advanced);
-    expect(result.content[0]?.text).toBe(JSON.stringify(advanced, null, 2));
-  });
+  // Sim-backed tools (get_scenario, advance_scenario, reset_scenario) are no
+  // longer registered at this boundary — they land via the sim-harness
+  // registerSimTools() seam in Lane F. See Contracts 4 and 6 in
+  // docs/foundations/foundational-contracts-simulation-architecture.md.
 });
