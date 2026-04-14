@@ -17,7 +17,9 @@ This file locks the agent-facing contract shape. Actual runtime code is deferred
 
 ## Governing alignment
 
-- `docs/foundations/sim-harness-scaffold.md` — canonical boundary and layer map
+- `docs/foundations/invariant-kernel-simulation-architecture.md` — canonical kernel and layer semantics
+- `docs/foundations/foundational-contracts-simulation-architecture.md` — canonical contract authority
+- `docs/foundations/sim-harness-scaffold.md` — historical pointer
 - `docs/foundations/sim-harness-waveform-vision-contract.md` — waveform vision surface (depended on by the `get_waveform_*` tools defined below)
 - `docs/foundations/sim-harness-engine-wrapping.md` — the Layer 0 engines that ultimately back these tools
 - `docs/ARCHITECTURE.md` — runtime relationship map showing the sim-harness → Medplum → clinical-mcp → agent path

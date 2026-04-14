@@ -8,7 +8,10 @@ services:
     stdin_open: true
     tty: true
     user: "${PI_RUNTIME_UID:-1000}:${PI_RUNTIME_GID:-1000}"
-    working_dir: /workspace
+    # Run from the curated runtime root. Pi state still lives under /pi-home,
+    # but project-scoped discovery happens from /runtime where we mount only the
+    # intended runtime surfaces plus /runtime/.pi from repo .noah-pi-runtime/.
+    working_dir: /runtime
     command: ["sleep", "infinity"]
     env_file:
       - ./.env
@@ -31,8 +34,18 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     volumes:
-      - ../..:/workspace
-      - ../../local/pi-runtime/home:/pi-home
+      - ../../package.json:/runtime/package.json:ro
+      - ../../package-lock.json:/runtime/package-lock.json:ro
+      - ../../tsconfig.json:/runtime/tsconfig.json:ro
+      - ../../packages/agent-harness:/runtime/packages/agent-harness
+      - ../../packages/workflows:/runtime/packages/workflows
+      - ../../services/clinical-mcp:/runtime/services/clinical-mcp
+      - ../../clinical-resources:/runtime/clinical-resources
+      - ../../tools:/runtime/tools
+      - ../../scripts:/runtime/scripts:ro
+      - ../../infrastructure/medplum:/runtime/infrastructure/medplum:ro
+      - ../../.noah-pi-runtime:/runtime/.pi:ro
+      - ../../local/pi-home:/pi-home
     networks:
       - medplum
 

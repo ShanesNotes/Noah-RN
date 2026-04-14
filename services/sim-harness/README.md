@@ -48,6 +48,15 @@ Monitor-as-avatar is non-negotiable: rhythm and hemodynamic claims must be valid
 
 ## Scripts
 
+From repo root:
+
+```bash
+npm run check --workspace services/sim-harness
+npm run test --workspace services/sim-harness
+```
+
+From this folder:
+
 - `npm run check` — `tsc --noEmit` typecheck across `src/`, `scenarios/`, and `__tests__/`.
 - `npm run test` — vitest run.
 - `npm run test:watch` — vitest watch mode.
@@ -55,6 +64,6 @@ Monitor-as-avatar is non-negotiable: rhythm and hemodynamic claims must be valid
 ## Where this sits in the control plane
 
 - `PLAN.md` subproject #2, scope "Clinical Simulation Harness".
-- `TASKS.md` item #4 — runtime lane A gated on the first bedside workflow that needs live vitals.
+- `TASKS.md` deferred sim-harness runtime work — runtime lane A stays gated on the first bedside workflow that actually needs live vitals.
 - `docs/ARCHITECTURE.md` — workspace-center description.
 - `docs/topology/subproject-workspace-map.md` — Workspace center B under Clinical Workspace.

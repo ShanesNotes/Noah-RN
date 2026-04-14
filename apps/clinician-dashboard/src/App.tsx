@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MantineProvider, Text } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { theme, colors } from './theme';
 import { EvalDashboard } from './components/EvalDashboard';
@@ -46,10 +46,8 @@ function App() {
           top: 0,
           zIndex: 10,
         }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <Text ff="monospace" fz="sm" fw={600} c={colors.textPrimary}>
-              noah-rn
-            </Text>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src="/logo.svg" alt="π-rn logo" style={{ height: 26, display: 'block', transform: 'translateY(-2px)' }} />
           </div>
           <div style={{ display: 'flex', gap: 32, height: '100%' }}>
             {TABS.map(t => (

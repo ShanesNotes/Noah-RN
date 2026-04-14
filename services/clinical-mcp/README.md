@@ -26,6 +26,15 @@ Those live in:
 - `clinical-resources/`
 - `docs/foundations/memory-tier-boundary.md`
 
+## Useful commands
+
+```bash
+npm run dev --workspace services/clinical-mcp
+npm run build --workspace services/clinical-mcp
+npm run test --workspace services/clinical-mcp
+npm run get-context --workspace services/clinical-mcp
+```
+
 ## Where to look first
 
 - `src/server.ts` — MCP tool registration and service boundary

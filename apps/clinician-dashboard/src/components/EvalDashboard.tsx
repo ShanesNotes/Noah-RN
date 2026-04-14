@@ -10,20 +10,6 @@ function parseTimestamp(filename: string): Date {
   return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`);
 }
 
-// Updated category colors for reference/documentation, even if chart uses unified pass/fail colors
-export const CATEGORY_COLORS: Record<string, string> = {
-  'protocol-reference': '#339AF0',
-  'neuro-calculator': '#51CF66',
-  'risk-calculator': '#38D9A9',
-  'acuity-calculator': '#69DB7C',
-  'drug-reference': '#CC5DE8',
-  'unit-conversion': '#FFA94D',
-  'shift-report': '#FF6B6B',
-  'io-tracker': '#20C997',
-  'hello-nurse': '#748FFC',
-  'shift-assessment': '#F06595',
-};
-
 export function EvalDashboard() {
   const [runs, setRuns] = useState<EvalRun[]>([]);
   const [loading, setLoading] = useState(true);

@@ -24,6 +24,7 @@ It does **not** complete the milestone. The full milestone still requires:
 - helper scripts:
   - `scripts/tower-pi-up.sh`
   - `scripts/tower-pi-shell.sh`
+  - `scripts/tower-pi-agent.sh`
   - `scripts/tower-pi-sync-runtime.sh`
   - `scripts/tower-pi-bootstrap-runtime.sh`
   - `scripts/tower-pi-test-shift-report.sh`
@@ -87,10 +88,17 @@ cd /home/ark/noah-rn
 
 That lands you inside the container, not on the bare host.
 
+If you want to launch `pi` directly instead of opening a shell first, use:
+
+```bash
+cd /home/ark/noah-rn
+./scripts/tower-pi-agent.sh
+```
+
 Equivalent raw command:
 
 ```bash
-ssh -t tower "docker exec -it noah-pi-runtime bash"
+ssh -t tower "docker exec -it noah-pi-runtime bash -lc 'cd /runtime && exec bash'"
 ```
 
 ## Sync and bootstrap the real Noah RN runtime path
@@ -112,6 +120,7 @@ That does two things:
 
 The runtime sync includes only the current path needed for the live Shift Report loop:
 
+- `.noah-pi-runtime/`
 - `packages/agent-harness/`
 - `packages/workflows/`
 - `services/clinical-mcp/`
@@ -165,17 +174,25 @@ Then run `pi` inside the container instead of on the host:
 pi
 ```
 
+If you want to launch it from the local workstation without first opening a shell,
+use the helper:
+
+```bash
+./scripts/tower-pi-agent.sh
+```
+
 Or non-interactive:
 
 ```bash
-pi -p "pwd && list the top-level files in /workspace"
+./scripts/tower-pi-agent.sh -p "pwd && list the top-level files in /runtime"
 ```
 
 ## Where state lives
 
-- repo bind mount: `/workspace`
+- curated runtime mount: `/runtime`
+- project-scoped Pi assets in container: `/runtime/.pi` (sourced from repo `.noah-pi-runtime/`)
 - writable pi home inside the container: `/pi-home`
-- backing host path for writable pi state: `local/pi-runtime/home/`
+- backing host path for writable pi state: `local/pi-home/`
 
 That keeps runtime state out of the bare host home directory and inside the isolated lane.
 

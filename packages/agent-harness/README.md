@@ -57,6 +57,14 @@ Near-term use:
 - orchestration policies
 - future harness entrypoints
 
+## Useful commands
+
+```bash
+npm run check --workspace packages/agent-harness
+npm run describe-routing --workspace packages/agent-harness
+npm run select-workflows --workspace packages/agent-harness
+```
+
 ## Where to look first
 
 - `router/clinical-router.md` — current routing behavior contract

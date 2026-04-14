@@ -27,3 +27,5 @@ ssh_cmd "cd '$REMOTE_REPO_ROOT' && docker compose -f '$PI_COMPOSE_REL' up -d --b
 
 echo "[noah-rn] pi lane is up. enter it with:"
 echo "  ./scripts/tower-pi-shell.sh"
+echo "[noah-rn] or launch pi directly with:"
+echo "  ./scripts/tower-pi-agent.sh"

@@ -12,6 +12,7 @@ SYNC_PATHS=(
   package.json
   package-lock.json
   tsconfig.json
+  .noah-pi-runtime
   clinical-resources/registry.json
   clinical-resources/mimic-mappings.json
   packages/agent-harness

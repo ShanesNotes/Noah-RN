@@ -7,8 +7,8 @@ Define the minimal clinical workspace Noah RN needs in order to build and test r
 ## Governing alignment
 
 - `PLAN.md`: Medplum remains the clinical workspace and FHIR backbone.
-- `TASKS.md`: stabilize the Medplum workspace path and choose one viable patient-context bundle now.
-- `docs/ARCHITECTURE.md`: `services/clinical-mcp/` is the context assembly and simulation server; `apps/clinician-dashboard/` is a prototype sidecar.
+- `TASKS.md`: harden the first Medplum-native Shift Report review loop, keep Medplum primary, and defer sim runtime work until a bedside workflow actually needs live vitals.
+- `docs/ARCHITECTURE.md`: `services/clinical-mcp/` is the context boundary, `services/sim-harness/` is the live-runtime boundary, and `apps/clinician-dashboard/` is a runtime-console sidecar.
 
 ## Canonical boundary
 
@@ -56,10 +56,10 @@ They do not replace it.
 
 Clinical simulation belongs inside the clinical workspace lane. It is **not** a standalone product and **not** a parallel architecture, but it **is** its own workspace center within the lane.
 
-Scaffold stance:
+Current stance:
 - simulation must feed realistic vitals, waveforms, and patient-state changes into the same context boundary used by live/demo chart workflows
 - simulation must strengthen the patient-context loop, not create a second architecture
-- simulation must wrap validated open-source physiology engines (Pulse primary, BioGears fallback) rather than rebuild physiology in-house
+- simulation must wrap validated open-source physiology engines rather than rebuild physiology in-house; engine selection is still gated on the Research-Hook contract, not fixed here
 - the agent must have direct vision on the raw waveform surface to validate rhythm and hemodynamic claims — rhythm labels alone are a silent-failure surface
 
 Workspace split inside Clinical Workspace:
@@ -67,21 +67,24 @@ Workspace split inside Clinical Workspace:
 - `services/sim-harness/` owns tickable live runtime, waveform generation, and scenario direction
 - Both read/write the same Medplum FHIR backbone, so workflows read the same context bundle regardless of whether the source is static MIMIC or a live sim-harness encounter
 
-Canonical simulation spec:
-- `docs/foundations/sim-harness-scaffold.md` — boundary, minimal architecture, layered subsystem map
-- `docs/foundations/sim-harness-first-batch.md` — scaffolding batch contents
-- `docs/foundations/sim-harness-runtime-access-contract.md` — agent-facing MCP tool contract
+Canonical simulation docs now:
+- `docs/foundations/invariant-kernel-simulation-architecture.md` — governing kernel invariants
+- `docs/foundations/foundational-contracts-simulation-architecture.md` — nine foundational contracts
+- `docs/foundations/execution-packet-simulation-architecture.md` — implementation lanes A–F
 - `docs/foundations/sim-harness-waveform-vision-contract.md` — non-negotiable waveform vision access for the agent
-- `docs/foundations/sim-harness-engine-wrapping.md` — how Pulse, BioGears, Infirmary Integrated, rohySimulator, and Auto-ALS are wrapped
+- `docs/foundations/sim-harness-scaffold.md` — historical pointer only
+- `docs/foundations/sim-harness-runtime-access-contract.md` — working reference, not canonical authority
+- `docs/foundations/sim-harness-engine-wrapping.md` — research context for engine wrapping
 
 ## Canonical surfaces now
 
 - `infrastructure/`
 - `services/clinical-mcp/`
-- `services/sim-harness/` (scaffold canonical; runtime code deferred)
+- `services/sim-harness/` (scaffold + contracts canonical; runtime code deferred)
 - `apps/clinician-dashboard/`
 - `docs/foundations/medplum-architecture-packet.md`
-- `docs/foundations/sim-harness-scaffold.md`
+- `docs/foundations/invariant-kernel-simulation-architecture.md`
+- `docs/foundations/foundational-contracts-simulation-architecture.md`
 
 ## Deferred work
 

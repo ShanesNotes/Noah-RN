@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=Noah RN Workspace
-Comment=Open Medplum as the EHR workspace and the Noah RN runtime console
+Comment=Open the nursing station and runtime console
 Exec=/home/ark/noah-rn/scripts/launch-runtime.sh
-Icon=/home/ark/noah-rn/apps/clinician-dashboard/public/favicon.svg
+Icon=/home/ark/noah-rn/apps/clinician-dashboard/public/logo-desktop.svg
 Terminal=false
 Categories=Development;
 StartupNotify=true
-Keywords=noah;clinical;medplum;dashboard;runtime;workspace;ehr;
+Keywords=noah;clinical;nursing-station;medplum;dashboard;runtime;workspace;

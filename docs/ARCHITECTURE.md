@@ -136,7 +136,7 @@ Canonical now:
 - `packages/workflows/*/SKILL.md`
 - `packages/agent-harness/`
 - `services/clinical-mcp/`
-- `services/sim-harness/` (scaffold canonical; runtime code deferred until the first workflow loop needs it)
+- `services/sim-harness/` (scaffold + contracts canonical; runtime code deferred until the first workflow loop needs it)
 - `clinical-resources/`
 
 Sidecar now:

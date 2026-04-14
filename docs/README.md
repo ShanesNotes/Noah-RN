@@ -11,6 +11,8 @@ The control plane remains:
 
 Use `docs/` for reference material, topology decisions, architectural boundaries, and archived history.
 
+Hidden planning folders such as `.omx/`, `.hermes/`, and `.omc/` may contain earlier drafts or local planning artifacts, but `docs/` is where promoted, git-tracked documentation belongs.
+
 ## How To Use `docs/`
 
 Use this file when the question is:
@@ -114,11 +116,40 @@ Purpose:
 - deeper analytical material
 - gap mapping
 - cross-reference and compliance analysis
+- promoted implementation-planning syntheses when they are analysis-heavy rather than contract docs
 
 Current docs:
+- [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)
+- [analysis/ehr-ui-ux-hidden-surface-map.md](analysis/ehr-ui-ux-hidden-surface-map.md)
+- [analysis/clinician-ui-phased-roadmap.md](analysis/clinician-ui-phased-roadmap.md)
+- [analysis/clinician-ui-feature-matrix.md](analysis/clinician-ui-feature-matrix.md)
+- [analysis/ui-ux-foundations-caveman.md](analysis/ui-ux-foundations-caveman.md)
+- [analysis/ui-resource-ledger.md](analysis/ui-resource-ledger.md)
+- [analysis/epic-source-triage.md](analysis/epic-source-triage.md)
 - [analysis/distillation-cross-reference.md](analysis/distillation-cross-reference.md)
 - [analysis/safety-compliance-report.md](analysis/safety-compliance-report.md)
 - [analysis/2026-04-12-session-closeout-audit.md](analysis/2026-04-12-session-closeout-audit.md)
+
+Read first for current clinician workspace planning:
+- [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)
+
+### `docs/plans/`
+
+Purpose:
+- implementation-ready plans with concrete file paths, acceptance criteria, and verification steps
+- the output of `/plan` mode and architect passes
+- handoff docs for engineer agents about to execute a specific lane
+
+Read first when:
+- starting implementation on a named lane or feature
+- picking up a plan another agent drafted
+
+Active plans:
+- [plans/p0.1-persistent-patient-header.md](plans/p0.1-persistent-patient-header.md) — persistent patient header for `apps/nursing-station/`
+
+Rule:
+- planning output must land here (or `docs/analysis/` if analysis-heavy), never in hidden folders like `~/.claude/plans/`, `.hermes/`, or `.omx/`
+- once a plan is executed and merged, move it to `docs/archive/` with a short outcome note
 
 ### `docs/archive/`
 
@@ -143,6 +174,19 @@ Current rule:
 - this is not a canonical deliverable docs surface
 - use it for local grounding only
 
+## Hidden Planning Reconciliation
+
+When you find a planning doc in a hidden folder:
+
+1. Check whether it explicitly says the canonical copy moved into `docs/`.
+2. If the same topic exists in `docs/`, treat the `docs/` copy as authoritative.
+3. If the hidden doc is still useful but unpromoted, mine it for ideas instead of linking to it as active guidance.
+4. If a hidden doc conflicts with `README.md`, `PLAN.md`, or `TASKS.md`, the control plane wins.
+
+Current examples:
+- `.omx/plans/invariant-kernel-simulation-architecture.md` points to `docs/foundations/invariant-kernel-simulation-architecture.md` as canonical.
+- `.hermes/plans/*` contains UI implementation planning notes that are useful inputs for `docs/analysis/`, not control-plane replacements.
+
 ## Doc Placement Rule
 
 Before creating a new doc, decide its class:
@@ -157,13 +201,17 @@ Before creating a new doc, decide its class:
 3. **Boundary / contract / scaffold**
    - belongs in `docs/foundations/`
 
-4. **Stable reference**
+4. **Implementation plan (executable by engineer agent)**
+   - belongs in `docs/plans/`
+   - never in hidden folders (`~/.claude/plans/`, `.hermes/`, `.omx/`, `notes/`)
+
+5. **Stable reference**
    - may belong at `docs/` root
 
-5. **Historical / superseded**
+6. **Historical / superseded**
    - belongs in `docs/archive/`
 
-6. **Local-only**
+7. **Local-only**
    - belongs in `docs/local/` or outside deliverable docs entirely
 
 ## Canonicality Rules

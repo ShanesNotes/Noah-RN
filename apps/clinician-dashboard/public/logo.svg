@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 32" fill="none">
+  <!-- 
+    Pure SVG typography logo. 
+    Matches the exact fonts and colors of the dashboard.
+  -->
+  <text x="0" y="24" font-family="'JetBrains Mono', monospace" font-size="28" font-weight="600" fill="#0ea5e9">π</text>
+  <text x="21" y="24" font-family="'JetBrains Mono', monospace" font-size="28" font-weight="600" fill="#fafafa">-rn</text>
+</svg>

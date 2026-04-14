@@ -45,6 +45,16 @@ Current rule:
 - `.noah-pi-runtime/` may mirror or bridge those surfaces for future pi-native runtime work
 - do not treat the Pi runtime surface as a replacement for `packages/`
 
+## Useful commands
+
+```bash
+npm run check --workspace packages/agent-harness
+npm run describe-routing --workspace packages/agent-harness
+npm run select-workflows --workspace packages/agent-harness
+
+# use workspace-local docs and scripts inside packages/workflows/ for contract work
+```
+
 ## Read this next
 
 - `agent-harness/README.md`

@@ -4,11 +4,23 @@ Runnable service/process surfaces live here.
 
 Current services:
 - `clinical-mcp/` — MCP server for context assembly and simulation-facing reads
-- `sim-harness/` — Clinical Simulation Harness workspace center (scaffold only; canonical spec in `docs/foundations/sim-harness-scaffold.md`)
+- `sim-harness/` — Clinical Simulation Harness workspace center (scaffold + contracts; canonical authority is `docs/foundations/invariant-kernel-simulation-architecture.md` and `docs/foundations/foundational-contracts-simulation-architecture.md`)
+
+Useful commands:
+
+```bash
+npm run dev --workspace services/clinical-mcp
+npm run build --workspace services/clinical-mcp
+npm run test --workspace services/clinical-mcp
+npm run get-context --workspace services/clinical-mcp
+
+npm run check --workspace services/sim-harness
+npm run test --workspace services/sim-harness
+```
 
 Current rule:
 - the Clinical Workspace lane has two workspace centers: `services/clinical-mcp/` (context boundary) and `services/sim-harness/` (live-runtime boundary)
 - if work is about patient-context assembly, timeline shaping, FHIR normalization, or MCP tool surfaces, start at `services/clinical-mcp/`
-- if work is about live vitals, live waveforms, scenario direction, or wrapping Pulse/BioGears/Infirmary Integrated, start at `services/sim-harness/` — but do not write runtime code until `TASKS.md` item 4 has moved into a runtime batch
+- if work is about live vitals, live waveforms, scenario direction, or wrapping Pulse/BioGears/Infirmary Integrated, start at `services/sim-harness/` — but do not widen runtime code until the deferred sim-harness runtime work in `TASKS.md` is intentionally pulled forward from the current queue
 - agents never talk to `services/sim-harness/` directly; agent-facing tools register through `services/clinical-mcp/`
 - read the service-local README before changing code

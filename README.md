@@ -14,6 +14,8 @@ The project exists to help a nurse build, test, and refine decomposable clinical
 - [docs/](docs/) holds product/reference material plus intentional archive history.
 - `research/` is a local-only source corpus and is intentionally not part of the product repo.
 - `wiki/` is local Claude working memory and is intentionally outside the product repo.
+- Hidden planning/tooling folders such as `.omx/`, `.hermes/`, `.omc/`, `.agents/`, `.claude/`, and `.dmux-hooks/` are not the control plane. Treat them as local planning origins or tool-specific residue unless a doc explicitly says a file was promoted.
+- `.noah-pi-runtime/` is the one tracked hidden surface that matters to product work; it is the repo-hosted pi runtime bridge, not a replacement for `packages/` or the root control plane.
 
 ## Current Shape
 
@@ -38,7 +40,7 @@ docs/            Reference docs plus archive
 local/           Gitignored local/private/generated workspace area
 ```
 
-Local grounding surfaces such as `wiki/`, `research/`, `notes/`, `docs/local/`, and Graphify outputs are intentionally outside the deliverable topology even when they still exist at repo root during the migration.
+Local grounding surfaces such as `wiki/`, `research/`, `notes/`, `docs/local/`, Graphify outputs, and hidden planning directories like `.omx/` / `.hermes/` are intentionally outside the deliverable topology even when they still exist at repo root during the migration.
 
 ## Design Boundaries
 
@@ -47,18 +49,58 @@ Local grounding surfaces such as `wiki/`, `research/`, `notes/`, `docs/local/`, 
 - Facility-specific policy is deferred until explicitly configured.
 - `pi.dev` is the current harness foundation. Claude/OpenClaw/NemoClaw-era material is historical unless it directly supports a current subproject.
 
+## Hidden Planning Surfaces
+
+The repo still contains active-looking material in hidden folders. Current status:
+
+- `.omx/plans/` and `.omx/specs/` — local planning origins; many files explicitly say the canonical copy moved into `docs/foundations/`.
+- `.hermes/plans/` — local implementation plans and UI planning notes; useful source material, not canonical direction.
+- `.omc/` and `.agents/` — agent/tool artifacts and prompts.
+- `.claude/commands/wiki.md` — Claude-only workflow for maintaining the local wiki.
+- `.dmux-hooks/` — dmux hook tooling surface, currently local/untracked here.
+- `.noah-pi-runtime/` — tracked pi bridge surface; real, but subordinate to `packages/agent-harness/` and `packages/workflows/`.
+
+Rule: if a hidden plan conflicts with `README.md`, `PLAN.md`, `TASKS.md`, or a git-tracked doc under `docs/`, the tracked control-plane doc wins.
+
 ## Running The Existing Pieces
 
 The repo currently contains working or partially working pieces from earlier phases. Before changing runtime behavior, read [PLAN.md](PLAN.md) and pick from [TASKS.md](TASKS.md).
+
+Workspace/package-manager posture:
+- root uses **npm workspaces** (`package-lock.json` is the lockfile)
+- prefer the root scripts when they exist
+- use workspace-local scripts only when working on a single surface
 
 Common areas:
 
 - Nursing station: `apps/nursing-station/`
 - Runtime console dashboard: `apps/clinician-dashboard/`
 - MCP server: `services/clinical-mcp/`
-- Clinical simulation harness: `services/sim-harness/` (scaffold only; canonical spec in `docs/foundations/sim-harness-scaffold.md`)
+- Clinical simulation harness: `services/sim-harness/` (scaffold + contracts; canonical authority is `docs/foundations/invariant-kernel-simulation-architecture.md` and `docs/foundations/foundational-contracts-simulation-architecture.md`)
 - Medplum infrastructure: `infrastructure/`
 - Clinical resources: `clinical-resources/`
+
+Useful root commands:
+
+```bash
+npm run dev:dashboard
+npm run dev:nursing-station
+npm run build
+npm run test
+npm run build:clinical-mcp
+npm run test:clinical-mcp
+npm run playwright:install
+npm run playwright:dashboard
+```
+
+Workspace-local examples:
+
+```bash
+npm run dev --workspace apps/nursing-station
+npm run build --workspace apps/clinician-dashboard
+npm run test --workspace services/clinical-mcp
+npm run check --workspace services/sim-harness
+```
 
 ## Disclaimer
 

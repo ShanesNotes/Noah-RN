@@ -22,6 +22,14 @@ Those live in:
 - `packages/workflows/`
 - `apps/clinician-dashboard/`
 
+## Useful commands
+
+```bash
+npm run dev --workspace apps/nursing-station
+npm run build --workspace apps/nursing-station
+npm run lint --workspace apps/nursing-station
+```
+
 ## Current role
 
 Treat this app as the main clinician workspace surface for the next phase.

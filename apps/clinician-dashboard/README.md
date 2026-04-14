@@ -42,6 +42,14 @@ Current panel set:
 
 Do not treat it as the source of truth for clinical workspace architecture.
 
+## Useful commands
+
+```bash
+npm run dev --workspace apps/clinician-dashboard
+npm run build --workspace apps/clinician-dashboard
+npm run test --workspace apps/clinician-dashboard
+```
+
 ## Current stack
 
 - Vite

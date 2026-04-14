@@ -11,7 +11,9 @@ This document decides, for each candidate project, whether it is a sidecar engin
 ## Governing alignment
 
 - `PLAN.md` Decision Log 2026-04-11 — wrap open-source engines, do not build in-house physiology
-- `docs/foundations/sim-harness-scaffold.md` — Layer 0 is always an adapter over a wrapped engine
+- `docs/foundations/invariant-kernel-simulation-architecture.md` — L0 hidden patient truth and adapter posture
+- `docs/foundations/foundational-contracts-simulation-architecture.md` — Contract 9 Research-Hook decision gate
+- `docs/foundations/sim-harness-scaffold.md` — historical pointer
 - `wiki/entities/pulse-physiology-engine.md`, `wiki/entities/biogears.md`, `wiki/entities/infirmary-integrated.md`, `wiki/entities/rohysimulator.md`, `wiki/entities/auto-als.md`
 - Research: `research/Open Source Clinical Simulation.md`, `research/Architectural integration for noah-rn clinical simulation.md`
 

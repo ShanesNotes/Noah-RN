@@ -13,7 +13,9 @@ RUN apt-get update \
 
 RUN npm install -g @mariozechner/pi-coding-agent@0.66.1
 
-WORKDIR /workspace
+RUN mkdir -p /runtime /pi-home/agent
+
+WORKDIR /runtime
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["sleep", "infinity"]

@@ -39,9 +39,9 @@ Lock the rule:
 - simulation feeds the same context boundary
 - simulation is not a parallel product architecture
 - simulation **does** get its own workspace center inside the lane: `services/sim-harness/`
-- simulation wraps validated open-source engines (Pulse primary, BioGears fallback, Infirmary Integrated / rohySimulator / Auto-ALS as reference patterns); no in-house physiology
+- simulation wraps validated open-source engines rather than rebuilding physiology in-house; final engine selection is deferred behind the Research-Hook contract
 - the agent **must** have vision on raw waveforms to validate rhythm and hemodynamic claims
-- canonical sim scaffold: `docs/foundations/sim-harness-scaffold.md`
+- canonical sim authority now lives in `docs/foundations/invariant-kernel-simulation-architecture.md` and `docs/foundations/foundational-contracts-simulation-architecture.md`
 
 ## This batch should not do
 
