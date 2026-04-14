@@ -113,6 +113,12 @@ Target content:
 - missing-data warnings
 - review affordance placeholder
 
+### B4. P0 optimization pass (consolidation of B1–B3)
+
+Goal: after P0.1–P0.3 have shipped, close the acceptance gaps that surface only when the three surfaces are composed — duplicate FHIR reads, all-or-nothing loading, hardcoded config, redundant chart nav, inlined primitives.
+
+Plan: `docs/plans/p0-optimization-pass.md`. Formally supersedes P0.3 Decision #4 (no-shared-fetch) in favor of a single `usePatientChartData` hook, with per-card loading isolation preserved via skeletons.
+
 ## Phase C: Playwright maturity
 
 ### C1. Make Playwright doctrine operational
@@ -220,3 +226,4 @@ After P0 is stable:
 3. Implement the stronger chart shell.
 4. Make Playwright workflow verification operational.
 5. Build the Overview page after the shell is stable.
+6. Run the P0 optimization pass (`docs/plans/p0-optimization-pass.md`) once B1–B3 are all landed.

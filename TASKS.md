@@ -25,19 +25,19 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
 
 ## Next
 
-5. **Implement the minimal `pi.dev` harness foundation inside the new layout**
+6. **Implement the minimal `pi.dev` harness foundation inside the new layout**
    - Use `.noah-pi-runtime/` as the repo-hosted pi.dev bridge surface (mounted as `/runtime/.pi` in the isolated lane).
    - Consume the registry + contract + selection structures before adding new runtime layers.
    - Keep `packages/workflows/` authoritative until a promotion decision is explicitly recorded.
 
-6. **Memory architecture spec**
+7. **Memory architecture spec**
    - Longitudinal patient H&P.
    - Present encounter mutable Markdown/canvas.
    - Provider session memory.
    - Provider persistent memory.
    - Task-local agent memory.
 
-7. **Clinical resources catalog plan**
+8. **Clinical resources catalog plan**
    - Guidelines and protocols.
    - Joint Commission as institution-policy stand-in where useful.
    - AHA and other established references.
@@ -45,12 +45,12 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Publication/update source strategy.
    - Lexicomp-like agent-centric drug reference path.
 
-8. **Meta-harness observability plan**
+9. **Meta-harness observability plan**
    - Define what every workflow invocation should log under `evals/`.
    - Decide minimum metrics for quality, safety, cost, and latency.
    - Connect evaluation traces to future eval harness work.
 
-9. **Land the Clinical Simulation Harness runtime only when needed**
+10. **Land the Clinical Simulation Harness runtime only when needed**
    - ~~Scaffold docs canonical~~ — **Superseded 2026-04-13.** Canonical authority is now the invariant kernel + nine foundational contracts (`docs/foundations/invariant-kernel-simulation-architecture.md`, `docs/foundations/foundational-contracts-simulation-architecture.md` — amended with D1–D4 + M1–M3 on 2026-04-13).
    - ~~Physiology boundary violation in clinical-mcp~~ — **Resolved 2026-04-13.** Pharmacokinetic reference models + scenario controller + scenario seeds relocated to `services/sim-harness/`. Clinical-mcp no longer owns any L0 computation. Sim tools removed from `services/clinical-mcp/src/server.ts` and replaced with a `registerSimTools()` no-op seam pending Lane F.
    - Start runtime work (execution-packet Lane A: Clock + Engine adapter) only when the first bedside workflow actually needs live vitals and waveforms. Lanes B–F sequence after.
