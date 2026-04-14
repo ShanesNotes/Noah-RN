@@ -346,6 +346,44 @@ The invariant kernel intentionally does not decide:
 
 ---
 
+## Appendix A. Temporal Partition and Authored Stream Dualism
+
+This appendix is the kernel-level anchor for the Cross-Contract Partition Spec (CCPS-1) and the Scenario Authoring Contract (SAC-1), and is the citable foundation for the T- (temporal-partition) and D- (decision-class) amendments in `foundational-contracts-simulation-architecture.md` that land alongside it. It does not renumber or replace invariants 1–8; it clarifies how those invariants apply once scenarios are grounded in real-patient substrate (MIMIC-IV or Synthea) rather than hand-authored synthetic seeds.
+
+### A.1 The T=0 cut
+
+Every grounded-patient scenario carries an explicit simulation-time zero — **T=0** — drawn from a chosen cut-point in the source patient's trajectory (e.g., ICU day 2, hour 14). The cut-point is a scenario-authored field (`source_patient.cut_point`), not an implementation detail. The source record splits cleanly against this cut:
+
+- Before T=0 → historical substrate. Eligible for chart seeding subject to the scenario's `history_window`.
+- After T=0 → present-progressive substrate. Engine ground-truth input only (driving insults, interventions) and/or scripted input to the provider actor's event queue. **Never** rendered into any projection the agent can read directly.
+
+### A.2 The pruned-historical snapshot
+
+The chart Noah reads at T=0 is a **pruned historical snapshot** of the source record, not the record itself. The snapshot is produced by the scenario loader during a one-shot load pass (governed by Contract 6 T6) and is the only time the synthetic provenance actor `historical-seed` is permitted to author L3 entries. Runtime writes by `historical-seed` are forbidden.
+
+The default snapshot is the full ICU stay up to the cut-point plus admission H&P, active problems/meds/allergies, and last prior discharge summary (if present in the source cohort). Scenarios may narrow this via `history_window.bounded_to`; the full-stay default is the baseline.
+
+### A.3 Authored-stream dualism
+
+After T=0, the chart is only written by two runtime authors:
+
+1. **`noah-nurse`** — the agent under test. Writes via clinical-mcp charting tools.
+2. **`provider`** — the provider actor. Writes via scheduled events on the simulation clock and via reactive events triggered by Noah's escalation tool calls, with a bounded-latency policy response (accept / defer / modify / decline).
+
+The **monitor** is a read-only sibling surface. It posts continuous vital-sign Observations with `status=preliminary` and `agent.who=device-auto` into the chart; these are inert until Noah's validation tool promotes them to `status=final` with `noah-nurse` attestation Provenance. This is the only narrow L1→L3 auto-write path and it does not constitute a third author — `device-auto` produces only preliminary, never final, chart state.
+
+`scenario-director` is reserved for emergency/death events that are neither a nurse action nor a provider policy response (e.g., cardiac arrest state flip, scenario termination).
+
+### A.4 Video-game-level instantiation
+
+Each scenario run is a **fresh instance** — a blank-canvas level in a progression. Noah's runtime writes during a run are scoped to that run and do not persist across instances. Outcomes are dynamic: the same scenario definition with the same historical seed and same provider schedule can end differently depending on Noah's actions. Cross-instance write bleed is a CCPS-1 failure mode.
+
+### A.5 Citing this appendix
+
+All six T-amendments (T1–T6) and three D-amendments (D5–D7) in the foundational contracts cite this appendix. CCPS-1 and SAC-1 cite it directly. The first-bedside-workflow-spec addendum (per-beat L3-author column) cites A.3. Future contracts that touch scenario loading, agent chart reads, or provider behavior must be consistent with A.1–A.4.
+
+---
+
 ## Provenance
 
 - **Planning origin:** `.omx/plans/invariant-kernel-simulation-architecture.md` (gitignored planning surface; canonical copy is this file)

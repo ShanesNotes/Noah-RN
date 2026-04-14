@@ -419,7 +419,67 @@ End with:
 - “Common silent-failure patterns to prevent”
 ```
 
-### 8. Eval and Observability Packet
+### 8. Simulated Clinical Documentation Emergence Packet
+
+Suggested output file:
+- `simulated-clinical-documentation-emergence-packet.md`
+
+```text
+[Paste shared preamble above]
+
+Research task:
+Investigate how a high-fidelity clinical simulation can preserve the distinction between underlying patient reality, live monitor signals, time-released source facts, and the selectively charted/documented record.
+
+The project posture is:
+- Noah RN is trying to test agent-native bedside workflow in something closer to a real ICU/stepdown environment
+- preloading the chart as if the encounter is already fully documented defeats much of the point
+- monitor data may stream continuously while charting remains sparse, selective, order-driven, event-driven, and judgment-driven
+- labs, notes, orders, and MAR events should appear on a simulated clock rather than as fully preloaded retrospective truth
+- Medplum is the chart/EHR backbone, but the live sim should not collapse into “whatever is already in FHIR”
+- `services/sim-harness/` should drive live encounter state, while `services/clinical-mcp/` remains the only agent-facing boundary
+
+I want to know:
+- what prior art exists for simulations that separate:
+  - latent patient state
+  - live device/monitor telemetry
+  - time-released clinical events/results/notes/orders
+  - selective chart/document capture
+- what open-source systems, academic simulators, training platforms, digital-twin architectures, nursing informatics systems, or critical-care workflow simulators are most relevant
+- which systems are worth emulating for:
+  - monitor realism
+  - timeline/event orchestration
+  - documentation workflow realism
+  - intervention modeling
+  - chart-vs-monitor mismatch handling
+  - artifact/noise modeling
+- whether there are strong open-source examples of “documentation emergence” rather than fully pre-authored chart playback
+- how real-world ICU/EHR/flowsheet systems handle the distinction between continuous telemetry, validated measurements, nurse-charted values, and order-driven documentation cadence
+- what architectural patterns best support a simulated encounter where the agent must help decide what should be charted, when, and why
+- what minimum viable first slice would preserve this ontology without overbuilding
+
+Please focus on:
+- official docs, public repos, maintainer writeups, academic papers, technical talks, standards docs, and training-system references
+- clinical simulation platforms, physiology engines, monitor/device simulators, nursing informatics literature, EHR flowsheet/documentation workflow references, and telemetry-to-chart integration patterns
+- open-source and inspectable systems first, but include especially important proprietary/reference systems if they are the clearest prior art
+- architecture and workflow realism over glossy product marketing
+
+Please answer specifically for a project that wants:
+- Medplum as the chart backbone
+- a Philips IntelliVue-like bedside monitor experience
+- live monitor streaming plus selective documentation
+- no silent chart writes
+- agent support for bedside discernment and documentation relevance
+- a future evaluation harness that can score what was charted, what was missed, what was over-charted, and whether timing/context were appropriate
+
+End with:
+- “Best prior-art systems or concepts to emulate”
+- “Best open-source building blocks”
+- “Recommended ontology for patient truth vs source facts vs charted record”
+- “Minimum viable simulation slice”
+- “Top architecture mistakes to avoid”
+```
+
+### 9. Eval and Observability Packet
 
 Suggested output file:
 - `eval-observability-packet.md`

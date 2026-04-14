@@ -26,7 +26,7 @@ Define what patient truth is, where it lives, who can access it, and how it evol
 
 ### Inputs
 
-- **Patient seed:** Demographics, comorbidities, baseline physiology. Source: hand-authored, MIMIC-IV seed, or synthetic generation.
+- **Patient seed (amendment T1).** A grounded patient drawn from **MIMIC-IV or Synthea** is the preferred seed substrate. The scenario declares `source_patient = { dataset, patient_id, cut_point }` (per Contract 6 T5). Hand-authored or synthetic seeds are permitted **only** for engine unit-test fixtures, not for scenarios in the vision sense. Rationale: grounded seeds are the precondition for the temporal-partition and authored-stream-dualism regime (kernel Appendix A.1–A.3) and for dual-source waveform fidelity.
 - **Insults:** Pathophysiological events applied by the scenario controller (hemorrhage, sepsis progression, tension pneumothorax, etc.).
 - **Interventions:** Actions applied by the agent, nurse, or scenario controller (medication administration, procedures, ventilator changes). Routed through Contract 6 (Scenario and Intervention).
 - **Clock ticks:** Simulation time advances from Contract 3 (Simulation Clock). The engine computes state for each tick.
@@ -46,12 +46,14 @@ L0 state is not directly output to any consumer except the evaluation recorder. 
 3. No agent-facing surface may read L0 directly. The agent works from L1, L3, and L4.
 4. L0 evolves continuously on the simulation clock. It does not pause for agent deliberation unless the clock itself is frozen.
 5. The engine adapter boundary isolates L0 computation so engines can be swapped without affecting projection layers.
+6. **Historical-state carry-over (amendment T2).** When the seed is a grounded patient, L0 at simulation time T=0 is initialized from the patient's state at the scenario-declared `cut_point` in the source trajectory (MIMIC chartevents, Synthea record). L0 evolution after T=0 is produced by the engine, not by replaying the source. The source trajectory past T=0 is engine ground-truth input only (for driving scripted insults/interventions at scenario-authored times) — it is **never** rendered into any projection that the agent can read. Any leak of post-T=0 source rows into L1/L2/L3 is a contract violation (see CCPS-1 failure modes).
 
 ### Failure Modes
 
 - **Engine crash/hang:** L0 state becomes stale. L1 must signal stale data (signal quality degradation). Obligations continue accruing on the clock. The evaluation recorder logs the gap.
 - **Seed incompatibility:** Patient seed parameters exceed engine capability. Fail loudly at scenario start, not silently during execution.
 - **Physiological impossibility:** Engine computes state outside survivable bounds (e.g., MAP 0 while interventions are running). The scenario controller may declare death; the engine must not silently clamp.
+- **Post-T=0 source-trajectory leak (amendment T2).** Any code path that exposes source-record rows with `effectiveDateTime > T=0` to a non-engine consumer (L1, L2, or L3 reads) is a defective path. Detection is owned by Contract 8 (eval recorder) and CCPS-1.
 
 ### Deferred Decisions
 
@@ -116,10 +118,11 @@ Each layer produces outputs consumed by specific downstream layers and surfaces:
 
 1. **No layer collapse.** Each layer exists independently even if a given deployment has thin implementations.
 2. **No upward writes.** L3 cannot modify L0. L4 cannot modify L1. Information flows downward through projections; actions flow upward through interventions (Contract 7).
-3. **L1→L3 requires a validation gate.** Monitor values do not auto-chart. A charting action (Contract 5) must explicitly cross this boundary.
+3. **L1→L3 requires a validation gate (strengthened by amendment T4).** The monitor surface (L1) is a **read-only projection** to the agent. Every L3 write originates in an authored actor — `noah-nurse` via Contract 5 charting tools, `provider` via Contract 6 scheduled/reactive events, or the narrow `device-auto` path (preliminary-only Observations; Contract 5 D5 vital-sign validation path). Nothing flows implicitly from L1 or L2 into `status=final` L3 state without an authored validation or attestation Provenance.
 4. **L2 events are time-released under a two-stage authority model (amendment D2).** Stage 1: L0 makes an event *eligible* by crossing a physiological threshold. Stage 2: the scenario controller *releases* the event on the simulation clock (simulating lab processing, imaging turnaround, consult availability). Neither stage alone produces an L2 event. A lab that is physiologically ready at L0 does not appear in L2 until the controller releases it.
 5. **L4 derives from L2/L3 + policy.** Obligations are never fabricated from L0 directly.
 6. **Each layer has its own temporal character.** L0 is continuous. L1 is near-real-time. L2 is discrete/event-driven. L3 is delayed/workflow-shaped. L4 is derived/policy-driven.
+7. **Temporal visibility (amendment T3).** Chart queries executed at simulation time T must return **only** FHIR resources whose authoritative timestamp (`effectiveDateTime`, `occurrence[x]`, `issued`, or `recorded` — whichever applies to the resource type) is ≤ T **and** whose scenario release-state is `released`. Resources that exist in the Medplum store but are (a) tagged historical-beyond-window, (b) scheduled for future release via Contract 6, or (c) post-T=0 source-trajectory rows that have not yet been released as L2 events, must be invisible to the agent's chart read path. Enforcement lives in the clinical-mcp read layer — **not** in Medplum itself — so the filter travels with every agent query. See CCPS-1 for the full partition spec.
 
 ### Failure Modes
 
@@ -127,6 +130,7 @@ Each layer produces outputs consumed by specific downstream layers and surfaces:
 - **L2 event queue overflow:** Too many events released simultaneously. Events must be ordered by simulation time; overflow triggers back-pressure on scenario controller.
 - **L3/L0 divergence beyond clinical plausibility:** Chart says MAP 72 while patient truth is MAP 45. This is architecturally correct (chart is delayed) but eval must detect and score it.
 - **L4 orphan obligations:** Obligation references a charted value that was later amended. Obligation must re-evaluate against amended state.
+- **Temporal-visibility leak (amendment T3).** Agent receives a FHIR resource whose authoritative timestamp exceeds the current simulation time, or whose scenario release-state is not `released`. Classes include: `_include` leak, future `date=` search parameter leak, direct Medplum API bypass, stale cache. Detection is an eval dimension (Contract 8 + CCPS-1).
 
 ### Deferred Decisions
 
@@ -239,7 +243,8 @@ Define the L1 projection layer: how hidden patient truth becomes the monitor sur
 
 - **Numeric telemetry frames:** HR, RR, SpO2, EtCO2, MAP, SBP, DBP, temp, rhythm label (advisory). Pushed at configurable cadence (default: 1Hz for numerics).
 - **Waveform streams:** Per-lead voltage samples at engine-native sample rate. Subject to the waveform vision contract (`sim-harness-waveform-vision-contract.md`).
-- **Alarm events:** Priority-tagged (high/medium/low per IEC 60601-1-8), with alarm type (threshold, arrhythmia, technical), source parameter, trigger value, and timestamp.
+- **Alarm events:** Priority-tagged (high/medium/low per IEC 60601-1-8), with alarm type (threshold, arrhythmia, technical), source parameter, trigger value, timestamp, **and `attention_class` (amendment D7):** `wake` (force agent turn if idle), `notify` (enter queue), `ambient` (log only). Default mapping: high→wake, medium→notify, low→ambient; scenario-configurable. Attention routing is a first-class monitor output, not an external UI concern.
+- **Preliminary Observations to chart (amendment D5 bridge clause).** The monitor posts continuous vital-sign Observations with `status=preliminary` and `agent.who=device-auto` to Medplum at scenario-configured cadence. These entries are inert until promoted to `status=final` via Noah's validation tool (Contract 5 vital-sign validation path). This is the only L1→L3 auto-write path; it produces preliminary entries only, never `final`.
 - **Signal quality state:** Per-parameter quality indicator (good, marginal, artifact, disconnected, stale). Observable by agent and nurse.
 - **Ring buffer:** At least 60 seconds of waveform history per active lead (per waveform vision contract).
 
@@ -251,6 +256,7 @@ Define the L1 projection layer: how hidden patient truth becomes the monitor sur
 4. Alarm burden is part of the architecture. 100–400+ alarms/patient/day is the empirical target range. Nuisance alarms (72–99% false per Drew 2014) are included by design.
 5. Rhythm labels are advisory. The agent must validate rhythm claims against the waveform surface per the waveform vision contract.
 6. The validation decision boundary (glance → assess patient → determine plausibility → accept into record) is the architectural gate between L1 and L3. This contract owns the L1 side; Contract 5 owns the L3 side.
+7. **Alarm-mediated agent wake (amendment D7).** Attention routing is a first-class monitor output. Each alarm carries an `attention_class` in the set `{ wake, notify, ambient }`. The `wake` class is the bridge between Contract 4 and the agent runtime — it is the mechanism by which the monitor forces attention. Mapping from IEC 60601-1-8 priority to `attention_class` is scenario-configurable but defaults to high→wake, medium→notify, low→ambient. Traces must record attention-class assignment and any resulting attention shift.
 
 ### Failure Modes
 
@@ -279,6 +285,9 @@ The monitor is where urgency detection, titration timing, and trust/plausibility
 - [ ] Signal quality state is exposed to the agent through sim tools.
 - [ ] Waveform vision contract is satisfied (both numeric samples and rendered image available).
 - [ ] Alarm events carry IEC 60601-1-8 priority tags.
+- [ ] Alarm events carry an `attention_class` per amendment D7.
+- [ ] At least one scenario beat fires a `wake`-class alarm that the trace records as an attention-routing event with a measurable agent behavior change.
+- [ ] Monitor posts continuous vital-sign Observations with `status=preliminary` and `agent.who=device-auto` at scenario-configured cadence (per D5 bridge clause).
 
 ---
 
@@ -315,6 +324,19 @@ Split ownership:
 4. Provenance distinguishes: auto-populated from device, nurse-validated from monitor, nurse-entered, agent-prepared/nurse-approved, and agent-executed with policy citation.
 5. No silent chart writes. Every L3 entry has a provenance chain traceable to its source layer and authoring actor.
 6. The three documentation modes (ordered, event-driven, judgment-driven) are distinct in the provenance model. Each has different triggers and different clinical significance.
+7. **Authored-actor taxonomy (amendment D5).** Every chart write declares its authoring actor, drawn from a **closed set**:
+   - `noah-nurse` — the agent under test; writes via clinical-mcp charting tools.
+   - `provider` — the provider actor; writes via Contract 6 scheduled and reactive events.
+   - `scenario-director` — reserved for emergency/death events and scenario termination; not an agent-invocable author.
+   - `device-auto` — narrow: posts `status=preliminary` vital-sign Observations only. Never authors `final`. Not a runtime third author; see D5 bridge clause in Contract 4.
+   - `historical-seed` — used only during the Contract 6 T6 one-shot T=0 load pass to seed the chart with the pruned historical snapshot. **Runtime writes with `historical-seed` author are forbidden.**
+
+   Every Provenance resource's `agent.who` must reference one of these five roles. The kernel anchor for this taxonomy is Appendix A.3.
+8. **Vital-sign validation path (amendment D5).** When Noah charts a monitor-observed vital, the charting tool follows one of two paths:
+   - **Promote:** locate the `device-auto` `preliminary` Observation for the parameter/timestamp, update `status` to `final`, and attach an attestation Provenance with `agent.who = noah-nurse` and `activity = attest`. The preliminary source is cited in the Provenance chain.
+   - **Fresh-author:** if no preliminary exists (e.g., Noah charts an assessed-not-device-measured value, or the device-auto stream is offline), create a new `status=final` Observation authored `noah-nurse` with source Provenance.
+
+   Either path produces a Provenance record. The agent's charting tool chooses the path based on whether a matching preliminary exists in the configured validation window.
 
 ### Failure Modes
 
@@ -342,6 +364,9 @@ Charting authority creates the pressure that matters most for an agent-native su
 - [ ] At least one workflow path exercises `propose` → nurse approval → `final`.
 - [ ] At least one workflow path exercises `prepare` (agent drafts, nurse reviews).
 - [ ] Provenance correctly identifies source layer (L1, L2, or original).
+- [ ] Every Provenance `agent.who` resolves to the closed D5 actor set.
+- [ ] At least one workflow path exercises the vital-sign validation promote path (`preliminary` → `final` with `noah-nurse` attestation).
+- [ ] Runtime write attempts with `agent.who = historical-seed` are rejected.
 
 ---
 
@@ -362,7 +387,12 @@ Define how clinical scenarios are authored, how they schedule events on the simu
 
 ### Inputs
 
-- **Scenario definition:** Patient seed, timeline of scheduled events (insults, environmental changes, external events like family arriving or code team called), visibility rules (which events the agent can see in advance), **`charting_policy` map (amendment D3):** per-entry-type maximum authority ceiling for this scenario (e.g., `{ "vitals.auto": "execute", "assessment.narrative": "propose" }`). Consumed by Contract 5.
+- **Scenario definition (amended by T5).** Patient seed, timeline of scheduled events, visibility rules, `charting_policy` (amendment D3), plus the following **required additional fields** introduced by amendment T5:
+  - `source_patient`: `{ dataset: "mimic-iv" | "synthea" | "synthetic", patient_id: string, cut_point: ISO8601 | duration-from-admission }` — declares the grounded patient (or opts into `"synthetic"` only for engine unit-test fixtures) and the T=0 cut. Consumed by Contract 1 T2.
+  - `history_window`: `{ mode: "full" | "bounded", bounded_to?: duration }` — portion of the source record loaded into the chart as the T=0 baseline. **Default: `full` (full ICU stay up to the cut-point).** Consumed by the T6 loader.
+  - `provider_schedule`: ordered list of provider-authored events, each shaped `{ at: sim-time, author: "provider", kind: "note" | "lab-result" | "order" | "imaging-read" | "reactive-response", payload, trigger?: escalation-event-ref, latency_window?: duration }`. Consumed by D6.
+
+  Existing `charting_policy` (D3) remains required; its `agent.who` references must resolve to the closed D5 actor set.
 - **Interventions:** Medication administration, procedures, ventilator changes, positioning. Source: agent (via sim tools), nurse (via UI), or scenario director (scripted).
 - **Clock ticks:** From Contract 3. Events fire at scheduled simulation times.
 
@@ -372,6 +402,13 @@ Define how clinical scenarios are authored, how they schedule events on the simu
 - **L2 source events:** Released facts on the simulation timeline (lab results, imaging, consult notes, order completions).
 - **Obligation triggers:** Intervention events forwarded to Contract 7 (Workspace and Obligation) for follow-up obligation generation.
 - **Propagation confirmation:** After an intervention, confirmation that L0 state changed, L1 projection updated, and any L2/L4 consequences are queued.
+- **T=0 load pass (amendment T6).** At scenario start, the controller performs a one-shot load pass against the source dataset: extracts resources within `history_window`, writes them to Medplum as the T=0 chart baseline with `agent.who = historical-seed` Provenance, registers the post-T=0 physiological trajectory with the engine adapter as driving input (insults + timed interventions), and registers the `provider_schedule` with the event queue. This is the **only** time `historical-seed` may author chart entries. Runtime `historical-seed` write attempts are rejected by Contract 5 D5.
+- **Run-scoped chart instantiation (amendment T6).** Each scenario run is a fresh instance. Noah's runtime writes are scoped to that instance and do not persist across runs. Prior-run writes must not leak into a new run's T=0 baseline. See CCPS-1 cross-instance isolation failure mode.
+- **Provider-authored events (amendment D6).** Two classes, both with `agent.who = provider`:
+  1. **Scheduled** — dispatched on the simulation clock from `provider_schedule` baseline entries (notes, lab results, orders, imaging reads). Pre-authored; no agent initiation.
+  2. **Reactive** — triggered by Noah escalation events received via the `escalate_to_provider` tool call at the clinical-mcp boundary. The provider policy evaluates the escalation payload plus the current L0 (via eval-privileged read)/L3 state and produces a response in `{ accept, defer, modify, decline }` within a bounded latency window (default 5–15 min simulation time, scenario-configurable via `latency_window`). Accepted responses produce their own L2/L3 writes (orders, notes, procedure responses).
+
+  Provider writes do **not** pass Contract 5 authority gating — they are pre-authored (scheduled) or policy-authored (reactive). The provider policy is small, deterministic, and scenario-configurable; it is **not** an agent under test.
 
 ### Invariants
 
@@ -382,6 +419,8 @@ Define how clinical scenarios are authored, how they schedule events on the simu
 5. L2 event release timing is controlled by the scenario controller under the two-stage authority model (amendment D2, Contract 2). L0 makes events eligible; the controller releases them on the simulation clock. A lab may be physiologically ready at L0 but not resulted at L2 until the controller releases it (simulating lab processing time).
 6. Scenario visibility rules determine what the agent can see of upcoming events. Teaching mode may reveal; eval mode may hide.
 7. **Patient death and scenario termination (amendment M2).** The scenario controller may declare patient death based on L0 state crossing irrecoverable bounds (e.g., asystole sustained beyond resuscitation, MAP unrecoverable after maximal intervention, DNR-scoped withdrawal complete). Death terminates L1 projection (monitor shows asystole/flatline), clears all non-documentation obligations at L4, creates a mandatory death-documentation obligation, and signals the eval recorder with a terminal event. Death is a scenario-authored possibility, not a silent engine crash.
+8. **History-vs-present partition (amendment T5/T6).** The scenario controller enforces a three-region partition of the source record: (a) **historical-bounded** — loaded at T=0 under `historical-seed` author, visibility unrestricted post-load; (b) **pruned-historical** — source rows outside `history_window` or scenario-excluded, **never** agent-reachable; (c) **post-T=0 trajectory** — engine ground-truth input + scripted provider inputs, agent visibility gated by Contract 2 T3 temporal-visibility filter and the two-stage release of D2. Each scenario run is a fresh instance per T6; cross-instance write bleed is a CCPS-1 failure mode.
+9. **Provider actor authority (amendment D6).** The provider is a first-class authored writer, lightweight-behavioral. Scheduled provider events fire on simulation clock; reactive provider events fire in response to Noah escalation tool calls within the scenario-configured latency window. The provider's decision surface is restricted to `{ accept, defer, modify, decline }`. Provider writes carry `agent.who = provider`. Reactive response outside the latency window is a failure mode; wall-clock scheduling is a failure mode.
 
 ### Failure Modes
 
