@@ -1,3 +1,18 @@
+/**
+ * Reference pharmacokinetic/pharmacodynamic models.
+ *
+ * @layer L0
+ *
+ * These functions compute emergent vital-sign responses to drug dose and fluid
+ * bolus interventions. They are reference implementations — the engine-adapter
+ * boundary (Contract 1) will eventually back L0 with a validated external
+ * physiology engine (Pulse, BioGears). Until that decision lands via
+ * Contract 9 (Research-Hook), these formulas serve as the working L0 substrate
+ * for the three seed scenarios.
+ *
+ * Source material preserved from prior in-clinical-mcp implementation.
+ * Boundary correction: this module must live in sim-harness, not clinical-mcp.
+ */
 import { config } from '../config.js';
 
 const pk = config.pharmacokinetics;
@@ -102,7 +117,7 @@ export interface FluidBolus {
   volumeMl: number;
   peakEffect: number;
   minutesSinceBolus: number;
-  bolusNumber: number; // for diminishing returns
+  bolusNumber: number;
 }
 
 export interface PhysiologyState {

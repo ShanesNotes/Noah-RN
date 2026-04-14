@@ -1,11 +1,11 @@
-import type { ScenarioDefinition } from '../generator.js';
+import type { ScenarioDefinition } from '../src/scenario/types.js';
 
 export const fluidResponsive: ScenarioDefinition = {
   id: 'fluid-responsive',
   name: 'Fluid-Responsive Hypotension',
   description: 'MAP 55 on admission, no pressors yet. Testing fluid responsiveness with crystalloid boluses.',
   basePatientId: '28dcf33b-0c52-587f-83ad-2a3270976719',
-  patientWeight: 85, // kg
+  patientWeight: 85,
   initialState: {
     baselineMAP: 55,
     baselineHR: 112,

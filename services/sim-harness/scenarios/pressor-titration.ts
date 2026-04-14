@@ -1,11 +1,11 @@
-import type { ScenarioDefinition } from '../generator.js';
+import type { ScenarioDefinition } from '../src/scenario/types.js';
 
 export const pressorTitration: ScenarioDefinition = {
   id: 'pressor-titration',
   name: 'Pressor Titration',
   description: 'MAP hovering 58-63 on norepinephrine 0.08 mcg/kg/min. Requires titration to maintain MAP >65.',
   basePatientId: '28dcf33b-0c52-587f-83ad-2a3270976719',
-  patientWeight: 78, // kg
+  patientWeight: 78,
   initialState: {
     baselineMAP: 52,
     baselineHR: 98,

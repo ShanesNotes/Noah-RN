@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { hillEquation, onsetDelay, fluidBolusResponse, ar1Noise, baroReflexHR, createSeededRng } from '../events/physiology.js';
+import {
+  hillEquation,
+  onsetDelay,
+  fluidBolusResponse,
+  ar1Noise,
+  baroReflexHR,
+  createSeededRng,
+} from '../src/reference/pharmacokinetics.js';
 
 describe('hillEquation', () => {
   it('returns 0 for dose 0', () => {
@@ -8,20 +15,17 @@ describe('hillEquation', () => {
 
   it('returns ~50% Emax at ED50', () => {
     const result = hillEquation(0.08, 35, 0.08, 2);
-    expect(result).toBeCloseTo(17.5, 0); // 50% of 35
+    expect(result).toBeCloseTo(17.5, 0);
   });
 
   it('approaches Emax at high doses', () => {
     const result = hillEquation(1.0, 35, 0.08, 2);
-    expect(result).toBeGreaterThan(34); // close to 35
+    expect(result).toBeGreaterThan(34);
   });
 
   it('shows sigmoid behavior: diminishing returns at high doses', () => {
-    // Low dose increase: 0.04 → 0.08 (delta should be larger)
     const lowDelta = hillEquation(0.08, 35, 0.08, 2) - hillEquation(0.04, 35, 0.08, 2);
-    // High dose increase: 0.26 → 0.30 (delta should be smaller)
     const highDelta = hillEquation(0.30, 35, 0.08, 2) - hillEquation(0.26, 35, 0.08, 2);
-
     expect(lowDelta).toBeGreaterThan(highDelta);
   });
 });
@@ -79,12 +83,12 @@ describe('ar1Noise', () => {
 
 describe('baroReflexHR', () => {
   it('increases HR when MAP is below setpoint', () => {
-    const hr = baroReflexHR(80, 50); // MAP 50, setpoint 70
+    const hr = baroReflexHR(80, 50);
     expect(hr).toBeGreaterThan(80);
   });
 
   it('decreases HR when MAP is above setpoint', () => {
-    const hr = baroReflexHR(80, 90); // MAP 90, setpoint 70
+    const hr = baroReflexHR(80, 90);
     expect(hr).toBeLessThan(80);
   });
 

@@ -1,25 +1,34 @@
+/**
+ * Scenario controller.
+ *
+ * @layer L2 (scheduling + event release) with L0 engine invocation
+ *
+ * Owns scenario lifecycle: load, start, advance, reset, persist. Writes L0
+ * state through the reference pharmacokinetic model until the engine-adapter
+ * boundary (Contract 1) is wired to an external physiology engine.
+ *
+ * Per Contract 6, this controller is the single release authority for L2
+ * events. Per amendment D2, L0 eligibility does not auto-release; the
+ * controller decides when an eligible event surfaces on the simulation clock.
+ */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { config } from '../config.js';
-import { computeMAP, baroReflexHR, createSeededRng, type PhysiologyState, type ActiveDrug, type FluidBolus } from './physiology.js';
-import { pressorTitration } from './scenarios/pressor-titration.js';
-import { fluidResponsive } from './scenarios/fluid-responsive.js';
-import { hyporesponsive } from './scenarios/hyporesponsive.js';
-
-export interface ScenarioDefinition {
-  id: string;
-  name: string;
-  description: string;
-  basePatientId: string;
-  patientWeight: number;
-  initialState: Omit<PhysiologyState, 'rng'>;
-}
-
-interface ScenarioSnapshot {
-  definition: ScenarioDefinition;
-  state: Omit<PhysiologyState, 'rng'>;
-  history: Array<{ action: string; minutesElapsed: number; mapBefore: number; mapAfter: number }>;
-}
+import {
+  computeMAP,
+  baroReflexHR,
+  createSeededRng,
+  type PhysiologyState,
+} from '../reference/pharmacokinetics.js';
+import type {
+  ScenarioDefinition,
+  ScenarioSnapshot,
+  AdvanceAction,
+  ScenarioResponse,
+} from './types.js';
+import { pressorTitration } from '../../scenarios/pressor-titration.js';
+import { fluidResponsive } from '../../scenarios/fluid-responsive.js';
+import { hyporesponsive } from '../../scenarios/hyporesponsive.js';
 
 const scenarios = new Map<string, ScenarioDefinition>([
   ['pressor-titration', pressorTitration],
@@ -27,7 +36,6 @@ const scenarios = new Map<string, ScenarioDefinition>([
   ['hyporesponsive', hyporesponsive],
 ]);
 
-// In-memory state cache (hydrated from disk on first access)
 const liveStates = new Map<string, ScenarioSnapshot>();
 
 function stateDir(): string {
@@ -63,17 +71,14 @@ function initSnapshot(def: ScenarioDefinition): ScenarioSnapshot {
 }
 
 function getOrInitSnapshot(scenarioId: string): ScenarioSnapshot {
-  // Check in-memory cache first
   if (liveStates.has(scenarioId)) return liveStates.get(scenarioId)!;
 
-  // Try loading from disk
   const persisted = loadPersistedState(scenarioId);
   if (persisted) {
     liveStates.set(scenarioId, persisted);
     return persisted;
   }
 
-  // Initialize from definition
   const def = scenarios.get(scenarioId);
   if (!def) throw new Error(`Unknown scenario: ${scenarioId}. Available: ${[...scenarios.keys()].join(', ')}`);
 
@@ -90,27 +95,10 @@ function hydrateRng(state: Omit<PhysiologyState, 'rng'>): PhysiologyState {
   };
 }
 
-export interface ScenarioResponse {
-  id: string;
-  name: string;
-  description: string;
-  patientWeight: number;
-  basePatientId: string;
-  currentState: {
-    map: number;
-    hr: number;
-    activeDrugs: ActiveDrug[];
-    fluidBoluses: number;
-    minutesElapsed: number;
-  };
-  history: ScenarioSnapshot['history'];
-}
-
 export async function getScenario(scenarioId: string): Promise<ScenarioResponse> {
   const snapshot = getOrInitSnapshot(scenarioId);
   const state = hydrateRng(snapshot.state);
 
-  // Recompute current MAP with physiology engine
   const currentMAP = computeMAP(state);
   const currentHR = baroReflexHR(state.baselineHR, currentMAP);
 
@@ -131,22 +119,13 @@ export async function getScenario(scenarioId: string): Promise<ScenarioResponse>
   };
 }
 
-export interface AdvanceAction {
-  action: 'titrate' | 'bolus' | 'add_medication';
-  medication?: string;
-  new_dose?: number;
-  volume_ml?: number;
-}
-
 export async function advanceScenario(scenarioId: string, action: AdvanceAction): Promise<ScenarioResponse> {
   const snapshot = getOrInitSnapshot(scenarioId);
   const mapBefore = snapshot.state.currentMAP;
 
-  // Advance time: 5 minutes per action
   const timeAdvance = 5;
   snapshot.state.totalMinutesElapsed += timeAdvance;
 
-  // Age existing drugs and boluses
   for (const drug of snapshot.state.activeDrugs) {
     drug.minutesSinceLastChange += timeAdvance;
   }
@@ -154,7 +133,6 @@ export async function advanceScenario(scenarioId: string, action: AdvanceAction)
     bolus.minutesSinceBolus += timeAdvance;
   }
 
-  // Apply action
   switch (action.action) {
     case 'titrate': {
       if (!action.medication || action.new_dose == null) {
@@ -198,13 +176,11 @@ export async function advanceScenario(scenarioId: string, action: AdvanceAction)
     }
   }
 
-  // Recompute physiology
   const state = hydrateRng(snapshot.state);
   snapshot.state.currentMAP = computeMAP(state);
   snapshot.state.currentHR = baroReflexHR(state.baselineHR, snapshot.state.currentMAP);
   snapshot.state.previousNoise = state.previousNoise;
 
-  // Record history
   snapshot.history.push({
     action: `${action.action}${action.medication ? ` ${action.medication}` : ''}${action.new_dose != null ? ` → ${action.new_dose}` : ''}${action.volume_ml ? ` ${action.volume_ml}mL` : ''}`,
     minutesElapsed: snapshot.state.totalMinutesElapsed,
@@ -212,7 +188,6 @@ export async function advanceScenario(scenarioId: string, action: AdvanceAction)
     mapAfter: snapshot.state.currentMAP,
   });
 
-  // Persist state
   persistState(scenarioId, snapshot);
   liveStates.set(scenarioId, snapshot);
 
@@ -223,10 +198,8 @@ export async function resetScenario(scenarioId: string): Promise<void> {
   const def = scenarios.get(scenarioId);
   if (!def) throw new Error(`Unknown scenario: ${scenarioId}`);
 
-  // Remove persisted state
   const path = statePath(scenarioId);
   if (existsSync(path)) unlinkSync(path);
 
-  // Reset in-memory
   liveStates.delete(scenarioId);
 }
