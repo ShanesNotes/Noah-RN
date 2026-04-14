@@ -55,10 +55,10 @@ L0 state is not directly output to any consumer except the evaluation recorder. 
 
 ### Deferred Decisions
 
-- Which engine (Pulse, BioGears, other). Governed by Contract 9 (Research-Hook).
-- Engine transport (Python binding, REST, WASM). Implementation topology.
+- ~~Which engine (Pulse, BioGears, other). Governed by Contract 9 (Research-Hook).~~ — **Resolved 2026-04-13.** Engine choice: **Pulse Physiology Engine** (Apache-2.0, Kitware). Locked via Contract 9 research brief `docs/foundations/contract-9-research-brief-physiology-engine.md`. Scope: cardiopulmonary + hemodynamic + basic renal outputs for the first bedside workflow and derived scenarios. BioGears retained as fallback substrate for capabilities Pulse does not cover cleanly. Tick cadence: Pulse-native 20 ms. Integration pattern: Phase 2 sidecar wrapping the Pulse C API; Phase 3 WASM-in-browser deferred.
+- Engine transport (REST, WebSocket, WASM). Sidecar implementation decision deferred to Lane A follow-on.
 - Specific pharmacokinetic parameter values. Clinical content, tunable per engine.
-- State serialization format. Engine-specific.
+- State serialization format: Pulse-native protobuf for Pulse-backed encounters; engine-specific for fallback.
 
 ### Clinical-Pressure Justification
 
@@ -657,3 +657,13 @@ Source: `docs/foundations/contract-consistency-review-simulation-architecture.md
 | M3 | Low | 2 | Added per-layer retention policy: L1 ≥ 60s waveform ring buffer, full-scenario retention for L2/L3/L4 logs. |
 
 None of these amendments changed the acceptance criteria or dependency ordering. The Lane 5 brownfield mapping and Lane 6 execution packet remain valid against the amended contracts.
+
+### 2026-04-13 — Contract 9 first exercise: L0 physiology engine selection
+
+Source: `docs/foundations/contract-9-research-brief-physiology-engine.md`. Trigger: Contract 1 acceptance gap surfaced by `docs/foundations/first-bedside-workflow-spec.md` §Physiology fidelity requirements.
+
+| Contract | Change |
+|----------|--------|
+| 1 | Deferred-decision entry "Which engine (Pulse, BioGears, other)" replaced with a resolution entry locking Pulse as the primary L0 engine, BioGears as fallback, Phase 2 sidecar as integration pattern. State-serialization entry updated to reference Pulse protobuf. |
+
+This is the first exercise of Contract 9's research-hook process. Scope intentionally narrow: cardiopulmonary + hemodynamic + basic renal only. Future triggers required for neurological, endocrine, hepatic, tissue-level modeling.
