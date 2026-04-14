@@ -3,29 +3,25 @@
  *
  * @layer L2 (scheduling + event release) with L0 engine invocation
  *
- * Owns scenario lifecycle: load, start, advance, reset, persist. Writes L0
- * state through the reference pharmacokinetic model until the engine-adapter
- * boundary (Contract 1) is wired to an external physiology engine.
- *
- * Per Contract 6, this controller is the single release authority for L2
- * events. Per amendment D2, L0 eligibility does not auto-release; the
- * controller decides when an eligible event surfaces on the simulation clock.
+ * Owns scenario lifecycle: load, advance, reset. This controller routes
+ * interventions through the Lane A engine-adapter boundary, advances that
+ * engine on the Lane A simulation clock, and acts as the release authority
+ * for authored L2 events.
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs';
-import { resolve } from 'path';
-import { config } from '../config.js';
-import {
-  computeMAP,
-  baroReflexHR,
-  createSeededRng,
-  type PhysiologyState,
-} from '../reference/pharmacokinetics.js';
+import { SimulationClock } from '../clock.js';
+import { WaveformRingBuffer, projectMonitorSnapshot } from '../projections/monitor.js';
+import { ScenarioEventReleaseBuffer } from '../projections/events.js';
+import { ReferencePkEngineAdapter } from '../reference/adapter.js';
+import type { SimulationEngine } from '../engine-adapter.js';
+import type { ReferencePkSerializedState } from '../reference/adapter.js';
 import type {
   ScenarioDefinition,
-  ScenarioSnapshot,
+  ScenarioHistoryEntry,
   AdvanceAction,
+  ScenarioReleasedEvent,
   ScenarioResponse,
 } from './types.js';
+import type { SimWaveformSamplesResponse } from '../index.js';
 import { pressorTitration } from '../../scenarios/pressor-titration.js';
 import { fluidResponsive } from '../../scenarios/fluid-responsive.js';
 import { hyporesponsive } from '../../scenarios/hyporesponsive.js';
@@ -36,170 +32,240 @@ const scenarios = new Map<string, ScenarioDefinition>([
   ['hyporesponsive', hyporesponsive],
 ]);
 
-const liveStates = new Map<string, ScenarioSnapshot>();
+const adapter = new ReferencePkEngineAdapter({ tickIntervalMs: 60_000 });
+const liveScenarios = new Map<string, ScenarioRuntime>();
+const ADVANCE_MINUTES = 5;
 
-function stateDir(): string {
-  const dir = config.scenarios.stateDir;
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  return dir;
+interface ScenarioRuntime {
+  definition: ScenarioDefinition;
+  clock: SimulationClock;
+  engine: SimulationEngine<ReferencePkSerializedState>;
+  history: ScenarioHistoryEntry[];
+  eventBuffer: ScenarioEventReleaseBuffer;
+  waveformBuffer: WaveformRingBuffer;
+  releasedEvents: ScenarioReleasedEvent[];
+  eligibleKeys: Set<string>;
 }
 
-function statePath(scenarioId: string): string {
-  return resolve(stateDir(), `${scenarioId}.json`);
-}
+function initRuntime(definition: ScenarioDefinition): ScenarioRuntime {
+  const clock = new SimulationClock({
+    startTimeMs: definition.initialState.totalMinutesElapsed * 60_000,
+    tickIntervalMs: adapter.tickIntervalMs,
+    mode: { kind: 'frozen' },
+  });
 
-function persistState(scenarioId: string, snapshot: ScenarioSnapshot): void {
-  writeFileSync(statePath(scenarioId), JSON.stringify(snapshot, null, 2));
-}
+  const engine = adapter.create({
+    encounterId: definition.id,
+    baselineMAP: definition.initialState.baselineMAP,
+    baselineHR: definition.initialState.baselineHR,
+    weightKg: definition.patientWeight,
+    initialDrugs: definition.initialState.activeDrugs.map(drug => ({
+      name: drug.name,
+      dose: drug.currentDose,
+      unit: drug.unit,
+      minutesSinceLastChange: drug.minutesSinceLastChange,
+    })),
+  });
 
-function loadPersistedState(scenarioId: string): ScenarioSnapshot | null {
-  const path = statePath(scenarioId);
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(readFileSync(path, 'utf-8'));
-  } catch {
-    return null;
+  for (const bolus of definition.initialState.fluidBoluses) {
+    engine.applyIntervention({ kind: 'fluid-bolus', volumeMl: bolus.volumeMl });
   }
-}
 
-function initSnapshot(def: ScenarioDefinition): ScenarioSnapshot {
-  return {
-    definition: def,
-    state: { ...def.initialState },
+  const waveformBuffer = new WaveformRingBuffer({ retentionSeconds: 60 });
+  waveformBuffer.ingest(engine.getLatestWaveformFrame());
+
+  clock.subscribe(tick => {
+    const result = engine.tick(tick);
+    waveformBuffer.ingest(result.waveformFrame);
+  });
+
+  const runtime: ScenarioRuntime = {
+    definition,
+    clock,
+    engine,
     history: [],
+    eventBuffer: new ScenarioEventReleaseBuffer(),
+    waveformBuffer,
+    releasedEvents: [],
+    eligibleKeys: new Set(),
   };
+
+  refreshEventState(runtime);
+  return runtime;
 }
 
-function getOrInitSnapshot(scenarioId: string): ScenarioSnapshot {
-  if (liveStates.has(scenarioId)) return liveStates.get(scenarioId)!;
-
-  const persisted = loadPersistedState(scenarioId);
-  if (persisted) {
-    liveStates.set(scenarioId, persisted);
-    return persisted;
+function getOrInitRuntime(scenarioId: string): ScenarioRuntime {
+  if (liveScenarios.has(scenarioId)) {
+    return liveScenarios.get(scenarioId)!;
   }
 
-  const def = scenarios.get(scenarioId);
-  if (!def) throw new Error(`Unknown scenario: ${scenarioId}. Available: ${[...scenarios.keys()].join(', ')}`);
+  const definition = scenarios.get(scenarioId);
+  if (!definition) {
+    throw new Error(`Unknown scenario: ${scenarioId}. Available: ${[...scenarios.keys()].join(', ')}`);
+  }
 
-  const snapshot = initSnapshot(def);
-  liveStates.set(scenarioId, snapshot);
-  persistState(scenarioId, snapshot);
-  return snapshot;
+  const runtime = initRuntime(definition);
+  liveScenarios.set(scenarioId, runtime);
+  return runtime;
 }
 
-function hydrateRng(state: Omit<PhysiologyState, 'rng'>): PhysiologyState {
-  return {
-    ...state,
-    rng: createSeededRng(config.scenarios.rngSeed + state.totalMinutesElapsed),
-  };
+function actionLabel(action: AdvanceAction): string {
+  return `${action.action}${action.medication ? ` ${action.medication}` : ''}${action.new_dose != null ? ` → ${action.new_dose}` : ''}${action.volume_ml ? ` ${action.volume_ml}mL` : ''}`;
 }
 
-export async function getScenario(scenarioId: string): Promise<ScenarioResponse> {
-  const snapshot = getOrInitSnapshot(scenarioId);
-  const state = hydrateRng(snapshot.state);
-
-  const currentMAP = computeMAP(state);
-  const currentHR = baroReflexHR(state.baselineHR, currentMAP);
+function buildScenarioResponse(runtime: ScenarioRuntime): ScenarioResponse {
+  const projection = runtime.engine.getAgentProjection();
+  const monitor = projectMonitorSnapshot(projection);
+  const snapshot = runtime.engine.getEvalSnapshot();
 
   return {
-    id: snapshot.definition.id,
-    name: snapshot.definition.name,
-    description: snapshot.definition.description,
-    patientWeight: snapshot.definition.patientWeight,
-    basePatientId: snapshot.definition.basePatientId,
+    id: runtime.definition.id,
+    name: runtime.definition.name,
+    description: runtime.definition.description,
+    patientWeight: runtime.definition.patientWeight,
+    basePatientId: runtime.definition.basePatientId,
     currentState: {
-      map: currentMAP,
-      hr: currentHR,
-      activeDrugs: state.activeDrugs,
-      fluidBoluses: state.fluidBoluses.length,
-      minutesElapsed: state.totalMinutesElapsed,
+      map: monitor.map,
+      hr: monitor.hr,
+      activeDrugs: snapshot.physiology.activeDrugs,
+      fluidBoluses: snapshot.physiology.fluidBoluses.length,
+      minutesElapsed: projection.timeMs / 60_000,
     },
-    history: snapshot.history,
+    history: runtime.history,
+    releasedEvents: runtime.releasedEvents,
+    upcomingVisibleEvents: (runtime.definition.scheduledEvents ?? [])
+      .filter(event => event.visibleToAgent && event.releaseMinute > projection.timeMs / 60_000)
+      .map(event => ({ minute: event.releaseMinute, event: event.event })),
   };
 }
 
-export async function advanceScenario(scenarioId: string, action: AdvanceAction): Promise<ScenarioResponse> {
-  const snapshot = getOrInitSnapshot(scenarioId);
-  const mapBefore = snapshot.state.currentMAP;
-
-  const timeAdvance = 5;
-  snapshot.state.totalMinutesElapsed += timeAdvance;
-
-  for (const drug of snapshot.state.activeDrugs) {
-    drug.minutesSinceLastChange += timeAdvance;
-  }
-  for (const bolus of snapshot.state.fluidBoluses) {
-    bolus.minutesSinceBolus += timeAdvance;
-  }
-
+function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
   switch (action.action) {
     case 'titrate': {
       if (!action.medication || action.new_dose == null) {
         throw new Error('titrate requires medication and new_dose');
       }
-      const drug = snapshot.state.activeDrugs.find(d => d.name === action.medication);
-      if (drug) {
-        drug.currentDose = action.new_dose;
-        drug.minutesSinceLastChange = 0;
-      } else {
-        throw new Error(`Drug "${action.medication}" not active in this scenario. Active: ${snapshot.state.activeDrugs.map(d => d.name).join(', ')}`);
+
+      const activeDrug = runtime.engine.getEvalSnapshot().physiology.activeDrugs.find(
+        drug => drug.name === action.medication,
+      );
+
+      if (!activeDrug) {
+        throw new Error(`Drug "${action.medication}" not active in this scenario. Active: ${runtime.engine.getEvalSnapshot().physiology.activeDrugs.map(d => d.name).join(', ')}`);
       }
-      break;
+
+      runtime.engine.applyIntervention({
+        kind: 'medication',
+        name: action.medication,
+        dose: action.new_dose,
+        unit: activeDrug.unit,
+      });
+      return;
     }
 
     case 'bolus': {
-      const volumeMl = action.volume_ml ?? 500;
-      const bolusNum = snapshot.state.fluidBoluses.length + 1;
-      const diminishing = Math.pow(config.pharmacokinetics.fluidBolus.diminishingFactor, bolusNum - 1);
-      snapshot.state.fluidBoluses.push({
-        volumeMl,
-        peakEffect: config.pharmacokinetics.fluidBolus.peakResponse * (volumeMl / 500) * diminishing,
-        minutesSinceBolus: 0,
-        bolusNumber: bolusNum,
+      runtime.engine.applyIntervention({
+        kind: 'fluid-bolus',
+        volumeMl: action.volume_ml ?? 500,
       });
-      break;
+      return;
     }
 
     case 'add_medication': {
       if (!action.medication) throw new Error('add_medication requires medication name');
-      if (snapshot.state.activeDrugs.some(d => d.name === action.medication)) {
+      if (runtime.engine.getEvalSnapshot().physiology.activeDrugs.some(d => d.name === action.medication)) {
         throw new Error(`${action.medication} is already active — use titrate to adjust dose`);
       }
-      snapshot.state.activeDrugs.push({
+
+      runtime.engine.applyIntervention({
+        kind: 'medication',
         name: action.medication,
-        currentDose: action.new_dose ?? 0.01,
+        dose: action.new_dose ?? 0.01,
         unit: action.medication === 'vasopressin' ? 'units/min' : 'mcg/kg/min',
-        minutesSinceLastChange: 0,
       });
-      break;
     }
   }
+}
 
-  const state = hydrateRng(snapshot.state);
-  snapshot.state.currentMAP = computeMAP(state);
-  snapshot.state.currentHR = baroReflexHR(state.baselineHR, snapshot.state.currentMAP);
-  snapshot.state.previousNoise = state.previousNoise;
+function refreshEventState(runtime: ScenarioRuntime): void {
+  const currentTimeMs = runtime.clock.getTime();
 
-  snapshot.history.push({
-    action: `${action.action}${action.medication ? ` ${action.medication}` : ''}${action.new_dose != null ? ` → ${action.new_dose}` : ''}${action.volume_ml ? ` ${action.volume_ml}mL` : ''}`,
-    minutesElapsed: snapshot.state.totalMinutesElapsed,
+  for (const event of runtime.definition.scheduledEvents ?? []) {
+    const eligibleAtMs = event.minute * 60_000;
+    if (eligibleAtMs > currentTimeMs || runtime.eligibleKeys.has(event.key)) {
+      continue;
+    }
+
+    runtime.eventBuffer.markEligible({
+      key: event.key,
+      kind: event.kind,
+      eligibleAtMs,
+      releaseAtMs: event.releaseMinute * 60_000,
+      payload: event.payload ?? {},
+    });
+    runtime.eligibleKeys.add(event.key);
+  }
+
+  const released = runtime.eventBuffer.releaseReady(currentTimeMs);
+  for (const event of released) {
+    const definition = runtime.definition.scheduledEvents?.find(candidate => candidate.key === event.key);
+    if (!definition) {
+      continue;
+    }
+    runtime.releasedEvents.push({
+      key: definition.key,
+      minute: definition.minute,
+      releaseMinute: definition.releaseMinute,
+      kind: definition.kind,
+      event: definition.event,
+      payload: event.payload,
+    });
+  }
+}
+
+export async function getScenario(scenarioId: string): Promise<ScenarioResponse> {
+  const runtime = getOrInitRuntime(scenarioId);
+  refreshEventState(runtime);
+  return buildScenarioResponse(runtime);
+}
+
+export async function advanceScenario(scenarioId: string, action: AdvanceAction): Promise<ScenarioResponse> {
+  const runtime = getOrInitRuntime(scenarioId);
+  const mapBefore = runtime.engine.getAgentProjection().vitals.map;
+
+  applyAction(runtime, action);
+  runtime.clock.advanceBy(ADVANCE_MINUTES * 60_000);
+  refreshEventState(runtime);
+
+  runtime.history.push({
+    action: actionLabel(action),
+    minutesElapsed: runtime.clock.getTime() / 60_000,
     mapBefore,
-    mapAfter: snapshot.state.currentMAP,
+    mapAfter: runtime.engine.getAgentProjection().vitals.map,
   });
 
-  persistState(scenarioId, snapshot);
-  liveStates.set(scenarioId, snapshot);
+  return buildScenarioResponse(runtime);
+}
 
-  return getScenario(scenarioId);
+export async function getScenarioWaveformSamples(
+  scenarioId: string,
+  params: { leads: string[]; seconds: number; startOffsetSeconds?: number },
+): Promise<SimWaveformSamplesResponse> {
+  const runtime = getOrInitRuntime(scenarioId);
+  return runtime.waveformBuffer.readWindow({
+    encounterId: runtime.definition.id,
+    leads: params.leads,
+    seconds: params.seconds,
+    startOffsetSeconds: params.startOffsetSeconds,
+  });
 }
 
 export async function resetScenario(scenarioId: string): Promise<void> {
-  const def = scenarios.get(scenarioId);
-  if (!def) throw new Error(`Unknown scenario: ${scenarioId}`);
+  const runtime = liveScenarios.get(scenarioId);
+  runtime?.clock.dispose();
+  liveScenarios.delete(scenarioId);
 
-  const path = statePath(scenarioId);
-  if (existsSync(path)) unlinkSync(path);
-
-  liveStates.delete(scenarioId);
+  if (!scenarios.has(scenarioId)) {
+    throw new Error(`Unknown scenario: ${scenarioId}`);
+  }
 }

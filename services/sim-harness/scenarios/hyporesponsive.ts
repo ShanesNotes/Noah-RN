@@ -29,4 +29,15 @@ export const hyporesponsive: ScenarioDefinition = {
     previousNoise: 0,
     totalMinutesElapsed: 0,
   },
+  scheduledEvents: [
+    {
+      key: 'hyporesponsive-abg',
+      minute: 10,
+      releaseMinute: 25,
+      kind: 'lab-result',
+      event: 'ABG resulted with persistent acidosis',
+      visibleToAgent: false,
+      payload: { test: 'abg', ph: 7.21, pco2: 31, hco3: 13 },
+    },
+  ],
 };

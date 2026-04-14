@@ -16,4 +16,15 @@ export const fluidResponsive: ScenarioDefinition = {
     previousNoise: 0,
     totalMinutesElapsed: 0,
   },
+  scheduledEvents: [
+    {
+      key: 'fluid-responsive-cmp',
+      minute: 5,
+      releaseMinute: 15,
+      kind: 'lab-result',
+      event: 'Basic metabolic panel resulted',
+      visibleToAgent: true,
+      payload: { test: 'bmp', potassium: 4.1, creatinine: 1.0 },
+    },
+  ],
 };

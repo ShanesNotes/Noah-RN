@@ -9,6 +9,16 @@
  */
 import type { ActiveDrug, PhysiologyState } from '../reference/pharmacokinetics.js';
 
+export interface ScenarioScheduledEvent {
+  key: string;
+  minute: number;
+  releaseMinute: number;
+  kind: string;
+  event: string;
+  visibleToAgent?: boolean;
+  payload?: Record<string, unknown>;
+}
+
 export interface ScenarioDefinition {
   id: string;
   name: string;
@@ -16,12 +26,23 @@ export interface ScenarioDefinition {
   basePatientId: string;
   patientWeight: number;
   initialState: Omit<PhysiologyState, 'rng'>;
+  scheduledEvents?: ScenarioScheduledEvent[];
 }
 
-export interface ScenarioSnapshot {
-  definition: ScenarioDefinition;
-  state: Omit<PhysiologyState, 'rng'>;
-  history: Array<{ action: string; minutesElapsed: number; mapBefore: number; mapAfter: number }>;
+export interface ScenarioHistoryEntry {
+  action: string;
+  minutesElapsed: number;
+  mapBefore: number;
+  mapAfter: number;
+}
+
+export interface ScenarioReleasedEvent {
+  key: string;
+  minute: number;
+  releaseMinute: number;
+  kind: string;
+  event: string;
+  payload: Record<string, unknown>;
 }
 
 export interface AdvanceAction {
@@ -44,5 +65,7 @@ export interface ScenarioResponse {
     fluidBoluses: number;
     minutesElapsed: number;
   };
-  history: ScenarioSnapshot['history'];
+  history: ScenarioHistoryEntry[];
+  releasedEvents: ScenarioReleasedEvent[];
+  upcomingVisibleEvents: Array<{ minute: number; event: string }>;
 }

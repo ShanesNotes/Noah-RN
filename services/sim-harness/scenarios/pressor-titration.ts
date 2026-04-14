@@ -23,4 +23,15 @@ export const pressorTitration: ScenarioDefinition = {
     previousNoise: 0,
     totalMinutesElapsed: 0,
   },
+  scheduledEvents: [
+    {
+      key: 'pressor-titration-lactate',
+      minute: 10,
+      releaseMinute: 20,
+      kind: 'lab-result',
+      event: 'Lactate 4.2 mmol/L resulted',
+      visibleToAgent: false,
+      payload: { test: 'lactate', mmol_per_l: 4.2 },
+    },
+  ],
 };
