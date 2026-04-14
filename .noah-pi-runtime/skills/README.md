@@ -2,6 +2,8 @@
 
 Future pi.dev-discovered skills live here.
 
+Repo note: this directory is stored at `.noah-pi-runtime/skills/` and mounts as `/runtime/.pi/skills/`.
+
 Current source-of-truth workflow contracts still live under:
 - `packages/workflows/`
 

@@ -1,6 +1,10 @@
 # `.pi/`
 
-Project-level Pi configuration surface for Noah RN.
+Repo-hosted Pi configuration surface for Noah RN.
+
+In this repository, these files live under `.noah-pi-runtime/`.
+Inside the isolated runtime lane, this directory mounts as `/runtime/.pi`.
+When docs inside this folder say `.pi/...`, read that as the runtime-mounted path.
 
 ## Contents
 
@@ -30,5 +34,5 @@ Migration: `skills/MIGRATION-MAP.md`
 ## Relationship to `packages/`
 
 - `packages/workflows/` remains authoritative for clinical content
-- `.pi/skills/` is authoritative for Pi-native wiring (dependencies.yaml, pi: frontmatter)
-- If clinical content changes, change it in `packages/workflows/` first, then sync to `.pi/skills/`
+- `.noah-pi-runtime/skills/` is authoritative for Pi-native wiring in the repo (runtime path: `.pi/skills/`; dependencies.yaml, pi: frontmatter)
+- If clinical content changes, change it in `packages/workflows/` first, then sync to `.noah-pi-runtime/skills/`

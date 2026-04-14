@@ -42,7 +42,8 @@ It does not mean:
 
 ### Layer 3: `pi.dev` bridge surfaces
 
-`.pi/` is the scaffold surface for project-level promotion.
+`.noah-pi-runtime/` is the repo-hosted scaffold surface for project-level promotion.
+Inside the isolated lane it mounts as `/runtime/.pi`.
 It should consume established contracts, not invent a second truth.
 
 ## Minimal runtime grammar
@@ -63,7 +64,7 @@ Anything beyond that should earn its way in.
 
 - `packages/workflows/`
 - `packages/agent-harness/`
-- `.pi/`
+- `.noah-pi-runtime/`
 - `docs/foundations/metadata-registry-spec.md`
 - `docs/foundations/skill-contract-schema.md`
 
@@ -72,7 +73,7 @@ Anything beyond that should earn its way in.
 - broad runtime abstraction layers
 - alternate harness foundations
 - autonomous multi-agent expansion without a concrete workflow need
-- promotion of `.pi/` into runtime truth before the first bridge proves itself
+- promotion of `.noah-pi-runtime/` into runtime truth before the first bridge proves itself
 
 ## References
 

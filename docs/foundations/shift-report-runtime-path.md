@@ -46,7 +46,7 @@ For this first path:
 - `packages/workflows/shift-report/` is the workflow authority
 - `services/clinical-mcp/` is the patient-context authority
 - `clinical-resources/` is the resource authority
-- `.pi/` may mirror or bridge this path, but is not authoritative
+- `.noah-pi-runtime/` may mirror or bridge this path, but is not authoritative (it mounts as `/runtime/.pi` in the isolated lane)
 
 ## What is intentionally deferred
 

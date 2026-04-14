@@ -36,14 +36,14 @@ Owns:
 
 This is the current source of truth for workflow contract content.
 
-## Relationship to `.pi/`
+## Relationship to the Pi runtime surface
 
-`.pi/` is a project-level bridge/scaffold surface, not a package lane.
+Repo-hosted Pi assets now live under `.noah-pi-runtime/` and mount into the isolated runtime as `/runtime/.pi`.
 
 Current rule:
 - `packages/agent-harness/` and `packages/workflows/` are authoritative now
-- `.pi/` may mirror or bridge those surfaces for future pi-native runtime work
-- do not treat `.pi/` as a replacement for `packages/`
+- `.noah-pi-runtime/` may mirror or bridge those surfaces for future pi-native runtime work
+- do not treat the Pi runtime surface as a replacement for `packages/`
 
 ## Read this next
 

@@ -33,4 +33,4 @@ contract:
 ## Current Rule
 
 `packages/workflows/` remains authoritative.
-Do not make `.pi/skills/` canonical until source-of-truth promotion is explicitly decided.
+Do not make `.noah-pi-runtime/skills/` canonical until source-of-truth promotion is explicitly decided.

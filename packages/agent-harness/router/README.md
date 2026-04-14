@@ -12,18 +12,18 @@ This folder holds the current router contract surface for Noah RN.
 
 - workflow contract content itself
 - patient-context assembly
-- `.pi` runtime bridge logic
+- Pi runtime bridge logic
 
 Those live in:
 - `packages/workflows/`
 - `services/clinical-mcp/`
-- `.pi/extensions/noah-router/`
+- `.noah-pi-runtime/extensions/noah-router/`
 
 ## Current rule
 
 If you need to understand how Noah RN decides which workflow should handle a request, start here.
 
-If you need to change the future pi-native bridge shape, read this first and then move to `.pi/extensions/noah-router/`.
+If you need to change the future pi-native bridge shape, read this first and then move to `.noah-pi-runtime/extensions/noah-router/`.
 
 ## Current primary file
 

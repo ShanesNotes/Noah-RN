@@ -32,23 +32,24 @@ Those live in:
 - `packages/workflows/`
 - `services/clinical-mcp/`
 - `clinical-resources/`
-- `.pi/` (scaffold/bridge surface only)
+- `.noah-pi-runtime/` (repo-hosted bridge surface; mounted as `/runtime/.pi`)
 
-## Relationship to `.pi/`
+## Relationship to the Pi runtime surface
 
-Treat `.pi/` as conceptually subordinate to this lane.
+Treat `.noah-pi-runtime/` as conceptually subordinate to this lane.
 
 Current rule:
 - `packages/agent-harness/` is the authoritative harness/routing source of truth
-- `.pi/` is the future pi.dev-facing bridge surface
-- `.pi/` stays at repo root for now because it is a project-level runtime/scaffold exception
-- do not start harness architecture work in `.pi/` unless the goal is specifically pi-bridge wiring
+- `.noah-pi-runtime/` is the repo-hosted pi.dev-facing bridge surface
+- inside the isolated runtime container this mounts as `/runtime/.pi`
+- do not start harness architecture work in `.noah-pi-runtime/` unless the goal is specifically pi-bridge wiring
 
 In shorthand:
 
 ```text
 authoritative harness now: packages/agent-harness/
-future bridge/runtime-facing shadow: .pi/
+future bridge/runtime-facing shadow in repo: .noah-pi-runtime/
+runtime mount inside container: /runtime/.pi
 ```
 
 Near-term use:
@@ -68,4 +69,4 @@ Near-term use:
 
 - `../../docs/topology/subproject-workspace-map.md`
 - `../../docs/foundations/agent-harness-runtime-contract.md`
-- `../../.pi/README.md`
+- `../../.noah-pi-runtime/README.md`

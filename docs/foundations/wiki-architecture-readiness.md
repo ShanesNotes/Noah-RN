@@ -10,7 +10,7 @@ Source: `wiki/concepts/metadata-first-registry.md`
 Attach to current surfaces:
 - `packages/workflows/`
 - `packages/agent-harness/`
-- `.pi/skills/`
+- `.noah-pi-runtime/skills/`
 - `clinical-resources/`
 - `tools/`
 
@@ -23,7 +23,7 @@ Source: `wiki/concepts/skill-as-contract.md`
 
 Attach to current surfaces:
 - `packages/workflows/*/SKILL.md`
-- `.pi/skills/`
+- `.noah-pi-runtime/skills/`
 - `packages/agent-harness/router/clinical-router.md`
 
 Readiness target:
@@ -36,7 +36,7 @@ Source: `wiki/concepts/observability-from-day-one.md`
 Attach to current surfaces:
 - `tools/trace/trace.sh`
 - `evals/product/traces/`
-- `.pi/`
+- `.noah-pi-runtime/`
 - `services/clinical-mcp/`
 
 Readiness target:
@@ -52,7 +52,7 @@ Sources:
 Attach to current surfaces:
 - `services/clinical-mcp/`
 - `docs/foundations/memory-layer-scaffold.md`
-- `.pi/`
+- `.noah-pi-runtime/`
 - `clinical-resources/`
 
 Readiness target:

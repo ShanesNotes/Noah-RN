@@ -5,6 +5,14 @@ import { planShiftReportExecution } from "./plan-shift-report-execution.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..", "..");
+const repoHostedPiRuntimeRoot = resolve(repoRoot, ".noah-pi-runtime");
+
+function resolveRepoHostedPath(path) {
+  if (path.startsWith(".pi/")) {
+    return resolve(repoHostedPiRuntimeRoot, path.slice(4));
+  }
+  return resolve(repoRoot, path);
+}
 
 export function evaluateShiftReportBridgeReadiness(input = {}) {
   const plan = planShiftReportExecution(input);
@@ -19,10 +27,10 @@ export function evaluateShiftReportBridgeReadiness(input = {}) {
     };
   }
 
-  const workflowExists = existsSync(resolve(repoRoot, plan.authoritative_workflow));
-  const piSkillExists = existsSync(resolve(repoRoot, plan.pi_skill_target));
+  const workflowExists = existsSync(resolveRepoHostedPath(plan.authoritative_workflow));
+  const piSkillExists = existsSync(resolveRepoHostedPath(plan.pi_skill_target));
   const serviceSurfacesExist = plan.service_surface_refs.every((surface) =>
-    existsSync(resolve(repoRoot, surface)),
+    existsSync(resolveRepoHostedPath(surface)),
   );
   const knowledgeAssetsExist = plan.knowledge_assets.every((asset) => asset.length > 0);
 

@@ -9,7 +9,7 @@ Move Noah RN toward metadata-first discovery for skills, tools, and clinical res
 ### Skill registry
 Source surfaces:
 - `packages/workflows/*/SKILL.md`
-- future `.pi/skills/*/SKILL.md`
+- future `.noah-pi-runtime/skills/*/SKILL.md`
 
 Proposed record shape:
 ```yaml

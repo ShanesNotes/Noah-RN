@@ -26,7 +26,7 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
 ## Next
 
 5. **Implement the minimal `pi.dev` harness foundation inside the new layout**
-   - Use `.pi/` as the project-level pi.dev bridge surface.
+   - Use `.noah-pi-runtime/` as the repo-hosted pi.dev bridge surface (mounted as `/runtime/.pi` in the isolated lane).
    - Consume the registry + contract + selection structures before adding new runtime layers.
    - Keep `packages/workflows/` authoritative until a promotion decision is explicitly recorded.
 
@@ -51,8 +51,9 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Connect evaluation traces to future eval harness work.
 
 9. **Land the Clinical Simulation Harness runtime only when needed**
-   - Keep the scaffold docs canonical for now.
-   - Start runtime work only when the first bedside workflow actually needs live vitals and waveforms.
+   - ~~Scaffold docs canonical~~ — **Superseded 2026-04-13.** Canonical authority is now the invariant kernel + nine foundational contracts (`docs/foundations/invariant-kernel-simulation-architecture.md`, `docs/foundations/foundational-contracts-simulation-architecture.md` — amended with D1–D4 + M1–M3 on 2026-04-13).
+   - ~~Physiology boundary violation in clinical-mcp~~ — **Resolved 2026-04-13.** Pharmacokinetic reference models + scenario controller + scenario seeds relocated to `services/sim-harness/`. Clinical-mcp no longer owns any L0 computation. Sim tools removed from `services/clinical-mcp/src/server.ts` and replaced with a `registerSimTools()` no-op seam pending Lane F.
+   - Start runtime work (execution-packet Lane A: Clock + Engine adapter) only when the first bedside workflow actually needs live vitals and waveforms. Lanes B–F sequence after.
 
 ## Later
 

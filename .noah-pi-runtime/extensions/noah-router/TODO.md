@@ -1,12 +1,14 @@
 # `noah-router` Extension TODO
 
+Repo note: this extension lives at `.noah-pi-runtime/extensions/noah-router/` and mounts as `/runtime/.pi/extensions/noah-router/`.
+
 This is a planning stub for the future pi-native routing extension.
 
 ## Source-of-truth today
 
 - `packages/agent-harness/router/clinical-router.md`
-- `.pi/AGENTS.md`
-- `.pi/SYSTEM.md`
+- `.pi/AGENTS.md` (repo path: `.noah-pi-runtime/AGENTS.md`)
+- `.pi/SYSTEM.md` (repo path: `.noah-pi-runtime/SYSTEM.md`)
 
 ## First implementation goals
 

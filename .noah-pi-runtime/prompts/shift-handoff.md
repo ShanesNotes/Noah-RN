@@ -2,6 +2,8 @@
 
 Reusable prompt surface for invoking the shift-report skill through the Pi runtime.
 
+Repo note: this prompt lives at `.noah-pi-runtime/prompts/shift-handoff.md` and mounts as `/runtime/.pi/prompts/shift-handoff.md`.
+
 ## Skill target
 
 - `.pi/skills/shift-report/SKILL.md`

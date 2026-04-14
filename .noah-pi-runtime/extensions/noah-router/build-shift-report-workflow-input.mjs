@@ -1,6 +1,15 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildShiftReportInvocationPayload } from "./build-shift-report-invocation-payload.mjs";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const defaultFixtureDir = resolve(__dirname, "../../../services/clinical-mcp/fixtures");
+
 async function loadPatientContext(patientId) {
+  if (!process.env.FHIR_FIXTURE_DIR) {
+    process.env.FHIR_FIXTURE_DIR = defaultFixtureDir;
+  }
+
   const { assemblePatientContext } = await import("../../../services/clinical-mcp/dist/context/assembler.js");
   return assemblePatientContext(patientId);
 }

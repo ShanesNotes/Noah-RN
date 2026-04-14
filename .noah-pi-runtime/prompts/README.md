@@ -2,6 +2,8 @@
 
 Reusable prompt templates for Pi-native workflow invocation.
 
+Repo note: this directory is stored at `.noah-pi-runtime/prompts/` and mounts as `/runtime/.pi/prompts/`.
+
 ## Prompt inventory
 
 | Template | Type | Skill targets | Status |

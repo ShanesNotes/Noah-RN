@@ -21,7 +21,7 @@ Establish the minimum `pi.dev`-aligned routing substrate for the first workflow 
 Lock the rule:
 - `packages/workflows/` remains authoritative for workflow contracts
 - `packages/agent-harness/` consumes those contracts
-- `.pi/` is bridge/scaffold, not truth
+- `.noah-pi-runtime/` is the repo-hosted bridge/scaffold surface, not truth
 
 ### 2. Minimum routing grammar
 

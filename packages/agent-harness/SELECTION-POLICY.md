@@ -40,6 +40,6 @@ This is a readiness policy note only.
 
 It should inform:
 - future router refactors in `packages/agent-harness/`
-- future pi-native discovery behavior in `.pi/skills/`
+- future pi-native discovery behavior in `.noah-pi-runtime/skills/` (mounted in runtime as `/runtime/.pi/skills/`)
 
 It should **not** silently override the current router contract.

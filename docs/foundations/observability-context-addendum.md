@@ -34,10 +34,10 @@ Add later when implementing:
 - `clinical-resources/`
 
 ### Compress
-- future summarization / context-reduction surfaces in `.pi/`
+- future summarization / context-reduction surfaces in `.noah-pi-runtime/`
 
 ### Isolate
-- future `.pi/` routing / multi-agent flow boundaries
+- future `.noah-pi-runtime/` routing / multi-agent flow boundaries
 
 ## First Workflow Target
 

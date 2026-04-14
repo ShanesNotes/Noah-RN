@@ -1,5 +1,7 @@
 # `.pi/skills/` Migration Map
 
+Repo note: this surface is stored at `.noah-pi-runtime/skills/` and mounts as `/runtime/.pi/skills/`.
+
 These are the current workflow contracts that would eventually become pi-discovered skills.
 
 | Current workflow contract | Future pi skill path |
@@ -17,7 +19,7 @@ These are the current workflow contracts that would eventually become pi-discove
 
 ## Current rule
 
-Use `packages/workflows/` as the source of truth for clinical content. Promoted skills in `.pi/skills/` carry the same clinical content plus Pi-native metadata.
+Use `packages/workflows/` as the source of truth for clinical content. Promoted skills in the repo-hosted Pi surface (`.noah-pi-runtime/skills/`; runtime path `.pi/skills/`) carry the same clinical content plus Pi-native metadata.
 
 ### Promoted (2026-04-12)
 

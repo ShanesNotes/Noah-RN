@@ -23,7 +23,7 @@ Shared references:
 - `registry.json`
 
 Future pi.dev mapping:
-- see `.pi/skills/MIGRATION-MAP.md`
+- see `.noah-pi-runtime/skills/MIGRATION-MAP.md`
 
 ## What this folder owns
 
@@ -43,7 +43,7 @@ Those live in:
 - `packages/agent-harness/`
 - `services/clinical-mcp/`
 - `clinical-resources/`
-- `.pi/`
+- `.noah-pi-runtime/`
 
 ## Current rule
 

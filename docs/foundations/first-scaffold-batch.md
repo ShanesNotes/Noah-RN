@@ -49,7 +49,7 @@ Workspace center:
 Goal of the first batch:
 - define the minimum routing boundary
 - define the first selection contract
-- define how `.pi/` consumes rather than replaces current contracts
+- define how `.noah-pi-runtime/` consumes rather than replaces current contracts
 
 Artifact:
 - `docs/foundations/agent-harness-first-batch.md`

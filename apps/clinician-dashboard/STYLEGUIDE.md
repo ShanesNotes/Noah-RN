@@ -82,4 +82,4 @@ export const colors = {
 - **Use:** `colors.surface` background, zero border, proper monospace padding.
 
 ### Prompt Reference for LLM/Agents
-If you need an LLM or Agent to generate new UI for this project, append or point them to `.pi/prompts/ui-design-pi-minimalism.md` to ensure they adhere to these design constraints.
+If you need an LLM or Agent to generate new UI for this project, append or point them to `.noah-pi-runtime/prompts/ui-design-pi-minimalism.md` to ensure they adhere to these design constraints.

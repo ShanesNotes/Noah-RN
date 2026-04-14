@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PI_RUNTIME_DIR="${PI_RUNTIME_DIR:-$REPO_ROOT/.noah-pi-runtime}"
 PASS=0
 FAIL=0
 
@@ -20,7 +21,7 @@ assert_eq() {
 
 echo "=== Shift Report Runtime Contract ==="
 
-JSON_OUTPUT="$(node "$REPO_ROOT/.pi/extensions/noah-router/describe-shift-report-runtime-contract.mjs")"
+JSON_OUTPUT="$(node "$PI_RUNTIME_DIR/extensions/noah-router/describe-shift-report-runtime-contract.mjs")"
 
 CONTRACT_NAME="$(echo "$JSON_OUTPUT" | jq -r '.contract')"
 WORKFLOW_PATH="$(echo "$JSON_OUTPUT" | jq -r '.authoritative_workflow')"

@@ -16,7 +16,7 @@ It is the contract for what the first renderer is expected to emit.
 ## Current renderer posture
 
 The current bridge scaffold already produces a sectioned dry-run artifact through:
-- `.pi/extensions/noah-router/build-shift-report-dry-run-output.mjs`
+- `.noah-pi-runtime/extensions/noah-router/build-shift-report-dry-run-output.mjs`
 
 That renderer is useful as a scaffold because it already proves:
 - section ordering
@@ -95,7 +95,7 @@ The first renderer is good enough when:
 
 ## Current implementation anchor
 
-- `.pi/extensions/noah-router/build-shift-report-dry-run-output.mjs`
+- `.noah-pi-runtime/extensions/noah-router/build-shift-report-dry-run-output.mjs`
 
 ## References
 

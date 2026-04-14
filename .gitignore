@@ -1,4 +1,5 @@
 # Runtime / tool state
+.pi/
 .claude/
 .omc/
 .omx/
@@ -75,3 +76,4 @@ docs/analysis/session-*.html
 docs/analysis/browser-control-skill-template.SKILL.md
 apps/clinician-dashboard/public/evals/
 apps/clinician-dashboard/public/traces/
+.dmux/

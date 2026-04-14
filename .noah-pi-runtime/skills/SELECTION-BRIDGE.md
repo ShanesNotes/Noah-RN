@@ -1,5 +1,7 @@
 # `.pi/skills/` Selection Bridge
 
+Repo note: this surface is stored at `.noah-pi-runtime/skills/` and mounts as `/runtime/.pi/skills/`.
+
 This note explains how future pi-native skill discovery should bridge from current canonical workflow contracts.
 
 ## Current discovery order
@@ -7,7 +9,7 @@ This note explains how future pi-native skill discovery should bridge from curre
 1. `packages/workflows/registry.json`
 2. `packages/workflows/*/SKILL.md`
 3. `packages/agent-harness/SELECTION-POLICY.md`
-4. `.pi/skills/*` — scaffold paths for unpromoted skills, full contract for promoted skills
+4. `.pi/skills/*` — scaffold paths for unpromoted skills, full contract for promoted skills (repo-hosted under `.noah-pi-runtime/skills/*`)
 
 ## Promoted skills
 
@@ -55,6 +57,7 @@ This note explains how future pi-native skill discovery should bridge from curre
 ## Rule
 
 - `packages/workflows/` remains authoritative for clinical content
+- repo-side Pi wiring changes belong in `.noah-pi-runtime/skills/`
 - `.pi/skills/shift-report/` is the Pi-native discovery surface (clinical content + Pi wiring)
 - remaining `.pi/skills/*` paths are scaffold only until explicitly promoted
 - future pi-native discovery should consume promoted skills directly and fall back to `packages/workflows/` for the rest

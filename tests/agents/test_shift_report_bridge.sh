@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PI_RUNTIME_DIR="${PI_RUNTIME_DIR:-$REPO_ROOT/.noah-pi-runtime}"
 PASS=0
 FAIL=0
 
@@ -20,7 +21,7 @@ assert_eq() {
 
 echo "=== Shift Report Bridge ==="
 
-SHIFT_JSON="$(node "$REPO_ROOT/.pi/extensions/noah-router/describe-shift-report-bridge.mjs")"
+SHIFT_JSON="$(node "$PI_RUNTIME_DIR/extensions/noah-router/describe-shift-report-bridge.mjs")"
 BRIDGE_NAME="$(echo "$SHIFT_JSON" | jq -r '.bridge')"
 WORKFLOW_PATH="$(echo "$SHIFT_JSON" | jq -r '.authoritative_workflow')"
 PI_TARGET="$(echo "$SHIFT_JSON" | jq -r '.pi_skill_target')"
@@ -33,7 +34,7 @@ assert_eq "pi skill target points at scaffold skill" ".pi/skills/shift-report/SK
 assert_eq "service surface points at clinical-mcp" "services/clinical-mcp/" "$SERVICE_REF"
 assert_eq "bridge exposes mapped knowledge assets" "4" "$ASSET_COUNT"
 
-PATIENT_JSON="$(node "$REPO_ROOT/.pi/extensions/medplum-context/describe-patient-context-bridge.mjs")"
+PATIENT_JSON="$(node "$PI_RUNTIME_DIR/extensions/medplum-context/describe-patient-context-bridge.mjs")"
 PATIENT_BRIDGE="$(echo "$PATIENT_JSON" | jq -r '.bridge')"
 PATIENT_TOOL="$(echo "$PATIENT_JSON" | jq -r '.primary_tool')"
 PATIENT_SERVICE="$(echo "$PATIENT_JSON" | jq -r '.authoritative_service')"

@@ -50,7 +50,7 @@ The harness should emit:
 ## Rules
 
 - `packages/workflows/` remains authoritative for workflow contracts
-- `.pi/` consumes current contracts and does not become a second source of truth
+- `.noah-pi-runtime/` consumes current contracts and does not become a second source of truth
 - routing should be metadata-first, prose-second
 - selection should stay legible and auditable
 
@@ -65,7 +65,7 @@ The harness should emit:
 
 When implementation begins, the runtime mirror of this contract should live under:
 - `packages/agent-harness/`
-- `.pi/` only as a consumer/bridge surface
+- `.noah-pi-runtime/` only as a consumer/bridge surface
 
 ## References
 

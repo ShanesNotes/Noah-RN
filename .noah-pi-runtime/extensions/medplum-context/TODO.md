@@ -1,5 +1,7 @@
 # `medplum-context` Extension TODO
 
+Repo note: this extension lives at `.noah-pi-runtime/extensions/medplum-context/` and mounts as `/runtime/.pi/extensions/medplum-context/`.
+
 This is a planning stub for the future pi-native Medplum/patient-context extension.
 
 ## Source-of-truth today
@@ -17,4 +19,4 @@ This is a planning stub for the future pi-native Medplum/patient-context extensi
 ## Non-goals
 
 - do not re-architect FHIR/data access before a pi-native workflow actually needs it
-- do not duplicate service logic blindly into `.pi/`
+- do not duplicate service logic blindly into the Pi runtime surface

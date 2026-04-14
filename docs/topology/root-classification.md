@@ -41,7 +41,7 @@ Every current root item must have an explicit class during the restructure.
 | `.omc/` | Runtime exception | keep at root |
 | `.claude/` | Runtime exception | review separately; do not move casually |
 | `.codex-home/` | Runtime exception | local tool state; do not move casually |
-| `.pi/` | Runtime exception / bridge surface | keep at root for now as project-level pi scaffold; not authoritative runtime truth |
+| `.noah-pi-runtime/` | Runtime exception / bridge surface | repo-hosted Pi scaffold; mounts into the isolated lane as `/runtime/.pi`; not authoritative runtime truth |
 | `.agents/` | Runtime exception / tool surface | keep at root unless tooling contract is changed explicitly |
 | `.hermes/` | Runtime exception / local tooling residue | review separately; do not move casually |
 | `.git/` | Runtime exception | git metadata |

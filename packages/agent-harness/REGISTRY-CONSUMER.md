@@ -18,8 +18,8 @@ Future router work should prefer:
 2. **contract-aware routing**
    - inspect workflow `contract:` blocks before selecting a workflow
 3. **current-source authority**
-   - treat `packages/workflows/*/SKILL.md` as canonical until an explicit promotion to `.pi/skills/` is recorded
+   - treat `packages/workflows/*/SKILL.md` as canonical until an explicit promotion to `.noah-pi-runtime/skills/` is recorded
 
 ## Non-goal
 
-Do not let `.pi/` scaffolds silently become authoritative just because they are closer to a future runtime shape.
+Do not let `.noah-pi-runtime/` scaffolds silently become authoritative just because they are closer to a future runtime shape.

@@ -2,6 +2,8 @@
 
 How the repo maps into the Pi-native project surface.
 
+Repo note: the host-side source directory is `.noah-pi-runtime/`. It mounts into the isolated lane as `/runtime/.pi`. Paths shown below use the runtime-relative `.pi/...` form.
+
 ## Current State
 
 | Source | Pi Surface | Status |
@@ -15,8 +17,8 @@ How the repo maps into the Pi-native project surface.
 ## Content Sync Rule
 
 - `packages/workflows/` is authoritative for clinical content
-- `.pi/skills/` is authoritative for Pi-native wiring
-- Change clinical content in `packages/workflows/` first, then sync to `.pi/skills/`
+- `.noah-pi-runtime/skills/` is authoritative for Pi-native wiring in the repo (runtime path: `.pi/skills/`)
+- Change clinical content in `packages/workflows/` first, then sync to `.noah-pi-runtime/skills/`
 
 ## Promoted Skills
 

@@ -16,7 +16,7 @@ Capture what the current branch actually accomplished, where the docs drifted, a
 
 ### 2. Shift Report forcing path became real enough to operate
 
-- `.pi/` bridge scaffolds now exist for the first Shift Report path.
+- `.noah-pi-runtime/` bridge scaffolds now exist for the first Shift Report path.
 - `packages/agent-harness/` exists as a real routing/selection workspace center.
 - `infrastructure/medplum/test-shift-report-task.sh` defines the operator proof path for:
   - create `Task`

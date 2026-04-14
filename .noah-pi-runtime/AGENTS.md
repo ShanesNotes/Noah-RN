@@ -1,5 +1,7 @@
 # Agent Context
 
+> Repo note: these files live under `.noah-pi-runtime/` in git and mount as `/runtime/.pi` in the isolated lane. Runtime-relative `.pi/...` paths below refer to that mounted surface.
+
 ## Canonical sources
 
 - `.pi/SYSTEM.md` — runtime system prompt
@@ -27,6 +29,6 @@ Remaining unpromoted: shift-assessment.
 
 ## Content sync rule
 
-Clinical content in `.pi/skills/` stays in sync with `packages/workflows/`. Change clinical content in `packages/workflows/` first, then sync to `.pi/skills/`.
+Clinical content in the repo-hosted Pi skill surface stays in sync with `packages/workflows/`. Change clinical content in `packages/workflows/` first, then sync to `.noah-pi-runtime/skills/` (runtime path: `.pi/skills/`).
 
-Pi-native wiring (dependencies.yaml, pi: frontmatter, prompt templates) is authored in `.pi/` directly.
+Pi-native wiring (dependencies.yaml, pi: frontmatter, prompt templates) is authored in `.noah-pi-runtime/` directly.

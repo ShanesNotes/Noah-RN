@@ -62,30 +62,45 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 - `services/sim-harness/`
 
 **Why**
-- This is the live-runtime center for tickable patient state, waveform generation, and scenario direction.
-- It exists so the agent has a realistic environment to operate in, with live vitals and waveforms the agent can see and validate against.
-- It wraps validated open-source engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) rather than rebuilding physiology in-house.
-- It writes Observation / Encounter / MedicationAdministration resources into the same Medplum FHIR backbone the context boundary reads from, so the agent and clinician see the same chart regardless of whether the patient is static MIMIC or live simulated.
+- Owns the L0–L4 projection model per the invariant kernel: L0 hidden truth → L1 monitor → L2 events → L3 chart (via clinical-mcp) → L4 obligations.
+- Enforces monitor-as-avatar: rhythm and hemodynamic claims validate against raw waveform samples + rendered image, not labels.
+- L0 is an adapter over a validated external physiology engine. Engine choice is gated on Contract 9 (Research-Hook); no engine is bound today.
+- L2 events follow a two-stage release authority (L0 eligibility + scenario-controller release per amendment D2).
+- L3 write-back flows through `services/clinical-mcp/` into Medplum so the agent and clinician see the same chart regardless of whether the patient is static MIMIC or live simulated.
 
 **Primary supporting surfaces**
-- `services/clinical-mcp/` registers the sim-harness agent-facing MCP tools (live vitals, waveform vision, administer medication, order intervention). Agents never talk to `services/sim-harness/` directly.
-- `infrastructure/` provides the Medplum FHIR backbone that receives sim-harness write-back.
-- `apps/clinician-dashboard/` is the intended observability surface for future waveform viewer and live-vitals panels once the sim runtime exists.
-- `docs/foundations/sim-harness-*.md` holds the canonical specs.
-- `evals/` is the eventual downstream consumer via a Gym-compatible interface for meta-harness work.
+- `services/clinical-mcp/` — single agent-facing MCP boundary. Sim tools register through `registerSimTools()` there (no-op today; wired in Lane F). Agents never talk to `services/sim-harness/` directly.
+- `infrastructure/` — Medplum FHIR backbone that receives sim-harness write-back via clinical-mcp.
+- `apps/clinician-dashboard/` — intended observability surface for future waveform viewer and live-vitals panels once the runtime lanes land.
+- `docs/foundations/invariant-kernel-simulation-architecture.md` + `docs/foundations/foundational-contracts-simulation-architecture.md` — canonical authority.
+- `docs/foundations/execution-packet-simulation-architecture.md` — implementation lanes A–F.
+- `evals/` — downstream eval consumer (Contract 8); Gym-compatible wrapper deferred until golden tests mature.
 
 **What does not belong here**
-- custom in-house physiology modeling (explicitly superseded by the engine-wrapping strategy)
+- custom in-house physiology modeling (L0 is always an adapter over a wrapped external engine)
 - duplicate patient-context assembly logic (that belongs in `services/clinical-mcp/`)
 - direct agent-facing MCP tool registration (tools register through the clinical-mcp boundary)
 - waveform rendering that bypasses the agent vision contract (see `sim-harness-waveform-vision-contract.md`)
+- L0 configuration parameters inside `services/clinical-mcp/` (relocated 2026-04-13)
+
+**Current artifact placement**
+- canonical architecture docs: `docs/foundations/invariant-kernel-simulation-architecture.md`, `docs/foundations/foundational-contracts-simulation-architecture.md`
+- type contracts: `services/sim-harness/src/index.ts` (with L0–L4 layer annotations)
+- reference pharmacokinetics: `services/sim-harness/src/reference/pharmacokinetics.ts`
+- scenario controller + types: `services/sim-harness/src/scenario/`
+- scenario seed data: `services/sim-harness/scenarios/` (pressor-titration, fluid-responsive, hyporesponsive)
+- sim-harness config (PK + scenarios): `services/sim-harness/src/config.ts`
+- tests: `services/sim-harness/__tests__/`
 
 **Future artifact placement**
-- high-level scaffold and boundary docs: `docs/foundations/sim-harness-*.md`
-- engine wrapping adapter code: `services/sim-harness/` (when runtime work starts)
-- scenario timeline authoring: `services/sim-harness/scenarios/` (when runtime work starts)
-- waveform template assets: `services/sim-harness/waveforms/rhythms/` (when runtime work starts)
-- runtime code gating: runtime work is gated on the first bedside workflow needing live vitals — see `TASKS.md` item 4
+- clock + engine adapter code: `services/sim-harness/src/clock/` + `services/sim-harness/src/engine/` (execution-packet Lane A)
+- projection code: `services/sim-harness/src/projections/` (Lane B)
+- waveform template assets: `services/sim-harness/waveforms/rhythms/` (Lane C)
+- alarm + signal-quality: `services/sim-harness/src/monitor/` (Lane C)
+- charting policy + provenance: `services/clinical-mcp/src/charting/` (Lane D)
+- obligation engine: placement decision pending amendment D1 (Lane E)
+- eval recorder hooks: `evals/sim-trace/` (Lane F)
+- runtime code gating: runtime work is gated on the first bedside workflow needing live vitals — see `TASKS.md` item 9
 
 ### 2. Agent Harness
 
@@ -98,7 +113,7 @@ The Clinical Workspace lane has **two workspace centers**. One owns context asse
 
 **Primary supporting surfaces**
 - `packages/workflows/` for authoritative workflow contracts
-- `.pi/` for project-level bridge/scaffold surfaces
+- `.noah-pi-runtime/` for repo-hosted bridge/scaffold surfaces (mounted in runtime as `/runtime/.pi`)
 - `docs/foundations/metadata-registry-spec.md`
 - `docs/foundations/skill-contract-schema.md`
 
@@ -196,7 +211,7 @@ Use this model:
 Examples:
 
 - Clinical workspace spans `services/clinical-mcp/`, `infrastructure/`, `apps/nursing-station/`, and `apps/clinician-dashboard/`, but the center is `services/clinical-mcp/`.
-- Agent harness spans `packages/agent-harness/`, `packages/workflows/`, and `.pi/`, but the center is `packages/agent-harness/`.
+- Agent harness spans `packages/agent-harness/`, `packages/workflows/`, and `.noah-pi-runtime/`, but the center is `packages/agent-harness/`.
 - Clinical resources span `clinical-resources/` and selected workflow packages, but the center is `clinical-resources/`.
 
 ## Where The Next Artifacts Should Live
@@ -218,7 +233,7 @@ The missing canonical artifact was this one:
 | Subproject | Workspace center | Primary supporting surfaces |
 |---|---|---|
 | Clinical workspace | `services/clinical-mcp/` | `infrastructure/`, `apps/nursing-station/`, `apps/clinician-dashboard/`, `docs/foundations/medplum-architecture-packet.md` |
-| Agent harness | `packages/agent-harness/` | `packages/workflows/`, `.pi/`, metadata/contract foundation docs |
+| Agent harness | `packages/agent-harness/` | `packages/workflows/`, `.noah-pi-runtime/`, metadata/contract foundation docs |
 | Clinical resources | `clinical-resources/` | workflow reference packages, metadata-registry foundation docs |
 | Memory layer | `docs/foundations/memory-layer-scaffold.md` | `services/clinical-mcp/`, `packages/workflows/`, memory foundation docs |
 | Meta-harness optimization | `evals/` | `tools/trace/`, observability foundation docs |
