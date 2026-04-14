@@ -59,7 +59,7 @@ Current direction:
 
 Named scope inside Clinical Workspace:
 
-- **Clinical Simulation Harness** — live-EHR + live-vitals environment for the agentic harness to operate in. Wraps Pulse as the primary physiology engine; wraps Infirmary Integrated rhythm/waveform patterns; borrows rohySimulator's LLM virtual-patient dialogue shape; exposes an Auto-ALS-style Gym-compatible interface for the meta-harness eval loop. Canonical scaffold lives in `docs/foundations/sim-harness-scaffold.md`. Runtime center is `services/sim-harness/`.
+- **Clinical Simulation Harness** — live-EHR + live-vitals environment for the agentic harness to operate in. Separates patient reality into five projection layers (L0 hidden truth → L1 monitor → L2 events → L3 chart → L4 obligations) per the invariant kernel. Enforces monitor-as-avatar: rhythm and hemodynamic claims validate against the raw waveform surface, not labels. Wraps validated external physiology engines (Pulse, BioGears) behind an L0 adapter boundary; engine selection is gated on Contract 9 (Research-Hook). Canonical authority: `docs/foundations/invariant-kernel-simulation-architecture.md` + `docs/foundations/foundational-contracts-simulation-architecture.md` (nine contracts, amended 2026-04-13). Runtime center is `services/sim-harness/` — scaffold + type contracts + relocated reference pharmacokinetics today; runtime lanes A–F deferred per `docs/foundations/execution-packet-simulation-architecture.md`.
 
 Immediate questions:
 

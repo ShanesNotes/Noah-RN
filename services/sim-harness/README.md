@@ -1,68 +1,60 @@
 # sim-harness
 
-Clinical Simulation Harness workspace center.
+Clinical Simulation Harness workspace center. Live-runtime boundary inside the Clinical Workspace lane.
 
-**Status:** scaffold only — no runtime code. Runtime work is gated on the first bedside workflow needing live vitals (see `TASKS.md` item 4).
+**Status:** scaffold + type contracts + relocated reference pharmacokinetics. Runtime lanes A–F are deferred to the execution packet. No engine, clock, projection, alarm, charting, or obligation runtime code ships from this workspace yet.
 
-## What this is
+## Canonical architecture
 
-`services/sim-harness/` is the live-runtime workspace center inside the Clinical Workspace lane. It exists so the Noah RN agentic harness can operate inside a realistic, tickable clinical environment with live vital signs, live waveforms, and live FHIR chart state — without rebuilding clinical physiology in-house.
+The governing documents are:
 
-It is the second of two workspace centers in Clinical Workspace:
+- `docs/foundations/invariant-kernel-simulation-architecture.md` — eight kernel invariants (Patient Truth, Clock Semantics, Monitor-as-Avatar, L0–L4 Projection, Charting Authority, Obligation Lifecycle, Intervention Closure, Clinical Pressure Filter).
+- `docs/foundations/foundational-contracts-simulation-architecture.md` — nine contracts (Patient Truth, Projection, Clock, Monitor/Alarm, Charting, Scenario/Intervention, Obligations, Eval/Trace, Research-Hook). Amended 2026-04-13 with D1–D4 + M1–M3.
+- `docs/foundations/execution-packet-simulation-architecture.md` — six implementation lanes (A Clock+Engine → B Projections+Scenario → C Monitor → D Charting → E Obligations → F Eval+Integration).
 
-- `services/clinical-mcp/` — context boundary (chart assembly, timeline shaping, FHIR normalization)
-- `services/sim-harness/` — live-runtime boundary (tickable physiology, waveform generation, scenario direction, FHIR write-back)
+Supporting references:
 
-Both read and write the same Medplum FHIR backbone. Agents never talk to `services/sim-harness/` directly — all agent access goes through `services/clinical-mcp/` or through sim-only MCP tools registered at the clinical-mcp boundary.
+- `docs/foundations/scaffold-salvage-audit-simulation.md` — classification of every scaffold surface.
+- `docs/foundations/brownfield-mapping-simulation-architecture.md` — move/rewrite/retire decisions driving the current code layout.
+- `docs/foundations/sim-harness-waveform-vision-contract.md` — KEPT; enforces the monitor-as-avatar invariant at the L1 waveform surface.
 
-## What this wraps
+## L0–L4 framing
 
-Wrap, don't rebuild. The physiology is always an adapter over a validated open-source engine.
+The kernel separates patient reality into five projection layers. Everything under `services/sim-harness/` speaks this vocabulary, not the older 7-layer scaffold:
 
-- **Pulse Physiology Engine** (Kitware, Apache-2.0) — primary physiology substrate
-- **BioGears** (Apache-2.0) — fallback physiology substrate
-- **Infirmary Integrated** — rhythm taxonomy and device-layer waveform pattern reference
-- **rohySimulator** — LLM virtual-patient dialogue pattern reference
-- **Auto-ALS / Virtu-ALS** — Gym-compatible eval interface pattern reference
+- **L0 — Hidden patient truth.** Canonical physiological state. Evolves continuously on the simulation clock. Owned by the engine adapter. No agent-facing surface may read L0 directly; only the eval recorder has access.
+- **L1 — Monitor projection.** Telemetry, waveforms, alarms, signal quality. The **primary patient avatar** — what the nurse and agent perceive. Lossy, noisy, can diverge from the chart.
+- **L2 — Events.** Lab results, imaging, consult notes, order completions. Two-stage release: L0 makes events eligible, the scenario controller releases them on the clock (amendment D2).
+- **L3 — Chart.** FHIR record in Medplum. Reached via `services/clinical-mcp/`. Every entry carries a FHIR Provenance resource with an explicit authority state.
+- **L4 — Obligations.** Documentation duties, follow-up windows, workflow pressure. First-class, not implicit side effects.
 
-Full wrapping decisions: `docs/foundations/sim-harness-engine-wrapping.md`.
+Monitor-as-avatar is non-negotiable: rhythm and hemodynamic claims must be validated against the raw waveform surface (samples or rendered image), not against metadata labels. See `docs/foundations/sim-harness-waveform-vision-contract.md`.
 
-## Non-negotiable: agent waveform vision
+## What lives here today
 
-The agent **must** have direct vision on the raw waveform surface of any live-simulated encounter. Rhythm labels alone are a silent-failure surface. A nurse validates a rhythm reading by looking at the strip; the agent must do the same.
+- `src/index.ts` — type vocabulary mirroring Contracts 4, 5, 6, 7. Layer annotations on every surface. Placeholder types for alarm / charting-authority / obligation reserve the shape pending the runtime-access contract rewrite.
+- `src/config.ts` — scenarios + reference pharmacokinetic parameters (relocated from clinical-mcp per brownfield mapping; L0 config belongs here, not at the L3 boundary).
+- `src/reference/pharmacokinetics.ts` — Hill-equation dose-response, first-order onset delay, fluid bolus decay, AR(1) bounded noise, baroreflex HR compensation. Reference implementations that will back the L0 engine adapter until a Contract 9 decision selects a validated external engine (Pulse, BioGears).
+- `src/scenario/types.ts` + `src/scenario/controller.ts` — scenario-director scaffolding (Contract 6): state management, disk persistence, advance logic.
+- `scenarios/pressor-titration.ts` + `fluid-responsive.ts` + `hyporesponsive.ts` — three seed ICU scenarios.
+- `__tests__/pharmacokinetics.test.ts` + `__tests__/scenario-controller.test.ts` — coverage for the reference math and the controller.
 
-Full contract: `docs/foundations/sim-harness-waveform-vision-contract.md`.
+## What does not live here
 
-## Canonical specs
+- Agent-facing MCP tool registration. The `services/clinical-mcp/` server is the single agent-facing boundary. Sim tools register through the `registerSimTools()` seam there — no-op until Lane F.
+- FHIR write-back logic. Lives in `services/clinical-mcp/` per Contract 5.
+- Dashboard waveform viewer or scenario control UI. Lives in `apps/clinician-dashboard/`.
+- Workflow orchestration. Lives in `packages/agent-harness/` + `packages/workflows/`.
 
-- `docs/foundations/sim-harness-scaffold.md` — canonical boundary, minimal architecture, layered subsystem map
-- `docs/foundations/sim-harness-first-batch.md` — what the first scaffolding batch contains
-- `docs/foundations/sim-harness-runtime-access-contract.md` — agent-facing MCP tool surface
-- `docs/foundations/sim-harness-waveform-vision-contract.md` — waveform vision requirement
-- `docs/foundations/sim-harness-engine-wrapping.md` — how each wrapped engine is adopted
+## Scripts
 
-## Where this lives in the control plane
+- `npm run check` — `tsc --noEmit` typecheck across `src/`, `scenarios/`, and `__tests__/`.
+- `npm run test` — vitest run.
+- `npm run test:watch` — vitest watch mode.
 
-- `PLAN.md` subproject #2, named scope "Clinical Simulation Harness"
-- `PLAN.md` Decision Log 2026-04-11
-- `README.md` Current Shape item #2 and Repository Map
-- `docs/ARCHITECTURE.md` Workspace centers section
-- `docs/topology/subproject-workspace-map.md` Workspace center B under Clinical Workspace
-- `TASKS.md` item 4
+## Where this sits in the control plane
 
-## Research and wiki references
-
-- `research/Open Source Clinical Simulation.md`
-- `research/Open Source Clinical Simulation.original.md`
-- `research/Architectural integration for noah-rn clinical simulation.md`
-- `wiki/sources/2026-04-10-open-source-clinical-simulation.md`
-- `wiki/concepts/clinical-simulator-as-eval-substrate.md`
-- `wiki/concepts/computational-physiology-engine.md`
-- `wiki/concepts/emergent-vitals-from-physics.md`
-- `wiki/concepts/medical-digital-twin.md`
-- `wiki/concepts/synthetic-physiological-data-generation.md`
-- `wiki/entities/pulse-physiology-engine.md`
-- `wiki/entities/biogears.md`
-- `wiki/entities/infirmary-integrated.md`
-- `wiki/entities/rohysimulator.md`
-- `wiki/entities/auto-als.md`
+- `PLAN.md` subproject #2, scope "Clinical Simulation Harness".
+- `TASKS.md` item #4 — runtime lane A gated on the first bedside workflow that needs live vitals.
+- `docs/ARCHITECTURE.md` — workspace-center description.
+- `docs/topology/subproject-workspace-map.md` — Workspace center B under Clinical Workspace.
