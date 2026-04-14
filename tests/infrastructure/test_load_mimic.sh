@@ -101,6 +101,11 @@ done
 
 printf '%s\t%s\t%s\n' "$method" "$url" "$data" >>"$log_file"
 
+if [[ "$url" == */oauth2/token ]]; then
+    printf '{"access_token":"fake-token","expires_in":3600}'
+    exit 0
+fi
+
 if [[ "$url" == */metadata ]]; then
     printf '{"resourceType":"CapabilityStatement","fhirVersion":"4.0.1"}'
     exit 0
@@ -136,7 +141,7 @@ if [[ "$url" == *"/MedicationRequest?_summary=count"* ]]; then
     exit 0
 fi
 
-if [[ "$method" == "PUT" ]]; then
+if [[ "$method" == "POST" ]]; then
     printf '201'
 else
     printf '200'
@@ -196,13 +201,13 @@ EOF
 log_file="$tmpdir/curl.log"
 make_fake_curl "$mock_dir/curl" "$log_file"
 
-echo "Test: load uses fixed order and individual PUT targets"
+echo "Test: load uses fixed order and individual POST targets"
 run_and_capture env PATH="$mock_dir:$PATH" FAKE_CURL_LOG="$log_file" FAKE_CURL_VERIFY_PAYLOAD='{"total":0}' "$TOOL" load --data-dir "$data_dir" --fhir-server "http://example.test/fhir"
 assert_eq "load exits 0" "0" "$RUN_EXIT_CODE"
-url_sequence="$(awk -F '\t' '$1 == "PUT" { print $2 }' "$log_file")"
-expected_urls=$'http://example.test/fhir/Organization/org-1\nhttp://example.test/fhir/Patient/pat-1\nhttp://example.test/fhir/Patient/pat-2\nhttp://example.test/fhir/Encounter/enc-1'
-assert_eq "PUT URLs follow profile order" "$expected_urls" "$url_sequence"
-assert_eq "all import requests use PUT" $'PUT\nPUT\nPUT\nPUT' "$(awk -F '\t' '$1 == "PUT" { print $1 }' "$log_file")"
+url_sequence="$(awk -F '\t' '$1 == "POST" && $2 !~ /oauth2\/token/ { print $2 }' "$log_file")"
+expected_urls=$'http://example.test/fhir/Organization\nhttp://example.test/fhir/Patient\nhttp://example.test/fhir/Patient\nhttp://example.test/fhir/Encounter'
+assert_eq "POST URLs follow profile order" "$expected_urls" "$url_sequence"
+assert_eq "all import requests use POST" $'POST\nPOST\nPOST\nPOST' "$(awk -F '\t' '$1 == "POST" && $2 !~ /oauth2\/token/ { print $1 }' "$log_file")"
 assert_contains "summary reports loaded resources" "loaded=4" "$RUN_STDOUT$RUN_STDERR"
 
 cat >"$data_dir/MimicMedication.ndjson" <<'EOF'
@@ -218,7 +223,7 @@ run_and_capture env PATH="$mock_dir:$PATH" FAKE_CURL_LOG="$log_file" FAKE_CURL_V
 assert_eq "load still exits 0 with malformed line" "0" "$RUN_EXIT_CODE"
 assert_contains "warning mentions malformed JSON" "warning" "$RUN_STDOUT$RUN_STDERR"
 assert_contains "summary reports invalid line count" "invalid=1" "$RUN_STDOUT$RUN_STDERR"
-assert_eq "malformed line skipped" "2" "$(grep -c '/Medication/' "$log_file" | tr -d ' ')"
+assert_eq "malformed line skipped" "2" "$(awk -F '\t' '$1 == "POST" && $2 ~ /\/fhir\/Medication$/' "$log_file" | wc -l | tr -d ' ')"
 
 echo "Test: missing data dir exits 1"
 run_and_capture "$TOOL" load --data-dir "$tmpdir/does-not-exist"
@@ -229,7 +234,7 @@ echo "Test: dry-run works without preflight server probes"
 : >"$log_file"
 run_and_capture env PATH="$mock_dir:$PATH" FAKE_CURL_LOG="$log_file" "$TOOL" load --dry-run --data-dir "$data_dir" --fhir-server "http://offline.example/fhir"
 assert_eq "dry-run exits 0" "0" "$RUN_EXIT_CODE"
-assert_contains "dry-run prints planned PUTs" "DRY-RUN PUT http://offline.example/fhir/Organization/org-1" "$RUN_STDOUT$RUN_STDERR"
+assert_contains "dry-run prints planned POSTs" "DRY-RUN POST http://offline.example/fhir/Organization (id=org-1)" "$RUN_STDOUT$RUN_STDERR"
 assert_eq "dry-run does not call curl" "0" "$(wc -l <"$log_file" | tr -d ' ')"
 
 echo "Test: verify succeeds with expected counts"
