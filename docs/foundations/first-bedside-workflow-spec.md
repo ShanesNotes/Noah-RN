@@ -34,6 +34,19 @@ A normal ICU patient deteriorates across a shift with a cardiopulmonary decompen
 - **Alarm cascade.** Multiple concurrent alarms across respiratory, hemodynamic, and technical priorities. First operational use of IEC 60601-1-8 priority tagging.
 - **I/O charting.** First high-frequency nurse/agent-entered numeric stream with clinical significance (post-Lasix output → fluid balance → preload → BP response loop). Exercises Contract 5's `charting_policy` amendment D3 at real cadence.
 
+## Source-patient binding (addendum, 2026-04-14)
+
+Per amendment T1 (Contract 1) and T5 (Contract 6), this scenario is a **grounded scenario**: it must be bound to a MIMIC-IV or Synthea patient whose trajectory matches the clinical shape above (post-op ICU, rising O₂ demand, flash pulmonary edema, diuresis, pressor concomitant, provider-assisted intubation).
+
+- **Candidate dataset:** MIMIC-IV (preferred — has real waveforms via the MIMIC-IV Waveform cohort + discrete chartevents/labevents for everything else). Synthea fallback if no clean MIMIC match.
+- **Candidate subject/stay:** **TBD (Open Question O1 from Session 1 plan).** A clean match requires: post-operative ICU admission with a cardiopulmonary decompensation event, Lasix + vasopressor + intubation all documented within the stay, and an available waveform record for the cut-point neighborhood. Selection belongs in SAC-1 reference-scenario authoring (`reference-scenario-respiratory-decompensation-mimic.md`).
+- **Cut-point (T=0):** positioned just before the flash-edema onset in the source trajectory (e.g., ICU day N, hour H where the SpO₂ drift is beginning but the acute event has not occurred).
+- **`history_window`:** `full` (full ICU stay up to cut-point) per SAC-1 default. Includes admission H&P, active problems/meds/allergies, full prior chartevents, prior labevents, prior noteevents.
+- **`provider_schedule`:** derived from post-T=0 source-record provider-authored rows per SAC-1 §Derivation pipeline. Includes scheduled baseline notes (e.g., documented ABG result release) and reactive entries bound to Noah escalation events (see T=55–65 beat).
+- **Post-T=0 source rows** classify into engine-input (authored insults/interventions: flash-edema onset, Lasix administration as documented in source, etc.), provider-authored (scheduled + reactive), or discarded per CCPS-1.
+
+The three existing synthetic scenarios under `services/sim-harness/scenarios/` (`pressor-titration.ts`, `fluid-responsive.ts`, `hyporesponsive.ts`) are **engine unit-test fixtures** per SAC-1 — they do not satisfy this addendum and are not eligible for this scenario.
+
 ## Timeline beats
 
 Minute markers are scaffold. Actual release times are scenario-controller decisions under the two-stage authority model (amendment D2). Each beat describes the L0 state shift, the L1 projection response, the L2 events released, the L3 charting obligations surfaced, and the L4 obligation chains triggered or resolved.
@@ -128,6 +141,28 @@ Scenario terminates at T=90 for eval scoring. For demo use, wall-clock continuat
 | T=55–65 escalation | — | — | consult-requested, consult-accepted | escalation charted | **new escalation chain: callback follow-up** |
 | T=65–75 intubation | gas exchange↑, preload↓ transient | capnography appears, sat recovers, alarm profile shifts | Procedure, RSI MedAdmins, vent settings | procedure note, RSI meds, vent obs | **new post-intubation chain** |
 | T=75–90 branch | stabilized or deteriorating | alarm de-escalation or new cascade | per branch | standard or second escalation | standard or second escalation chain |
+
+## Per-beat L3 authoring (addendum, 2026-04-14)
+
+Per amendment D5 (Contract 5 authored-actor taxonomy) and D6 (Contract 6 provider actor), every chart entry in this scenario declares its `agent.who` from the closed set `{ noah-nurse, provider, scenario-director, device-auto, historical-seed }`. The one-shot T=0 seed pass writes all historical resources under `historical-seed`; all subsequent runtime writes carry one of the other four roles.
+
+| Beat | Writes authored by `noah-nurse` | Writes authored by `provider` | Writes authored by `device-auto` (preliminary) | Writes authored by `scenario-director` |
+|------|--------------------------------|-------------------------------|-----------------------------------------------|---------------------------------------|
+| T=0 baseline | — (all history is `historical-seed`) | — | continuous HR/SpO₂/RR/NIBP/Temp preliminary Observations begin posting per `monitor_bridge.cadence` | — |
+| T=10–15 drift | q1h vitals validation (promote preliminary→final for HR/SpO₂/RR); optional judgment-driven respiratory-effort narrative | — | continued preliminary post | — |
+| T=20–25 flash edema | focused respiratory assessment (event-driven, propose or execute per policy); SpO₂/RR validation at accelerated cadence | **scheduled** ABG result note release; stat CXR reading release | continued preliminary | — |
+| T=30 Lasix | MedicationAdministration (propose or execute per policy `medication.administered`) | **(none here unless prior order was provider-authored)** | continued preliminary | — |
+| T=30–45 pressor rising | q5min MAP validation; I/O narrative judgment-driven | — | continued preliminary (NIBP now cycling more frequently) | — |
+| T=45–55 titration + hypoxia | MedicationAdministration for norepinephrine titration; judgment narrative on non-response | **scheduled** ABG repeat result release | continued preliminary | — |
+| T=55–65 escalation | **escalation request** via `escalate_to_provider.intubation` tool call; escalation note authored | **reactive:** provider policy evaluates request, produces decision in `{ accept, defer, modify, decline }` within `latency_window` (default 5–15 sim-min). On accept → writes consult acceptance note + RSI order set. | continued preliminary | — |
+| T=65–75 intubation | RSI MedAdministrations as administered; post-intubation vitals validation; capnography validation (new parameter) | intubation procedure note (provider-authored or provider-attested per policy); ventilator-settings order | capnography preliminary Observations begin; SpO₂/RR preliminary adjust to post-intubation values | — |
+| T=75–90 branch | post-intubation monitoring validation (q1h vitals resume on stabilized branch, or continued acute on deteriorating branch); second-escalation request if needed | provider attestation of procedure note if policy requires; second reactive response if agent re-escalates | continued preliminary | on iatrogenic pneumothorax branch: `scenario-director` emergency event (Contract 6 iatrogenic invariant) |
+
+Notes:
+- The **T=55–65 beat is the load-bearing test of the provider actor's reactive path** (amendment D6). The `escalate_to_provider.intubation` tool call triggers a `provider_schedule` reactive entry whose `decision_policy` evaluates Noah's escalation payload (PaO₂/FiO₂ ratio, Lasix non-response, hemodynamic trajectory) plus L0/L3 state.
+- The **T=65–75 beat is the load-bearing test of the provider-attested procedure-note path** (Contract 5 D5 + amendment D3). Depending on `charting_policy.procedure.note` (default `prepare` for this scenario), Noah drafts and the provider attests to `final`.
+- **Every `noah-nurse` vitals validation in beats T=10 onward follows the D5 vital-sign validation path**: promote `device-auto` preliminary Observation → `final` with attestation Provenance, or fresh-author `final` when no matching preliminary exists in `validation_window`.
+- **Alarm attention-classes (amendment D7)** fire on high-priority alarms at T=20–25 (SpO₂ flash-edema `wake` alarm), T=30–45 (MAP threshold `notify`), T=55–65 (ABG-result notification `notify`). The T=20–25 `wake`-class alarm is the first scenario-wide test of the attention-routing contract (eval acceptance criterion in Lane C).
 
 ## Physiology fidelity requirements
 

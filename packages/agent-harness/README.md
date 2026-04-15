@@ -14,6 +14,9 @@ Current contents:
 - `workflow-dependencies.json`
 - `REGISTRY-CONSUMER.md`
 
+Planned build-time harness addition:
+- headless subagent delegation for developer workflows, owned here rather than in `.noah-pi-runtime/`
+
 ## What this folder owns
 
 - workflow selection and routing substrate
@@ -56,6 +59,7 @@ Near-term use:
 - routing contracts
 - orchestration policies
 - future harness entrypoints
+- developer-only headless delegation without tmux/cmux/zellij pane spawning
 
 ## Useful commands
 
@@ -77,4 +81,5 @@ npm run select-workflows --workspace packages/agent-harness
 
 - `../../docs/topology/subproject-workspace-map.md`
 - `../../docs/foundations/agent-harness-runtime-contract.md`
+- `../../docs/foundations/headless-subagent-dev-harness.md`
 - `../../.noah-pi-runtime/README.md`

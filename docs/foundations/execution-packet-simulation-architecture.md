@@ -41,6 +41,7 @@ Implementation decomposes into six bounded lanes with explicit dependencies. Eac
 - [ ] Reference PK implementation passes existing test cases behind the adapter interface.
 - [ ] No component reads wall-clock time for simulation decisions.
 - [ ] Skip-ahead produces same state as wall-clock to same target time (deterministic test).
+- [ ] **(amendment T1/T2)** Engine adapter accepts a grounded L0 initial state derived from a MIMIC-IV or Synthea patient at a declared `cut_point`, not only synthetic seeds. The case-loader handshake writes directly into the adapter's initial-state interface.
 
 **Agent type:** `executor` with `architect` review on adapter interface design.
 
@@ -75,6 +76,11 @@ Implementation decomposes into six bounded lanes with explicit dependencies. Eac
 - [ ] An intervention produces visible L1 change after onset delay, not immediately.
 - [ ] Scenario can be loaded, started, paused, reset.
 - [ ] Two concurrent interventions coexist.
+- [ ] **(SAC-1 + amendments T5/T6)** Controller loads a scenario per SAC-1 including `source_patient`, `history_window`, `provider_schedule`. At T=0, performs a one-shot seed pass against Medplum with `agent.who = historical-seed` Provenance for every extracted resource.
+- [ ] **(amendment D6)** Event-release surface tags provider events with `author: "provider"` (scheduled or reactive) and emergency events with `scenario-director`. Noah writes enter at Lane D, not through this surface.
+- [ ] **(amendment T3 + CCPS-1)** Scenario controller exposes a chart-visibility filter that the clinical-mcp read path consults; the filter is keyed on simulation-time ≤ T, release-state = `released`, and scenario-instance-id.
+- [ ] **(CCPS-1 FM-5)** Per-run instance isolation: two concurrent scenario instances of the same definition do not observe each other's runtime writes. Medplum baseline at instance start matches the expected `history_window` extraction exactly.
+- [ ] **(amendment D6)** Reactive provider path: an escalation event received from clinical-mcp evaluates the configured policy and produces a response within `latency_window`.
 
 **Agent type:** `executor` with `architect` review on projection semantics.
 
@@ -102,6 +108,9 @@ Implementation decomposes into six bounded lanes with explicit dependencies. Eac
 - [ ] Alarm events carry IEC 60601-1-8 priority tags.
 - [ ] SpO2 motion artifact is distinguishable from real desaturation via waveform inspection (adversarial encounter T+15 vs T+45).
 - [ ] Sensor disconnect produces disconnect indicator, not false zero.
+- [ ] **(amendment D7)** Every alarm event carries an `attention_class` in `{ wake, notify, ambient }` per the scenario-configured (or default high→wake, medium→notify, low→ambient) mapping.
+- [ ] **(amendment D7)** At least one scenario beat fires a `wake`-class alarm. The eval trace records attention-class assignment and a measurable agent behavior shift within N clock ticks.
+- [ ] **(Contract 4 D5 bridge clause + SAC-1 `monitor_bridge`)** Monitor posts continuous vital-sign Observations with `status=preliminary` and `agent.who=device-auto` at scenario-configured cadence, consumed by the Lane D validation path.
 
 **Agent type:** `executor`. Clinical domain knowledge required for alarm thresholds and artifact models.
 
@@ -129,6 +138,11 @@ Implementation decomposes into six bounded lanes with explicit dependencies. Eac
 - [ ] Agent cannot `execute` without policy authorization (rejection test).
 - [ ] `propose` → nurse approval → `final` workflow works end-to-end.
 - [ ] Provenance correctly identifies source layer.
+- [ ] **(amendment D5)** Every L3 write declares `agent.who` from the closed set `{ noah-nurse, provider, scenario-director, device-auto, historical-seed }`. Validator rejects any other value.
+- [ ] **(amendment D5 vital-sign validation path)** Noah's charting tool either promotes a matching `device-auto` `preliminary` Observation to `status=final` with attestation Provenance, or fresh-authors a `final` Observation when no preliminary exists in the validation window.
+- [ ] **(amendment D6)** Provider reactive-response writes land via a distinct code path from Noah-authored writes; the path does not consult Contract 5 authority gating (pre-authored / policy-authored).
+- [ ] **(amendment T6 + CCPS-1 FM-7)** Runtime write requests carrying `agent.who = historical-seed` are rejected with an error that points to T6; the rejection is logged and observable by Lane F.
+- [ ] **(amendment T3)** Every agent-visible Medplum read goes through clinical-mcp; no direct-client bypass exists (import-graph CI check).
 
 **Agent type:** `executor` with `architect` review on FHIR Provenance modeling.
 
@@ -193,6 +207,11 @@ Implementation decomposes into six bounded lanes with explicit dependencies. Eac
 - [ ] Scoring detects waveform vision usage.
 - [ ] Sim tools register only when sim-harness is present.
 - [ ] All brownfield cleanup items completed.
+- [ ] **(CCPS-1 leak classes)** Eval recorder detects FM-1 through FM-9 with at least one scripted leak injection per failure mode. Three primary leak classes — future-effective-time leak, pruned-historical leak, unreleased-provider-event leak — are each asserted against.
+- [ ] **(CCPS-1 FM-5)** Cross-instance isolation test: two concurrent scenario instances pass isolation without observable write bleed.
+- [ ] **(amendment D5 + D6)** Trace format carries per-write `agent.who` tags. Author-split statistics are computable from the trace (e.g., how many `noah-nurse` vs `provider` vs `device-auto` writes per scenario run).
+- [ ] **(amendment D7)** Trace records alarm `attention_class` assignments and correlates `wake`-class events with subsequent agent activity.
+- [ ] **(SAC-1 reference)** Reference MIMIC-grounded respiratory-decompensation scenario runs end-to-end and satisfies the per-beat author column of `first-bedside-workflow-spec.md`.
 
 **Agent type:** `executor` with `verifier` support for end-to-end acceptance.
 
@@ -284,6 +303,11 @@ Available once lane scopes, file targets, and contract dependencies are explicit
 | Scenario charting policy format | Lane D implementation begins | 5, consistency review D3 | D |
 | L0 snapshot cadence | Lane F eval integration | 8, consistency review D4 | F |
 | Patient death/termination | First scenario that reaches incompatible-with-life state | 6, consistency review M2 | B or F |
+| MIMIC/Synthea ingest posture (prune-at-rest vs runtime-filter) | First MIMIC-grounded SAC-1 scenario implementation | CCPS-1, T3 | B |
+| Provider reactive latency default | SAC-1 reference scenario authoring | 6 D6 | B |
+| Monitor-to-chart preliminary-Observation cadence | Lane C monitor-bridge implementation | 4 D5 bridge clause, SAC-1 `monitor_bridge` | C |
+| Scenario serialization format (JSON/YAML/TS DSL) | Lane B loader implementation | SAC-1 | B |
+| Reference MIMIC subject selection (O1 from plan) | SAC-1 reference scenario authoring | SAC-1, first-bedside-workflow-spec | B |
 
 ---
 
