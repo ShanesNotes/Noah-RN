@@ -16,6 +16,15 @@ export const colors = {
   rr: '#16a34a',
   spo2: '#0284c7',
   temp: '#9333ea',
+
+  critical: '#e11d48',
+  warning: '#ea580c',
+  normal: '#16a34a',
+  info: '#0284c7',
+
+  medActive: '#16a34a',
+  medStopped: '#71717a',
+  medDraft: '#ea580c',
 } as const;
 
 const zincDark: MantineColorsTuple = [
