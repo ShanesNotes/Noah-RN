@@ -2,13 +2,12 @@ import { SimulationClock, type ClockOptions } from "./clock.js";
 import { WaveformBuffer } from "./waveform-buffer.js";
 import { WaveformInterpolator } from "./waveform-interpolator.js";
 import { WaveformRenderer } from "./waveform-renderer.js";
-import { loadRhythmTemplate, loadAllTemplates } from "./waveforms/rhythms/schema.js";
+import { loadAllTemplates } from "./waveforms/rhythms/schema.js";
 import type { RhythmTemplate } from "./waveforms/rhythms/schema.js";
 import type { Scenario, ScenarioEvent, VitalsTarget } from "./scenario.js";
 import type {
   SimLiveVitalsSnapshot,
   SimEncounterView,
-  SimScheduledEvent,
   SimScenarioStateDescription,
   SimWaveformSamplesResponse,
   SimWaveformImageResponse,
@@ -63,7 +62,6 @@ export class SimulationEngine {
   private _activeDrugs: Array<{ name: string; dose: number; unit: string }> = [];
   private _activeInterventions: string[] = [];
   private _activeTransitions: VitalsTransition[] = [];
-  private _lastTickMinute = 0;
   private _sampleRateHz: number;
 
   constructor(scenario: Scenario, options: EngineOptions) {
@@ -114,7 +112,6 @@ export class SimulationEngine {
     this._activeDrugs = [];
     this._activeInterventions = [];
     this._activeTransitions = [];
-    this._lastTickMinute = 0;
   }
 
   /**
@@ -125,7 +122,7 @@ export class SimulationEngine {
    * call it from your tick loop.
    */
   tick(deltaMs: number): void {
-    this.clock.tick(deltaMs);
+    const elapsedDeltaMs = this._getElapsedDeltaMs(deltaMs);
     const currentMinute = this.clock.elapsedMinutes;
 
     // 1. Fire due scenario events
@@ -134,13 +131,16 @@ export class SimulationEngine {
     // 2. Apply vitals transitions (smooth interpolation)
     this._applyTransitions(currentMinute);
 
-    // 3. Generate waveform samples for the delta
-    const samples = this._interpolator.generate(this._vitals.hr, deltaMs);
+    if (elapsedDeltaMs <= 0) {
+      return;
+    }
+
+    // 3. Generate waveform samples for the elapsed delta
+    const samples = this._interpolator.generate(this._vitals.hr, elapsedDeltaMs);
     for (const [lead, data] of Object.entries(samples)) {
       this.buffer.push(lead, data);
     }
 
-    this._lastTickMinute = currentMinute;
   }
 
   /** Get current vital signs snapshot. */
@@ -251,6 +251,15 @@ export class SimulationEngine {
   }
 
   // --- Internal ---
+
+  private _getElapsedDeltaMs(deltaMs: number): number {
+    if (this.clock.mode === "frozen") {
+      this.clock.tick(deltaMs);
+      return deltaMs;
+    }
+
+    return this.clock.sync();
+  }
 
   private _processEvents(currentMinute: number): void {
     while (this._nextEventIndex < this.scenario.timeline.length) {

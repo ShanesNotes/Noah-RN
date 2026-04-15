@@ -183,4 +183,21 @@ describe("SimulationEngine", () => {
       expect(engineB.rhythmId).toBe("vtach");
     });
   });
+
+  describe("wall-clock mode", () => {
+    it("uses wall time without double-counting explicit tick delta", async () => {
+      const engine = new SimulationEngine(baseline, {
+        clockOptions: { mode: "wall-clock" },
+        sampleRateHz: 250,
+      });
+
+      engine.start();
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      engine.tick(1000);
+
+      const elapsedMs = engine.clock.elapsedMs;
+      expect(elapsedMs).toBeGreaterThanOrEqual(40);
+      expect(elapsedMs).toBeLessThan(200);
+    });
+  });
 });
