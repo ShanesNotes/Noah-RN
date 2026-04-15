@@ -1,0 +1,32 @@
+{
+  "id": "nsr-baseline",
+  "name": "Stable NSR Baseline",
+  "description": "Hemodynamically stable adult patient in normal sinus rhythm. No scheduled deterioration. Useful as a control scenario and for baseline waveform verification.",
+  "seed_from": "hand-authored",
+  "estimated_duration_minutes": 30,
+  "starting_demographics": {
+    "age_years": 55,
+    "sex": "male",
+    "weight_kg": 80,
+    "height_cm": 175
+  },
+  "starting_vitals": {
+    "hr": 72,
+    "rr": 16,
+    "spo2": 98,
+    "etco2": 38,
+    "sbp": 120,
+    "dbp": 78,
+    "map": 92,
+    "temp_c": 36.8
+  },
+  "starting_rhythm_id": "nsr",
+  "timeline": [
+    {
+      "minute": 0,
+      "label": "Scenario start — stable baseline",
+      "action": { "type": "narrative", "text": "Patient is a 55-year-old male, post-op day 1 following elective cholecystectomy. Hemodynamically stable, alert and oriented, on room air." },
+      "visible_to_agent": true
+    }
+  ]
+}
