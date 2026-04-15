@@ -5,6 +5,7 @@ import type { SimLiveVitalsSnapshot } from "./index.js";
  * LOINC codes for vital sign parameters.
  * These match the codes in docs/FHIR-INTEGRATION.md and clinical-resources/mimic-mappings.json.
  */
+// Mirrors services/clinical-mcp/src/fhir/writes.ts VITAL_LOINC — kept in sync manually.
 const VITAL_LOINC: Record<string, { code: string; display: string; unit: string }> = {
   hr: { code: "8867-4", display: "Heart rate", unit: "/min" },
   rr: { code: "9279-1", display: "Respiratory rate", unit: "/min" },
