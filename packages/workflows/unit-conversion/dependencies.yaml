@@ -1,0 +1,86 @@
+# .noah-pi-runtime/skills/unit-conversion/dependencies.yaml
+#
+# Declarative dependency manifest for the unit-conversion skill.
+# Promoted to Pi-native: 2026-04-13
+#
+# This is the simplest skill in the system — pure deterministic computation
+# via a bash tool. No FHIR context, no extensions, no external services.
+
+skill: unit-conversion
+version: "1.1.0"
+complexity_tier: moderate
+
+# --- Input modes -----------------------------------------------------------
+input_modes:
+  direct:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides conversion parameters inline. The skill parses mode
+      (dose/drip/unit) and required inputs, then calls the tool.
+  missing:
+    action: request_required_context
+    prompt: "What do you need converted? I handle units, weight-based doses, and drip rates."
+
+# --- Extensions -------------------------------------------------------------
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing — init → input → output → hooks → done"
+
+# --- Tools ------------------------------------------------------------------
+# This skill's entire computation is delegated to a bash tool.
+tools:
+  - name: convert.sh
+    path: tools/unit-conversions/convert.sh
+    subcommands:
+      - dose
+      - drip
+      - unit
+    purpose: "All arithmetic — the model never calculates"
+
+# --- Knowledge assets -------------------------------------------------------
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions (max 1 per invocation)"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Random disclaimer footer (1 per invocation)"
+
+# --- Service surfaces -------------------------------------------------------
+# None. This skill is self-contained — no FHIR, no MCP, no context assembly.
+services: []
+
+# --- Shared conventions -----------------------------------------------------
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+
+# --- Router integration -----------------------------------------------------
+router:
+  scope: unit_conversion
+  trigger_phrases:
+    - "convert"
+    - "mg to mcg"
+    - "kg to lbs"
+    - "lbs to kg"
+    - "drip rate"
+    - "IV rate"
+    - "infusion rate"
+    - "mL per hour"
+    - "mcg/kg/min"
+    - "dose per kg"
+    - "weight-based dose"
+    - "mg/kg"
+  intent: unit_math
+  complexity: moderate
+  hitl_category: "II"

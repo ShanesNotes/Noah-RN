@@ -1,14 +1,22 @@
-# `.pi/skills/`
+# `.noah-pi-runtime/skills/`
 
-pi.dev-discovered skills live here. pi.dev is the active agent harness foundation (Decision 2026-04-10).
+Dev-facing Pi agent skills live here — tools that help build Noah-RN.
 
-Repo note: this directory is stored at `.noah-pi-runtime/skills/` and mounts as `/runtime/.pi/skills/`.
+**Clinical skills (Noah-RN product) live in `packages/workflows/`.**
 
-Authoritative clinical workflow contracts still live under:
-- `packages/workflows/`
+This directory is for skills that assist the developer persona:
+scaffolding, evals, deployment, code generation, architecture tasks.
 
-Skills here carry Pi-native metadata (`pi:` frontmatter, `dependencies.yaml`). See `../README.md` for the promoted-skill inventory (shift-report, unit-conversion, neuro/risk/acuity-calculators, drug-reference, protocol-reference, io-tracker, hello-nurse).
+## Why the separation
 
-Authority rule:
-- If clinical content changes, change it in `packages/workflows/` first, then sync here.
-- The `pi:` block and `dependencies.yaml` are Pi-native additions that live only here.
+Pi agents discover skills from `.noah-pi-runtime/skills/`. If clinical product skills
+live here, the dev harness routes developer questions through clinical
+workflows. The product has its own discovery path via
+`packages/workflows/registry.json`.
+
+## History
+
+Clinical skills were promoted here (2026-04-12 through 2026-04-13) then
+consolidated back to `packages/workflows/` (2026-04-13) when the namespace
+collision became clear. `dependencies.yaml` files were preserved and moved
+to their respective `packages/workflows/*/` directories.

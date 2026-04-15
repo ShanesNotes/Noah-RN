@@ -1,0 +1,81 @@
+# .noah-pi-runtime/skills/protocol-reference/dependencies.yaml
+# Promoted to Pi-native: 2026-04-13
+
+skill: protocol-reference
+version: "1.2.0"
+complexity_tier: moderate
+
+input_modes:
+  direct:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse asks about a protocol. The skill reads the corresponding
+      knowledge file from clinical-resources/protocols/ and presents it.
+  missing:
+    action: invoke_skill_directly
+    description: >-
+      No mandatory context — the skill identifies the protocol from
+      the request and reads the knowledge file.
+
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing"
+
+tools: []
+
+knowledge_assets:
+  - name: acls
+    path: clinical-resources/protocols/acls.md
+    purpose: "AHA ACLS 2020/2025 algorithms"
+  - name: sepsis-bundle
+    path: clinical-resources/protocols/sepsis-bundle.md
+    purpose: "SSC 2021 / CMS SEP-1 bundle"
+  - name: acute-stroke
+    path: clinical-resources/protocols/acute-stroke.md
+    purpose: "AHA/ASA 2019 stroke protocol"
+  - name: rapid-response
+    path: clinical-resources/protocols/rapid-response.md
+    purpose: "IHI rapid response / MEWS"
+  - name: rsi
+    path: clinical-resources/protocols/rsi.md
+    purpose: "RSI protocol — Walls & Murphy, EMCRIT"
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Disclaimer footer"
+
+services: []
+
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+
+router:
+  scope: cardiac_arrest, sepsis, stroke, rapid_response, airway_management
+  trigger_phrases:
+    - "ACLS"
+    - "code blue"
+    - "cardiac arrest"
+    - "sepsis"
+    - "qSOFA"
+    - "stroke"
+    - "tPA"
+    - "rapid response"
+    - "RSI"
+    - "intubation"
+    - "protocol"
+  intent: protocol_lookup
+  complexity: moderate
+  hitl_category: "II"

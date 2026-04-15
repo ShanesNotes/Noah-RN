@@ -126,6 +126,25 @@ Based on the classified intent and input complexity, assign a tier for model rou
 | `moderate` | Single protocol reference or structured documentation task | "Sepsis bundle steps", "Organize my shift report", "What's the stroke protocol?" |
 | `complex` | Multi-system scenario, cross-skill routing, ambiguous presentation, or clinical narrative requiring synthesis | "New admission, 72yo with sepsis and declining neuro status", "My patient is crashing", multi-domain handoff |
 
+### Model-routing notes (advisory)
+
+These are selection hints for future harness binding. They do not change current behavior.
+
+| Situation | Preferred profile |
+|---|---|
+| obvious single-skill request | `fast_router` |
+| deterministic tool-heavy skill | `deterministic_worker` |
+| protocol lookup or narrative organization | `clinical_reasoner` |
+| ambiguous, multi-skill, or retry path | `high_fidelity_reasoner` |
+
+Task-shape guidance:
+- `unit-conversion`, calculator skills, and most `io-tracker` requests should prefer `deterministic_worker`
+- `drug-reference` can start at `fast_router` for basic lookup and move to `deterministic_worker` for structured output
+- `protocol-reference`, `shift-report`, and `shift-assessment` usually deserve `clinical_reasoner`
+- unresolved ambiguity, failed first-pass output, or difficult cross-skill synthesis should escalate to `high_fidelity_reasoner`
+
+See `packages/agent-harness/MODEL-SELECTION-NOTES.md` for the fuller advisory matrix.
+
 ## Step 4: Route and Execute
 
 ### Single-Skill Routing

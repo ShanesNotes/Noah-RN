@@ -8,6 +8,7 @@
     "test:dashboard": "npm run test --workspace apps/clinician-dashboard",
     "build:clinical-mcp": "npm run build --workspace services/clinical-mcp",
     "test:clinical-mcp": "npm run test --workspace services/clinical-mcp",
+    "test:sim-harness": "npm run test --workspace services/sim-harness",
     "playwright:install": "npx playwright install",
     "playwright:smoke": "node scripts/browser-playwright-smoke.mjs",
     "playwright:medplum": "node scripts/browser-playwright-smoke.mjs http://10.0.0.184:3000/signin medplum-signin",
@@ -16,7 +17,7 @@
     "playwright:nursing-station:signin": "node scripts/browser-playwright-nursing-station-signin.mjs",
     "dev:dashboard": "npm run dev --workspace apps/clinician-dashboard",
     "build": "npm run build:dashboard && npm run build:nursing-station && npm run build:clinical-mcp",
-    "test": "npm run test:dashboard && npm run test:clinical-mcp"
+    "test": "npm run test:dashboard && npm run test:clinical-mcp && npm run test:sim-harness"
   },
   "workspaces": [
     "apps/*",

@@ -1,0 +1,74 @@
+# .noah-pi-runtime/skills/neuro-calculator/dependencies.yaml
+# Promoted to Pi-native: 2026-04-13
+
+skill: neuro-calculator
+version: "1.0.0"
+complexity_tier: moderate
+
+input_modes:
+  direct:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides component values for GCS, NIHSS, RASS, or CPOT.
+      The skill calls the corresponding bash calculator tool.
+  missing:
+    action: request_required_context
+    prompt: "Which neuro/sedation/pain score, and what are the component values?"
+
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing"
+
+tools:
+  - name: gcs.sh
+    path: tools/clinical-calculators/gcs.sh
+    purpose: "Glasgow Coma Scale calculation"
+  - name: nihss.sh
+    path: tools/clinical-calculators/nihss.sh
+    purpose: "NIH Stroke Scale calculation"
+  - name: rass.sh
+    path: tools/clinical-calculators/rass.sh
+    purpose: "Richmond Agitation-Sedation Scale"
+  - name: cpot.sh
+    path: tools/clinical-calculators/cpot.sh
+    purpose: "Critical-Care Pain Observation Tool"
+
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output suggestions"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Disclaimer footer"
+
+services: []
+
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+
+router:
+  scope: clinical_scoring
+  trigger_phrases:
+    - "GCS"
+    - "Glasgow"
+    - "NIHSS"
+    - "stroke scale"
+    - "RASS"
+    - "sedation score"
+    - "CPOT"
+    - "pain score"
+    - "neuro check"
+  intent: neuro_scoring
+  complexity: moderate
+  hitl_category: "II"

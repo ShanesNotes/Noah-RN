@@ -1,210 +1,115 @@
+import type { SimulationClockContract } from "./index.js";
+
+export type ClockMode = SimulationClockContract["mode"];
+
+export interface ClockOptions {
+  mode: ClockMode;
+  /** Multiplier for accelerated mode (e.g. 10 = 10× real-time). Ignored for other modes. */
+  accelerationFactor?: number;
+}
+
 /**
- * Simulation clock authority for Contract 3.
+ * Encounter-scoped simulation clock.
  *
- * Owns simulation time and emits tick / mode-change events. Consumers read
- * simulation time from here; they do not derive it from ambient wall-clock APIs.
+ * - **wall-clock**: elapsed time tracks real wall-clock time between start/pause.
+ * - **accelerated**: elapsed time = wall-clock × accelerationFactor.
+ * - **frozen**: time only advances via explicit `tick(deltaMs)` calls. Deterministic.
  */
-export type SimulationClockMode =
-  | { kind: 'wall-clock' }
-  | { kind: 'accelerated'; speed: number }
-  | { kind: 'frozen' }
-  | { kind: 'skip-ahead' };
-
-export interface SimulationClockTick {
-  previousTimeMs: number;
-  currentTimeMs: number;
-  deltaMs: number;
-  mode: SimulationClockMode['kind'];
-}
-
-export interface SimulationClockModeChange {
-  previousMode: SimulationClockMode;
-  nextMode: SimulationClockMode;
-  atTimeMs: number;
-}
-
-export interface SimulationClockScheduler {
-  setTimeout(callback: () => void, delayMs: number): ReturnType<typeof globalThis.setTimeout>;
-  clearTimeout(handle: ReturnType<typeof globalThis.setTimeout>): void;
-}
-
-export interface SimulationClockOptions {
-  startTimeMs?: number;
-  tickIntervalMs?: number;
-  mode?: Extract<SimulationClockMode, { kind: 'wall-clock' | 'accelerated' | 'frozen' }>;
-  scheduler?: SimulationClockScheduler;
-}
-
-const defaultScheduler: SimulationClockScheduler = {
-  setTimeout: (callback, delayMs) => globalThis.setTimeout(callback, delayMs),
-  clearTimeout: handle => globalThis.clearTimeout(handle),
-};
-
-function cloneMode(mode: SimulationClockMode): SimulationClockMode {
-  return { ...mode };
-}
-
 export class SimulationClock {
-  private readonly tickIntervalMs: number;
-  private readonly scheduler: SimulationClockScheduler;
-  private currentTimeMs: number;
-  private mode: SimulationClockMode;
-  private nextTimer: ReturnType<typeof globalThis.setTimeout> | null = null;
-  private readonly tickListeners = new Set<(tick: SimulationClockTick) => void>();
-  private readonly modeListeners = new Set<(change: SimulationClockModeChange) => void>();
+  private _mode: ClockMode;
+  private _accelerationFactor: number;
+  private _elapsedMs = 0;
+  private _running = false;
+  private _lastWallMs: number | null = null;
 
-  constructor(options: SimulationClockOptions = {}) {
-    this.tickIntervalMs = options.tickIntervalMs ?? 1000;
-    this.scheduler = options.scheduler ?? defaultScheduler;
-    this.currentTimeMs = options.startTimeMs ?? 0;
-    this.mode = cloneMode(options.mode ?? { kind: 'frozen' });
-    this.ensureModeIsValid(this.mode);
-    this.syncTimer();
+  constructor(options: ClockOptions) {
+    this._mode = options.mode;
+    this._accelerationFactor =
+      options.mode === "accelerated" ? (options.accelerationFactor ?? 1) : 1;
   }
 
-  getTime(): number {
-    return this.currentTimeMs;
+  get mode(): ClockMode {
+    return this._mode;
   }
 
-  getTickIntervalMs(): number {
-    return this.tickIntervalMs;
+  get running(): boolean {
+    return this._running;
   }
 
-  getMode(): SimulationClockMode {
-    return cloneMode(this.mode);
+  /** Total elapsed simulated time in milliseconds. */
+  get elapsedMs(): number {
+    return this._elapsedMs + this._pendingWallMs();
   }
 
-  subscribe(listener: (tick: SimulationClockTick) => void): () => void {
-    this.tickListeners.add(listener);
-    return () => this.tickListeners.delete(listener);
+  /** Total elapsed simulated time in minutes (convenience for scenario_minutes_elapsed). */
+  get elapsedMinutes(): number {
+    return this.elapsedMs / 60_000;
   }
 
-  onModeChange(listener: (change: SimulationClockModeChange) => void): () => void {
-    this.modeListeners.add(listener);
-    return () => this.modeListeners.delete(listener);
-  }
-
-  setMode(nextMode: Extract<SimulationClockMode, { kind: 'wall-clock' | 'accelerated' | 'frozen' }>): void {
-    this.ensureModeIsValid(nextMode);
-    const previousMode = this.getMode();
-    this.mode = cloneMode(nextMode);
-    this.emitModeChange(previousMode, this.mode);
-    this.syncTimer();
-  }
-
-  advanceBy(deltaMs: number): void {
-    if (this.mode.kind !== 'frozen') {
-      throw new Error('advanceBy is only allowed in frozen mode');
-    }
-    if (deltaMs < 0) {
-      throw new Error('advanceBy requires a non-negative delta');
-    }
-    this.advanceInTicks(deltaMs, 'frozen');
-  }
-
-  advanceTo(targetTimeMs: number): void {
-    if (targetTimeMs < this.currentTimeMs) {
-      throw new Error(`advanceTo cannot move backward (${targetTimeMs} < ${this.currentTimeMs})`);
-    }
-    this.advanceBy(targetTimeMs - this.currentTimeMs);
-  }
-
-  skipAheadTo(targetTimeMs: number): void {
-    if (targetTimeMs < this.currentTimeMs) {
-      throw new Error(`skipAheadTo cannot move backward (${targetTimeMs} < ${this.currentTimeMs})`);
-    }
-
-    const previousMode = this.getMode();
-    this.stopTimer();
-    this.mode = { kind: 'skip-ahead' };
-    this.emitModeChange(previousMode, this.mode);
-    this.advanceInTicks(targetTimeMs - this.currentTimeMs, 'skip-ahead');
-    const skipMode = this.getMode();
-    this.mode = { kind: 'frozen' };
-    this.emitModeChange(skipMode, this.mode);
-    this.syncTimer();
-  }
-
-  dispose(): void {
-    this.stopTimer();
-    this.tickListeners.clear();
-    this.modeListeners.clear();
-  }
-
-  private ensureModeIsValid(mode: SimulationClockMode): void {
-    if (mode.kind === 'accelerated' && mode.speed <= 0) {
-      throw new Error(`accelerated mode requires speed > 0 (received ${mode.speed})`);
+  /** Start or resume the clock. No-op if already running. */
+  start(): void {
+    if (this._running) return;
+    this._running = true;
+    if (this._mode !== "frozen") {
+      this._lastWallMs = Date.now();
     }
   }
 
-  private syncTimer(): void {
-    this.stopTimer();
-    if (this.mode.kind === 'frozen' || this.mode.kind === 'skip-ahead') {
-      return;
-    }
-    this.scheduleNextTick();
+  /** Pause the clock. Captures any pending wall-clock delta. No-op if not running. */
+  pause(): void {
+    if (!this._running) return;
+    this._elapsedMs += this._pendingWallMs();
+    this._running = false;
+    this._lastWallMs = null;
   }
 
-  private stopTimer(): void {
-    if (this.nextTimer != null) {
-      this.scheduler.clearTimeout(this.nextTimer);
-      this.nextTimer = null;
-    }
+  /** Reset to zero elapsed time and stop. */
+  reset(): void {
+    this._elapsedMs = 0;
+    this._running = false;
+    this._lastWallMs = null;
   }
 
-  private scheduleNextTick(): void {
-    const delayMs = this.mode.kind === 'accelerated'
-      ? this.tickIntervalMs / this.mode.speed
-      : this.tickIntervalMs;
-
-    this.nextTimer = this.scheduler.setTimeout(() => {
-      this.nextTimer = null;
-      const activeMode = this.mode.kind;
-      this.emitTick(this.tickIntervalMs, activeMode);
-      if (this.mode.kind === 'wall-clock' || this.mode.kind === 'accelerated') {
-        this.scheduleNextTick();
-      }
-    }, delayMs);
+  /**
+   * Advance the clock by an explicit delta. Always works in frozen mode.
+   * In wall-clock / accelerated modes, this is additive on top of real-time tracking.
+   */
+  tick(deltaMs: number): void {
+    if (deltaMs < 0) throw new RangeError("tick deltaMs must be non-negative");
+    this._elapsedMs += deltaMs;
   }
 
-  private advanceInTicks(totalDeltaMs: number, mode: SimulationClockTick['mode']): void {
-    let remaining = totalDeltaMs;
-    while (remaining > 0) {
-      const step = Math.min(this.tickIntervalMs, remaining);
-      this.emitTick(step, mode);
-      remaining -= step;
+  /**
+   * Synchronize wall-clock modes: flushes any pending real-time delta into elapsed.
+   * Call this at the top of a tick loop for wall-clock / accelerated modes.
+   * No-op for frozen mode.
+   */
+  sync(): number {
+    const pending = this._pendingWallMs();
+    this._elapsedMs += pending;
+    if (this._running && this._mode !== "frozen") {
+      this._lastWallMs = Date.now();
     }
+    return pending;
   }
 
-  private emitTick(deltaMs: number, mode: SimulationClockTick['mode']): void {
-    if (deltaMs === 0) {
-      return;
-    }
-
-    const previousTimeMs = this.currentTimeMs;
-    this.currentTimeMs += deltaMs;
-
-    const tick: SimulationClockTick = {
-      previousTimeMs,
-      currentTimeMs: this.currentTimeMs,
-      deltaMs,
-      mode,
+  /** Returns the contract shape for this clock instance. */
+  toContract(): SimulationClockContract {
+    return {
+      mode: this._mode,
+      encounterScopedStateIsolation: true,
     };
-
-    for (const listener of this.tickListeners) {
-      listener(tick);
-    }
   }
 
-  private emitModeChange(previousMode: SimulationClockMode, nextMode: SimulationClockMode): void {
-    const change: SimulationClockModeChange = {
-      previousMode: cloneMode(previousMode),
-      nextMode: cloneMode(nextMode),
-      atTimeMs: this.currentTimeMs,
-    };
-
-    for (const listener of this.modeListeners) {
-      listener(change);
+  private _pendingWallMs(): number {
+    if (
+      this._mode === "frozen" ||
+      !this._running ||
+      this._lastWallMs === null
+    ) {
+      return 0;
     }
+    const wallDelta = Date.now() - this._lastWallMs;
+    return wallDelta * this._accelerationFactor;
   }
 }
