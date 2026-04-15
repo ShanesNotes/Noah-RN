@@ -20,6 +20,15 @@ export type {
   VitalsTarget,
 } from "./scenario.js";
 export { loadScenario, loadAllScenarios } from "./scenario.js";
+export { DeviceBridge, OBSERVATION_ORIGIN_SYSTEM, DEVICE_ORIGIN_SYSTEM } from "./device-bridge.js";
+export type {
+  DeviceBridgeOptions,
+  WriterResult,
+  FhirTransactionBundle,
+  FhirObservation,
+  FhirDevice,
+  FhirEncounter,
+} from "./device-bridge.js";
 
 // --- Contract types ---
 export type PhysiologySource =
