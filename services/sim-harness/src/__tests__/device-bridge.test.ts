@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { DeviceBridge, OBSERVATION_ORIGIN_SYSTEM } from "../device-bridge.js";
 import { SimulationEngine } from "../engine.js";
 import { loadScenario } from "../scenario.js";
-import type { FhirTransactionBundle, FhirObservation, WriterResult } from "../device-bridge.js";
+import type { FhirTransactionBundle, WriterResult } from "../device-bridge.js";
 
 function createMockWriter() {
   const writes: FhirTransactionBundle[] = [];

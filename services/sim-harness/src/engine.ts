@@ -115,32 +115,30 @@ export class SimulationEngine {
   }
 
   /**
-   * Advance the simulation by deltaMs.
+   * Advance the simulation by deltaMs (frozen mode) or by real elapsed time
+   * (wall-clock / accelerated modes).
    *
    * Processes scenario events, updates vitals transitions, generates waveform samples.
-   * In frozen mode, you must call this explicitly. In wall-clock/accelerated mode,
-   * call it from your tick loop.
    */
   tick(deltaMs: number): void {
-    const elapsedDeltaMs = this._getElapsedDeltaMs(deltaMs);
+    // In frozen mode, time advances by the explicit delta.
+    // In wall-clock/accelerated modes, time advances by real elapsed time — deltaMs is ignored.
+    const generationMs =
+      this.clock.mode === "frozen"
+        ? (this.clock.tick(deltaMs), deltaMs)
+        : this.clock.sync();
+
     const currentMinute = this.clock.elapsedMinutes;
 
-    // 1. Fire due scenario events
     this._processEvents(currentMinute);
-
-    // 2. Apply vitals transitions (smooth interpolation)
     this._applyTransitions(currentMinute);
 
-    if (elapsedDeltaMs <= 0) {
-      return;
+    if (generationMs > 0) {
+      const samples = this._interpolator.generate(this._vitals.hr, generationMs);
+      for (const [lead, data] of Object.entries(samples)) {
+        this.buffer.push(lead, data);
+      }
     }
-
-    // 3. Generate waveform samples for the elapsed delta
-    const samples = this._interpolator.generate(this._vitals.hr, elapsedDeltaMs);
-    for (const [lead, data] of Object.entries(samples)) {
-      this.buffer.push(lead, data);
-    }
-
   }
 
   /** Get current vital signs snapshot. */
@@ -252,27 +250,18 @@ export class SimulationEngine {
 
   // --- Internal ---
 
-  private _getElapsedDeltaMs(deltaMs: number): number {
-    if (this.clock.mode === "frozen") {
-      this.clock.tick(deltaMs);
-      return deltaMs;
-    }
-
-    return this.clock.sync();
-  }
-
   private _processEvents(currentMinute: number): void {
     while (this._nextEventIndex < this.scenario.timeline.length) {
       const event = this.scenario.timeline[this._nextEventIndex];
       if (event.minute > currentMinute) break;
 
-      this._fireEvent(event, currentMinute);
+      this._fireEvent(event);
       this._firedEvents.push({ minute: event.minute, label: event.label });
       this._nextEventIndex++;
     }
   }
 
-  private _fireEvent(event: ScenarioEvent, _currentMinute: number): void {
+  private _fireEvent(event: ScenarioEvent): void {
     const action = event.action;
 
     switch (action.type) {
