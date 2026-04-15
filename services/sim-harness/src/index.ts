@@ -1,3 +1,18 @@
+// --- Runtime modules ---
+export { SimulationClock } from "./clock.js";
+export type { ClockMode, ClockOptions } from "./clock.js";
+export { WaveformBuffer } from "./waveform-buffer.js";
+export { WaveformInterpolator } from "./waveform-interpolator.js";
+export { WaveformRenderer } from "./waveform-renderer.js";
+export type { RenderOptions } from "./waveform-renderer.js";
+export type { RhythmTemplate } from "./waveforms/rhythms/schema.js";
+export {
+  loadRhythmTemplate,
+  loadAllTemplates,
+  validateTemplate,
+} from "./waveforms/rhythms/schema.js";
+
+// --- Contract types ---
 export type PhysiologySource =
   | "pulse"
   | "biogears"
