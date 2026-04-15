@@ -50,9 +50,12 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Decide minimum metrics for quality, safety, cost, and latency.
    - Connect evaluation traces to future eval harness work.
 
-9. **Land the Clinical Simulation Harness runtime only when needed**
-   - Keep the scaffold docs canonical for now.
-   - Start runtime work only when the first bedside workflow actually needs live vitals and waveforms.
+9. ~~**Land the Clinical Simulation Harness runtime only when needed**~~ — **Runtime landed 2026-04-14.**
+   - Layers 1–4 implemented: SimulationClock, Scenario Director, WaveformGeneration, DeviceBridge.
+   - Two rhythm templates (NSR, VTach), two scenarios (baseline, tension pneumothorax).
+   - DeviceBridge writes device-stream Observations to Medplum on cadence.
+   - Two-tier vitals architecture modeled: device-stream (preliminary) vs nurse-charted (final).
+   - See `docs/foundations/sim-harness-vitals-data-flow.md` for architecture spec.
 
 ## Later
 

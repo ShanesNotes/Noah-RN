@@ -29,6 +29,8 @@ export type {
   FhirDevice,
   FhirEncounter,
 } from "./device-bridge.js";
+export { createMedplumWriter } from "./medplum-writer.js";
+export { simConfig } from "./config.js";
 
 // --- Contract types ---
 export type PhysiologySource =
