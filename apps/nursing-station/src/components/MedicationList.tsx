@@ -1,10 +1,7 @@
 import { Text } from '@mantine/core';
+import type { JSX } from 'react';
 import { colors } from '../theme';
 
-/**
- * Defines the shape of a MedicationRequest, based on a minimal
- * FHIR resource structure.
- */
 export interface MedicationRequest {
   id?: string;
   status?: string;
@@ -20,22 +17,37 @@ export interface MedicationRequest {
   authoredOn?: string;
 }
 
-/**
- * Props for the MedicationList component.
- */
 export interface MedicationListProps {
   medications: MedicationRequest[];
 }
 
-const getStatusColor = (status?: string): string => {
-  if (status === 'active') return colors.medActive;
-  if (status === 'stopped') return colors.medStopped;
-  return colors.medDraft; // for draft and any other status
-};
+function getStatusColor(status?: string): string {
+  switch (status) {
+    case 'active': return colors.medActive;
+    case 'stopped': return colors.medStopped;
+    default: return colors.medDraft;
+  }
+}
 
-const MedicationRow = ({ med }: { med: MedicationRequest }) => {
+function getDrugName(med: MedicationRequest): string {
+  return med.medicationCodeableConcept?.text 
+    || med.medicationCodeableConcept?.coding?.[0]?.display 
+    || 'Unknown Medication';
+}
+
+const sectionHeadingStyle = {
+  fontSize: 12,
+  color: colors.textMuted,
+  letterSpacing: '0.05em',
+  marginBottom: 8,
+  fontFamily: 'Outfit',
+  fontWeight: 400,
+  textTransform: 'uppercase',
+} as const;
+
+function MedicationRow({ med }: { med: MedicationRequest }): JSX.Element {
   const statusColor = getStatusColor(med.status);
-  const drugName = med.medicationCodeableConcept?.text || med.medicationCodeableConcept?.coding?.[0]?.display || 'Unknown Medication';
+  const drugName = getDrugName(med);
   const dosage = med.dosageInstruction?.[0]?.text || 'No dosage information';
   const authoredDate = med.authoredOn?.substring(0, 10) || '–';
 
@@ -87,13 +99,32 @@ const MedicationRow = ({ med }: { med: MedicationRequest }) => {
       </Text>
     </div>
   );
-};
+}
 
-/**
- * A component to display a list of medications, grouped by status (Active/Inactive)
- * according to the "Pi Minimalism" design system.
- */
-export const MedicationList = ({ medications }: MedicationListProps) => {
+function MedicationSection({
+  title,
+  medications,
+  keyPrefix,
+}: {
+  title: string;
+  medications: MedicationRequest[];
+  keyPrefix: string;
+}): JSX.Element {
+  return (
+    <section>
+      <Text component="h2" style={sectionHeadingStyle}>
+        {title} ({medications.length})
+      </Text>
+      <div>
+        {medications.map((med, index) => (
+          <MedicationRow key={med.id || `${keyPrefix}-${index}`} med={med} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function MedicationList({ medications }: MedicationListProps): JSX.Element {
   if (!medications || medications.length === 0) {
     return (
       <div style={{ padding: '48px 0', textAlign: 'center' }}>
@@ -110,24 +141,7 @@ export const MedicationList = ({ medications }: MedicationListProps) => {
   return (
     <div style={{ width: '100%' }}>
       {activeMeds.length > 0 && (
-        <section>
-          <Text component="h2" style={{
-            fontSize: 12,
-            color: colors.textMuted,
-            letterSpacing: '0.05em',
-            marginBottom: 8,
-            fontFamily: 'Outfit',
-            fontWeight: 400,
-            textTransform: 'uppercase',
-          }}>
-            Active ({activeMeds.length})
-          </Text>
-          <div>
-            {activeMeds.map((med, index) => (
-              <MedicationRow key={med.id || `active-${index}`} med={med} />
-            ))}
-          </div>
-        </section>
+        <MedicationSection title="Active" medications={activeMeds} keyPrefix="active" />
       )}
 
       {activeMeds.length > 0 && inactiveMeds.length > 0 && (
@@ -135,25 +149,8 @@ export const MedicationList = ({ medications }: MedicationListProps) => {
       )}
 
       {inactiveMeds.length > 0 && (
-        <section>
-          <Text component="h2" style={{
-            fontSize: 12,
-            color: colors.textMuted,
-            letterSpacing: '0.05em',
-            marginBottom: 8,
-            fontFamily: 'Outfit',
-            fontWeight: 400,
-            textTransform: 'uppercase',
-          }}>
-            Inactive ({inactiveMeds.length})
-          </Text>
-          <div>
-            {inactiveMeds.map((med, index) => (
-              <MedicationRow key={med.id || `inactive-${index}`} med={med} />
-            ))}
-          </div>
-        </section>
+        <MedicationSection title="Inactive" medications={inactiveMeds} keyPrefix="inactive" />
       )}
     </div>
   );
-};
+}

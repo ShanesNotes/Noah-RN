@@ -1,5 +1,5 @@
-import React from 'react';
 import { Text } from '@mantine/core';
+import type { CSSProperties, JSX } from 'react';
 import { colors } from '../theme';
 
 // Minimal FHIR-like Observation shape
@@ -38,12 +38,12 @@ interface LabResultsPanelProps {
   observations: Observation[];
 }
 
-const mainContainerStyle: React.CSSProperties = {
+const mainContainerStyle: CSSProperties = {
   padding: '0',
   fontFamily: 'Outfit, sans-serif',
 };
 
-const tableHeaderStyle: React.CSSProperties = {
+const tableHeaderStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   paddingBottom: '8px',
@@ -54,27 +54,27 @@ const tableHeaderStyle: React.CSSProperties = {
   textTransform: 'uppercase',
 };
 
-const rowStyle: React.CSSProperties = {
+const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   padding: '10px 0',
   borderBottom: `1px solid ${colors.border}`,
 };
 
-const cellStyle: React.CSSProperties = {
+const cellStyle: CSSProperties = {
   flex: 1,
   display: 'flex',
   alignItems: 'center',
 };
 
-const testNameStyle: React.CSSProperties = {
+const testNameStyle: CSSProperties = {
   ...cellStyle,
   flex: '3 1 0%',
   fontSize: '13px',
   color: colors.textPrimary,
 };
 
-const valueStyle: React.CSSProperties = {
+const valueStyle: CSSProperties = {
   ...cellStyle,
   flex: '1.5 1 0%',
   justifyContent: 'flex-end',
@@ -82,7 +82,7 @@ const valueStyle: React.CSSProperties = {
   fontSize: '13px',
 };
 
-const unitStyle: React.CSSProperties = {
+const unitStyle: CSSProperties = {
   ...cellStyle,
   flex: '0.75 1 0%',
   justifyContent: 'flex-start',
@@ -92,7 +92,7 @@ const unitStyle: React.CSSProperties = {
   color: colors.textMuted,
 };
 
-const rangeStyle: React.CSSProperties = {
+const rangeStyle: CSSProperties = {
   ...cellStyle,
   flex: '1.5 1 0%',
   justifyContent: 'flex-end',
@@ -101,7 +101,7 @@ const rangeStyle: React.CSSProperties = {
   color: colors.textSecondary,
 };
 
-const timeStyle: React.CSSProperties = {
+const timeStyle: CSSProperties = {
   ...cellStyle,
   flex: '1 1 0%',
   justifyContent: 'flex-end',
@@ -110,7 +110,17 @@ const timeStyle: React.CSSProperties = {
   color: colors.textMuted,
 };
 
-const getInterpretationStyle = (obs: Observation): React.CSSProperties => {
+const monoValueTextStyle: CSSProperties = {
+  fontSize: '13px',
+  fontFamily: 'JetBrains Mono, monospace',
+};
+
+const monoMetaTextStyle: CSSProperties = {
+  fontSize: '11px',
+  fontFamily: 'JetBrains Mono, monospace',
+};
+
+function getInterpretationStyle(obs: Observation): CSSProperties {
   const code = obs.interpretation?.[0]?.coding?.[0]?.code;
   if (code) {
     switch (code) {
@@ -119,49 +129,55 @@ const getInterpretationStyle = (obs: Observation): React.CSSProperties => {
       case 'LL': return { color: colors.warning, fontWeight: 700 };
       case 'L': return { color: colors.warning };
       case 'N': return { color: colors.textPrimary };
-      default: break;
     }
   }
 
   const value = obs.valueQuantity?.value;
   const range = obs.referenceRange?.[0];
-  if (typeof value !== 'undefined' && range) {
-    if (typeof range.high?.value !== 'undefined' && value > range.high.value) {
+  if (value !== undefined && range) {
+    if (range.high?.value !== undefined && value > range.high.value) {
       return { color: colors.critical };
     }
-    if (typeof range.low?.value !== 'undefined' && value < range.low.value) {
+    if (range.low?.value !== undefined && value < range.low.value) {
       return { color: colors.warning };
     }
   }
 
   return { color: colors.textPrimary };
-};
+}
 
-const formatRelativeTime = (isoDate?: string): string => {
+function formatRelativeTime(isoDate?: string): string {
   if (!isoDate) return 'N/A';
-  try {
-    const date = new Date(isoDate);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + "y ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + "mo ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + "d ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + "h ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + "m ago";
-    return "Just now";
-  } catch (e) {
-    return 'Invalid date';
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return 'Invalid date';
+
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  if (seconds >= 31536000) return `${Math.floor(seconds / 31536000)}y ago`;
+  if (seconds >= 2592000) return `${Math.floor(seconds / 2592000)}mo ago`;
+  if (seconds >= 86400) return `${Math.floor(seconds / 86400)}d ago`;
+  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ago`;
+
+  return 'Just now';
+}
+
+function getTestName(observation: Observation): string {
+  return observation.code?.text || observation.code?.coding?.[0]?.display || 'Unknown Test';
+}
+
+function getRangeString(observation: Observation): string {
+  const range = observation.referenceRange?.[0];
+  if (range?.low?.value === undefined || range?.high?.value === undefined) {
+    return 'N/A';
   }
-};
 
-export const LabResultsPanel: React.FC<LabResultsPanelProps> = ({ observations }) => {
-  if (!observations || observations.length === 0) {
+  return `${range.low.value} - ${range.high.value}`;
+}
+
+export function LabResultsPanel({ observations }: LabResultsPanelProps): JSX.Element {
+  if (observations.length === 0) {
     return (
       <div style={mainContainerStyle}>
         <Text style={{ color: colors.textMuted, fontSize: '13px' }}>
@@ -187,34 +203,43 @@ export const LabResultsPanel: React.FC<LabResultsPanelProps> = ({ observations }
         <div style={{ ...timeStyle, ...tableHeaderStyle }}>Collected</div>
       </div>
       <div>
-        {sortedObservations.map((obs, index) => {
-          const testName = obs.code?.text || obs.code?.coding?.[0]?.display || 'Unknown Test';
-          const value = obs.valueQuantity?.value?.toFixed(2) ?? 'N/A';
-          const unit = obs.valueQuantity?.unit ?? '';
-          const range = obs.referenceRange?.[0];
-          const rangeString = range && typeof range.low?.value !== 'undefined' && typeof range.high?.value !== 'undefined'
-            ? `${range.low.value} - ${range.high.value}`
-            : 'N/A';
+        {sortedObservations.map((observation, index) => {
+          const interpretationStyle = getInterpretationStyle(observation);
+          const value = observation.valueQuantity?.value?.toFixed(2) ?? 'N/A';
+          const unit = observation.valueQuantity?.unit ?? '';
 
           return (
-            <div key={obs.id || `obs-${index}`} style={{ ...rowStyle, borderBottom: index === sortedObservations.length - 1 ? 'none' : rowStyle.borderBottom }}>
+            <div
+              key={observation.id || `obs-${index}`}
+              style={{
+                ...rowStyle,
+                borderBottom:
+                  index === sortedObservations.length - 1 ? 'none' : rowStyle.borderBottom,
+              }}
+            >
               <div style={testNameStyle}>
-                <Text component="span" style={{ fontSize: '13px' }}>{testName}</Text>
+                <Text component="span" style={{ fontSize: '13px' }}>
+                  {getTestName(observation)}
+                </Text>
               </div>
-              <div style={{...valueStyle, ...getInterpretationStyle(obs)}}>
-                <Text component="span" style={{ fontSize: '13px', fontFamily: 'JetBrains Mono, monospace', ...getInterpretationStyle(obs) }}>
+              <div style={{ ...valueStyle, ...interpretationStyle }}>
+                <Text component="span" style={{ ...monoValueTextStyle, ...interpretationStyle }}>
                   {value}
                 </Text>
               </div>
               <div style={unitStyle}>
-                <Text component="span" style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>{unit}</Text>
+                <Text component="span" style={monoMetaTextStyle}>
+                  {unit}
+                </Text>
               </div>
               <div style={rangeStyle}>
-                <Text component="span" style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>{rangeString}</Text>
+                <Text component="span" style={monoMetaTextStyle}>
+                  {getRangeString(observation)}
+                </Text>
               </div>
               <div style={timeStyle}>
-                <Text component="span" style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' }}>
-                  {formatRelativeTime(obs.effectiveDateTime)}
+                <Text component="span" style={monoMetaTextStyle}>
+                  {formatRelativeTime(observation.effectiveDateTime)}
                 </Text>
               </div>
             </div>
@@ -223,4 +248,4 @@ export const LabResultsPanel: React.FC<LabResultsPanelProps> = ({ observations }
       </div>
     </div>
   );
-};
+}
