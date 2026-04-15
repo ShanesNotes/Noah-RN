@@ -11,6 +11,15 @@ export {
   loadAllTemplates,
   validateTemplate,
 } from "./waveforms/rhythms/schema.js";
+export { SimulationEngine } from "./engine.js";
+export type { EngineOptions } from "./engine.js";
+export type {
+  Scenario,
+  ScenarioEvent,
+  ScenarioEventAction,
+  VitalsTarget,
+} from "./scenario.js";
+export { loadScenario, loadAllScenarios } from "./scenario.js";
 
 // --- Contract types ---
 export type PhysiologySource =

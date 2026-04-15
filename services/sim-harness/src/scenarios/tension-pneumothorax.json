@@ -1,0 +1,86 @@
+{
+  "id": "tension-pneumothorax",
+  "name": "Tension Pneumothorax Deterioration",
+  "description": "Post-intubation ICU patient who develops tension pneumothorax. Progressive deterioration from stable baseline to cardiovascular collapse over ~7 minutes unless needle decompression is performed.",
+  "seed_from": "hand-authored",
+  "estimated_duration_minutes": 15,
+  "starting_demographics": {
+    "age_years": 42,
+    "sex": "female",
+    "weight_kg": 70,
+    "height_cm": 165
+  },
+  "starting_vitals": {
+    "hr": 78,
+    "rr": 14,
+    "spo2": 99,
+    "etco2": 36,
+    "sbp": 118,
+    "dbp": 72,
+    "map": 87,
+    "temp_c": 37.0
+  },
+  "starting_rhythm_id": "nsr",
+  "timeline": [
+    {
+      "minute": 0,
+      "label": "Scenario start — stable intubated patient",
+      "action": { "type": "narrative", "text": "42-year-old female, intubated and mechanically ventilated following motor vehicle collision. Bilateral breath sounds present. Hemodynamically stable on minimal sedation." },
+      "visible_to_agent": true
+    },
+    {
+      "minute": 2,
+      "label": "Early signs — rising peak airway pressures",
+      "action": { "type": "narrative", "text": "Ventilator alarming for high peak pressures. Patient appears mildly agitated." },
+      "visible_to_agent": true
+    },
+    {
+      "minute": 3,
+      "label": "Tension developing — compensatory tachycardia, early desaturation",
+      "action": {
+        "type": "set_vitals",
+        "vitals": { "hr": 110, "rr": 22, "spo2": 92, "etco2": 28, "sbp": 100, "dbp": 62, "map": 75 }
+      },
+      "transition_minutes": 1.5,
+      "visible_to_agent": false
+    },
+    {
+      "minute": 3,
+      "label": "Insult onset — tension pneumothorax",
+      "action": { "type": "apply_insult", "insult": "tension_pneumothorax", "description": "Right-sided tension pneumothorax developing. Mediastinal shift beginning. Absent breath sounds on right." },
+      "visible_to_agent": false
+    },
+    {
+      "minute": 5,
+      "label": "Critical deterioration — hypotension, severe desaturation",
+      "action": {
+        "type": "set_vitals",
+        "vitals": { "hr": 140, "spo2": 82, "etco2": 22, "sbp": 72, "dbp": 40, "map": 51 }
+      },
+      "transition_minutes": 1.5,
+      "visible_to_agent": false
+    },
+    {
+      "minute": 6,
+      "label": "Rhythm deterioration — VTach",
+      "action": { "type": "set_rhythm", "rhythm_id": "vtach" },
+      "visible_to_agent": false
+    },
+    {
+      "minute": 6,
+      "label": "Pre-arrest vitals",
+      "action": {
+        "type": "set_vitals",
+        "vitals": { "hr": 180, "spo2": 68, "etco2": 15, "sbp": 55, "dbp": 30, "map": 38 }
+      },
+      "transition_minutes": 1,
+      "visible_to_agent": false
+    },
+    {
+      "minute": 8,
+      "label": "Cardiovascular collapse without intervention",
+      "action": { "type": "narrative", "text": "Without needle decompression, the patient progresses to pulseless electrical activity and cardiac arrest." },
+      "visible_to_agent": true
+    }
+  ]
+}
