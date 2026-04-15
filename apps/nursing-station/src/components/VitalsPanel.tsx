@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
 import { Text } from '@mantine/core';
+import type { JSX } from 'react';
+import { useMemo } from 'react';
 import { colors } from '../theme';
 
-// Minimal FHIR R4 Observation shape as specified
 interface Observation {
   code?: {
     coding?: {
@@ -34,8 +34,16 @@ interface VitalsPanelProps {
   observations: Observation[];
 }
 
-// Configuration for each vital sign based on LOINC codes
-const VITAL_CONFIGS: Record<string, { name: string; color: string; unit: string; normalMin?: number; normalMax?: number; isBp?: boolean }> = {
+interface VitalConfig {
+  name: string;
+  color: string;
+  unit: string;
+  normalMin?: number;
+  normalMax?: number;
+  isBp?: boolean;
+}
+
+const VITAL_CONFIGS: Record<string, VitalConfig> = {
   '8867-4': { name: 'Heart Rate', color: colors.hr, unit: 'bpm', normalMin: 60, normalMax: 100 },
   '55284-4': { name: 'Blood Pressure', color: colors.bp, unit: 'mmHg', isBp: true },
   '9279-1': { name: 'Respiratory Rate', color: colors.rr, unit: '/min', normalMin: 12, normalMax: 20 },
@@ -46,14 +54,7 @@ const VITAL_CONFIGS: Record<string, { name: string; color: string; unit: string;
 const SYSTOLIC_CODE = '8480-6';
 const DIASTOLIC_CODE = '8462-4';
 
-/**
- * Generates SVG polyline points for a simple sparkline.
- * @param data - Array of numerical data points.
- * @param width - The width of the SVG canvas.
- * @param height - The height of the SVG canvas.
- * @returns A string of points for the `points` attribute of a polyline.
- */
-const generateSparklinePoints = (data: number[], width: number, height: number): string => {
+function generateSparklinePoints(data: number[], width: number, height: number): string {
   if (data.length < 2) return '';
 
   const values = data.slice(-12); // Use up to the last 12 values
@@ -64,80 +65,127 @@ const generateSparklinePoints = (data: number[], width: number, height: number):
   const yPadding = 4;
   const effectiveHeight = height - yPadding * 2;
 
-  return values.map((value, index) => {
-    const x = (index / (values.length - 1)) * width;
-    const y = effectiveHeight - (range > 0 ? ((value - min) / range) * effectiveHeight : effectiveHeight / 2);
-    return `${x.toFixed(2)},${(y + yPadding).toFixed(2)}`;
-  }).join(' ');
-};
+  return values
+    .map((value, index) => {
+      const x = (index / (values.length - 1)) * width;
+      const y =
+        effectiveHeight -
+        (range > 0 ? ((value - min) / range) * effectiveHeight : effectiveHeight / 2);
 
-export const VitalsPanel: React.FC<VitalsPanelProps> = ({ observations }) => {
+      return `${x.toFixed(2)},${(y + yPadding).toFixed(2)}`;
+    })
+    .join(' ');
+}
+
+function getObservationCode(observation: Observation): string | undefined {
+  return observation.code?.coding?.[0]?.code;
+}
+
+function sortObservationsByDate(a: Observation, b: Observation): number {
+  return new Date(b.effectiveDateTime || 0).getTime() - new Date(a.effectiveDateTime || 0).getTime();
+}
+
+function getNumericHistory(observations: Observation[]): number[] {
+  return observations
+    .map((obs) => obs.valueQuantity?.value)
+    .filter((val): val is number => val !== undefined && val !== null)
+    .reverse();
+}
+
+function getBloodPressureValues(
+  observation: Observation,
+): { systolic?: number; diastolic?: number } {
+  const systolic = observation.component?.find(
+    (component) => component.code?.coding?.[0]?.code === SYSTOLIC_CODE,
+  )?.valueQuantity?.value;
+  const diastolic = observation.component?.find(
+    (component) => component.code?.coding?.[0]?.code === DIASTOLIC_CODE,
+  )?.valueQuantity?.value;
+
+  return { systolic, diastolic };
+}
+
+function getBloodPressureHistory(observations: Observation[]): number[] {
+  return observations
+    .map((obs) => getBloodPressureValues(obs).systolic)
+    .filter((val): val is number => val !== undefined && val !== null)
+    .reverse();
+}
+
+function getDisplayUnit(code: string, observation: Observation, fallbackUnit: string): string {
+  return code === '8310-5' ? observation.valueQuantity?.unit || fallbackUnit : fallbackUnit;
+}
+
+function checkBpAbnormal(systolic?: number, diastolic?: number): boolean {
+  if (systolic !== undefined && (systolic > 140 || systolic < 90)) return true;
+  if (diastolic !== undefined && (diastolic > 90 || diastolic < 60)) return true;
+  return false;
+}
+
+function checkAbnormal(value?: number, min?: number, max?: number): boolean {
+  if (value === undefined || min === undefined || max === undefined) return false;
+  return value < min || value > max;
+}
+
+export function VitalsPanel({ observations }: VitalsPanelProps): JSX.Element {
   const processedVitals = useMemo(() => {
     const grouped: Record<string, Observation[]> = {};
 
     for (const obs of observations) {
-      const code = obs.code?.coding?.[0]?.code;
+      const code = getObservationCode(obs);
       if (code && VITAL_CONFIGS[code]) {
-        if (!grouped[code]) {
-          grouped[code] = [];
-        }
+        if (!grouped[code]) grouped[code] = [];
         grouped[code].push(obs);
       }
     }
 
-    return Object.keys(VITAL_CONFIGS).map(code => {
-      const config = VITAL_CONFIGS[code];
+    return Object.entries(VITAL_CONFIGS).map(([code, config]) => {
       const obsGroup = grouped[code];
 
       if (!obsGroup || obsGroup.length === 0) {
-        return { code, config, displayValue: '--', isAbnormal: false, history: [] };
+        return {
+          code,
+          config,
+          displayValue: '--',
+          displayUnit: config.unit,
+          isAbnormal: false,
+          history: [],
+        };
       }
 
-      obsGroup.sort((a, b) => new Date(b.effectiveDateTime || 0).getTime() - new Date(a.effectiveDateTime || 0).getTime());
-      
+      obsGroup.sort(sortObservationsByDate);
       const latestObs = obsGroup[0];
       
       if (config.isBp) {
-        const systolic = latestObs.component?.find(c => c.code?.coding?.[0]?.code === SYSTOLIC_CODE)?.valueQuantity?.value;
-        const diastolic = latestObs.component?.find(c => c.code?.coding?.[0]?.code === DIASTOLIC_CODE)?.valueQuantity?.value;
-        const history = obsGroup
-          .map(o => o.component?.find(c => c.code?.coding?.[0]?.code === SYSTOLIC_CODE)?.valueQuantity?.value)
-          .filter((v): v is number => v !== undefined && v !== null)
-          .reverse();
+        const { systolic, diastolic } = getBloodPressureValues(latestObs);
+        const hasBloodPressure = systolic !== undefined && diastolic !== undefined;
 
         return {
           code,
           config,
-          displayValue: (systolic && diastolic) ? `${Math.round(systolic)}/${Math.round(diastolic)}` : '--',
-          isAbnormal: systolic ? systolic > 140 || systolic < 90 || (diastolic ? diastolic > 90 || diastolic < 60 : false) : false,
-          history,
-        };
-      } else {
-        const value = latestObs.valueQuantity?.value;
-        const history = obsGroup
-            .map(o => o.valueQuantity?.value)
-            .filter((v): v is number => v !== undefined && v !== null)
-            .reverse();
-        
-        const isAbnormal = (value !== undefined && config.normalMin !== undefined && config.normalMax !== undefined)
-          ? value < config.normalMin || value > config.normalMax
-          : false;
-
-        return {
-          code,
-          config,
-          displayValue: value !== undefined ? value.toFixed(code === '8310-5' ? 1 : 0) : '--',
-          isAbnormal,
-          history,
+          displayValue: hasBloodPressure ? `${Math.round(systolic)}/${Math.round(diastolic)}` : '--',
+          displayUnit: config.unit,
+          isAbnormal: checkBpAbnormal(systolic, diastolic),
+          history: getBloodPressureHistory(obsGroup),
         };
       }
+
+      const value = latestObs.valueQuantity?.value;
+      return {
+        code,
+        config,
+        displayValue: value !== undefined ? value.toFixed(code === '8310-5' ? 1 : 0) : '--',
+        displayUnit: getDisplayUnit(code, latestObs, config.unit),
+        isAbnormal: checkAbnormal(value, config.normalMin, config.normalMax),
+        history: getNumericHistory(obsGroup),
+      };
     });
   }, [observations]);
 
   return (
     <div style={{ padding: '0' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {processedVitals.map(vital => (
+        {processedVitals.map((vital) => (
           <div 
             key={vital.code} 
             style={{ 
@@ -171,7 +219,7 @@ export const VitalsPanel: React.FC<VitalsPanelProps> = ({ observations }) => {
                 fontFamily: '"JetBrains Mono", monospace', 
                 color: colors.textMuted,
               }}>
-                  {vital.config.unit}
+                  {vital.displayUnit}
               </Text>
             </div>
             
@@ -192,4 +240,4 @@ export const VitalsPanel: React.FC<VitalsPanelProps> = ({ observations }) => {
       </div>
     </div>
   );
-};
+}

@@ -1,5 +1,5 @@
-import React from 'react';
 import { Text } from '@mantine/core';
+import type { JSX } from 'react';
 import { colors } from '../theme';
 
 export interface Patient {
@@ -22,20 +22,14 @@ interface PatientBannerProps {
   onBack?: () => void;
 }
 
-const formatPatientName = (name: Patient['name']): string => {
-  if (!name || name.length === 0) {
-    return 'Unknown Patient';
-  }
-  const primaryName = name[0];
-  if (primaryName.text) {
-    return primaryName.text;
-  }
-  const given = primaryName.given?.join(' ') || '';
-  const family = primaryName.family || '';
-  return [given, family].filter(Boolean).join(' ');
-};
+function formatPatientName(name?: Patient['name']): string {
+  if (!name?.length) return 'Unknown Patient';
+  const [{ text, given, family }] = name;
+  if (text) return text;
+  return [given?.join(' '), family].filter(Boolean).join(' ');
+}
 
-const calculateAge = (birthDate?: string): number | null => {
+function calculateAge(birthDate?: string): number | null {
   if (!birthDate) return null;
   const today = new Date();
   const birth = new Date(birthDate);
@@ -45,36 +39,47 @@ const calculateAge = (birthDate?: string): number | null => {
     age--;
   }
   return age;
-};
+}
 
-const StatusIndicator: React.FC<{ color: string; label: string }> = ({ color, label }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: color }} />
-    <Text style={{ fontFamily: 'Outfit', fontSize: '12px', color: colors.textSecondary }}>
-      {label}
-    </Text>
-  </div>
-);
+function getCodeStatusColor(status?: string): string {
+  if (!status) return colors.info;
+  return status === 'Full Code' ? colors.accent : colors.critical;
+}
 
-export const PatientBanner: React.FC<PatientBannerProps> = ({ patient, statusFlags, onBack }) => {
-  const age = calculateAge(patient.birthDate);
-  const formattedName = formatPatientName(patient.name);
-  
-  const dob = patient.birthDate ? new Date(patient.birthDate).toLocaleDateString('en-US', {
+function formatBirthDate(birthDate?: string): string {
+  if (!birthDate) return 'N/A';
+
+  return new Date(birthDate).toLocaleDateString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }) : 'N/A';
+  });
+}
 
-  const getCodeStatusColor = () => {
-      if (!statusFlags?.codeStatus) return colors.info;
-      return statusFlags.codeStatus === 'Full Code' ? colors.accent : colors.critical;
-  };
+function StatusIndicator({ color, label }: { color: string; label: string }): JSX.Element {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: color }} />
+      <Text style={{ fontFamily: 'Outfit', fontSize: '12px', color: colors.textSecondary }}>
+        {label}
+      </Text>
+    </div>
+  );
+}
+
+export function PatientBanner({ patient, statusFlags, onBack }: PatientBannerProps): JSX.Element {
+  const age = calculateAge(patient.birthDate);
+  const formattedName = formatPatientName(patient.name);
+  
+  const dob = formatBirthDate(patient.birthDate);
+
+  const codeStatusColor = getCodeStatusColor(statusFlags?.codeStatus);
 
   return (
     <div style={{ padding: '16px', backgroundColor: colors.bg, display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {onBack && (
         <button
+          aria-label="Go back"
           onClick={onBack}
           style={{
             background: 'none',
@@ -111,7 +116,7 @@ export const PatientBanner: React.FC<PatientBannerProps> = ({ patient, statusFla
       {statusFlags && (
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '24px' }}>
           {statusFlags.codeStatus && (
-            <StatusIndicator color={getCodeStatusColor()} label={statusFlags.codeStatus.toUpperCase()} />
+            <StatusIndicator color={codeStatusColor} label={statusFlags.codeStatus.toUpperCase()} />
           )}
           {statusFlags.isolation && (
             <StatusIndicator color={colors.warning} label={statusFlags.isolation.toUpperCase()} />
@@ -126,4 +131,4 @@ export const PatientBanner: React.FC<PatientBannerProps> = ({ patient, statusFla
       )}
     </div>
   );
-};
+}
