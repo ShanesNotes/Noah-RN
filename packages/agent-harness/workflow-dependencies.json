@@ -26,6 +26,11 @@
       "knowledge_asset_refs": ["drug-ranges", "four-layer-output", "disclaimers"],
       "service_surface_refs": []
     },
+    "five-rights-verification": {
+      "tool_family_refs": ["drug-lookup", "trace", "safety-hooks"],
+      "knowledge_asset_refs": ["drug-reference", "four-layer-output", "disclaimers", "cross-skill-triggers"],
+      "service_surface_refs": ["services/clinical-mcp/"]
+    },
     "hello-nurse": {
       "tool_family_refs": ["trace"],
       "knowledge_asset_refs": ["disclaimers"],

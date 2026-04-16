@@ -1,0 +1,89 @@
+# packages/workflows/five-rights-verification/dependencies.yaml
+# Added 2026-04-16 — Phase 6 of the three-product alignment plan.
+#
+# This workflow is the first concrete medication task function. It consumes:
+# - Product B MCP tools: get_patient_context, get_medication_list, queue_draft_task
+# - Subordinate drug-reference lane via lookup_drug MCP tool
+# - NO direct FHIR writes — Product B write boundaries stay intact
+#
+# See docs/plans/three-product-alignment-2026-04-16.md Phase 6 for scope.
+
+skill: five-rights-verification
+version: "0.1.0"
+complexity_tier: moderate
+
+input_modes:
+  patient_id:
+    extension: medplum-context
+    then: assemble_context_then_invoke
+    description: "Nurse provides patient_id; optional medication_request_id targets a specific order."
+  clinical_narrative:
+    extension: none
+    then: invoke_skill_directly
+    description: "Nurse describes the patient and medication order in free text."
+
+extensions:
+  medplum-context:
+    required_for:
+      - patient_id_input_mode
+    provides:
+      - assembled_patient_context_bundle
+      - active_medication_list
+
+tools:
+  - name: get_patient_context
+    surface: clinical-mcp
+    purpose: patient identity + allergies + timeline
+    required: true
+  - name: get_medication_list
+    surface: clinical-mcp
+    purpose: active MedicationRequests + recent MedicationAdministrations + high-alert flags
+    required: true
+  - name: lookup_drug
+    surface: clinical-mcp
+    purpose: drug-reference entry — dose range, routes, high-alert status, LASA pairs
+    required: true
+  - name: queue_draft_task
+    surface: clinical-mcp
+    purpose: attach verification artifact to a draft review Task (optional path)
+    required: false
+
+knowledge_assets:
+  - drug-reference
+  - disclaimers
+  - four-layer-output
+  - cross-skill-triggers
+
+services:
+  - services/clinical-mcp/
+
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - universal_rules
+    - confidence_tiers
+    - disclaimers
+    - provenance_footer
+    - trace_logging
+    - cross_skill_suggestions
+
+router:
+  scope: medication_safety
+  trigger_phrases:
+    - "verify medication"
+    - "verify med"
+    - "five rights"
+    - "5 rights"
+    - "right patient right drug"
+    - "high-alert check"
+    - "second check"
+    - "LASA"
+    - "look-alike sound-alike"
+  intent: medication_verification
+  complexity: moderate
+  hitl_category: "II"
+
+# Cross-product note: this workflow NEVER writes a finalized MedicationAdministration.
+# Product B's chartMedicationAdministration / holdMedicationAdministration reject agent
+# performer refs at the write boundary. Agent output is limited to verification artifacts
+# and (optionally) a draft-review Task linked to the nurse's administration flow.

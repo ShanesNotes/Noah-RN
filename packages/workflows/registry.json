@@ -27,6 +27,11 @@
       "scope": ["medication_lookup"]
     },
     {
+      "name": "five-rights-verification",
+      "source_path": "packages/workflows/five-rights-verification/SKILL.md",
+      "scope": ["medication_safety", "five_rights", "high_alert_verification", "clinical_documentation"]
+    },
+    {
       "name": "hello-nurse",
       "source_path": "packages/workflows/hello-nurse/SKILL.md",
       "scope": ["plugin_verification"]
