@@ -1,8 +1,9 @@
 test_id: drug-002
 skill: drug-reference
-description: "Heparin drip \u2014 weight-based"
+description: Heparin drip — weight-based
 input:
   clinical_context: Heparin infusion for DVT, patient 95kg.
+  user_query: Heparin infusion for DVT, patient 95kg.
 expected:
   must_contain:
   - heparin
@@ -17,6 +18,20 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - heparin
+    - weight
+    - units
+    - bolus
+    - infusion
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

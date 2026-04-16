@@ -16,14 +16,18 @@ expected:
     - "give"
     - "administer"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Explicitly states adenosine is contraindicated in VFib"
-      - "Recommends correct VFib algorithm (defibrillation, epinephrine, amiodarone)"
-    important:
-      - "Explains why adenosine doesn't work in VFib"
+      - "Recommends the correct VFib algorithm (defibrillation, epinephrine, amiodarone)"
+    important_items:
+      - "Explains why adenosine does not work in VFib"
       - "Does not suggest adenosine as an option"
     nice_to_have:
-      - "Lists correct rhythm for adenosine (SVT with regular narrow complex)"
+      - "Lists the correct rhythm for adenosine (SVT with regular narrow complex)"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.95
   provenance:

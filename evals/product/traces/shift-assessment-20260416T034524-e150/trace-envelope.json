@@ -1,0 +1,97 @@
+{
+  "trace_id": "shift-assessment-20260416T034524-e150",
+  "skill": "shift-assessment",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T03:45:24Z",
+  "tags": {
+    "phi_risk": "none",
+    "token_spend": {
+      "input_tokens": 37,
+      "output_tokens": 414,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0,
+      "context_ratio": 0,
+      "categories": {
+        "patient_bundle": 0,
+        "user_input": 37,
+        "system_prompt": 128,
+        "renderer": 207
+      }
+    },
+    "latency": {
+      "total_ms": 1017,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "pass",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 0,
+    "knowledge_assets_selected": [
+      "cross-skill-triggers",
+      "disclaimers",
+      "four-layer-output"
+    ],
+    "compression_strategy": "narrative-only",
+    "gap_markers": [],
+    "fhir_queries_fired": 0
+  },
+  "routing_decision": {
+    "input_classification": "simple",
+    "candidates_considered": [
+      "hello-nurse",
+      "protocol-reference",
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "shift-assessment",
+    "confidence": 0.84,
+    "rationale": "Narrative-only input matched the requested workflow directly."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "pass",
+      "detail": "Context ratio 0 is within the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": null,
+  "raw": {
+    "input": {
+      "skill": "shift-assessment",
+      "timestamp": "2026-04-16T03:45:24Z",
+      "context": {
+        "workflow": "shift-assessment",
+        "input_mode": "clinical_narrative",
+        "patient_id": null,
+        "available_context": [
+          "clinical_narrative"
+        ],
+        "raw_input": "Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?",
+        "context_assembled": false,
+        "phi_risk": "none"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "shift-assessment",
+      "input_mode": "clinical_narrative",
+      "context_assembled": false,
+      "service_surface_refs": [],
+      "downstream_system": null,
+      "veto_triggered": false
+    }
+  }
+}

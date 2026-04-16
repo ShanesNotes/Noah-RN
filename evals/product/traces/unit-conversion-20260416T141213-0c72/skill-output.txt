@@ -1,0 +1,43 @@
+Summary
+PATIENT (Tier 1 — nurse-reported facts)
+- [Needs patient identifiers from narrative or chart context]
+
+STORY (Tier 2 — nurse narrative preserved)
+- Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration is 200mg/250mL?
+
+ASSESSMENT (Tier 2 — organize from reported narrative)
+- Correct conversion: 0.1 mg = 100 mcg
+- Clear unit labeling
+
+LINES & ACCESS (Tier 2 — reported bedside details)
+- [Access details not yet extracted from the narrative]
+
+ACTIVE ISSUES & PLAN (Tier 2 — bedside watch items)
+- [Watch items and pending plan items to be derived from the narrative]
+
+HOUSEKEEPING (Tier 2 — bedside input required)
+- [Housekeeping details not provided]
+
+FAMILY (Tier 2 — bedside input required)
+- [Family communication details not provided]
+
+Evidence
+Workflow: unit-conversion
+Input mode: clinical_narrative
+Resource access: four-layer-output, disclaimers
+Tool families: unit-conversions, trace, safety-hooks
+Service surfaces: packages/workflows/
+User context seed: Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration is 200mg/250mL?
+
+Confidence
+- Summary structure: Tier 2 — nurse narrative organized without fabrication.
+- Facility-specific details remain Tier 3 — per facility protocol.
+
+Provenance
+---
+noah-rn v0.2 | unit-conversion v1.1.0 | nurse-reported data
+Clinical decision support — verify against facility protocols and current patient data.
+
+---
+Noah RN — clinical decision support, not clinical decisions. You got this.
+Verify all findings against your assessment and facility policies.

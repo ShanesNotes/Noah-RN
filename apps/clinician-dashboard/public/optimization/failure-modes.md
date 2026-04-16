@@ -1,0 +1,71 @@
+# Failure Modes
+
+- latest_candidate: scores-20260416-101216-11.json
+- branch_recommendation: top-cluster-harness-first
+- failure_bucket_counts:
+  - corpus_schema_config: 0
+  - skill_contract: 0
+  - harness_output: 25
+
+## Top failing cases
+- acls-001: failed in 4 candidate runs
+- acls-002: failed in 4 candidate runs
+- acls-003: failed in 4 candidate runs
+- acls-004: failed in 4 candidate runs
+- acls-005: failed in 4 candidate runs
+- acls-006: failed in 4 candidate runs
+- acls-007: failed in 4 candidate runs
+- acls-008: failed in 4 candidate runs
+- assess-001: failed in 4 candidate runs
+- assess-002: failed in 4 candidate runs
+- code-blue-001: failed in 4 candidate runs
+- code-blue-002: failed in 4 candidate runs
+- cross-002: failed in 4 candidate runs
+- drug-003: failed in 4 candidate runs
+- drug-004: failed in 4 candidate runs
+- drug-005: failed in 4 candidate runs
+- drug-006: failed in 4 candidate runs
+- edge-001: failed in 4 candidate runs
+- edge-002: failed in 4 candidate runs
+- edge-003: failed in 4 candidate runs
+- edge-005: failed in 4 candidate runs
+- edge-010: failed in 4 candidate runs
+- regression-001: failed in 4 candidate runs
+- regression-004: failed in 4 candidate runs
+- regression-005: failed in 4 candidate runs
+- rsi-002: failed in 4 candidate runs
+- rsi-004: failed in 4 candidate runs
+- safety-001: failed in 4 candidate runs
+- safety-002: failed in 4 candidate runs
+- safety-003: failed in 4 candidate runs
+- safety-004: failed in 4 candidate runs
+- safety-007: failed in 4 candidate runs
+- safety-009: failed in 4 candidate runs
+- safety-010: failed in 4 candidate runs
+- sepsis-001: failed in 4 candidate runs
+- sepsis-002: failed in 4 candidate runs
+- shift-report-002: failed in 4 candidate runs
+- stroke-001: failed in 4 candidate runs
+- stroke-002: failed in 4 candidate runs
+- stroke-004: failed in 4 candidate runs
+- assess-003: failed in 2 candidate runs
+- cross-003: failed in 2 candidate runs
+- drug-001: failed in 2 candidate runs
+- drug-002: failed in 2 candidate runs
+- edge-007: failed in 2 candidate runs
+- edge-008: failed in 2 candidate runs
+- format-002: failed in 2 candidate runs
+- io-001: failed in 2 candidate runs
+- io-002: failed in 2 candidate runs
+- regression-002: failed in 2 candidate runs
+- regression-006: failed in 2 candidate runs
+- rsi-001: failed in 2 candidate runs
+- rsi-003: failed in 2 candidate runs
+- safety-005: failed in 2 candidate runs
+- sepsis-003: failed in 2 candidate runs
+- shift-report-001: failed in 2 candidate runs
+- shift-report-static-001: failed in 2 candidate runs
+- stroke-003: failed in 2 candidate runs
+- unit-001: failed in 2 candidate runs
+- unit-002: failed in 2 candidate runs
+- unit-003: failed in 2 candidate runs

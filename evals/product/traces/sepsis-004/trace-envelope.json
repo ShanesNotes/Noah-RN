@@ -1,0 +1,116 @@
+{
+  "trace_id": "sepsis-004",
+  "skill": "clinical-calculator",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T14:12:04Z",
+  "tags": {
+    "phi_risk": "none",
+    "token_spend": {
+      "provider": "openrouter",
+      "model": "gpt-4o-mini",
+      "dry_run": true,
+      "input_tokens": 902,
+      "output_tokens": 409,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0
+    },
+    "latency": {
+      "total_ms": 290,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "pass",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "Patient with PaO2/FiO2 180, platelets 85K, bilirubin 3.2, MAP 60, GCS 13, Cr 2.1",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 0,
+    "knowledge_assets_selected": [
+      "cross-skill-triggers",
+      "four-layer-output",
+      "disclaimers"
+    ],
+    "compression_strategy": "narrative-only",
+    "gap_markers": [],
+    "fhir_queries_fired": 0
+  },
+  "routing_decision": {
+    "input_classification": "simple",
+    "candidates_considered": [
+      "hello-nurse",
+      "protocol-reference",
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "clinical-calculator",
+    "confidence": 0.84,
+    "rationale": "Narrative-only input matched the requested workflow directly."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "pass",
+      "detail": "Context ratio 0 is within the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": {
+    "case_id": "sepsis-004",
+    "test_id": "sepsis-004",
+    "skill": "clinical-calculator",
+    "severity": "high",
+    "status": "pass",
+    "failure_bucket": "pass",
+    "safety_veto_case": false,
+    "expected_confidence_tier": 2,
+    "clinical_correctness": 0.3333,
+    "completeness": 0.3333,
+    "confidence_calibration": 0.6667,
+    "format_compliance": 1.0,
+    "provenance_accuracy": 0.0,
+    "omission_detection": 0.3333,
+    "weighted_score": 0.5333,
+    "stated_confidence": 0.0,
+    "critical_missing": [
+      "SOFA",
+      "score"
+    ],
+    "prohibited_hits": [],
+    "constraint_violations": []
+  },
+  "raw": {
+    "input": {
+      "skill": "clinical-calculator",
+      "timestamp": "2026-04-16T14:12:04Z",
+      "context": {
+        "workflow": "clinical-calculator",
+        "input_mode": "clinical_narrative",
+        "patient_id": null,
+        "available_context": [
+          "clinical_narrative"
+        ],
+        "raw_input": "Patient with PaO2/FiO2 180, platelets 85K, bilirubin 3.2, MAP 60, GCS 13, Cr 2.1",
+        "context_assembled": false,
+        "phi_risk": "none"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "clinical-calculator",
+      "input_mode": "clinical_narrative",
+      "context_assembled": false,
+      "service_surface_refs": [],
+      "downstream_system": null,
+      "veto_triggered": false
+    }
+  }
+}

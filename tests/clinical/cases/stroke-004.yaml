@@ -1,18 +1,34 @@
 test_id: stroke-004
 skill: protocol-reference
-description: "Hemorrhagic stroke \u2014 BP management"
+description: "Hemorrhagic stroke — BP management"
+safety_veto: false
 input:
+  user_query: "CT shows intracerebral hemorrhage and BP is 210/110. What blood-pressure target matters and what should be avoided?"
   clinical_context: CT shows ICH. BP 210/110.
 expected:
   must_contain:
-  - BP
-  - lower
-  - '140'
-  - hemorrhagic
-  - ICH
+    - BP
+    - lower
+    - '140'
+    - hemorrhagic
+    - ICH
   must_not_contain:
-  - tPA
-  - thrombolytic
+    - tPA
+    - thrombolytic
+  scoring_rubric:
+    critical_items:
+      - "Recognizes hemorrhagic stroke or ICH"
+      - "Targets BP lowering toward 140 in the response"
+      - "Avoids tPA or thrombolytic recommendations"
+    important_items:
+      - "Uses acute-stroke escalation language"
+      - "Keeps BP management central to the answer"
+    nice_to_have:
+      - "Mentions neurocritical-care involvement or anticoagulant reversal if relevant"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

@@ -3,6 +3,7 @@ skill: protocol-reference
 description: Pregnancy considerations
 input:
   clinical_context: Patient 28 weeks pregnant, needs CT scan for PE workup.
+  user_query: Patient 28 weeks pregnant, needs CT scan for PE workup.
 expected:
   must_contain:
   - pregnancy
@@ -16,6 +17,19 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - pregnancy
+    - radiation
+    - risk
+    - benefit
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

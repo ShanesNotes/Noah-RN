@@ -5,6 +5,7 @@ import type {
   Task,
 } from "./types.js";
 import { fhirPost } from "./client.js";
+import { VITAL_LOINC } from "./vital-loinc.js";
 
 // --- Resolved: volatile-draft-vs-fhir-queuing → Option A (FHIR-queued) ---
 // PLAN.md Decision Log 2026-04-12: preliminary DocumentReference as first review artifact.
@@ -25,6 +26,8 @@ function createDeferredWrite<TInput>(operation: string) {
 export interface DraftShiftReportWriteInput {
   patientId: string;
   encounterId?: string;
+  taskId?: string;
+  executionId?: string;
   reportMarkdown: string;
 }
 
@@ -46,6 +49,36 @@ export async function createDraftShiftReport(
 ): Promise<DocumentReference> {
   const payload = {
     resourceType: "DocumentReference" as const,
+    meta: {
+      tag: [
+        {
+          system: "https://noah-rn.dev/workflows",
+          code: "shift-report",
+          display: "Shift Report",
+        },
+        {
+          system: "https://noah-rn.dev/review-status",
+          code: "review-required",
+          display: "Review Required",
+        },
+      ],
+    },
+    ...(input.taskId && {
+      identifier: [
+        {
+          system: "https://noah-rn.dev/task-id",
+          value: input.taskId,
+        },
+        ...(input.executionId
+          ? [
+              {
+                system: "https://noah-rn.dev/execution-id",
+                value: input.executionId,
+              },
+            ]
+          : []),
+      ],
+    }),
     status: "current",
     docStatus: "preliminary",
     type: {
@@ -70,7 +103,7 @@ export async function createDraftShiftReport(
       attachment: {
         // Contract specifies text/plain; text/markdown is retained here because the artifact content is markdown-formatted.
         contentType: "text/markdown",
-        title: `shift-report-draft-${Date.now()}`,
+        title: input.taskId ? `shift-report-draft-${input.taskId}-${Date.now()}` : `shift-report-draft-${Date.now()}`,
         data: Buffer.from(input.reportMarkdown, "utf-8").toString("base64"),
       },
     }],
@@ -104,18 +137,6 @@ export const queueDraftMedicationAdministration =
 // and are tagged with "nurse-charted" to distinguish from device-stream observations.
 
 const OBSERVATION_ORIGIN_SYSTEM = "https://noah-rn.dev/observation-origin";
-
-// Mirrors services/sim-harness/src/device-bridge.ts VITAL_LOINC — kept in sync manually.
-const VITAL_LOINC: Record<string, { code: string; display: string; unit: string }> = {
-  hr: { code: "8867-4", display: "Heart rate", unit: "/min" },
-  rr: { code: "9279-1", display: "Respiratory rate", unit: "/min" },
-  spo2: { code: "2708-6", display: "Oxygen saturation in Arterial blood by Pulse oximetry", unit: "%" },
-  etco2: { code: "33437-5", display: "End tidal CO2", unit: "mmHg" },
-  sbp: { code: "8480-6", display: "Systolic blood pressure", unit: "mmHg" },
-  dbp: { code: "8462-4", display: "Diastolic blood pressure", unit: "mmHg" },
-  map: { code: "8478-0", display: "Mean blood pressure", unit: "mmHg" },
-  temp_c: { code: "8310-5", display: "Body temperature", unit: "Cel" },
-};
 
 export interface ChartVitalsInput {
   patientId: string;

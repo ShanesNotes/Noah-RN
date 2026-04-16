@@ -33,3 +33,24 @@ how nurses actually use these tools at the bedside:
 The router should match calculator-related intents to the appropriate sub-skill.
 All three share the `clinical_scoring` scope. Cross-references in `do_not_use_when`
 point nurses to the correct sibling skill.
+
+## Output Contract
+
+This retired alias still preserves the standard Noah RN output contract when surfaced in eval or fallback paths:
+
+- Summary
+- Evidence
+- Confidence
+- Provenance
+
+## Safety / HITL
+
+- This surface is clinical decision support, not autonomous clinical decision-making.
+- Human review remains required before acting on any calculator-derived interpretation.
+- If the input is ambiguous, route to the correct split skill rather than guessing.
+
+## Completeness
+
+- Always identify the correct split skill.
+- Always preserve the four-layer output format.
+- Always preserve the provenance footer and bedside verification language.

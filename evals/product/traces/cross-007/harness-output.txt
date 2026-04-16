@@ -1,0 +1,42 @@
+Summary
+PATIENT (Tier 1 — nurse-reported facts)
+- [Needs patient identifiers from narrative or chart context]
+
+STORY (Tier 2 — nurse narrative preserved)
+- Patient received 1L NS, 500mL D5W, 250mL blood, 100mL vancomycin. Urine output 800mL. Vancomycin 15mg/kg for 80kg patient
+
+ASSESSMENT (Tier 2 — organize from reported narrative)
+- [Assessment details to be organized from the provided narrative]
+
+LINES & ACCESS (Tier 2 — reported bedside details)
+- [Access details not yet extracted from the narrative]
+
+ACTIVE ISSUES & PLAN (Tier 2 — bedside watch items)
+- [Watch items and pending plan items to be derived from the narrative]
+
+HOUSEKEEPING (Tier 2 — bedside input required)
+- [Housekeeping details not provided]
+
+FAMILY (Tier 2 — bedside input required)
+- [Family communication details not provided]
+
+Evidence
+Workflow: io-tracker
+Input mode: clinical_narrative
+Resource access: four-layer-output, disclaimers
+Tool families: io-tracker, trace
+Service surfaces: packages/workflows/
+Narrative context received from bedside input.
+
+Confidence
+- Summary structure: Tier 2 — nurse narrative organized without fabrication.
+- Bedside verification remains required before action.
+
+Provenance
+---
+noah-rn v0.2 | io-tracker v1.1.0 | nurse-reported data
+Clinical decision support — verify against facility protocols and current patient data.
+
+---
+Noah RN — not a substitute for using your noggin. Stay focused.
+Verify all findings against your assessment and facility policies.

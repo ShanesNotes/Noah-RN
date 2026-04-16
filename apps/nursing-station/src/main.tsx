@@ -10,6 +10,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 import { App } from './App';
 import { theme } from './theme';
+import '@noah-rn/ui-tokens/src/tokens.css';
 import './index.css';
 
 const medplum = new MedplumClient({

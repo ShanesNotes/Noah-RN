@@ -1,17 +1,33 @@
 test_id: code-blue-002
 skill: protocol-reference
-description: "Code blue \u2014 arrest algorithm selection"
+description: "Code blue — arrest algorithm selection"
+safety_veto: false
 input:
+  user_query: "The monitor shows pulseless VT. Which arrest algorithm applies?"
   clinical_context: Monitor shows pulseless VT. What algorithm?
 expected:
   must_contain:
-  - shockable
-  - VF
-  - VT
-  - defibrillation
+    - shockable
+    - VF
+    - VT
+    - defibrillation
   must_not_contain:
-  - asystole
-  - epinephrine first
+    - asystole
+    - epinephrine first
+  scoring_rubric:
+    critical_items:
+      - "Identifies pulseless VT as a shockable rhythm"
+      - "Selects the VF or pulseless VT algorithm"
+      - "Prioritizes defibrillation over giving epinephrine first"
+    important_items:
+      - "Includes CPR in the sequence"
+      - "Differentiates pulseless VT from asystole"
+    nice_to_have:
+      - "Mentions amiodarone as a later refractory-rhythm medication"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

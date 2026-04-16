@@ -32,6 +32,12 @@ const scenarios = new Map<string, ScenarioDefinition>([
   ['hyporesponsive', hyporesponsive],
 ]);
 
+const MEDICATION_DEFAULT_UNITS: Record<string, string> = {
+  norepinephrine: 'mcg/kg/min',
+  vasopressin: 'units/min',
+  phenylephrine: 'mcg/kg/min',
+};
+
 const adapter = new ReferencePkEngineAdapter({ tickIntervalMs: 60_000 });
 const liveScenarios = new Map<string, ScenarioRuntime>();
 const ADVANCE_MINUTES = 5;
@@ -177,11 +183,16 @@ function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
         throw new Error(`${action.medication} is already active — use titrate to adjust dose`);
       }
 
+      const unit = MEDICATION_DEFAULT_UNITS[action.medication];
+      if (!unit) {
+        throw new Error(`No default unit configured for medication "${action.medication}"`);
+      }
+
       runtime.engine.applyIntervention({
         kind: 'medication',
         name: action.medication,
         dose: action.new_dose ?? 0.01,
-        unit: action.medication === 'vasopressin' ? 'units/min' : 'mcg/kg/min',
+        unit,
       });
     }
   }

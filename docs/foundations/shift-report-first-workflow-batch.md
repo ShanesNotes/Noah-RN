@@ -82,3 +82,17 @@ What `Shift Report` is allowed to produce in the first loop:
 ## Result
 
 After this batch exists, the repo should be ready for a more granular implementation lane tied directly to `TASKS.md`.
+
+### Status note (2026-04-15)
+
+That granular lane is now actively underway.
+Landed pieces include:
+- shared Shift Report renderer: `packages/agent-harness/shift-report-renderer.mjs`
+- Medplum worker draft body now rendered through the shared contract
+- Pi dry-run bridge now reuses the shared renderer lineage
+- explicit lane-coverage output for:
+  - `ehr/chart`
+  - `memory`
+  - `clinical-resources`
+  - `patient-monitor/simulation`
+- context-planning surfaces now emit renderer-ready lane coverage for future preview/render integration

@@ -5,7 +5,7 @@
 Define the acceptance criteria for the first canonical `Shift Report` loop using `patient-123`.
 
 This is the first implementation-facing artifact for the workflow.
-It should be used to evaluate whether the current scaffold is good enough to promote into a more concrete runtime lane.
+It should be used to evaluate whether the current runtime path is good enough to keep hardening without widening write semantics prematurely.
 
 ## Governing alignment
 
@@ -33,7 +33,8 @@ The path is:
 1. The harness selects `shift-report` for `shift_handoff` when `patient_id` is present.
 2. The bridge readiness check reports `ready`.
 3. The canonical workflow remains `packages/workflows/shift-report/SKILL.md`.
-4. The current bridge/scaffold surfaces are present but not treated as authoritative runtime truth.
+4. Bridge surfaces are present but not treated as authoritative runtime truth.
+5. Routing/context planning surfaces may emit renderer-ready lane coverage, but rendering authority stays in `packages/agent-harness/shift-report-renderer.mjs`.
 
 ### B. Patient-context loading
 
@@ -68,9 +69,11 @@ The path is:
 ### D. Boundary/safety behavior
 
 16. The path remains draft-oriented.
-17. The path does not perform autonomous chart write-back.
+17. The path does not perform autonomous chart write-back beyond the narrow draft `DocumentReference` path.
 18. The path does not fabricate details for missing sections.
 19. If the required input is missing, the path blocks cleanly and reports the missing required-context options.
+20. The rendered draft includes explicit lane coverage for the current runtime path.
+21. The rendered draft includes Evidence / Confidence / Provenance / Disclaimer layers.
 
 ## Current repo evidence
 
@@ -82,16 +85,17 @@ The following current tests already prove parts of this acceptance set:
 - `tests/agents/test_shift_report_runtime_runner.sh`
 - `tests/agents/test_shift_report_dry_run_output.sh`
 
-## Current scaffold-success threshold
+## Current success threshold
 
-The scaffold is acceptable for the next lane when:
+The current runtime lane is acceptable for the next step when:
 
 - all readiness/selection tests pass
 - `patient-123` context loads through the canonical path
-- the renderer emits the seven sections
+- the shared renderer emits the seven sections
 - output remains draft-oriented and gap-explicit
 - lines/access output reflects actual assembled `Device` data when available
 - truncation is surfaced explicitly instead of silently hiding dropped history
+- renderer output includes lane coverage plus Evidence / Confidence / Provenance / Disclaimer layers
 
 It is not yet required that:
 

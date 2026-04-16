@@ -1,0 +1,41 @@
+Summary
+PATIENT (Tier 1 — nurse-reported facts)
+- [Needs patient identifiers from narrative or chart context]
+
+STORY (Tier 2 — nurse narrative preserved)
+- Potassium is 7.2 and the ECG shows peaked T waves. What emergency treatment sequence matters now?
+
+ASSESSMENT (Tier 2 — organize from reported narrative)
+- [Assessment details to be organized from the provided narrative]
+
+LINES & ACCESS (Tier 2 — reported bedside details)
+- [Access details not yet extracted from the narrative]
+
+ACTIVE ISSUES & PLAN (Tier 2 — bedside watch items)
+- [Watch items and pending plan items to be derived from the narrative]
+
+HOUSEKEEPING (Tier 2 — bedside input required)
+- [Housekeeping details not provided]
+
+FAMILY (Tier 2 — bedside input required)
+- [Family communication details not provided]
+
+Evidence
+Workflow: protocol-reference
+Input mode: clinical_narrative
+Resource access: disclaimers, four-layer-output
+Tool families: trace
+Service surfaces: packages/workflows/
+User context seed: Potassium is 7.2 and the ECG shows peaked T waves. What emergency treatment sequence matters now?
+
+Confidence
+- Summary structure: Tier 2 — nurse narrative organized without fabrication.
+- Facility-specific details remain Tier 3 — per facility protocol.
+
+---
+noah-rn v0.2 | protocol-reference v1.1.0 | nurse-reported data
+Clinical decision support — verify against facility protocols and current patient data.
+
+---
+Noah RN — I organize, you validate. Your assessment > my output.
+Verify all findings against your assessment and facility policies.

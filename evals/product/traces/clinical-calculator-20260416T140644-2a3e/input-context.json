@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:06:44Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient with suspected infection: RR 22, SBP 100, GCS 14, NEWS2 score 4",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

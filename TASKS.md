@@ -12,6 +12,18 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Treat `Task -> clinical-mcp -> agent-harness -> shift-report -> DocumentReference` as the active forcing path.
    - Keep write semantics narrow and explicit while `services/clinical-mcp/src/fhir/writes.ts` remains scaffold-only.
    - Use the current operator path under `infrastructure/medplum/` as the proof surface.
+   - Landed 2026-04-15:
+     - shared Shift Report renderer in `packages/agent-harness/shift-report-renderer.mjs`
+     - worker draft body now uses the shared renderer instead of raw JSON
+     - renderer now exposes explicit lane coverage, bounded evidence, provider-note/lines-access coverage, and bounded trigger suggestions
+     - Pi router/context tools now emit `renderer_lane_coverage`
+   - Landed in `apps/nursing-station/` so far:
+     - task-driven draft review detail
+     - nurse attestation/finalization path
+     - explicit review-vs-acknowledge state model
+     - results review panel
+     - trend-first vitals/labs
+   - Next slice: implement `MAR-lite`.
 
 4. **Keep Medplum primary and the dashboard narrow**
    - Keep `apps/nursing-station/` as the main clinician-facing patient/task surface.
@@ -22,22 +34,42 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Confirm the smallest viable patient context bundle.
    - Keep `patient-123` or one equivalent path as the bounded proof target.
    - Extend context/resources only when that path needs them.
+   - Current bounded path: queue -> patient review pane -> draft artifact review.
+
+6. **Re-indexing & control-doc refresh pass** — *in progress 2026-04-15*
+   - Top-down sweep: reconcile control documents against current filesystem.
+   - Fix `.mcp.json` cwd to `services/clinical-mcp/` (done 2026-04-15).
+   - Verify disabled artifacts (`AGENTS.md.disabled-*`, `.pi.disabled-*`) — content is unique, deferred decision.
+   - Refresh `wiki/` via `/wiki` ingest pass (Ingest #35 backlog).
+   - Rebuild `graphify-out/` via `/graphify`.
 
 ## Next
 
-5. **Implement the minimal `pi.dev` harness foundation inside the new layout**
+7. **Implement the minimal `pi.dev` harness foundation inside the new layout**
    - Use `.pi/` as the project-level pi.dev bridge surface.
    - Consume the registry + contract + selection structures before adding new runtime layers.
    - Keep `packages/workflows/` authoritative until a promotion decision is explicitly recorded.
+   - Landed bridge pieces so far:
+     - `noah-router`
+     - `medplum-context`
+     - `noah-context`
+     - `noah-clinical-tools`
+     - `noah-guardrails`
+   - Next harness slice: let preview/dry-run surfaces consume the same renderer-input contract used by the worker.
 
-6. **Memory architecture spec**
+8. **Promote the next bedside workflow surface after review/trend**
+   - `MAR-lite` is the next sequenced clinician-workspace lane.
+   - Keep it task/review/provenance aligned rather than building a separate medication app.
+   - Preserve worklist-first entry and patient-context continuity.
+
+9. **Memory architecture spec**
    - Longitudinal patient H&P.
    - Present encounter mutable Markdown/canvas.
    - Provider session memory.
    - Provider persistent memory.
    - Task-local agent memory.
 
-7. **Clinical resources catalog plan**
+10. **Clinical resources catalog plan**
    - Guidelines and protocols.
    - Joint Commission as institution-policy stand-in where useful.
    - AHA and other established references.
@@ -45,12 +77,12 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Publication/update source strategy.
    - Lexicomp-like agent-centric drug reference path.
 
-8. **Meta-harness observability plan**
+11. **Meta-harness observability plan**
    - Define what every workflow invocation should log under `evals/`.
    - Decide minimum metrics for quality, safety, cost, and latency.
    - Connect evaluation traces to future eval harness work.
 
-9. ~~**Land the Clinical Simulation Harness runtime only when needed**~~ — **Runtime landed 2026-04-14.**
+12. ~~**Land the Clinical Simulation Harness runtime only when needed**~~ — **Runtime landed 2026-04-14.**
    - Layers 1–4 implemented: SimulationClock, Scenario Director, WaveformGeneration, DeviceBridge.
    - Two rhythm templates (NSR, VTach), two scenarios (baseline, tension pneumothorax).
    - DeviceBridge writes device-stream Observations to Medplum on cadence.
@@ -59,17 +91,17 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
 
 ## Later
 
-11. **Research organization pass**
-   - Lightly organize and lint `research/` without damaging source value.
-   - Distill durable findings into `PLAN.md` or focused docs.
+13. **Research organization pass**
+    - Lightly organize and lint `research/` without damaging source value.
+    - Distill durable findings into `PLAN.md` or focused docs.
 
-12. **GitHub cleanup pass**
-   - Clean issues, labels, projects, and repo-facing metadata after local docs stabilize.
-   - Keep `wiki/` out of this path unless explicitly requested.
+14. **GitHub cleanup pass**
+    - Clean issues, labels, projects, and repo-facing metadata after local docs stabilize.
+    - Keep `wiki/` out of this path unless explicitly requested.
 
-13. **Runtime component evaluation**
-   - Consider NemoClaw/OpenClaw components only when a specific `pi.dev` limitation appears.
-   - Record any adoption decision as an ADR before implementation.
+15. **Runtime component evaluation**
+    - Consider NemoClaw/OpenClaw components only when a specific `pi.dev` limitation appears.
+    - Record any adoption decision as an ADR before implementation.
 
 ## Working Rules
 

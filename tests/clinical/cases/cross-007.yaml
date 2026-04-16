@@ -1,32 +1,34 @@
 test_id: cross-007
 skill: io-tracker
-description: "I&O with drug conversion cross-skill"
+description: I&O with drug conversion cross-skill
 input:
-  user_query: "Patient received 1L NS, 500mL D5W, 250mL blood, 100mL vancomycin. Urine output 800mL. Vancomycin 15mg/kg for 80kg patient"
+  user_query: Patient received 1L NS, 500mL D5W, 250mL blood, 100mL vancomycin. Urine output 800mL. Vancomycin 15mg/kg for 80kg patient
   clinical_context: I&O tracking with concurrent dose calculation
 expected:
   must_contain:
-    - "intake"
-    - "output"
-    - "balance"
-    - "vancomycin"
+  - intake
+  - output
+  - balance
+  - vancomycin
   must_not_contain:
-    - "negative balance"
+  - negative balance
   scoring_rubric:
     critical:
-      - "Correct total intake calculation (1850 mL)"
-      - "Correct balance calculation (1850 - 800 = +1050)"
+    - Correct total intake calculation (1850 mL)
+    - Correct balance calculation (1850 - 800 = +1050)
     important:
-      - "Identifies vancomycin dose (15 mg/kg x 80 kg = 1200 mg)"
-      - "Categorizes fluids correctly (crystalloid vs colloid vs medication)"
+    - Identifies vancomycin dose (15 mg/kg x 80 kg = 1200 mg)
+    - Categorizes fluids correctly (crystalloid vs colloid vs medication)
     nice_to_have:
-      - "Flags positive fluid balance"
-      - "Notes vancomycin concentration/dilution"
+    - Flags positive fluid balance
+    - Notes vancomycin concentration/dilution
   expected_routing:
     primary: io-tracker
     secondary: unit-conversion
     cross_skill_triggers:
-      - "Drug dose in I&O → unit-conversion (dose verification)"
+    - Drug dose in I&O → unit-conversion (dose verification)
+    primary_skill: io-tracker
+    secondary_skills: []
   confidence:
     minimum_overall: 0.8
   provenance:

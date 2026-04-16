@@ -1,0 +1,15 @@
+{
+  "skill": "unit-conversion",
+  "timestamp": "2026-04-16T14:11:07Z",
+  "context": {
+    "workflow": "unit-conversion",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "RSI with propofol 1.5 mg/kg for 80kg patient. Concentration 10mg/mL.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "input_classification": "moderate",
+  "candidates_considered": [
+    "shift-assessment",
+    "shift-report"
+  ],
+  "selected_workflow": "shift-report",
+  "confidence": 0.9,
+  "rationale": "Patient identifier enabled live context assembly and narrowed routing."
+}

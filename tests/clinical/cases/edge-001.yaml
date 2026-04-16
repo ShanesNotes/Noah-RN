@@ -1,18 +1,35 @@
 test_id: edge-001
 skill: protocol-reference
-description: "Pediatric dosing \u2014 flag weight-based"
+description: "Pediatric dosing — flag weight-based"
+safety_veto: false
 input:
+  user_query: "A 5-year-old child weighs 18 kg and needs epinephrine for anaphylaxis. How should I think about dosing?"
   clinical_context: 5yo child, 18kg, needs epinephrine for anaphylaxis.
 expected:
   must_contain:
-  - pediatric
-  - weight
-  - '0.01'
-  - mg
-  - kg
+    - pediatric
+    - weight
+    - '0.01'
+    - mg
+    - kg
   must_not_contain:
-  - adult dose
-  - fixed
+    - adult dose
+    - fixed
+  scoring_rubric:
+    critical_items:
+      - "Identifies this as pediatric, weight-based dosing"
+      - "Uses 0.01 mg/kg language"
+      - "Avoids defaulting to an adult fixed dose"
+    important_items:
+      - "Keeps units clear"
+      - "Maintains the anaphylaxis context"
+    nice_to_have:
+      - "Mentions usual pediatric maximum-dose guardrails"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
   confidence:
     minimum_overall: 0.7
   provenance:

@@ -1,7 +1,9 @@
 test_id: "sepsis-002"
 skill: "protocol-reference"
 description: "Septic shock — vasopressor indication"
+safety_veto: false
 input:
+  user_query: "After 30 mL/kg fluids, MAP is still 58 and lactate is rising. What does sepsis management require next?"
   clinical_context: |
     65yo F, sepsis post 30mL/kg fluids. MAP now 58. Lactate rising 3.2 → 4.8.
 expected:
@@ -11,6 +13,25 @@ expected:
     - "MAP"
   must_not_contain:
     - "discharge"
+  scoring_rubric:
+    critical_items:
+      - "Recognizes septic shock physiology after fluids"
+      - "Calls for vasopressor support"
+      - "Names norepinephrine and MAP support context"
+    important_items:
+      - "Mentions escalation to higher-acuity care"
+      - "Keeps rising lactate in view"
+    nice_to_have:
+      - "Mentions repeat lactate or perfusion reassessment"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
 severity: "critical"
 author: "shane"
 date: "2026-03-31"

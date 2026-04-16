@@ -1,0 +1,87 @@
+# .noah-pi-runtime/skills/shift-assessment/dependencies.yaml
+#
+# Declarative dependency manifest for the shift-assessment workflow.
+# This is Pi-native wiring metadata layered on top of the authoritative
+# workflow contract in packages/workflows/shift-assessment/SKILL.md.
+
+skill: shift-assessment
+version: "1.0.0"
+complexity_tier: complex
+
+# --- Input modes -----------------------------------------------------------
+input_modes:
+  clinical_narrative:
+    extension: none
+    then: invoke_skill_directly
+    description: >-
+      Nurse provides bedside narrative, shorthand, or partial assessment notes.
+      The workflow structures only what is present and identifies missing systems.
+  missing:
+    action: request_required_context
+    prompt: "Give me your bedside narrative and I will organize it into a systems assessment."
+
+# --- Extensions -------------------------------------------------------------
+extensions:
+  noah-clinical-tools:
+    required: true
+    provides:
+      - tool_family: trace
+        purpose: "Invocation tracing — init → input → output → hooks → done"
+
+# --- Context sources --------------------------------------------------------
+context_sources:
+  - name: ehr
+    path: services/clinical-mcp/
+    purpose: "Structured chart context when the assessment is grounded in EHR data"
+  - name: memory
+    path: docs/foundations/memory-layer-scaffold.md
+    purpose: "Encounter/session continuity context when memory injection is available"
+  - name: clinical-resources
+    path: clinical-resources/
+    purpose: "Reference templates and provenance-aware bedside resources"
+  - name: patient-monitor
+    path: services/sim-harness/
+    purpose: "Live monitor and simulated patient state when the assessment runs against the simulation substrate"
+
+# --- Knowledge assets -------------------------------------------------------
+knowledge_assets:
+  - name: cross-skill-triggers
+    path: clinical-resources/templates/cross-skill-triggers.md
+    purpose: "Post-output workflow suggestions when the assessment implies another skill"
+  - name: four-layer-output
+    path: clinical-resources/templates/four-layer-output.md
+    purpose: "Reference output structure and provenance layering"
+  - name: disclaimers
+    path: clinical-resources/templates/disclaimers.md
+    purpose: "Single disclaimer footer when required by conventions"
+
+# --- Service surfaces -------------------------------------------------------
+services: []
+
+# --- Shared conventions -----------------------------------------------------
+conventions:
+  path: packages/workflows/CONVENTIONS.md
+  covers:
+    - trace_logging
+    - confidence_tiers
+    - universal_rules
+    - disclaimers
+    - provenance_footer
+    - cross_skill_suggestions
+    - acuity_convention
+
+# --- Router integration -----------------------------------------------------
+router:
+  scope: nursing_assessment
+  trigger_phrases:
+    - "assess my patient"
+    - "organize my assessment"
+    - "shift assessment"
+    - "head to toe"
+    - "head-to-toe"
+    - "systems assessment"
+    - "structure my notes"
+    - "nursing assessment"
+  intent: systems_assessment
+  complexity: complex
+  hitl_category: "II"

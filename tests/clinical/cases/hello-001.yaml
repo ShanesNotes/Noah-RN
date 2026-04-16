@@ -3,6 +3,7 @@ skill: hello-nurse
 description: General clinical question
 input:
   clinical_context: What is the normal range for serum potassium?
+  user_query: What is the normal range for serum potassium?
 expected:
   must_contain:
   - potassium
@@ -15,6 +16,19 @@ expected:
     minimum_overall: 0.5
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - potassium
+    - '3.5'
+    - '5.0'
+    - mEq
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: hello-nurse
+    secondary_skills: []
 severity: low
 author: shane
 date: '2026-03-31'
+safety_veto: false

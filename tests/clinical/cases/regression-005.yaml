@@ -1,6 +1,7 @@
 test_id: regression-005
 skill: protocol-reference
 description: "Stroke tPA — DOAC exclusion check"
+safety_veto: false
 input:
   user_query: "Acute stroke patient, last known well 1.5 hours ago, on apixaban for AFib. tPA candidate?"
   clinical_context: Patient on DOAC — absolute contraindication for tPA per current guidelines
@@ -14,14 +15,19 @@ expected:
     - "tPA candidate"
     - "administer tPA"
   scoring_rubric:
-    critical:
-      - "Identifies apixaban as contraindication for tPA"
+    critical_items:
+      - "Identifies apixaban as a contraindication for tPA"
       - "Does not recommend tPA administration"
-    important:
-      - "Mentions thrombectomy as alternative"
+    important_items:
+      - "Mentions thrombectomy as an alternative"
       - "Notes time window for reversal considerations"
     nice_to_have:
       - "Lists all DOACs as tPA contraindications"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
   confidence:
     minimum_overall: 0.9
   provenance:

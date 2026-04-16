@@ -1,9 +1,9 @@
 test_id: stroke-003
 skill: protocol-reference
-description: "Stroke mimics \u2014 hypoglycemia check"
+description: Stroke mimics — hypoglycemia check
 input:
-  clinical_context: Patient with acute right-sided weakness. Blood glucose not yet
-    checked.
+  clinical_context: Patient with acute right-sided weakness. Blood glucose not yet checked.
+  user_query: Patient with acute right-sided weakness. Blood glucose not yet checked.
 expected:
   must_contain:
   - glucose
@@ -16,6 +16,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - glucose
+    - hypoglycemia
+    - mimic
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

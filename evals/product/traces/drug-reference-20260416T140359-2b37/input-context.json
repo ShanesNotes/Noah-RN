@@ -1,0 +1,15 @@
+{
+  "skill": "drug-reference",
+  "timestamp": "2026-04-16T14:03:59Z",
+  "context": {
+    "workflow": "drug-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Vancomycin dose for 80kg patient, CrCl 25 mL/min, MRSA pneumonia.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

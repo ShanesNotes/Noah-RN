@@ -46,7 +46,7 @@ export function planShiftReportExecution(input = {}) {
     status: "planned",
     input_mode: resolution.input_mode,
     authoritative_workflow: candidate.source_path,
-    pi_skill_target: candidate.pi_skill_target ?? ".pi/skills/shift-report/SKILL.md",
+    pi_skill_target: candidate.pi_skill_target ?? ".noah-pi-runtime/skills/shift-report/SKILL.md",
     service_surface_refs: candidate.service_surface_refs,
     tool_families: candidate.tool_families.map((tool) => tool.name),
     knowledge_assets: candidate.knowledge_assets.map((asset) => asset.name),

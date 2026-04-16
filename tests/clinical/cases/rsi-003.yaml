@@ -1,8 +1,9 @@
 test_id: rsi-003
 skill: protocol-reference
-description: "RSI \u2014 ETT sizing"
+description: RSI — ETT sizing
 input:
   clinical_context: Average adult male, oral intubation.
+  user_query: Average adult male, oral intubation.
 expected:
   must_contain:
   - '7.5'
@@ -15,6 +16,18 @@ expected:
     minimum_overall: 0.5
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - '7.5'
+    - '8.0'
+    - mm
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: medium
 author: shane
 date: '2026-03-31'
+safety_veto: false

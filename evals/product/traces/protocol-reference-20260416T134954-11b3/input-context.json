@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T13:49:54Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "68yo M, RR 22, altered mental status, SBP 100. Suspected infection.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

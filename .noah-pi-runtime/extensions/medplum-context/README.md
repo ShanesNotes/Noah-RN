@@ -1,15 +1,22 @@
-# `medplum-context` Extension Stub
+# `medplum-context`
 
-Planned responsibility:
-- expose patient-context and Medplum/FHIR integration to pi.dev workflows
+Responsibility:
+- expose Noah RN patient-context and FHIR integration to Pi-native workflows
 
-Likely source surfaces:
-- `services/clinical-mcp/` — agent-facing context boundary (owns patient-context assembly; no longer owns L0 physiology or scenarios as of 2026-04-13)
+Current capabilities:
+- `noah_get_patient_context` — loads the assembled patient timeline from `services/clinical-mcp/`
+- `noah_inspect_patient_context` — surfaces record counts, gaps, and token estimate
+- `noah_list_patients` — lists available patients from the FHIR boundary
+- `set_active_patient` / `get_active_patient` — session-scoped patient pinning
+- `/patient <id|show|clear>` — interactive patient context control
+- `before_agent_start` hook — reminds the agent about the active patient without silently overriding explicit user input
+
+Primary sources of truth:
+- `services/clinical-mcp/`
 - `clinical-resources/mimic-mappings.json`
-- `apps/nursing-station/` — Medplum-first clinician workspace (primary surface)
+- `apps/nursing-station/`
 
-First target:
-- support the Shift Report workflow's patient-context path (FHIR-queued `Task(status=requested)` → Noah runtime executes → draft `DocumentReference(status=current, docStatus=preliminary)` → `Task.output` links artifact, per Decision 2026-04-12)
-
-Scaffold bridge:
-- `describe-patient-context-bridge.mjs`
+Rule:
+- this extension wraps the clinical-mcp boundary
+- it does not duplicate or redesign FHIR access
+- it represents only one context lane in Noah RN; memory, clinical resources, and monitor/simulation context remain separate inputs to the harness

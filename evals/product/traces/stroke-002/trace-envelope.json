@@ -1,0 +1,115 @@
+{
+  "trace_id": "stroke-002",
+  "skill": "protocol-reference",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T14:12:09Z",
+  "tags": {
+    "phi_risk": "none",
+    "token_spend": {
+      "provider": "openrouter",
+      "model": "gpt-4o-mini",
+      "dry_run": true,
+      "input_tokens": 1638,
+      "output_tokens": 449,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0
+    },
+    "latency": {
+      "total_ms": 887,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "pass",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "Patient has acute stroke symptoms but is taking apixaban. How does that affect tPA eligibility?",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 0,
+    "knowledge_assets_selected": [
+      "disclaimers",
+      "four-layer-output"
+    ],
+    "compression_strategy": "narrative-only",
+    "gap_markers": [],
+    "fhir_queries_fired": 0
+  },
+  "routing_decision": {
+    "input_classification": "simple",
+    "candidates_considered": [
+      "hello-nurse",
+      "protocol-reference",
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "protocol-reference",
+    "confidence": 0.84,
+    "rationale": "Narrative-only input matched the requested workflow directly."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "pass",
+      "detail": "Context ratio 0 is within the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": {
+    "case_id": "stroke-002",
+    "test_id": "stroke-002",
+    "skill": "protocol-reference",
+    "severity": "critical",
+    "status": "pass",
+    "failure_bucket": "pass",
+    "safety_veto_case": false,
+    "expected_confidence_tier": 1,
+    "clinical_correctness": 0.3333,
+    "completeness": 0.2143,
+    "confidence_calibration": 0.6667,
+    "format_compliance": 1.0,
+    "provenance_accuracy": 0.0,
+    "omission_detection": 0.3333,
+    "weighted_score": 0.5095,
+    "stated_confidence": 0.0,
+    "critical_missing": [
+      "States that the DOAC exposure is a tPA contraindication or exclusion here",
+      "Avoids describing the patient as tPA eligible"
+    ],
+    "prohibited_hits": [],
+    "constraint_violations": []
+  },
+  "raw": {
+    "input": {
+      "skill": "protocol-reference",
+      "timestamp": "2026-04-16T14:12:09Z",
+      "context": {
+        "workflow": "protocol-reference",
+        "input_mode": "clinical_narrative",
+        "patient_id": null,
+        "available_context": [
+          "clinical_narrative"
+        ],
+        "raw_input": "Patient has acute stroke symptoms but is taking apixaban. How does that affect tPA eligibility?",
+        "context_assembled": false,
+        "phi_risk": "none"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "protocol-reference",
+      "input_mode": "clinical_narrative",
+      "context_assembled": false,
+      "service_surface_refs": [],
+      "downstream_system": null,
+      "veto_triggered": false
+    }
+  }
+}

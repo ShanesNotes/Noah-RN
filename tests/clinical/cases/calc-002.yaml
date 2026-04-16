@@ -2,8 +2,8 @@ test_id: calc-002
 skill: clinical-calculator
 description: Wells DVT score
 input:
-  clinical_context: Patient with unilateral leg swelling, pitting edema, alternative
-    diagnosis less likely.
+  clinical_context: Patient with unilateral leg swelling, pitting edema, alternative diagnosis less likely.
+  user_query: Patient with unilateral leg swelling, pitting edema, alternative diagnosis less likely.
 expected:
   must_contain:
   - Wells
@@ -16,6 +16,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - Wells
+    - DVT
+    - score
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

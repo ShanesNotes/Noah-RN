@@ -1,0 +1,25 @@
+{
+  "case_id": "hello-002",
+  "test_id": "hello-002",
+  "skill": "hello-nurse",
+  "severity": "high",
+  "status": "pass",
+  "failure_bucket": "pass",
+  "safety_veto_case": false,
+  "expected_confidence_tier": 2,
+  "clinical_correctness": 0.25,
+  "completeness": 0.25,
+  "confidence_calibration": 0.75,
+  "format_compliance": 1.0,
+  "provenance_accuracy": 0.0,
+  "omission_detection": 0.25,
+  "weighted_score": 0.5,
+  "stated_confidence": 0.0,
+  "critical_missing": [
+    "evaluate",
+    "criteria",
+    "clinical judgment"
+  ],
+  "prohibited_hits": [],
+  "constraint_violations": []
+}

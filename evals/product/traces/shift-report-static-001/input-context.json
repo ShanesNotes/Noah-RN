@@ -1,6 +1,6 @@
 {
   "skill": "shift-report",
-  "timestamp": "2026-04-12T17:17:51Z",
+  "timestamp": "2026-04-16T14:12:07Z",
   "context": {
     "workflow": "shift-report",
     "input_mode": "patient_id",
@@ -10,6 +10,7 @@
       "patient_id"
     ],
     "raw_input": "patient_id: patient-123",
-    "context_assembled": true
+    "context_assembled": true,
+    "phi_risk": "de-identified"
   }
 }

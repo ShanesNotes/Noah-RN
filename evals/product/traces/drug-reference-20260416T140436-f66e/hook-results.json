@@ -1,0 +1,11 @@
+{
+  "hooks_fired": [
+    "trace-only"
+  ],
+  "workflow": "drug-reference",
+  "input_mode": "clinical_narrative",
+  "context_assembled": false,
+  "service_surface_refs": [],
+  "downstream_system": null,
+  "veto_triggered": false
+}

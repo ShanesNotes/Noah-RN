@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T03:58:56Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient under anesthesia has rising ETCO2, temperature 40°C, and rigidity. What treatment matters now?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

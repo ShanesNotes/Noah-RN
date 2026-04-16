@@ -8,17 +8,18 @@ Repo note: the host-side source directory is `.noah-pi-runtime/`. It mounts into
 
 | Source | Pi Surface | Status |
 |---|---|---|
-| `packages/workflows/*/SKILL.md` | `.pi/skills/<name>/SKILL.md` | 9 promoted, 1 remaining |
-| `packages/agent-harness/router/clinical-router.md` | `.pi/extensions/noah-router/` | extension stubs exist |
-| `tools/safety-hooks/` | `.pi/extensions/noah-clinical-tools/` | extension stubs exist |
-| `services/clinical-mcp/` | `.pi/extensions/medplum-context/` | extension stubs exist |
-| `clinical-resources/` | referenced by skill dependencies.yaml | direct reference, no migration needed |
+| `packages/workflows/*/SKILL.md` | runtime reads directly from `packages/workflows/` | authoritative |
+| `packages/workflows/*/dependencies.yaml` | consumed by router + runtime guidance | all active workflows covered |
+| `packages/agent-harness/router/clinical-router.md` | `.pi/extensions/noah-router/` | implemented bridge |
+| `tools/` deterministic tools | `.pi/extensions/noah-clinical-tools/` | implemented bridge |
+| `services/clinical-mcp/` | `.pi/extensions/medplum-context/` | implemented bridge |
+| `clinical-resources/` | referenced by dependency manifests | direct reference, no migration needed |
 
 ## Content Sync Rule
 
-- `packages/workflows/` is authoritative for clinical content
-- `.noah-pi-runtime/skills/` is authoritative for Pi-native wiring in the repo (runtime path: `.pi/skills/`)
-- Change clinical content in `packages/workflows/` first, then sync to `.noah-pi-runtime/skills/`
+- `packages/workflows/` is authoritative for clinical content and workflow dependency manifests
+- `.noah-pi-runtime/` is authoritative for Pi bridge wiring only (extensions, system prompt, prompts, docs)
+- Do not mirror clinical workflow contracts into `.noah-pi-runtime/skills/`
 
 ## Promoted Skills
 
@@ -26,9 +27,7 @@ See `skills/MIGRATION-MAP.md` for the full promotion log.
 
 ## Remaining
 
-| Skill | Notes |
-|---|---|
-| shift-assessment | complex narrative synthesis |
+No active workflow remains without a dependency manifest.
 
 ## Exceptions
 

@@ -26,18 +26,20 @@ The first runtime path should be read as:
    - resolve `patient_id` when needed
    - assemble patient-context bundle
 
-3. **Workflow contract**
+3. **Workflow contract + shared renderer**
    - `packages/workflows/shift-report/`
-   - render the seven-section handoff structure
+   - `packages/agent-harness/shift-report-renderer.mjs`
+   - render the seven-section handoff structure plus Evidence / Confidence / Provenance / Disclaimer layers
 
 4. **Clinical resources**
    - `clinical-resources/`
    - provide any referenced templates / trigger guidance needed by the workflow
 
 5. **Output surface**
-   - draft handoff artifact
+   - draft handoff artifact via `services/clinical-mcp/src/worker/shift-report-worker.ts`
    - sidecar rendering or dry-run surface if needed
-   - no automatic Medplum write-back
+   - Pi dry-run bridge should consume the same renderer lineage
+   - no automatic Medplum write-back beyond the narrow draft `DocumentReference` path
 
 ## Authority rule
 
@@ -61,6 +63,8 @@ One realistic bedside request should move through this path cleanly and produce:
 - a bounded handoff draft
 - explicit gaps where data is missing
 - preserved provenance and limitations
+- explicit lane coverage for the current runtime path
+- a shared renderer contract reused across harness, worker, and dry-run bridge
 
 ## References
 

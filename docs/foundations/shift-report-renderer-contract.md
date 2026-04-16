@@ -15,16 +15,21 @@ It is the contract for what the first renderer is expected to emit.
 
 ## Current renderer posture
 
-The current bridge scaffold already produces a sectioned dry-run artifact through:
+The active shared renderer surface now lives at:
+- `packages/agent-harness/shift-report-renderer.mjs`
+
+It is currently reused by:
+- `packages/agent-harness/invoke-workflow.mjs`
+- `services/clinical-mcp/src/worker/shift-report-worker.ts`
 - `.noah-pi-runtime/extensions/noah-router/build-shift-report-dry-run-output.mjs`
 
-That renderer is useful as a scaffold because it already proves:
+The older dry-run scaffold remains useful because it helped prove:
 - section ordering
 - input-mode split
 - gap placeholders
 - workflow-boundary preservation
 
-But it is not yet the canonical output contract.
+But the shared renderer module is now the implementation anchor for the first real renderer contract.
 
 ## Contract
 
@@ -35,6 +40,8 @@ The first renderer contract should preserve:
 - copy-paste-ready text output
 - nurse-facing draft framing
 - explicit placeholders or gaps where context is missing
+- explicit Evidence + Confidence + Provenance + Disclaimer layers
+- explicit context-lane coverage in Noah RN terms
 
 ### Required sections
 
@@ -64,6 +71,13 @@ Renderer should:
 - render `LINES & ACCESS` from `Device` timeline entries when present
 - render `timing unknown` rather than inventing recency for untimed devices
 - surface context-budget truncation explicitly when older entries were dropped
+- surface bounded Evidence lines for key available facts (e.g. latest HR / MAP / lactate / SpO2 when present)
+- surface bounded cross-skill suggestions when trigger conditions are clearly present
+- surface renderer lane coverage using the stable Noah RN lane vocabulary:
+  - `ehr/chart`
+  - `memory`
+  - `clinical-resources`
+  - `patient-monitor/simulation`
 
 ## Non-goals
 
@@ -75,12 +89,20 @@ The first renderer should not:
 
 ## Current scaffold limitations
 
-The current renderer now uses real assembled data for:
+The current shared renderer now uses real assembled data for:
 - `PATIENT`
 - `STORY`
 - `ASSESSMENT`
 - `LINES & ACCESS`
 - `ACTIVE ISSUES & PLAN`
+
+It also now emits:
+- Evidence layer
+- Confidence layer
+- provenance footer
+- disclaimer
+- bounded trigger suggestions
+- lane coverage block
 
 Remaining sections may still contain bounded placeholders where bedside-only detail is unavailable.
 That is acceptable for the current scaffold state as long as the placeholders remain explicit.
@@ -95,7 +117,9 @@ The first renderer is good enough when:
 
 ## Current implementation anchor
 
-- `.noah-pi-runtime/extensions/noah-router/build-shift-report-dry-run-output.mjs`
+- `packages/agent-harness/shift-report-renderer.mjs`
+- `.noah-pi-runtime/extensions/noah-router/build-shift-report-dry-run-output.mjs` (bridge consumer)
+- `services/clinical-mcp/src/worker/shift-report-worker.ts` (draft artifact consumer)
 
 ## References
 

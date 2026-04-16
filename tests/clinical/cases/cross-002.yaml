@@ -1,17 +1,34 @@
 test_id: cross-002
 skill: protocol-reference
-description: "Stroke + drug reference \u2014 tPA + DOAC interaction"
+description: "Stroke + drug reference — tPA + DOAC interaction"
+safety_veto: false
 input:
+  user_query: "Stroke patient is on rivaroxaban and still within the tPA window. How does that affect treatment?"
   clinical_context: Stroke patient on rivaroxaban, within tPA window.
 expected:
   must_contain:
-  - rivaroxaban
-  - DOAC
-  - contraindication
-  - exclude
+    - rivaroxaban
+    - DOAC
+    - contraindication
+    - exclude
   must_not_contain:
-  - tPA
-  - administer
+    - tPA
+    - administer
+  scoring_rubric:
+    critical_items:
+      - "Identifies rivaroxaban as a DOAC"
+      - "States that the DOAC exposure is a contraindication or exclusion for tPA in this scenario"
+      - "Avoids recommending tPA administration"
+    important_items:
+      - "Suggests stroke-team escalation or alternate reperfusion evaluation"
+      - "Keeps the answer specific to the anticoagulant interaction"
+    nice_to_have:
+      - "Mentions thrombectomy evaluation if otherwise appropriate"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
   confidence:
     minimum_overall: 0.7
   provenance:

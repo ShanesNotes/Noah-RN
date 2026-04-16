@@ -1,17 +1,33 @@
 test_id: drug-003
 skill: drug-reference
 description: Norepinephrine titration
+safety_veto: false
 input:
+  user_query: "Patient is on norepinephrine 0.05 mcg/kg/min and MAP is still 55. What should I do next?"
   clinical_context: Norepinephrine started at 0.05 mcg/kg/min. MAP still 55.
 expected:
   must_contain:
-  - norepinephrine
-  - titrate
-  - MAP
-  - '65'
+    - norepinephrine
+    - titrate
+    - MAP
+    - '65'
   must_not_contain:
-  - decrease
-  - stop
+    - decrease
+    - stop
+  scoring_rubric:
+    critical_items:
+      - "Recommends titrating norepinephrine rather than decreasing or stopping it"
+      - "Uses MAP 65 as the target context"
+      - "Keeps the answer specific to norepinephrine support"
+    important_items:
+      - "Mentions hemodynamic monitoring while titrating"
+      - "Mentions reassessment of perfusion or volume status"
+    nice_to_have:
+      - "Mentions vasopressor administration safety considerations"
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

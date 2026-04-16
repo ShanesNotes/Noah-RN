@@ -1,15 +1,32 @@
 test_id: rsi-002
 skill: protocol-reference
-description: "RSI \u2014 paralytic selection"
+description: "RSI — paralytic selection"
+safety_veto: false
 input:
+  user_query: "Patient needs RSI and the potassium is 6.2. Which paralytic should I use or avoid?"
   clinical_context: RSI for patient with hyperkalemia (K 6.2).
 expected:
   must_contain:
-  - rocuronium
-  - avoid
-  - succinylcholine
+    - rocuronium
+    - avoid
+    - succinylcholine
   must_not_contain:
-  - succinylcholine
+    - succinylcholine
+  scoring_rubric:
+    critical_items:
+      - "Recommends rocuronium as the safer paralytic option in hyperkalemia"
+      - "Explicitly avoids succinylcholine"
+      - "Links the avoidance to hyperkalemia risk"
+    important_items:
+      - "Keeps the answer in RSI medication-selection context"
+      - "Uses clear airway-emergency language"
+    nice_to_have:
+      - "Mentions preparing the rest of the RSI setup"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
   confidence:
     minimum_overall: 0.7
   provenance:

@@ -1,27 +1,20 @@
-# `noah-router` Extension Stub
+# `noah-router`
 
-Planned responsibility:
-- project-level routing and dispatch behavior for Noah RN clinical workflows
+Responsibility:
+- project-level routing and dependency inspection for Noah RN workflows
 
-Expected inputs:
-- workflow contract metadata from `packages/workflows/`
-- active patient context from `medplum-context`
-- control/routing guidance from `packages/agent-harness/router/clinical-router.md`
+Current capabilities:
+- `resolve_noah_request` tool — matches bedside requests to likely workflow skills using workflow dependency manifests plus harness routing metadata
+- `resolve_noah_request` now also returns context planning output including `renderer_lane_coverage`
+- `describe_noah_skill_dependencies` tool — summarizes `packages/workflows/*/dependencies.yaml`
+- `/route <request>` command — quick interactive routing helper
+- `before_agent_start` hook — injects likely workflow/dependency hints into the turn so the agent reads both `SKILL.md` and `dependencies.yaml`
 
-Expected output:
-- route a request toward the correct workflow skill or clarification path
-
-Current source-of-truth:
+Primary sources of truth:
 - `packages/agent-harness/router/clinical-router.md`
-- `describe-shift-report-bridge.mjs` for the first scaffold bridge report
-- `describe-shift-report-runtime-contract.mjs` for the first combined bridge contract
-- `resolve-shift-report-request.mjs` for minimal input-mode-aware bridge resolution
-- `plan-shift-report-execution.mjs` for a non-invasive execution-plan bridge layer
-- `evaluate-shift-report-bridge-readiness.mjs` for a filesystem-backed readiness check
-- `build-shift-report-invocation-payload.mjs` for a dry-run handoff payload
-- `describe-shift-report-bridge-stack.mjs` for an integrated view of the full scaffold chain
-- `run-shift-report-bridge.mjs` for a minimal runtime-aware bridge attempt
-- `build-shift-report-workflow-input.mjs` for a workflow-facing dry-run input artifact
-- `build-shift-report-dry-run-summary.mjs` for a human-readable dry-run summary artifact
-- `build-shift-report-dry-run-output.mjs` for a sectioned dry-run handoff artifact
-- `describe-shift-report-dry-run-bundle.mjs` for the full integrated dry-run artifact
+- `packages/agent-harness/describe-routing-candidates.mjs`
+- `packages/workflows/*/dependencies.yaml`
+
+Rule:
+- routing authority stays in `packages/agent-harness/`
+- this extension is the Pi-native bridge, not a second routing design surface

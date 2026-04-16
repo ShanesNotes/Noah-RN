@@ -1,8 +1,9 @@
 test_id: cross-003
 skill: unit-conversion
-description: "RSI + unit conversion \u2014 propofol dose"
+description: RSI + unit conversion — propofol dose
 input:
   clinical_context: RSI with propofol 1.5 mg/kg for 80kg patient. Concentration 10mg/mL.
+  user_query: RSI with propofol 1.5 mg/kg for 80kg patient. Concentration 10mg/mL.
 expected:
   must_contain:
   - propofol
@@ -15,6 +16,19 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - propofol
+    - '120'
+    - mg
+    - mL
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: unit-conversion
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

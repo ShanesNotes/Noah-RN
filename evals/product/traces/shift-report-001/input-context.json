@@ -1,1 +1,15 @@
-{"test_id": "shift-report-001", "skill": "shift-report", "description": "Full shift report \u2014 12 systems", "input": {"clinical_context": "Generate shift report for post-op day 1 CABG patient."}, "expected": {"must_contain": ["neuro", "cardiac", "respiratory", "GI", "GU", "skin", "pain", "psych", "access", "lines", "drains", "assessment"], "must_not_contain": ["incomplete"], "confidence": {"minimum_overall": 0.7}, "provenance": {"must_cite_source": true}}, "severity": "high", "author": "shane", "date": "2026-03-31"}
+{
+  "skill": "shift-report",
+  "timestamp": "2026-04-16T14:12:05Z",
+  "context": {
+    "workflow": "shift-report",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Generate shift report for post-op day 1 CABG patient.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:06:36Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient 175cm, 95kg.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

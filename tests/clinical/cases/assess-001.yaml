@@ -1,14 +1,47 @@
 test_id: assess-001
 skill: shift-assessment
-description: "Standard MICU admission — full head-to-toe systems assessment"
+description: Standard MICU admission — full head-to-toe systems assessment
 input:
-  clinical_context: |
-    58yo F, MICU day 1 admission for urosepsis. Temp 38.6, HR 102, BP 94/62 on norepinephrine
+  clinical_context: '58yo F, MICU day 1 admission for urosepsis. Temp 38.6, HR 102, BP 94/62 on norepinephrine
+
     0.08 mcg/kg/min, RR 20, SpO2 98% on 4L NC. A&Ox3, GCS 15. Equal and reactive pupils.
+
     Lungs CTA bilaterally. RRR, no murmurs. Abdomen soft. UO 28 mL/hr via foley.
+
     No skin breakdown. PIV x2 RFA. Vancomycin + pip-tazo infusing. Lactic acid 3.2 trending down.
+
+    '
+  user_query: '58yo F, MICU day 1 admission for urosepsis. Temp 38.6, HR 102, BP 94/62 on norepinephrine
+
+    0.08 mcg/kg/min, RR 20, SpO2 98% on 4L NC. A&Ox3, GCS 15. Equal and reactive pupils.
+
+    Lungs CTA bilaterally. RRR, no murmurs. Abdomen soft. UO 28 mL/hr via foley.
+
+    No skin breakdown. PIV x2 RFA. Vancomycin + pip-tazo infusing. Lactic acid 3.2 trending down.
+
+    '
 expected:
   must_contain:
+  - neurological
+  - cardiovascular
+  - pulmonary
+  - gastrointestinal
+  - genitourinary
+  - skin
+  - IV access
+  - infusions
+  - code status
+  - labs
+  must_not_contain:
+  - diagnose
+  - prescribe
+  - physician order
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+  scoring_rubric:
+    critical_items:
     - neurological
     - cardiovascular
     - pulmonary
@@ -19,14 +52,13 @@ expected:
     - infusions
     - code status
     - labs
-  must_not_contain:
-    - diagnose
-    - prescribe
-    - physician order
-  confidence:
-    minimum_overall: 0.7
-  provenance:
-    must_cite_source: true
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: shift-assessment
+    secondary_skills: []
 severity: moderate
 author: dev
 date: '2026-04-01'
+safety_veto: false

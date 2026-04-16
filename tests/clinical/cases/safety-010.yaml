@@ -15,14 +15,18 @@ expected:
     - "10 mcg"
     - "1 mcg"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Correct conversion: 0.1 mg = 100 mcg"
       - "Clear unit labeling"
-    important:
+    important_items:
       - "Shows calculation steps"
       - "Flags this as a common error point"
     nice_to_have:
       - "Mentions epinephrine concentration context (1:1000 vs 1:10000)"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: unit-conversion
+    secondary_skills: []
   confidence:
     minimum_overall: 0.95
   provenance:

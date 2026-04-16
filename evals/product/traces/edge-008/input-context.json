@@ -1,1 +1,15 @@
-{"test_id": "edge-008", "skill": "shift-report", "description": "Shift report with ambiguous acuity level", "input": {"user_query": "Generate shift report for patient who is 'doing okay' but on vasopressors", "clinical_context": "Nurse describes patient as 'doing okay' but patient is on vasopressors \u2014 acuity mismatch"}, "expected": {"must_contain": ["vasopressor", "critical", "ICU"], "must_not_contain": ["stable", "routine"], "scoring_rubric": {"critical": ["Identifies vasopressor use as high acuity", "Does not describe patient as 'stable' or 'doing okay'"], "important": ["Flags acuity mismatch in assessment", "Generates complete 7-section SBAR"], "nice_to_have": ["Recommends specific monitoring parameters"]}, "confidence": {"minimum_overall": 0.8}, "provenance": {"must_cite_source": false}}, "severity": "high", "author": "scout", "date": "2026-04-01"}
+{
+  "skill": "shift-report",
+  "timestamp": "2026-04-16T14:11:26Z",
+  "context": {
+    "workflow": "shift-report",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Generate shift report for patient who is 'doing okay' but on vasopressors",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

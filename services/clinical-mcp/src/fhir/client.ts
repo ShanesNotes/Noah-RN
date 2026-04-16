@@ -19,6 +19,10 @@ async function getAccessToken(): Promise<string> {
   }
 
   const { tokenEndpoint, clientId, clientSecret } = config.fhir.auth;
+  if (!clientId || !clientSecret) {
+    throw new Error('FHIR client credentials are required. Set FHIR_CLIENT_ID and FHIR_CLIENT_SECRET, or use FHIR_FIXTURE_DIR for fixture-backed reads.');
+  }
+
   const res = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

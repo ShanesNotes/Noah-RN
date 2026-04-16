@@ -9,6 +9,7 @@ export interface ShiftReportTaskResult {
   taskId: string;
   status: 'completed' | 'failed';
   documentReferenceId?: string;
+  executionId?: string;
   error?: string;
 }
 
@@ -48,11 +49,36 @@ export async function processTask(task: Task): Promise<ShiftReportTaskResult> {
 
     const patientId = extractPatientId(task);
     const encounterId = extractEncounterId(task);
+    const executionId = buildExecutionId(task.id);
     const context = await assemblePatientContext(patientId);
+    const invokeWorkflowModulePath = '../../../../packages/agent-harness/invoke-workflow.mjs';
+    const shiftReportRendererModulePath = '../../../../packages/agent-harness/shift-report-renderer.mjs';
+    const { getWorkflowCandidate } = (await import(invokeWorkflowModulePath)) as {
+      getWorkflowCandidate: (workflowName: string, rawInput?: string) => any;
+    };
+    const {
+      buildShiftReportRendererInput,
+      renderShiftReportFromPatientContext,
+    } = (await import(shiftReportRendererModulePath)) as {
+      buildShiftReportRendererInput: (candidate: any, patientId: string, context: unknown, options?: { laneCoverage?: Record<string, string> }) => any;
+      renderShiftReportFromPatientContext: (input: any) => string;
+    };
+    const workflowCandidate = getWorkflowCandidate('shift-report', `patient_id: ${patientId}`);
+    const rendererInput = buildShiftReportRendererInput(workflowCandidate, patientId, context, {
+      laneCoverage: {
+        'ehr/chart': 'present',
+        memory: 'not assembled in current worker path',
+        'clinical-resources': 'not assembled in current worker path',
+        'patient-monitor/simulation': 'not assembled in current worker path',
+      },
+    });
+    const reportMarkdown = renderShiftReportFromPatientContext(rendererInput);
     const draft = await createDraftShiftReport({
       patientId,
       encounterId,
-      reportMarkdown: JSON.stringify(context, null, 2),
+      taskId: task.id,
+      executionId,
+      reportMarkdown,
     });
 
     if (!draft.id) {
@@ -65,6 +91,7 @@ export async function processTask(task: Task): Promise<ShiftReportTaskResult> {
       taskId,
       status: 'completed',
       documentReferenceId: draft.id,
+      executionId,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -114,6 +141,7 @@ export function buildCompletedTask(task: Task, draft: DocumentReference): Task {
     id: task.id,
     status: 'completed',
     statusReason: undefined,
+    focus: draft.id ? { reference: `DocumentReference/${draft.id}`, display: 'Draft Shift Report' } : task.focus,
     output: [
       {
         type: { text: 'shift-report-draft' },
@@ -135,6 +163,10 @@ export function buildFailedTask(task: Task, message: string): Task {
     statusReason: { text: truncateStatusReason(message) },
     output: undefined,
   };
+}
+
+export function buildExecutionId(taskId: string, now: number = Date.now()): string {
+  return `shift-report:${taskId}:${now}`;
 }
 
 export function truncateStatusReason(message: string, maxLength: number = MAX_STATUS_REASON_TEXT): string {

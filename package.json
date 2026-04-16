@@ -2,6 +2,7 @@
   "name": "noah-rn",
   "private": true,
   "scripts": {
+    "build:dashboard-data": "bash scripts/build-dashboard-data.sh",
     "build:dashboard": "npm run build --workspace apps/clinician-dashboard",
     "dev:nursing-station": "npm run dev --workspace apps/nursing-station",
     "build:nursing-station": "npm run build --workspace apps/nursing-station",
@@ -15,7 +16,12 @@
     "playwright:medplum:debug": "node scripts/browser-playwright-medplum-debug.mjs",
     "playwright:dashboard": "node scripts/browser-playwright-smoke.mjs http://localhost:5173 noah-dashboard",
     "playwright:nursing-station:signin": "node scripts/browser-playwright-nursing-station-signin.mjs",
-    "dev:dashboard": "npm run dev --workspace apps/clinician-dashboard",
+    "playwright:nursing-station:shell": "node scripts/browser-playwright-nursing-station-shell.mjs",
+    "dev:dashboard": "npm run build:dashboard-data && npm run dev --workspace apps/clinician-dashboard",
+    "eval:dynamic": "bash evals/product/eval-harness.sh --mode dynamic",
+    "eval:static": "bash evals/product/eval-harness.sh --mode static",
+    "optimize:cycle": "bash scripts/optimization-cycle.sh",
+    "optimize:analyze": "bash scripts/analyze-failures.sh",
     "build": "npm run build:dashboard && npm run build:nursing-station && npm run build:clinical-mcp",
     "test": "npm run test:dashboard && npm run test:clinical-mcp && npm run test:sim-harness"
   },

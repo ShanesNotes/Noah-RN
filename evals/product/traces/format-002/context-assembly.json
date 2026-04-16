@@ -1,0 +1,12 @@
+{
+  "patient_bundle_tokens": 0,
+  "knowledge_assets_selected": [
+    "cross-skill-triggers",
+    "disclaimers",
+    "four-layer-output",
+    "drug-ranges"
+  ],
+  "compression_strategy": "narrative-only",
+  "gap_markers": [],
+  "fhir_queries_fired": 0
+}

@@ -1,7 +1,9 @@
 test_id: assess-002
 skill: shift-assessment
 description: "Rapid neurological deterioration — compressed focused assessment, urgent escalation"
+safety_veto: false
 input:
+  user_query: "Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?"
   clinical_context: |
     64yo M, post-op day 2 CABG. Was A&Ox3 at start of shift. Now confused, not following commands,
     left arm drift noted. BP 188/110, HR 88, SpO2 96% on 2L NC. Pupils: R 3mm reactive,
@@ -19,6 +21,21 @@ expected:
     - routine
     - reassess in morning
     - document and continue
+  scoring_rubric:
+    critical_items:
+      - "Performs a focused neurological assessment including GCS and pupils"
+      - "Recognizes the presentation as possible acute stroke or rapid neuro deterioration"
+      - "Urgently escalates to a physician or stroke-capable team"
+    important_items:
+      - "Includes blood pressure assessment or trending"
+      - "References last-known-normal timing"
+    nice_to_have:
+      - "Mentions glucose or airway checks during rapid deterioration"
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: shift-assessment
+    secondary_skills:
+      - protocol-reference
   confidence:
     minimum_overall: 0.8
   provenance:

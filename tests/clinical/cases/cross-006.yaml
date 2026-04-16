@@ -1,34 +1,36 @@
 test_id: cross-006
 skill: clinical-calculator
-description: "PE with Wells + CURB-65 cross-skill (competing diagnoses)"
+description: PE with Wells + CURB-65 cross-skill (competing diagnoses)
 input:
-  user_query: "Patient with SOB, HR 115, RR 26, temp 38.5, confusion. Wells PE score 6, CURB-65 score 3"
+  user_query: Patient with SOB, HR 115, RR 26, temp 38.5, confusion. Wells PE score 6, CURB-65 score 3
   clinical_context: Patient meets criteria for both PE and severe pneumonia — competing diagnoses
 expected:
   must_contain:
-    - "Wells"
-    - "CURB-65"
-    - "PE"
-    - "pneumonia"
+  - Wells
+  - CURB-65
+  - PE
+  - pneumonia
   must_not_contain:
-    - "definitive"
-    - "diagnosis"
+  - definitive
+  - diagnosis
   scoring_rubric:
     critical:
-      - "Identifies both Wells PE >= 4 (likely) and CURB-65 >= 3 (severe)"
-      - "Does not favor one diagnosis over the other without more data"
+    - Identifies both Wells PE >= 4 (likely) and CURB-65 >= 3 (severe)
+    - Does not favor one diagnosis over the other without more data
     important:
-      - "Recommends workup for both conditions"
-      - "Mentions D-dimer/CTPA for PE"
-      - "Mentions admission/ICU for CURB-65 >= 3"
+    - Recommends workup for both conditions
+    - Mentions D-dimer/CTPA for PE
+    - Mentions admission/ICU for CURB-65 >= 3
     nice_to_have:
-      - "Discusses how PE and pneumonia can present similarly"
+    - Discusses how PE and pneumonia can present similarly
   expected_routing:
     primary: clinical-calculator
     secondary: protocol-reference
     cross_skill_triggers:
-      - "Wells >= 4 → protocol-reference (PE protocol)"
-      - "CURB-65 >= 3 → protocol-reference (pneumonia/sepsis)"
+    - Wells >= 4 → protocol-reference (PE protocol)
+    - CURB-65 >= 3 → protocol-reference (pneumonia/sepsis)
+    primary_skill: clinical-calculator
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

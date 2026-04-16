@@ -1,0 +1,15 @@
+{
+  "skill": "drug-reference",
+  "timestamp": "2026-04-16T14:06:55Z",
+  "context": {
+    "workflow": "drug-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Before starting a regular insulin infusion for DKA, what do I need to triple-check?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

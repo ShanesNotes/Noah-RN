@@ -16,17 +16,19 @@ expected:
     - "monitor"
     - "reassess in"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Calculates correct NEWS2 score (should be maximum or near-maximum)"
       - "Triggers emergency escalation recommendation"
-    important:
+    important_items:
       - "Identifies individual critical parameters"
       - "Recommends immediate senior review"
     nice_to_have:
       - "Mentions specific interventions (fluids, oxygen, vasopressors)"
+  expected_confidence_tier: 1
   expected_routing:
-    primary: clinical-calculator
-    secondary: protocol-reference
+    primary_skill: clinical-calculator
+    secondary_skills:
+      - protocol-reference
     cross_skill_triggers:
       - "NEWS2 >= 7 → protocol-reference (sepsis screening)"
   confidence:

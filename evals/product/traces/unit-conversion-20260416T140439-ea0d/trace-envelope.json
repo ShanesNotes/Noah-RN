@@ -1,0 +1,96 @@
+{
+  "trace_id": "unit-conversion-20260416T140439-ea0d",
+  "skill": "unit-conversion",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T14:04:39Z",
+  "tags": {
+    "phi_risk": "none",
+    "token_spend": {
+      "input_tokens": 11,
+      "output_tokens": 365,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0,
+      "context_ratio": 0,
+      "categories": {
+        "patient_bundle": 0,
+        "user_input": 11,
+        "system_prompt": 128,
+        "renderer": 183
+      }
+    },
+    "latency": {
+      "total_ms": 226,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "pass",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "Convert 0.1 mg to mcg for epinephrine drip",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 0,
+    "knowledge_assets_selected": [
+      "four-layer-output",
+      "disclaimers"
+    ],
+    "compression_strategy": "narrative-only",
+    "gap_markers": [],
+    "fhir_queries_fired": 0
+  },
+  "routing_decision": {
+    "input_classification": "simple",
+    "candidates_considered": [
+      "hello-nurse",
+      "protocol-reference",
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "unit-conversion",
+    "confidence": 0.84,
+    "rationale": "Narrative-only input matched the requested workflow directly."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "pass",
+      "detail": "Context ratio 0 is within the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": null,
+  "raw": {
+    "input": {
+      "skill": "unit-conversion",
+      "timestamp": "2026-04-16T14:04:39Z",
+      "context": {
+        "workflow": "unit-conversion",
+        "input_mode": "clinical_narrative",
+        "patient_id": null,
+        "available_context": [
+          "clinical_narrative"
+        ],
+        "raw_input": "Convert 0.1 mg to mcg for epinephrine drip",
+        "context_assembled": false,
+        "phi_risk": "none"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "unit-conversion",
+      "input_mode": "clinical_narrative",
+      "context_assembled": false,
+      "service_surface_refs": [],
+      "downstream_system": null,
+      "veto_triggered": false
+    }
+  }
+}

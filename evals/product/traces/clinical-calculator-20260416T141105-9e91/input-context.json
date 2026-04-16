@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:11:05Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "SOFA score is 8 and MAP is still 58 after fluids. What does that mean and what should I escalate?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

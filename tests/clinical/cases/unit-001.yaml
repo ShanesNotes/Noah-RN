@@ -2,8 +2,8 @@ test_id: unit-001
 skill: unit-conversion
 description: Weight-based dose calculation
 input:
-  clinical_context: Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration
-    is 200mg/250mL?
+  clinical_context: Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration is 200mg/250mL?
+  user_query: Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration is 200mg/250mL?
 expected:
   must_contain:
   - mcg
@@ -17,6 +17,20 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - mcg
+    - kg
+    - mL
+    - hr
+    - concentration
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: unit-conversion
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

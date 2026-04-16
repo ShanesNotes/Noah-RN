@@ -11,10 +11,12 @@ The project exists to help a nurse build, test, and refine decomposable clinical
 
 - [PLAN.md](PLAN.md) is the canonical project plan and architecture control plane.
 - [TASKS.md](TASKS.md) is the current execution queue for coding agents.
+- [AGENTS.md](AGENTS.md) is the fast repo-local agent guide.
+- [docs/NAVIGATION.md](docs/NAVIGATION.md) is the task-oriented docs map.
 - [docs/](docs/) holds product/reference material plus intentional archive history.
 - `research/` is a local-only source corpus and is intentionally not part of the product repo.
 - `wiki/` is local Claude working memory and is intentionally outside the product repo.
-- Hidden planning/tooling folders such as `.omx/`, `.hermes/`, `.omc/`, `.agents/`, `.claude/`, and `.dmux-hooks/` are not the control plane. Treat them as local planning origins or tool-specific residue unless a doc explicitly says a file was promoted.
+- Hidden planning/tooling folders such as `.omx/`, `.hermes/`, `.omc/`, `.agents/`, `.claude/`, and `.dmux/` are not the control plane. Treat them as local planning origins or tool-specific residue unless a doc explicitly says a file was promoted.
 - `.noah-pi-runtime/` is the one tracked hidden surface that matters to product work; it is the repo-hosted pi runtime bridge, not a replacement for `packages/` or the root control plane.
 
 ## Current Shape
@@ -26,6 +28,37 @@ Noah RN has five active subprojects:
 3. **Memory layer** - longitudinal patient H&P, mutable present encounter canvas, provider session memory, provider persistent memory, and task-local agent memory.
 4. **Clinical resources** - guidelines, protocols, pocket manuals, publication feeds, and an agent-centric Lexicomp-like drug reference.
 5. **Meta-harness optimization** - observability, eval traces, metrics, and continuous improvement loops for the harness itself.
+
+## Current Clinician Workspace Status
+
+The current `apps/nursing-station/` surface is no longer just a scaffold. The landed clinician-workspace spine now includes:
+
+- work-first assignment entry at the root `WORKLIST` surface
+- route-driven chart shell with persistent patient header
+- overview page as the default chart entry
+- task-driven draft review with explicit `reviewed`, `acknowledged`, and `approved-finalized` states
+- draft `DocumentReference` review pane with provenance-aware framing
+- results review state
+- trend-first vitals and lab cues
+- fixture-backed Playwright coverage for the shell, review flow, assignment flow, and trend cues
+
+The current next sequenced bedside lane is `MAR-lite`, not a broad redesign.
+
+## Task-Oriented Entry Points
+
+Use these before wandering the tree:
+
+| If you need to... | Start here |
+|---|---|
+| understand the project | [PLAN.md](PLAN.md) |
+| pick active work | [TASKS.md](TASKS.md) |
+| find the right docs fast | [docs/NAVIGATION.md](docs/NAVIGATION.md) |
+| understand repo rules for agents | [AGENTS.md](AGENTS.md) |
+| place a new doc or subproject | [docs/README.md](docs/README.md), [docs/topology/subproject-workspace-map.md](docs/topology/subproject-workspace-map.md) |
+| work on the nursing station | [apps/nursing-station/README.md](apps/nursing-station/README.md) |
+| work on the clinical MCP boundary | [services/clinical-mcp/README.md](services/clinical-mcp/README.md) |
+| work on harness routing/contracts | [packages/agent-harness/README.md](packages/agent-harness/README.md), [packages/workflows/README.md](packages/workflows/README.md) |
+| reconcile hidden docs | [docs/analysis/hidden-docs-reconciliation-note-2026-04-14.md](docs/analysis/hidden-docs-reconciliation-note-2026-04-14.md) |
 
 ## Repository Map
 
@@ -48,6 +81,11 @@ Local grounding surfaces such as `wiki/`, `research/`, `notes/`, `docs/local/`, 
 - National guidelines and established references are knowledge inputs, not a substitute for local policy or clinical judgment.
 - Facility-specific policy is deferred until explicitly configured.
 - `pi.dev` is the current harness foundation. Claude/OpenClaw/NemoClaw-era material is historical unless it directly supports a current subproject.
+- `packages/workflows/` remains authoritative for workflow contracts and dependency manifests.
+- `.noah-pi-runtime/` is the Pi bridge surface over authoritative Noah RN runtime lanes; it is not a second source of clinical truth.
+- The active Shift Report path now includes shared renderer logic in `packages/agent-harness/shift-report-renderer.mjs`, reused by the harness runner, the Medplum worker, and the Pi dry-run bridge.
+- `apps/nursing-station/` is intentionally work-first now: assignment/worklist -> patient review -> chart navigation.
+- `apps/clinician-dashboard/` remains sidecar-only. Do not regrow it into a second chart.
 
 ## Hidden Planning Surfaces
 
@@ -57,7 +95,7 @@ The repo still contains active-looking material in hidden folders. Current statu
 - `.hermes/plans/` — local implementation plans and UI planning notes; useful source material, not canonical direction.
 - `.omc/` and `.agents/` — agent/tool artifacts and prompts.
 - `.claude/commands/wiki.md` — Claude-only workflow for maintaining the local wiki.
-- `.dmux-hooks/` — dmux hook tooling surface, currently local/untracked here.
+- `.dmux/` — local multiplexer/tooling surface; not part of the control plane.
 - `.noah-pi-runtime/` — tracked pi bridge surface; real, but subordinate to `packages/agent-harness/` and `packages/workflows/`.
 
 Rule: if a hidden plan conflicts with `README.md`, `PLAN.md`, `TASKS.md`, or a git-tracked doc under `docs/`, the tracked control-plane doc wins.
@@ -79,6 +117,8 @@ Common areas:
 - Clinical simulation harness: `services/sim-harness/` (scaffold + contracts; canonical authority is `docs/foundations/invariant-kernel-simulation-architecture.md` and `docs/foundations/foundational-contracts-simulation-architecture.md`)
 - Medplum infrastructure: `infrastructure/`
 - Clinical resources: `clinical-resources/`
+- Shared Shift Report renderer: `packages/agent-harness/shift-report-renderer.mjs`
+- Pi bridge extensions: `.noah-pi-runtime/extensions/`
 
 Useful root commands:
 
@@ -92,6 +132,7 @@ npm run test:clinical-mcp
 npm run playwright:install
 npm run playwright:dashboard
 npm run playwright:nursing-station:signin
+npm run playwright:nursing-station:shell
 ```
 
 Workspace-local examples:

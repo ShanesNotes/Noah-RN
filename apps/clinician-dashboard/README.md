@@ -37,11 +37,12 @@ Treat this app as:
 - workflow-support surface
 
 Current panel set:
-- eval dashboard
-- trace viewer
-- context inspector
-- skill panel
-- terminal panel
+- overview
+- traces
+- golden suite
+- candidates
+- optimization
+- context
 
 Do not treat it as the source of truth for clinical workspace architecture.
 
@@ -52,6 +53,11 @@ npm run dev --workspace apps/clinician-dashboard
 npm run build --workspace apps/clinician-dashboard
 npm run test --workspace apps/clinician-dashboard
 ```
+
+For local FHIR-backed development, copy `apps/clinician-dashboard/.env.example` to `.env.local` and set:
+- `VITE_FHIR_CLIENT_ID`
+- `VITE_FHIR_CLIENT_SECRET`
+- optional `FHIR_PROXY_TARGET`
 
 ## Current stack
 

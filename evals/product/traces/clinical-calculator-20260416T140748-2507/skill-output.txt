@@ -1,0 +1,42 @@
+Summary
+PATIENT (Tier 1 — nurse-reported facts)
+- [Needs patient identifiers from narrative or chart context]
+
+STORY (Tier 2 — nurse narrative preserved)
+- Patient GCS: eyes 1, verbal 1, motor 6 — what's the score?
+
+ASSESSMENT (Tier 2 — organize from reported narrative)
+- [Assessment details to be organized from the provided narrative]
+
+LINES & ACCESS (Tier 2 — reported bedside details)
+- [Access details not yet extracted from the narrative]
+
+ACTIVE ISSUES & PLAN (Tier 2 — bedside watch items)
+- [Watch items and pending plan items to be derived from the narrative]
+
+HOUSEKEEPING (Tier 2 — bedside input required)
+- [Housekeeping details not provided]
+
+FAMILY (Tier 2 — bedside input required)
+- [Family communication details not provided]
+
+Evidence
+Workflow: clinical-calculator
+Input mode: clinical_narrative
+Resource access: cross-skill-triggers, four-layer-output, disclaimers
+Tool families: clinical-calculators, trace, safety-hooks
+Service surfaces: packages/workflows/
+User context seed: Patient GCS: eyes 1, verbal 1, motor 6 — what's the score?
+
+Confidence
+- Summary structure: Tier 2 — nurse narrative organized without fabrication.
+- Facility-specific details remain Tier 3 — per facility protocol.
+
+Provenance
+---
+noah-rn v0.2 | clinical-calculator v1.1.0 | nurse-reported data
+Clinical decision support — verify against facility protocols and current patient data.
+
+---
+Noah RN — you're the nurse, I'm the clipboard. Double-check everything.
+Verify all findings against your assessment and facility policies.

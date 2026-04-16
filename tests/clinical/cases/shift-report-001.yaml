@@ -1,8 +1,9 @@
 test_id: shift-report-001
 skill: shift-report
-description: "Full shift report \u2014 12 systems"
+description: Full shift report — 12 systems
 input:
   clinical_context: Generate shift report for post-op day 1 CABG patient.
+  user_query: Generate shift report for post-op day 1 CABG patient.
 expected:
   must_contain:
   - neuro
@@ -23,6 +24,27 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - neuro
+    - cardiac
+    - respiratory
+    - GI
+    - GU
+    - skin
+    - pain
+    - psych
+    - access
+    - lines
+    - drains
+    - assessment
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: shift-report
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

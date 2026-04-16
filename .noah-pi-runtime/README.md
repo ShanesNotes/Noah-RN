@@ -1,6 +1,6 @@
 # `.pi/`
 
-Repo-hosted pi.dev configuration surface for Noah RN. pi.dev is the active agent harness foundation (Decision 2026-04-10); this surface is subordinate to `packages/agent-harness/` + `packages/workflows/`.
+Repo-hosted Pi configuration surface for Noah RN. Noah RN is the clinical workspace agent harness; Pi is the active foundational substrate used to build that harness (Decision 2026-04-10). This surface is subordinate to `packages/agent-harness/` + `packages/workflows/`.
 
 In this repository, these files live under `.noah-pi-runtime/`.
 Inside the isolated runtime lane, this directory mounts as `/runtime/.pi`.
@@ -11,7 +11,7 @@ When docs inside this folder say `.pi/...`, read that as the runtime-mounted pat
 - `SYSTEM.md` — runtime system prompt for the Pi agent
 - `AGENTS.md` — agent context and canonical source map
 - `skills/` — promoted workflow skill contracts
-- `extensions/` — Pi extensions (router, medplum-context, clinical-tools)
+- `extensions/` — Pi extensions (router, medplum-context, context planning, guardrails, clinical-tools)
 - `prompts/` — reusable prompt templates
 
 ## Skills
@@ -33,6 +33,9 @@ Migration: `skills/MIGRATION-MAP.md`
 
 ## Relationship to `packages/`
 
-- `packages/workflows/` remains authoritative for clinical content
-- `.noah-pi-runtime/skills/` is authoritative for Pi-native wiring in the repo (runtime path: `.pi/skills/`; dependencies.yaml, pi: frontmatter)
-- If clinical content changes, change it in `packages/workflows/` first, then sync to `.noah-pi-runtime/skills/`
+- `packages/workflows/` remains authoritative for clinical workflow content and `dependencies.yaml` manifests
+- `packages/agent-harness/` remains authoritative for harness/routing behavior
+- `.noah-pi-runtime/` is authoritative only for Pi bridge wiring in the repo (extensions, system prompt, prompts, bridge docs)
+- `packages/agent-harness/shift-report-renderer.mjs` is the shared Shift Report renderer contract used by the harness runner, the Medplum worker, and the Pi dry-run bridge
+- If clinical workflow content changes, change it in `packages/workflows/` first
+- If harness behavior changes, change it in `packages/agent-harness/` first unless the work is specifically bridge wiring

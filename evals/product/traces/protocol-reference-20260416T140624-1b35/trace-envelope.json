@@ -1,0 +1,96 @@
+{
+  "trace_id": "protocol-reference-20260416T140624-1b35",
+  "skill": "protocol-reference",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T14:06:24Z",
+  "tags": {
+    "phi_risk": "none",
+    "token_spend": {
+      "input_tokens": 18,
+      "output_tokens": 372,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0,
+      "context_ratio": 0,
+      "categories": {
+        "patient_bundle": 0,
+        "user_input": 18,
+        "system_prompt": 128,
+        "renderer": 186
+      }
+    },
+    "latency": {
+      "total_ms": 408,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "pass",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "Patient ROSC after 12 min VFib arrest. GCS 6, not following commands.",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 0,
+    "knowledge_assets_selected": [
+      "disclaimers",
+      "four-layer-output"
+    ],
+    "compression_strategy": "narrative-only",
+    "gap_markers": [],
+    "fhir_queries_fired": 0
+  },
+  "routing_decision": {
+    "input_classification": "simple",
+    "candidates_considered": [
+      "hello-nurse",
+      "protocol-reference",
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "protocol-reference",
+    "confidence": 0.84,
+    "rationale": "Narrative-only input matched the requested workflow directly."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "pass",
+      "detail": "Context ratio 0 is within the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": null,
+  "raw": {
+    "input": {
+      "skill": "protocol-reference",
+      "timestamp": "2026-04-16T14:06:24Z",
+      "context": {
+        "workflow": "protocol-reference",
+        "input_mode": "clinical_narrative",
+        "patient_id": null,
+        "available_context": [
+          "clinical_narrative"
+        ],
+        "raw_input": "Patient ROSC after 12 min VFib arrest. GCS 6, not following commands.",
+        "context_assembled": false,
+        "phi_risk": "none"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "protocol-reference",
+      "input_mode": "clinical_narrative",
+      "context_assembled": false,
+      "service_surface_refs": [],
+      "downstream_system": null,
+      "veto_triggered": false
+    }
+  }
+}

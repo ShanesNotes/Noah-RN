@@ -1,0 +1,10 @@
+{
+  "patient_bundle_tokens": 0,
+  "knowledge_assets_selected": [
+    "four-layer-output",
+    "disclaimers"
+  ],
+  "compression_strategy": "narrative-only",
+  "gap_markers": [],
+  "fhir_queries_fired": 0
+}

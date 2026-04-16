@@ -2,45 +2,44 @@
 
 **Date:** 2026-04-01
 **Scope:** `optimization/` infrastructure, golden test suite, proposer prompts, safety constraints, clinical router, multi-model comparison
-**Status:** Phase A complete, Phase B blocked, Phase C/D not started
+**Status:** Phase A complete, Phase B scaffolded, Phase C partially scaffolded, Dashboard operational shell landed
 
 ---
 
 ## 1. Current State Analysis
 
-### 1.1 What Exists (Phase A — Complete)
+### 1.1 What Exists (Phase A / Bridge — Updated 2026-04-16)
 
 | Component | Location | Status | Notes |
 |-----------|----------|--------|-------|
-| Filesystem structure | `optimization/product/` + `optimization/company/` | ✅ Complete | `candidates/`, `traces/`, `analysis/`, `results/` directories with `.gitkeep` |
-| Product proposer prompt | `optimization/product/proposer-prompt.md` | ✅ Complete | 113 lines — counterfactual diagnosis workflow, hard constraints, optimization targets, output format |
-| Clinical constraints | `optimization/product/clinical-constraints.yaml` | ✅ Complete | 72 lines — regulatory posture, accuracy hierarchy, output format, provenance, optimizer constraints, confidence tiers |
-| Safety constraints | `optimization/product/safety-constraints.yaml` | ✅ Complete | 72 lines — regulatory posture, safety hierarchy, output format, provenance, optimizer constraints, confidence tiers |
-| Eval harness skeleton | `optimization/product/eval-harness.sh` | ✅ Complete | 260 lines — static structural validation only (checks skill files contain required elements) |
-| Failure modes analysis | `optimization/product/analysis/failure-modes.md` | ✅ Complete | Documents current validation limitations and path to dynamic validation |
-| Scores artifact | `optimization/product/results/scores-20260331-214328.json` | ✅ Complete | 53/53 pass, 100% — but this is structural validation, not clinical output validation |
+| Filesystem structure | `optimization/product/` + `evals/product/` | ✅ Complete | Product optimization scaffold now exists with baseline candidate, analysis outputs, and symlinked traces/constraints/eval harness |
+| Product proposer prompt | `optimization/product/proposer-prompt.md` | ✅ Complete | v2 prompt landed with convergence criteria, change budget, regression requirements, and free-tier instructions |
+| Clinical constraints | `optimization/product/clinical-constraints.yaml` | ✅ Complete | Symlinked to `evals/product/clinical-constraints.yaml` so eval + optimization consume one source of truth |
+| Eval harness | `evals/product/eval-harness.sh` | ✅ Complete | Dynamic mode, dry-run path, weighted scoring, per-case scores, and safety veto enforcement are now implemented |
+| Telemetry / trace pipeline | `tools/trace/trace.sh` + `packages/agent-harness/invoke-workflow.mjs` | ✅ Complete | Trace envelopes now include routing, context assembly, safety gates, token spend, and timing |
+| Failure mode analysis | `optimization/product/analysis/` | ✅ Complete | Failure modes, regression matrix, and improvement map artifacts are now present |
+| Scores artifact | `evals/product/results/` + `optimization/product/candidates/baseline/scores.json` | ✅ Complete | Eval outputs now include weighted score, per-case scores, calibration error, veto state, and category summaries |
 | Company proposer prompt | `optimization/company/proposer-prompt.md` | ⚠️ Placeholder | 5 lines — defers to product-level template |
-| Optimization log | `optimization/OPTIMIZATION-LOG.md` | ⚠️ Empty | 11 lines, no iterations recorded |
+| Optimization log | `optimization/OPTIMIZATION-LOG.md` | ✅ Seeded | Baseline log exists; manual/scheduled proposer loop is still future work |
 | Clinical router | `plugin/agents/clinical-router.md` | ✅ Complete | 236 lines — intent map, context validation, complexity tiers, cross-skill awareness |
 | Research strategy | `research/meta-harness-optimization-strategy.md` | ✅ Complete | 726 lines — dual-fork architecture, token allocation, phased plan |
-| Golden test cases | `tests/clinical/cases/` | ✅ Partial | 53 YAML files covering 7 skill categories with severity tagging |
+| Golden test cases | `tests/clinical/cases/` | ✅ Upgraded | Critical-severity cases now carry v2 metadata (`input.user_query`, nested rubric, routing, confidence tier, `safety_veto`) |
+| Dashboard app | `apps/clinician-dashboard/` | ✅ Bridge landed | Six-tab operational shell now exists with overview, traces, golden suite, candidates, optimization, and context tabs backed by static build scripts |
 
-### 1.2 What's Empty (The Block)
+### 1.2 What's Still Missing / Partial
 
 | Gap | Impact | Root Cause |
 |-----|--------|------------|
-| **No dynamic eval** | Harness only checks skill files *contain* keywords — never executes against clinical scenarios or validates actual output | No model API endpoint; `eval-harness.sh` does `grep` on files, not LLM invocation |
-| **No traces** | `traces/` dirs empty — no execution logs, input/output pairs, hook results | Trace logging not wired |
-| **No candidates** | `candidates/` empty — no proposed harness variants | Need dynamic eval to score |
+| **No autonomous proposer loop** | Deterministic eval/analysis scaffolding exists, but proposal generation is still manual/scheduled | Proposer agent not yet wired into the cycle by design |
 | **No company-level data** | Placeholder prompt; no task traces | Deferred until 10-15 Paperclip tasks |
-| **No OpenRouter integration** | Free-tier access not configured | API key missing |
-| **No confidence calibration data** | Metric defined but unmeasurable | Need model output vs golden answers |
+| **Live provider-backed dynamic eval remains environment-dependent** | Dry-run path works everywhere, but real model invocation still depends on credentials/provider config | No guaranteed API key in repo runtime |
+| **Confidence calibration quality is still immature** | Metric is computed, but meaningful calibration needs repeated real runs against model output | Only the scaffold is landed so far |
 
 ### 1.3 The Core Problem
 
 100% pass rate is structural validation (grep for "safety disclaimer" in SKILL.md). Never tests actual output. When nurse asks "Patient in VFib, what do I do?", harness doesn't check if neuro-calculator/protocol-reference returns correct, complete, safe output.
 
-Phase B blocked: optimizer needs signal (measurable diff between variants). All score 100% because eval doesn't test anything that varies.
+The original Phase B blocker is removed at the scaffolding level: the repo now has a measurable signal path, trace envelopes, candidate artifacts, and a dashboard. What remains is repeated real dynamic execution with provider credentials plus the still-manual proposer loop.
 
 ---
 
@@ -620,10 +619,10 @@ Separation encoded in constraints: proposer can't modify clinical/safety content
 
 ## 11. Summary
 
-**What's done:** Phase A solid: filesystem, proposer, constraints, eval skeleton, strategy in place. Router well-designed. Test cases good structure.
+**What's done:** The bridge from plan to runtime is now landed. Telemetry envelopes exist, dynamic eval dry-run scaffolding is wired, the optimization filesystem has a baseline candidate plus analysis artifacts, critical golden cases carry the v2 schema, and the dashboard has a six-tab operational shell with static data builders.
 
-**What's blocked:** Phase B blocked on dynamic eval. Current harness only does grep validation, never executes skills. No signal, no traces, no distinction between candidates.
+**What's still blocked or partial:** Real provider-backed dynamic eval still depends on credentials and repeated runs. The proposer loop is still manual/scheduled by design. Company-level optimization remains deferred.
 
-**How to unblock:** Configure OpenRouter, add trace logging, run first eval. Accept failures—they're the signal. Start 20 cases, not 150.
+**How to continue:** Configure a provider, run repeated non-dry dynamic eval cycles, let the baseline candidate accumulate real per-case failures, and then use the proposer prompt against the now-populated analysis artifacts.
 
 **The flywheel:** Traces → proposals → eval → failures → testcases → smarter loop. Golden suite = objective. Shane = essential annotator.

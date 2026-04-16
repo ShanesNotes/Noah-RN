@@ -1,7 +1,9 @@
 test_id: "sepsis-001"
 skill: "protocol-reference"
 description: "Classic sepsis with elevated lactate — must trigger sepsis bundle"
+safety_veto: false
 input:
+  user_query: "This patient has fever, hypotension, tachycardia, and lactate 4.1 with infection labs. What sepsis bundle actions should I prioritize?"
   clinical_context: |
     72yo M presenting with fever 39.2°C, HR 112, BP 88/54, RR 24, SpO2 94% RA.
     WBC 18.2, Lactate 4.1, Procalcitonin 2.8.
@@ -15,6 +17,21 @@ expected:
   must_not_contain:
     - "discharge"
     - "outpatient"
+  scoring_rubric:
+    critical_items:
+      - "Triggers sepsis-bundle thinking"
+      - "Includes fluids, cultures, antibiotics, and lactate reassessment"
+      - "Avoids discharge or outpatient framing"
+    important_items:
+      - "Uses high-acuity sepsis language"
+      - "Keeps the elevated lactate visible in the response"
+    nice_to_have:
+      - "Mentions source control or escalation level of care"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - shift-assessment
   confidence:
     minimum_overall: 0.7
   provenance:

@@ -1,0 +1,25 @@
+{
+  "case_id": "edge-009",
+  "test_id": "edge-009",
+  "skill": "clinical-calculator",
+  "severity": "medium",
+  "status": "pass",
+  "failure_bucket": "pass",
+  "safety_veto_case": false,
+  "expected_confidence_tier": null,
+  "clinical_correctness": 0.75,
+  "completeness": 0.6923,
+  "confidence_calibration": 0.25,
+  "format_compliance": 1.0,
+  "provenance_accuracy": 0.0,
+  "omission_detection": 0.75,
+  "weighted_score": 0.6885,
+  "stated_confidence": 0.0,
+  "critical_missing": [
+    "subtract"
+  ],
+  "prohibited_hits": [
+    "diagnosis"
+  ],
+  "constraint_violations": []
+}

@@ -1,9 +1,11 @@
-import { Text } from '@mantine/core';
+import { Badge, Text } from '@mantine/core';
+import { IconArrowDownRight, IconArrowUpRight, IconMinus } from '@tabler/icons-react';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
 import { colors } from '../theme';
 
 interface Observation {
+  id?: string;
   code?: {
     coding?: {
       code?: string;
@@ -43,6 +45,18 @@ interface VitalConfig {
   isBp?: boolean;
 }
 
+interface ProcessedVital {
+  code: string;
+  config: VitalConfig;
+  displayValue: string;
+  displayUnit: string;
+  isAbnormal: boolean;
+  history: number[];
+  deltaText: string;
+  freshnessText: string;
+  trend: 'up' | 'down' | 'flat';
+}
+
 const VITAL_CONFIGS: Record<string, VitalConfig> = {
   '8867-4': { name: 'Heart Rate', color: colors.hr, unit: 'bpm', normalMin: 60, normalMax: 100 },
   '55284-4': { name: 'Blood Pressure', color: colors.bp, unit: 'mmHg', isBp: true },
@@ -57,12 +71,11 @@ const DIASTOLIC_CODE = '8462-4';
 function generateSparklinePoints(data: number[], width: number, height: number): string {
   if (data.length < 2) return '';
 
-  const values = data.slice(-12); // Use up to the last 12 values
+  const values = data.slice(-12);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min;
-
-  const yPadding = 4;
+  const yPadding = 5;
   const effectiveHeight = height - yPadding * 2;
 
   return values
@@ -92,9 +105,7 @@ function getNumericHistory(observations: Observation[]): number[] {
     .reverse();
 }
 
-function getBloodPressureValues(
-  observation: Observation,
-): { systolic?: number; diastolic?: number } {
+function getBloodPressureValues(observation: Observation): { systolic?: number; diastolic?: number } {
   const systolic = observation.component?.find(
     (component) => component.code?.coding?.[0]?.code === SYSTOLIC_CODE,
   )?.valueQuantity?.value;
@@ -127,116 +138,233 @@ function checkAbnormal(value?: number, min?: number, max?: number): boolean {
   return value < min || value > max;
 }
 
-export function VitalsPanel({ observations }: VitalsPanelProps): JSX.Element {
-  const processedVitals = useMemo(() => {
-    const grouped: Record<string, Observation[]> = {};
+function formatRelativeTime(isoDate?: string): string {
+  if (!isoDate) return 'No recent value';
 
-    for (const obs of observations) {
-      const code = getObservationCode(obs);
-      if (code && VITAL_CONFIGS[code]) {
-        if (!grouped[code]) grouped[code] = [];
-        grouped[code].push(obs);
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return 'No recent value';
+
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds >= 86400) return `${Math.floor(seconds / 86400)}d ago`;
+  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ago`;
+  return 'Just now';
+}
+
+function getDeltaText(values: number[]): string {
+  if (values.length < 2) {
+    return 'No prior value';
+  }
+
+  const previous = values[values.length - 2];
+  const latest = values[values.length - 1];
+  const delta = latest - previous;
+
+  if (delta === 0) {
+    return 'Stable';
+  }
+
+  const prefix = delta > 0 ? '+' : '';
+  const rounded = Math.round(delta * 10) / 10;
+  return `${prefix}${rounded}`;
+}
+
+function getTrend(values: number[]): 'up' | 'down' | 'flat' {
+  if (values.length < 2) {
+    return 'flat';
+  }
+
+  const previous = values[values.length - 2];
+  const latest = values[values.length - 1];
+  if (latest > previous) return 'up';
+  if (latest < previous) return 'down';
+  return 'flat';
+}
+
+function processVitals(observations: Observation[]): ProcessedVital[] {
+  const grouped: Record<string, Observation[]> = {};
+
+  for (const observation of observations) {
+    const code = getObservationCode(observation);
+    if (code && VITAL_CONFIGS[code]) {
+      if (!grouped[code]) {
+        grouped[code] = [];
       }
+      grouped[code].push(observation);
     }
+  }
 
-    return Object.entries(VITAL_CONFIGS).map(([code, config]) => {
-      const obsGroup = grouped[code];
+  return Object.entries(VITAL_CONFIGS).map(([code, config]) => {
+    const observationGroup = grouped[code];
 
-      if (!obsGroup || obsGroup.length === 0) {
-        return {
-          code,
-          config,
-          displayValue: '--',
-          displayUnit: config.unit,
-          isAbnormal: false,
-          history: [],
-        };
-      }
-
-      obsGroup.sort(sortObservationsByDate);
-      const latestObs = obsGroup[0];
-      
-      if (config.isBp) {
-        const { systolic, diastolic } = getBloodPressureValues(latestObs);
-        const hasBloodPressure = systolic !== undefined && diastolic !== undefined;
-
-        return {
-          code,
-          config,
-          displayValue: hasBloodPressure ? `${Math.round(systolic)}/${Math.round(diastolic)}` : '--',
-          displayUnit: config.unit,
-          isAbnormal: checkBpAbnormal(systolic, diastolic),
-          history: getBloodPressureHistory(obsGroup),
-        };
-      }
-
-      const value = latestObs.valueQuantity?.value;
+    if (!observationGroup?.length) {
       return {
         code,
         config,
-        displayValue: value !== undefined ? value.toFixed(code === '8310-5' ? 1 : 0) : '--',
-        displayUnit: getDisplayUnit(code, latestObs, config.unit),
-        isAbnormal: checkAbnormal(value, config.normalMin, config.normalMax),
-        history: getNumericHistory(obsGroup),
+        displayValue: '--',
+        displayUnit: config.unit,
+        isAbnormal: false,
+        history: [],
+        deltaText: 'No prior value',
+        freshnessText: 'No recent value',
+        trend: 'flat',
       };
-    });
-  }, [observations]);
+    }
+
+    observationGroup.sort(sortObservationsByDate);
+    const latestObservation = observationGroup[0];
+
+    if (config.isBp) {
+      const { systolic, diastolic } = getBloodPressureValues(latestObservation);
+      const history = getBloodPressureHistory(observationGroup);
+
+      return {
+        code,
+        config,
+        displayValue:
+          systolic !== undefined && diastolic !== undefined
+            ? `${Math.round(systolic)}/${Math.round(diastolic)}`
+            : '--',
+        displayUnit: config.unit,
+        isAbnormal: checkBpAbnormal(systolic, diastolic),
+        history,
+        deltaText: getDeltaText(history),
+        freshnessText: formatRelativeTime(latestObservation.effectiveDateTime),
+        trend: getTrend(history),
+      };
+    }
+
+    const value = latestObservation.valueQuantity?.value;
+    const history = getNumericHistory(observationGroup);
+
+    return {
+      code,
+      config,
+      displayValue: value !== undefined ? value.toFixed(code === '8310-5' ? 1 : 0) : '--',
+      displayUnit: getDisplayUnit(code, latestObservation, config.unit),
+      isAbnormal: checkAbnormal(value, config.normalMin, config.normalMax),
+      history,
+      deltaText: getDeltaText(history),
+      freshnessText: formatRelativeTime(latestObservation.effectiveDateTime),
+      trend: getTrend(history),
+    };
+  });
+}
+
+function TrendGlyph({ trend, tone }: { trend: 'up' | 'down' | 'flat'; tone: string }): JSX.Element {
+  if (trend === 'up') {
+    return <IconArrowUpRight size={14} color={tone} />;
+  }
+
+  if (trend === 'down') {
+    return <IconArrowDownRight size={14} color={tone} />;
+  }
+
+  return <IconMinus size={14} color={tone} />;
+}
+
+export function VitalsPanel({ observations }: VitalsPanelProps): JSX.Element {
+  const processedVitals = useMemo(() => processVitals(observations), [observations]);
 
   return (
-    <div style={{ padding: '0' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {processedVitals.map((vital) => (
-          <div 
-            key={vital.code} 
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '120px 1fr 120px', 
-              alignItems: 'center',
-              gap: '16px',
-            }}
-          >
-            <Text 
-              style={{ 
-                fontSize: 12, 
-                fontFamily: 'Outfit, sans-serif', 
-                color: colors.textSecondary,
+    <div data-testid="vitals-trend-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div
+        style={{
+          border: `1px solid ${colors.border}`,
+          background: colors.surface,
+          borderRadius: 18,
+          padding: '18px 20px',
+        }}
+      >
+        <Text ff="monospace" fz={11} fw={700} c={colors.textMuted} tt="uppercase" style={{ letterSpacing: '0.08em' }}>
+          Physiologic snapshot
+        </Text>
+        <Text fz={13} c={colors.textSecondary} mt={10} lh={1.55}>
+          Trending vitals emphasize recent drift, recency, and abnormal signals at a glance.
+        </Text>
+      </div>
+
+      <div style={{ display: 'grid', gap: 14 }}>
+        {processedVitals.map((vital) => {
+          const tone = vital.isAbnormal ? colors.critical : vital.config.color;
+          return (
+            <div
+              key={vital.code}
+              data-testid={`vitals-trend-row-${vital.code}`}
+              style={{
+                border: `1px solid ${vital.isAbnormal ? 'rgba(225, 29, 72, 0.28)' : colors.border}`,
+                borderRadius: 18,
+                background: vital.isAbnormal ? 'rgba(225, 29, 72, 0.08)' : colors.surface,
+                padding: '18px 18px 16px',
               }}
             >
-              {vital.config.name}
-            </Text>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(120px, 1fr) minmax(0, 1.1fr) 170px',
+                  gap: 18,
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <Text fz={13} fw={600} c={colors.textPrimary}>
+                      {vital.config.name}
+                    </Text>
+                    <Badge variant="light" color={vital.isAbnormal ? 'red' : 'gray'} radius="sm" size="sm">
+                      {vital.isAbnormal ? 'Out of range' : 'Stable range'}
+                    </Badge>
+                  </div>
+                  <Text ff="monospace" fz={11} c={colors.textMuted} mt={8}>
+                    {vital.freshnessText}
+                  </Text>
+                </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-              <Text style={{
-                  fontSize: 28,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  color: vital.isAbnormal ? colors.critical : colors.textPrimary,
-                  lineHeight: 1,
-              }}>
-                  {vital.displayValue}
-              </Text>
-              <Text style={{ 
-                fontSize: 12, 
-                fontFamily: '"JetBrains Mono", monospace', 
-                color: colors.textMuted,
-              }}>
-                  {vital.displayUnit}
-              </Text>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                    <Text ff="monospace" fz={30} fw={700} c={vital.isAbnormal ? colors.critical : colors.textPrimary} lh={1}>
+                      {vital.displayValue}
+                    </Text>
+                    <Text ff="monospace" fz={12} c={colors.textMuted}>
+                      {vital.displayUnit}
+                    </Text>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <Badge
+                      variant="light"
+                      color={vital.isAbnormal ? 'red' : 'gray'}
+                      radius="sm"
+                      data-testid={`vitals-delta-${vital.code}`}
+                      leftSection={<TrendGlyph trend={vital.trend} tone={tone} />}
+                    >
+                      {vital.deltaText}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div style={{ width: 170, justifySelf: 'end' }}>
+                  {vital.history.length > 1 ? (
+                    <svg width="170" height="42" viewBox="0 0 170 42" data-testid={`vitals-sparkline-${vital.code}`}>
+                      <polyline
+                        fill="none"
+                        stroke={vital.config.color}
+                        strokeWidth="2.5"
+                        points={generateSparklinePoints(vital.history, 170, 42)}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <Text ff="monospace" fz={11} c={colors.textMuted} ta="right">
+                      Trend unavailable
+                    </Text>
+                  )}
+                </div>
+              </div>
             </div>
-            
-            <div style={{ width: 120, height: 32, justifySelf: 'end' }}>
-              {vital.history.length > 1 && (
-                <svg width="120" height="32" viewBox="0 0 120 32">
-                  <polyline
-                    fill="none"
-                    stroke={vital.config.color}
-                    strokeWidth="2"
-                    points={generateSparklinePoints(vital.history, 120, 32)}
-                  />
-                </svg>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

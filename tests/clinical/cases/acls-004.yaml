@@ -1,8 +1,9 @@
 test_id: acls-004
 skill: protocol-reference
-description: "SVT \u2014 vagal maneuvers first"
+description: SVT — vagal maneuvers first
 input:
   clinical_context: 28yo F, HR 220, narrow complex, regular, BP 110/70, conscious.
+  user_query: 28yo F, HR 220, narrow complex, regular, BP 110/70, conscious.
 expected:
   must_contain:
   - vagal
@@ -14,6 +15,17 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - vagal
+    - adenosine
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

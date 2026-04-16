@@ -1,33 +1,35 @@
 test_id: cross-004
 skill: clinical-calculator
-description: "Sepsis screening with NEWS2 + qSOFA cross-skill"
+description: Sepsis screening with NEWS2 + qSOFA cross-skill
 input:
-  user_query: "Patient with suspected infection: RR 22, SBP 100, GCS 14, NEWS2 score 4"
+  user_query: 'Patient with suspected infection: RR 22, SBP 100, GCS 14, NEWS2 score 4'
   clinical_context: Patient meets qSOFA criteria (RR>=22, GCS<15) with elevated NEWS2
 expected:
   must_contain:
-    - "qSOFA"
-    - "NEWS2"
-    - "sepsis"
-    - "screening"
+  - qSOFA
+  - NEWS2
+  - sepsis
+  - screening
   must_not_contain:
-    - "rule out sepsis"
-    - "low risk"
+  - rule out sepsis
+  - low risk
   scoring_rubric:
     critical:
-      - "Identifies qSOFA >= 2"
-      - "Identifies NEWS2 >= 4 as concerning"
+    - Identifies qSOFA >= 2
+    - Identifies NEWS2 >= 4 as concerning
     important:
-      - "Recommends sepsis workup"
-      - "Mentions lactate measurement"
+    - Recommends sepsis workup
+    - Mentions lactate measurement
     nice_to_have:
-      - "References SSC 2026 guidance on screening tools"
+    - References SSC 2026 guidance on screening tools
   expected_routing:
     primary: clinical-calculator
     secondary: protocol-reference
     cross_skill_triggers:
-      - "qSOFA >= 2 → protocol-reference (sepsis bundle)"
-      - "NEWS2 >= 4 → clinical-calculator (repeat assessment)"
+    - qSOFA >= 2 → protocol-reference (sepsis bundle)
+    - NEWS2 >= 4 → clinical-calculator (repeat assessment)
+    primary_skill: clinical-calculator
+    secondary_skills: []
   confidence:
     minimum_overall: 0.8
   provenance:

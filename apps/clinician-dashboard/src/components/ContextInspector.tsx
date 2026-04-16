@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Loader, Text } from '@mantine/core';
-import { colors } from '../theme';
+import { Alert, Badge, Button, Loader, Skeleton, Text, TextInput, Tooltip } from '@mantine/core';
+import { alpha, colors } from '@noah-rn/ui-tokens';
+import { IconAlertCircle, IconBinaryTree2, IconSearch, IconStethoscope } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 import { fhirSearch } from '../fhir/client';
-import type { Observation, Condition, MedicationRequest, Encounter } from '../fhir/types';
+import type { Condition, Encounter, MedicationRequest, Observation } from '../fhir/types';
 
 interface ContextInspectorProps {
   patientId?: string;
@@ -67,10 +68,9 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
         gaps.push('No allergy data (absent in MIMIC-IV demo)');
         gaps.push('No provider notes (absent in MIMIC-IV demo)');
 
-        // Build timeline
         const allTimestamps = [
-          ...vitals.map(v => v.effectiveDateTime).filter(Boolean),
-          ...labs.map(l => l.effectiveDateTime).filter(Boolean),
+          ...vitals.map((v) => v.effectiveDateTime).filter(Boolean),
+          ...labs.map((l) => l.effectiveDateTime).filter(Boolean),
         ] as string[];
         const reference = allTimestamps.sort().pop() ?? new Date().toISOString();
 
@@ -85,18 +85,20 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
           if (obs.valueQuantity?.value != null) {
             value = `${obs.valueQuantity.value} ${obs.valueQuantity.unit ?? ''}`.trim();
           } else if (obs.component?.length) {
-            const parts = obs.component.map(c => {
+            const parts = obs.component.map((c) => {
               const cDisplay = c.code?.coding?.[0]?.display ?? '';
               const cVal = c.valueQuantity?.value ?? '';
               return `${cDisplay}: ${cVal}`;
             });
             value = parts.join(', ');
           }
-          const isVital = obs.category?.some(c => c.coding?.some(cd => cd.code === 'vital-signs'));
+          const isVital = obs.category?.some((c) => c.coding?.some((cd) => cd.code === 'vital-signs'));
           timeline.push({
             type: 'observation',
             subtype: isVital ? 'vital' : 'lab',
-            code, display, value,
+            code,
+            display,
+            value,
             timestamp: ts,
             relativeTime: computeRelativeTime(ts, reference),
           });
@@ -142,7 +144,6 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
           });
         }
 
-        // Sort by timestamp descending (most recent first)
         timeline.sort((a, b) => {
           if (!a.timestamp || !b.timestamp) return 0;
           return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
@@ -162,42 +163,11 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
       }
     }
 
-    assemble();
-    return () => { cancelled = true; };
+    void assemble();
+    return () => {
+      cancelled = true;
+    };
   }, [patientId]);
-
-  const patientInput = (
-    <div style={{ display: 'flex', gap: 16, marginBottom: 32, alignItems: 'center' }}>
-      <Text ff="monospace" fz={11} c={colors.textSecondary}>patient-id:</Text>
-      <input
-        value={inputId}
-        onChange={e => setInputId(e.target.value)}
-        onKeyDown={e => { if (e.key === 'Enter') setPatientId(inputId); }}
-        placeholder="Enter FHIR ID"
-        style={{
-          width: 240, background: 'transparent', border: 'none', borderBottom: `1px solid ${colors.borderLight}`,
-          padding: '4px 0', color: colors.textPrimary,
-          fontFamily: '"JetBrains Mono", monospace', fontSize: 13, outline: 'none',
-          transition: 'border-color 0.15s ease',
-        }}
-      />
-      <button
-        onClick={() => setPatientId(inputId)}
-        style={{
-          background: 'transparent', border: 'none',
-          color: colors.accent, fontFamily: '"Outfit", sans-serif', fontSize: 13,
-          fontWeight: 500, cursor: 'pointer', padding: '4px 8px',
-        }}
-      >
-        Load
-      </button>
-    </div>
-  );
-
-  if (!patientId && !bundle) return <>{patientInput}<Text c={colors.textMuted} fz="sm" mt={40} ta="center">Enter a Patient ID to inspect assembled context</Text></>;
-  if (loading) return <>{patientInput}<div style={{ textAlign: 'center', padding: 40 }}><Loader size="sm" color={colors.info} /></div></>;
-  if (error) return <>{patientInput}<Text c={colors.critical} fz="sm">{error}</Text></>;
-  if (!bundle) return <>{patientInput}</>;
 
   const typeColors: Record<string, string> = {
     'observation:vital': colors.info,
@@ -207,80 +177,221 @@ export function ContextInspector({ patientId: propPatientId }: ContextInspectorP
     encounter: colors.textSecondary,
   };
 
+  const patientInput = (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        setPatientId(inputId);
+      }}
+      style={{
+        border: `1px solid ${colors.border}`,
+        borderRadius: 18,
+        background: colors.surface,
+        padding: '18px 20px',
+        marginBottom: 20,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <IconBinaryTree2 size={18} color={colors.accent} />
+        <Text ff="monospace" fz={11} fw={700} c={colors.textMuted} tt="uppercase" style={{ letterSpacing: '0.08em' }}>
+          Context assembly inspector
+        </Text>
+      </div>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <TextInput
+          value={inputId}
+          onChange={(e) => setInputId(e.currentTarget.value)}
+          placeholder="Enter FHIR patient ID"
+          leftSection={<IconSearch size={14} />}
+          styles={{
+            input: {
+              background: colors.bg,
+              borderColor: colors.borderLight,
+              color: colors.textPrimary,
+              minHeight: 44,
+              minWidth: 280,
+            },
+          }}
+        />
+        <Button type="submit" leftSection={<IconStethoscope size={14} />}>
+          Load context
+        </Button>
+      </div>
+    </form>
+  );
+
+  if (!patientId && !bundle) {
+    return (
+      <>
+        {patientInput}
+        <Text c={colors.textMuted} fz="sm" mt={40} ta="center">Enter a Patient ID to inspect assembled context</Text>
+      </>
+    );
+  }
+  if (loading) {
+    return (
+      <>
+        {patientInput}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.75fr) minmax(280px, 0.95fr)', gap: 20 }}>
+          <div style={{ border: `1px solid ${colors.border}`, borderRadius: 18, background: colors.surface, padding: '18px 20px' }}>
+            <Skeleton height={20} width={180} mb={16} />
+            <Skeleton height={42} mb={10} />
+            <Skeleton height={42} mb={10} />
+            <Skeleton height={42} mb={10} />
+            <Skeleton height={42} mb={10} />
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}><Loader size="sm" color={colors.info} /></div>
+          </div>
+          <div style={{ border: `1px solid ${colors.border}`, borderRadius: 18, background: colors.surface, padding: '18px 20px' }}>
+            <Skeleton height={20} width={120} mb={18} />
+            <Skeleton height={72} mb={12} />
+            <Skeleton height={72} mb={12} />
+            <Skeleton height={120} />
+          </div>
+        </div>
+      </>
+    );
+  }
+  if (error) {
+    return (
+      <>
+        {patientInput}
+        <Alert color="red" variant="light" icon={<IconAlertCircle size={16} />} title="Context load failed">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Text c={colors.textPrimary} fz="sm">{error}</Text>
+            <div>
+              <Button size="xs" variant="light" color="red" onClick={() => setPatientId(inputId || patientId)}>
+                Retry
+              </Button>
+            </div>
+          </div>
+        </Alert>
+      </>
+    );
+  }
+  if (!bundle) return <>{patientInput}</>;
+
+  const counts = bundle.timeline.reduce((acc, entry) => {
+    const key = entry.subtype ? `${entry.type}:${entry.subtype}` : entry.type;
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
   return (
     <div>
       {patientInput}
-    <div style={{ display: 'flex', gap: 48, height: '100%' }}>
-      {/* Left: Timeline */}
-      <div style={{ flex: 2, overflowY: 'auto' }}>
-        <Text fz={12} fw={500} c={colors.textMuted} mb={16} style={{ letterSpacing: '0.05em' }}>
-          TIMELINE ({bundle.timeline.length})
-        </Text>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {bundle.timeline.map((entry, i) => {
-            const colorKey = entry.subtype ? `${entry.type}:${entry.subtype}` : entry.type;
-            return (
-              <div key={i} style={{
-                display: 'flex', gap: 16, padding: '8px 0', borderBottom: `1px solid ${colors.border}`,
-                fontFamily: '"JetBrains Mono", monospace', fontSize: 12, alignItems: 'baseline',
-              }}>
-                <span style={{ color: colors.textSecondary, width: 64, flexShrink: 0 }}>{entry.relativeTime}</span>
-                <span style={{
-                  color: typeColors[colorKey] ?? colors.textSecondary,
-                  width: 50, flexShrink: 0, fontSize: 11, opacity: 0.9,
-                }}>
-                  {entry.type === 'observation' ? entry.subtype?.slice(0,3).toUpperCase() : entry.type.slice(0,3).toUpperCase()}
-                </span>
-                <span style={{ color: colors.textPrimary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.display}</span>
-                <span style={{ color: colors.textSecondary, width: 140, flexShrink: 0, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.value}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.75fr) minmax(280px, 0.95fr)', gap: 20, alignItems: 'start' }}>
+        <section
+          style={{
+            border: `1px solid ${colors.border}`,
+            borderRadius: 18,
+            background: colors.surface,
+            padding: '18px 20px',
+            minHeight: 560,
+            maxHeight: 'calc(100vh - 220px)',
+            overflowY: 'auto',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+            <Text fz={12} fw={600} c={colors.textMuted} style={{ letterSpacing: '0.05em' }}>
+              TIMELINE ({bundle.timeline.length})
+            </Text>
+            <Badge variant="light" color="cyan" radius="sm">{bundle.tokenEstimate.toLocaleString()} est. tokens</Badge>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {bundle.timeline.map((entry, i) => {
+              const colorKey = entry.subtype ? `${entry.type}:${entry.subtype}` : entry.type;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '72px 56px minmax(0,1fr) 160px',
+                    gap: 16,
+                    padding: '10px 0',
+                    borderBottom: `1px solid ${colors.border}`,
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontSize: 12,
+                    alignItems: 'baseline',
+                  }}
+                >
+                  <span style={{ color: colors.textSecondary }}>{entry.relativeTime}</span>
+                  <span style={{ color: typeColors[colorKey] ?? colors.textSecondary, fontSize: 11, opacity: 0.95 }}>
+                    {entry.type === 'observation' ? entry.subtype?.slice(0, 3).toUpperCase() : entry.type.slice(0, 3).toUpperCase()}
+                  </span>
+                  <Tooltip label={entry.display} multiline maw={360}>
+                    <span style={{ color: colors.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.display}</span>
+                  </Tooltip>
+                  <Tooltip label={entry.value} multiline maw={360}>
+                    <span style={{ color: colors.textSecondary, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.value}</span>
+                  </Tooltip>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
-      {/* Right: Metadata */}
-      <div style={{ flex: 1 }}>
-        <Text fz={12} fw={500} c={colors.textMuted} mb={24} style={{ letterSpacing: '0.05em' }}>
-          METADATA
-        </Text>
+        <section
+          style={{
+            border: `1px solid ${colors.border}`,
+            borderRadius: 18,
+            background: colors.surface,
+            padding: '18px 20px',
+            position: 'sticky',
+            top: 0,
+          }}
+        >
+          <Text fz={12} fw={600} c={colors.textMuted} mb={18} style={{ letterSpacing: '0.05em' }}>
+            METADATA
+          </Text>
 
-        <div style={{ marginBottom: 32 }}>
-          <Text fz={12} c={colors.textSecondary} mb={8}>Tokens</Text>
-          <Text ff="monospace" fz={24} fw={500} c={colors.textPrimary}>{bundle.tokenEstimate.toLocaleString()}</Text>
-        </div>
+          <div style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
+            <MetaCard label="Tokens" value={bundle.tokenEstimate.toLocaleString()} />
+            <MetaCard label="Queries" value={`${bundle.queriesExecuted.length}`} />
+            <MetaCard label="Gaps" value={`${bundle.gaps.length}`} tone={bundle.gaps.length ? colors.warning : colors.accent} />
+          </div>
 
-        <div style={{ marginBottom: 32 }}>
-          <Text fz={12} c={colors.textSecondary} mb={8}>Queries</Text>
-          {bundle.queriesExecuted.map(q => (
-            <Text key={q} ff="monospace" fz={11} c={colors.textPrimary} mb={4}>{q}</Text>
-          ))}
-        </div>
-
-        <div style={{ marginBottom: 32 }}>
-          <Text fz={12} c={colors.textSecondary} mb={8}>Counts</Text>
-          {Object.entries(
-            bundle.timeline.reduce((acc, e) => {
-              const key = e.subtype ? `${e.type}:${e.subtype}` : e.type;
-              acc[key] = (acc[key] ?? 0) + 1;
-              return acc;
-            }, {} as Record<string, number>),
-          ).map(([key, count]) => (
-            <div key={key} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text ff="monospace" fz={11} c={typeColors[key] ?? colors.textSecondary}>{key}</Text>
-              <Text ff="monospace" fz={11} c={colors.textPrimary}>{count}</Text>
+          <div style={{ marginBottom: 28 }}>
+            <Text fz={12} c={colors.textSecondary} mb={10}>Queries executed</Text>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {bundle.queriesExecuted.map((q) => (
+                <Text key={q} ff="monospace" fz={11} c={colors.textPrimary}>{q}</Text>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div>
-          <Text fz={12} c={colors.textSecondary} mb={8}>Gaps</Text>
-          {bundle.gaps.map(g => (
-            <Text key={g} fz={12} c={colors.warning} mb={4}>{g}</Text>
-          ))}
-        </div>
+          <div style={{ marginBottom: 28 }}>
+            <Text fz={12} c={colors.textSecondary} mb={10}>Counts</Text>
+            {Object.entries(counts).map(([key, count]) => (
+              <div key={key} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <Text ff="monospace" fz={11} c={typeColors[key] ?? colors.textSecondary}>{key}</Text>
+                <Text ff="monospace" fz={11} c={colors.textPrimary}>{count}</Text>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Text fz={12} c={colors.textSecondary} mb={10}>Known gaps</Text>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {bundle.gaps.map((g) => (
+                <div key={g} style={{ border: `1px solid ${colors.border}`, borderRadius: 12, background: alpha.warningSoft, padding: '10px 12px' }}>
+                  <Text fz={12} c={colors.textPrimary}>{g}</Text>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
+  );
+}
+
+function MetaCard({ label, value, tone = colors.textPrimary }: { label: string; value: string; tone?: string }) {
+  return (
+    <div style={{ border: `1px solid ${colors.border}`, borderRadius: 14, background: colors.bg, padding: '12px 14px' }}>
+      <Text fz={11} fw={600} c={colors.textMuted} style={{ letterSpacing: '0.05em', marginBottom: 8 }}>
+        {label}
+      </Text>
+      <Text ff="monospace" fz={20} fw={600} c={tone}>{value}</Text>
     </div>
   );
 }

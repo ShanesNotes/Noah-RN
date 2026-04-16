@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:16:15Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient needs heparin drip. Weight 70kg, target 18 units/kg/hr. What's the rate and what monitoring do I need?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

@@ -54,6 +54,23 @@ extensions:
       - tool_family: safety-hooks
         purpose: "Tier 1 safety validation on output"
 
+# --- Context sources --------------------------------------------------------
+# Noah RN is the clinical workspace harness. Pi is the substrate used to build
+# the harness, while patient context can arrive from multiple workspace lanes.
+context_sources:
+  - name: ehr
+    path: services/clinical-mcp/
+    purpose: "FHIR/Medplum chart context and write-back surface for draft artifacts"
+  - name: memory
+    path: docs/foundations/memory-layer-scaffold.md
+    purpose: "Encounter/session memory that can inject continuity context when implemented"
+  - name: clinical-resources
+    path: clinical-resources/
+    purpose: "Guidelines, templates, and reference material used for provenance-aware output"
+  - name: patient-monitor
+    path: services/sim-harness/
+    purpose: "Live monitor/simulation context when the encounter is running against the simulated patient substrate"
+
 # --- Knowledge assets -------------------------------------------------------
 # Referenced at output time for cross-skill suggestions, output structure,
 # and disclaimers. Paths are relative to repo root.

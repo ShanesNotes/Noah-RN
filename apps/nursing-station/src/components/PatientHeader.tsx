@@ -1,19 +1,23 @@
 import { Badge, Text } from '@mantine/core';
+import { glassHeaderStyle, iconButtonStyle, sectionEyebrowStyle } from '@noah-rn/ui';
+import { colors } from '@noah-rn/ui-tokens';
+import { IconAlertTriangle, IconArrowLeft, IconClockHour4, IconMapPin, IconShield } from '@tabler/icons-react';
 import { formatDate, formatDateTime, formatHumanName, formatReferenceString } from '@medplum/core';
 import type { AllergyIntolerance, Encounter, Patient } from '@medplum/fhirtypes';
 import { useSearchResources } from '@medplum/react-hooks';
-import { IconArrowLeft } from '@tabler/icons-react';
 import type { JSX } from 'react';
-import type { ChartSectionItem } from './ChartSectionNav';
-import { colors } from '../theme';
+
+interface PatientHeaderFixtureData {
+  allergies?: AllergyIntolerance[];
+  encounter?: Encounter;
+  latestVital?: { effectiveDateTime?: string };
+}
 
 interface PatientHeaderProps {
   patient: Patient;
   patientId: string;
-  activeSection: string;
-  sections: ChartSectionItem[];
   onBack: () => void;
-  onSelectSection: (section: string) => void;
+  fixtureData?: PatientHeaderFixtureData;
 }
 
 function summarizeAllergies(allergies: AllergyIntolerance[] | undefined): string {
@@ -47,17 +51,16 @@ function deriveAttendingService(encounter: Encounter | undefined): string {
   return service ?? participant ?? '—';
 }
 
+function deriveCodeStatus(patient: Patient, encounter: Encounter | undefined): string {
+  const encounterStatus = encounter?.hospitalization?.dietPreference?.[0]?.text;
+  const patientStatus = patient.extension?.find((extension) => extension.url?.toLowerCase().includes('code-status'))?.valueCodeableConcept?.text;
+  return patientStatus ?? encounterStatus ?? 'Full code';
+}
+
 function Field({ label, value, testId }: { label: string; value: string; testId: string }): JSX.Element {
   return (
     <div data-testid={testId} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <Text
-        ff="monospace"
-        fz={11}
-        fw={600}
-        c={colors.textMuted}
-        tt="uppercase"
-        style={{ letterSpacing: '0.08em' }}
-      >
+      <Text style={sectionEyebrowStyle}>
         {label}
       </Text>
       <Text fz={13} fw={500} c={colors.textPrimary}>
@@ -70,49 +73,90 @@ function Field({ label, value, testId }: { label: string; value: string; testId:
 export function PatientHeader({
   patient,
   patientId,
-  activeSection,
-  sections,
   onBack,
-  onSelectSection,
+  fixtureData,
+}: PatientHeaderProps): JSX.Element {
+  if (fixtureData) {
+    return (
+      <PatientHeaderView
+        patient={patient}
+        patientId={patientId}
+        onBack={onBack}
+        allergies={fixtureData.allergies}
+        encounter={fixtureData.encounter}
+        latestVitalTime={fixtureData.latestVital?.effectiveDateTime}
+      />
+    );
+  }
+
+  return <LivePatientHeader patient={patient} patientId={patientId} onBack={onBack} />;
+}
+
+function LivePatientHeader({
+  patient,
+  patientId,
+  onBack,
 }: PatientHeaderProps): JSX.Element {
   const patientRef = `Patient/${patientId}`;
   const [allergies] = useSearchResources('AllergyIntolerance', `patient=${patientRef}&_count=3`);
   const [encounters] = useSearchResources('Encounter', `patient=${patientRef}&_sort=-date&_count=1`);
   const [latestVitals] = useSearchResources('Observation', `patient=${patientRef}&category=vital-signs&_sort=-date&_count=1`);
 
-  const encounter = encounters?.[0];
-  const latestVital = latestVitals?.[0];
+  return (
+    <PatientHeaderView
+      patient={patient}
+      patientId={patientId}
+      onBack={onBack}
+      allergies={allergies}
+      encounter={encounters?.[0]}
+      latestVitalTime={latestVitals?.[0]?.effectiveDateTime}
+    />
+  );
+}
 
+function PatientHeaderView({
+  patient,
+  patientId,
+  onBack,
+  allergies,
+  encounter,
+  latestVitalTime,
+}: {
+  patient: Patient;
+  patientId: string;
+  onBack: () => void;
+  allergies: AllergyIntolerance[] | undefined;
+  encounter: Encounter | undefined;
+  latestVitalTime?: string;
+}): JSX.Element {
   const name = patient.name?.[0] ? formatHumanName(patient.name[0]) : 'Unknown Patient';
   const dob = patient.birthDate ? formatDate(patient.birthDate) : '—';
   const demographics = [
     patient.gender ? patient.gender.toUpperCase() : 'UNKNOWN',
     dob !== '—' ? `DOB: ${dob}` : 'DOB: —',
   ].join(' · ');
+  const allergyCount = allergies?.length ?? 0;
+  const codeStatus = deriveCodeStatus(patient, encounter);
 
   return (
     <div
       data-testid="patient-header"
       style={{
-        padding: '24px 48px 0 48px',
-        borderBottom: `1px solid ${colors.borderLight}`,
-        background: colors.bg,
-        position: 'relative',
-        zIndex: 2,
+        ...glassHeaderStyle,
+        padding: '20px 48px 18px 48px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <button
           type="button"
+          aria-label="Back to patient worklist"
           onClick={onBack}
           style={{
-            background: 'transparent',
-            border: 'none',
+            ...iconButtonStyle,
             cursor: 'pointer',
-            color: colors.textSecondary,
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
           }}
         >
           <IconArrowLeft size={18} />
@@ -120,6 +164,21 @@ export function PatientHeader({
         <Text fz={12} c={colors.textSecondary} style={{ letterSpacing: '0.05em' }}>
           BACK TO PATIENTS
         </Text>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+        <Badge variant="light" color="cyan" radius="sm" leftSection={<IconMapPin size={12} />}>
+          {deriveLocation(encounter)}
+        </Badge>
+        <Badge variant="light" color={codeStatus.toLowerCase().includes('full') ? 'blue' : 'red'} radius="sm" leftSection={<IconShield size={12} />}>
+          {codeStatus}
+        </Badge>
+        <Badge variant="light" color={allergyCount > 0 ? 'red' : 'gray'} radius="sm" leftSection={<IconAlertTriangle size={12} />}>
+          {allergyCount > 0 ? `${allergyCount} allerg${allergyCount === 1 ? 'y' : 'ies'}` : 'No allergies listed'}
+        </Badge>
+        <Badge variant="outline" color="gray" radius="sm" leftSection={<IconClockHour4 size={12} />}>
+          {latestVitalTime ? `Vitals ${formatDateTime(latestVitalTime)}` : 'No recent vitals'}
+        </Badge>
       </div>
 
       <div
@@ -152,48 +211,24 @@ export function PatientHeader({
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: '16px 24px',
             flex: '1 1 560px',
+            minWidth: 'min(100%, 420px)',
           }}
         >
           <Field label="Location" value={deriveLocation(encounter)} testId="patient-location" />
-          <Field label="Code Status" value="UNKNOWN" testId="code-status" />
+          <Field label="Code Status" value={codeStatus} testId="code-status" />
           <Field label="Allergies" value={summarizeAllergies(allergies)} testId="allergy-list" />
           <Field label="Attending / Service" value={deriveAttendingService(encounter)} testId="attending-service" />
           <Field
             label="Last Vitals"
-            value={latestVital?.effectiveDateTime ? formatDateTime(latestVital.effectiveDateTime) : '—'}
+            value={latestVitalTime ? formatDateTime(latestVitalTime) : '—'}
             testId="timestamp"
           />
           <Field
             label="MRN / ID"
-            value={patient.identifier?.[0]?.value ?? formatReferenceString({ reference: patientRef }) ?? patientId}
+            value={patient.identifier?.[0]?.value ?? formatReferenceString({ reference: `Patient/${patientId}` }) ?? patientId}
             testId="patient-mrn"
           />
         </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 24, overflowX: 'auto' }}>
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            type="button"
-            onClick={() => onSelectSection(section.id)}
-            style={{
-              background: 'transparent',
-              color: activeSection === section.id ? colors.textPrimary : colors.textSecondary,
-              border: 'none',
-              borderBottom: activeSection === section.id ? `2px solid ${colors.accent}` : '2px solid transparent',
-              padding: '0 0 12px 0',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontSize: 12,
-              fontWeight: activeSection === section.id ? 600 : 400,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {section.label}
-          </button>
-        ))}
       </div>
     </div>
   );

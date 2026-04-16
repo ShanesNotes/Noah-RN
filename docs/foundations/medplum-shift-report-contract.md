@@ -69,13 +69,16 @@ Shift Report output returns as a draft `DocumentReference`.
 - `type.coding[0].code`: `shift-report-draft`
 - `type.coding[0].display`: `Draft Shift Report`
 - `description`: `Draft Shift Report — requires nurse review`
-- `content[0].attachment.contentType`: `text/plain`
+- `content[0].attachment.contentType`: `text/markdown`
 - `content[0].attachment.data`: base64-encoded Shift Report text
 
 ### Recommended fields
 
 - `author[0]`: pre-provisioned `Device/<id>` reference or display-only fallback such as `Noah RN Agent`
 - `context.encounter[0].reference`: copied from `Task.encounter` when present
+- `Task.focus`: point at the created draft `DocumentReference` when the worker completes the task
+- `meta.tag`: mark workflow / review-required state for downstream review filtering
+- `identifier`: carry task/execution linkage metadata when available
 
 ### Example
 
@@ -101,7 +104,7 @@ Shift Report output returns as a draft `DocumentReference`.
   "content": [
     {
       "attachment": {
-        "contentType": "text/plain",
+        "contentType": "text/markdown",
         "data": "<base64>"
       }
     }
@@ -116,6 +119,7 @@ After Noah RN successfully creates the draft artifact, the worker updates the or
 ### Required fields on update
 
 - `status`: `completed`
+- `focus.reference`: `DocumentReference/<id>`
 - `output[0].type.text`: `shift-report-draft`
 - `output[0].valueReference.reference`: `DocumentReference/<id>`
 
@@ -123,6 +127,10 @@ After Noah RN successfully creates the draft artifact, the worker updates the or
 
 ```json
 {
+  "focus": {
+    "reference": "DocumentReference/abc123",
+    "display": "Draft Shift Report"
+  },
   "output": [
     {
       "type": {
@@ -156,7 +164,7 @@ This contract explicitly preserves the runtime boundary:
 Therefore:
 
 - context assembly remains in `clinical-mcp`
-- Shift Report formatting remains in the existing harness path
+- Shift Report formatting remains in the shared harness renderer path (`packages/agent-harness/shift-report-renderer.mjs`)
 - no duplicate Medplum-native Shift Report implementation is introduced
 
 ## Draft Rule

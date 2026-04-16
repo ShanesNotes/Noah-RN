@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T14:04:14Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "RSI for obese patient with limited neck mobility, Mallampati 4, full dentition",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

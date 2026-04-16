@@ -1,0 +1,23 @@
+{
+  "case_id": "cross-003",
+  "test_id": "cross-003",
+  "skill": "unit-conversion",
+  "severity": "high",
+  "status": "pass",
+  "failure_bucket": "pass",
+  "safety_veto_case": false,
+  "expected_confidence_tier": 1,
+  "clinical_correctness": 0.75,
+  "completeness": 0.75,
+  "confidence_calibration": 0.25,
+  "format_compliance": 1.0,
+  "provenance_accuracy": 0.0,
+  "omission_detection": 0.75,
+  "weighted_score": 0.7,
+  "stated_confidence": 0.0,
+  "critical_missing": [
+    "120"
+  ],
+  "prohibited_hits": [],
+  "constraint_violations": []
+}

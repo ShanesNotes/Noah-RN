@@ -1,8 +1,9 @@
 test_id: drug-001
 skill: drug-reference
-description: "Vancomycin dosing \u2014 renal adjustment"
+description: Vancomycin dosing — renal adjustment
 input:
   clinical_context: Vancomycin dose for 80kg patient, CrCl 25 mL/min, MRSA pneumonia.
+  user_query: Vancomycin dose for 80kg patient, CrCl 25 mL/min, MRSA pneumonia.
 expected:
   must_contain:
   - vancomycin
@@ -16,6 +17,19 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - vancomycin
+    - renal
+    - trough
+    - AUC
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

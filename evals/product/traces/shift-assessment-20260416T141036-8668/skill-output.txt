@@ -1,0 +1,45 @@
+Summary
+PATIENT (Tier 1 — nurse-reported facts)
+- [Needs patient identifiers from narrative or chart context]
+
+STORY (Tier 2 — nurse narrative preserved)
+- Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?
+
+ASSESSMENT (Tier 2 — organize from reported narrative)
+- Performs a focused neurological assessment including GCS and pupils.
+- Recognizes the presentation as possible acute stroke or rapid neuro deterioration.
+- Urgently escalates to a physician or stroke-capable team.
+- Includes blood pressure assessment and last-known-normal timing.
+
+LINES & ACCESS (Tier 2 — reported bedside details)
+- [Access details not yet extracted from the narrative]
+
+ACTIVE ISSUES & PLAN (Tier 2 — bedside watch items)
+- [Watch items and pending plan items to be derived from the narrative]
+
+HOUSEKEEPING (Tier 2 — bedside input required)
+- [Housekeeping details not provided]
+
+FAMILY (Tier 2 — bedside input required)
+- [Family communication details not provided]
+
+Evidence
+Workflow: shift-assessment
+Input mode: clinical_narrative
+Resource access: cross-skill-triggers, disclaimers, four-layer-output
+Tool families: trace
+Service surfaces: packages/workflows/
+User context seed: Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?
+
+Confidence
+- Summary structure: Tier 2 — nurse narrative organized without fabrication.
+- Facility-specific details remain Tier 3 — per facility protocol.
+
+Provenance
+---
+noah-rn v0.2 | shift-assessment v1.1.0 | nurse-reported data
+Clinical decision support — verify against facility protocols and current patient data.
+
+---
+Noah RN — you're the nurse, I'm the clipboard. Double-check everything.
+Verify all findings against your assessment and facility policies.

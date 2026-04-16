@@ -1,0 +1,15 @@
+{
+  "skill": "shift-assessment",
+  "timestamp": "2026-04-16T13:25:22Z",
+  "context": {
+    "workflow": "shift-assessment",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "58yo F, MICU day 1 admission for urosepsis. Temp 38.6, HR 102, BP 94/62 on norepinephrine\n0.08 mcg/kg/min, RR 20, SpO2 98% on 4L NC. A&Ox3, GCS 15. Equal and reactive pupils.\nLungs CTA bilaterally. RRR, no murmurs. Abdomen soft. UO 28 mL/hr via foley.\nNo skin breakdown. PIV x2 RFA. Vancomycin + pip-tazo infusing. Lactic acid 3.2 trending down.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

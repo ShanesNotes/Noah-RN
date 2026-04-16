@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T03:33:03Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Post-cardiac arrest patient ROSC achieved. What temperature management protocol?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

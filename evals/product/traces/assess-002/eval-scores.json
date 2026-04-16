@@ -1,0 +1,21 @@
+{
+  "case_id": "assess-002",
+  "test_id": "assess-002",
+  "skill": "shift-assessment",
+  "severity": "critical",
+  "status": "pass",
+  "failure_bucket": "pass",
+  "safety_veto_case": false,
+  "expected_confidence_tier": 2,
+  "clinical_correctness": 1.0,
+  "completeness": 0.6429,
+  "confidence_calibration": 0.0,
+  "format_compliance": 1.0,
+  "provenance_accuracy": 0.0,
+  "omission_detection": 1.0,
+  "weighted_score": 0.7286,
+  "stated_confidence": 0.0,
+  "critical_missing": [],
+  "prohibited_hits": [],
+  "constraint_violations": []
+}

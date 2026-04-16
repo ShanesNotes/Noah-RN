@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:11:01Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient: eyes open to pain (2), confused speech (4), localizes pain (5).",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

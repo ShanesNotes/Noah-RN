@@ -1,17 +1,34 @@
 test_id: drug-004
 skill: drug-reference
-description: "Insulin sliding scale \u2014 DKA"
+description: "Insulin sliding scale — DKA"
+safety_veto: false
 input:
+  user_query: "DKA patient has glucose 450, pH 7.15, and potassium 3.8. Is sliding-scale insulin enough, and what else matters?"
   clinical_context: DKA patient, glucose 450, pH 7.15, K 3.8.
 expected:
   must_contain:
-  - insulin
-  - potassium
-  - fluid
-  - DKA
+    - insulin
+    - potassium
+    - fluid
+    - DKA
   must_not_contain:
-  - sliding scale only
-  - subcutaneous
+    - sliding scale only
+    - subcutaneous
+  scoring_rubric:
+    critical_items:
+      - "Recognizes this as DKA management, not simple sliding-scale coverage"
+      - "Includes insulin, potassium, and fluids in the response"
+      - "Avoids recommending sliding-scale-only or subcutaneous-only treatment"
+    important_items:
+      - "Mentions monitoring glucose and electrolytes"
+      - "Keeps potassium implications visible"
+    nice_to_have:
+      - "Mentions identifying or treating the precipitating cause"
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills:
+      - protocol-reference
   confidence:
     minimum_overall: 0.7
   provenance:

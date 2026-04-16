@@ -1,18 +1,34 @@
 test_id: code-blue-001
 skill: protocol-reference
-description: "Code blue \u2014 team roles"
+description: "Code blue — team roles"
+safety_veto: false
 input:
+  user_query: "Code blue called, patient is unresponsive and pulseless. What team roles and priorities should I assign right now?"
   clinical_context: Code blue called on 4W. Patient unresponsive, no pulse.
 expected:
   must_contain:
-  - compressions
-  - airway
-  - medications
-  - defibrillation
-  - timer
+    - compressions
+    - airway
+    - medications
+    - defibrillation
+    - timer
   must_not_contain:
-  - wait
-  - observe
+    - wait
+    - observe
+  scoring_rubric:
+    critical_items:
+      - "Assigns chest compressions as an immediate priority"
+      - "Assigns airway and medication roles"
+      - "Includes defibrillation readiness and timekeeping or recording"
+    important_items:
+      - "Uses explicit team-role language"
+      - "Supports closed-loop communication"
+    nice_to_have:
+      - "Mentions compressor rotation or documentation role"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

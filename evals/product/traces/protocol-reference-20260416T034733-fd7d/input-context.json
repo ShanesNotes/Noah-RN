@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T03:47:33Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient has wide-complex tachycardia at 190 with BP 70/40 and altered mentation. What is the immediate treatment?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

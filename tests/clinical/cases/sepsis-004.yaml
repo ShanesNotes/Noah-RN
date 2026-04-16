@@ -2,8 +2,8 @@ test_id: sepsis-004
 skill: clinical-calculator
 description: SOFA score calculation
 input:
-  clinical_context: Patient with PaO2/FiO2 180, platelets 85K, bilirubin 3.2, MAP
-    60, GCS 13, Cr 2.1
+  clinical_context: Patient with PaO2/FiO2 180, platelets 85K, bilirubin 3.2, MAP 60, GCS 13, Cr 2.1
+  user_query: Patient with PaO2/FiO2 180, platelets 85K, bilirubin 3.2, MAP 60, GCS 13, Cr 2.1
 expected:
   must_contain:
   - SOFA
@@ -15,6 +15,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - SOFA
+    - score
+    - organ
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

@@ -68,3 +68,11 @@ From this folder:
 - `TASKS.md` deferred sim-harness runtime work — runtime lane A stays gated on the first bedside workflow that actually needs live vitals.
 - `docs/ARCHITECTURE.md` — workspace-center description.
 - `docs/topology/subproject-workspace-map.md` — Workspace center B under Clinical Workspace.
+
+## Read this next
+
+- `../../docs/foundations/invariant-kernel-simulation-architecture.md` — canonical kernel authority
+- `../../docs/foundations/foundational-contracts-simulation-architecture.md` — binding simulation contracts
+- `../../docs/foundations/execution-packet-simulation-architecture.md` — implementation lanes A–F
+- `../../docs/ARCHITECTURE.md` — repo-wide boundary map
+- `../clinical-mcp/README.md` — agent-facing boundary that sim work must route through

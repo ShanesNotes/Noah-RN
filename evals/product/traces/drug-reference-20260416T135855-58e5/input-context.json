@@ -1,0 +1,15 @@
+{
+  "skill": "drug-reference",
+  "timestamp": "2026-04-16T13:58:55Z",
+  "context": {
+    "workflow": "drug-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "DKA patient has glucose 450, pH 7.15, and potassium 3.8. Is sliding-scale insulin enough, and what else matters?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

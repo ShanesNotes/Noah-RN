@@ -1,0 +1,39 @@
+{
+  "phase": "B",
+  "cadence": "manual",
+  "iterations_completed": 5,
+  "convergence_trend": [
+    {
+      "iteration": 1,
+      "weighted_score": 82.8,
+      "veto_count": 1
+    },
+    {
+      "iteration": 2,
+      "weighted_score": 46.97,
+      "veto_count": 34
+    },
+    {
+      "iteration": 3,
+      "weighted_score": 46.97,
+      "veto_count": 34
+    },
+    {
+      "iteration": 4,
+      "weighted_score": 46.97,
+      "veto_count": 34
+    },
+    {
+      "iteration": 5,
+      "weighted_score": 47.9,
+      "veto_count": 34
+    }
+  ],
+  "last_cycle": "2026-04-16T13:26:18.272735+00:00",
+  "failure_buckets": {
+    "corpus_schema_config": 0,
+    "skill_contract": 0,
+    "harness_output": 25
+  },
+  "branch_recommendation": "top-cluster-harness-first"
+}

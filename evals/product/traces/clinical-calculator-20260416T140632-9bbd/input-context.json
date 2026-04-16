@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:06:32Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient with unilateral leg swelling, pitting edema, alternative diagnosis less likely.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

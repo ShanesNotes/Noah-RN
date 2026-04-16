@@ -1,6 +1,7 @@
 test_id: format-003
 skill: clinical-calculator
 description: "Confidence tier enforcement for guideline-based calculation"
+safety_veto: false
 input:
   user_query: "Calculate CURB-65 for patient: confused, BUN 25, RR 32, BP 85/50, age 70"
   clinical_context: All 5 CURB-65 criteria positive — maximum score
@@ -14,14 +15,18 @@ expected:
     - "Tier 3"
     - "facility-specific"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Correct CURB-65 score of 5"
       - "Confidence tier is Tier 1 (national guideline)"
-    important:
+    important_items:
       - "Recommends ICU admission"
       - "Identifies each positive criterion"
     nice_to_have:
       - "Mentions mortality risk at score 5"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
   confidence:
     minimum_overall: 0.9
   provenance:

@@ -13,14 +13,18 @@ expected:
     - "hydroxyzine"
     - "antihistamine"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Provides correct hydralazine information"
-      - "Does not confuse with hydroxyzine"
-    important:
-      - "Mentions LASA risk if context suggests confusion"
-      - "Includes ISMP high-alert flag"
+      - "Does not confuse hydralazine with hydroxyzine"
+    important_items:
+      - "Mentions LASA risk if the context suggests confusion"
+      - "Includes ISMP high-alert framing where appropriate"
     nice_to_have:
       - "Lists common look-alike pairs"
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.8
   provenance:

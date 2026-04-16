@@ -1,6 +1,6 @@
 {
   "skill": "shift-report",
-  "timestamp": "2026-04-12T17:15:54Z",
+  "timestamp": "2026-04-16T14:11:30Z",
   "context": {
     "workflow": "shift-report",
     "input_mode": "clinical_narrative",
@@ -9,6 +9,7 @@
       "clinical_narrative"
     ],
     "raw_input": "Generate shift handoff report for patient with sepsis, on norepinephrine 0.1 mcg/kg/min, MAP 65",
-    "context_assembled": false
+    "context_assembled": false,
+    "phi_risk": "none"
   }
 }

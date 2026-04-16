@@ -1,0 +1,15 @@
+{
+  "patient_bundle_tokens": 1383,
+  "knowledge_assets_selected": [
+    "cross-skill-triggers",
+    "disclaimers",
+    "four-layer-output",
+    "drug-ranges"
+  ],
+  "compression_strategy": "timeline-windowed",
+  "gap_markers": [
+    "Devices query failed: FHIR fetch failed: FHIR client credentials are required. Set FHIR_CLIENT_ID and FHIR_CLIENT_SECRET, or use FHIR_FIXTURE_DIR for fixture-backed reads.",
+    "[GAP: Lines/Access] No device data (IV lines, central lines, airway) found"
+  ],
+  "fhir_queries_fired": 9
+}

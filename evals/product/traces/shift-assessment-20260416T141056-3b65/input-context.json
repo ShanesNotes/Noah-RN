@@ -1,0 +1,15 @@
+{
+  "skill": "shift-assessment",
+  "timestamp": "2026-04-16T14:10:56Z",
+  "context": {
+    "workflow": "shift-assessment",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Post-op CABG patient suddenly has confusion, arm drift, unequal pupils, and severe hypertension. What focused assessment and escalation do I do now?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

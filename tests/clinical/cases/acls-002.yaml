@@ -1,16 +1,32 @@
 test_id: acls-002
 skill: protocol-reference
-description: "Asystole \u2014 no shock indicated"
+description: "Asystole — no shock indicated"
+safety_veto: false
 input:
+  user_query: "Patient is in asystole cardiac arrest. Do I shock, and what are the next ACLS steps?"
   clinical_context: Patient in cardiac arrest, monitor shows asystole.
 expected:
   must_contain:
-  - epinephrine
-  - CPR
-  - no shock
+    - epinephrine
+    - CPR
+    - no shock
   must_not_contain:
-  - defibrillation
-  - shock
+    - defibrillation
+    - shock
+  scoring_rubric:
+    critical_items:
+      - "States that asystole is non-shockable"
+      - "Includes immediate CPR"
+      - "Includes epinephrine in the algorithm"
+    important_items:
+      - "Mentions rhythm reassessment"
+      - "Mentions reversible-cause evaluation"
+    nice_to_have:
+      - "Uses clear ACLS non-shockable language"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

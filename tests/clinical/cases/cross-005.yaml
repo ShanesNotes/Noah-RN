@@ -1,6 +1,7 @@
 test_id: cross-005
 skill: clinical-calculator
 description: "Stroke with NIHSS + tPA eligibility cross-skill"
+safety_veto: false
 input:
   user_query: "Patient with acute stroke symptoms, NIHSS score 12, last known well 2 hours ago"
   clinical_context: Moderate-severe stroke within tPA window
@@ -14,17 +15,19 @@ expected:
     - "contraindicated"
     - "outside window"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Identifies patient within tPA window (< 4.5 hours)"
       - "NIHSS 12 indicates moderate-severe stroke"
-    important:
+    important_items:
       - "Lists tPA exclusion criteria to check"
       - "Recommends immediate CT head"
     nice_to_have:
       - "Mentions thrombectomy consideration for large vessel occlusion"
+  expected_confidence_tier: 1
   expected_routing:
-    primary: clinical-calculator
-    secondary: protocol-reference
+    primary_skill: clinical-calculator
+    secondary_skills:
+      - protocol-reference
     cross_skill_triggers:
       - "NIHSS >= 6 → protocol-reference (acute stroke)"
       - "Within tPA window → protocol-reference (tPA checklist)"

@@ -1,16 +1,32 @@
 test_id: acls-003
 skill: protocol-reference
-description: "PEA \u2014 identify reversible causes"
+description: "PEA — identify reversible causes"
+safety_veto: false
 input:
+  user_query: "Patient has an organized rhythm but no pulse. What is the ACLS approach for this arrest?"
   clinical_context: Patient in cardiac arrest with organized rhythm but no pulse.
 expected:
   must_contain:
-  - Hs and Ts
-  - reversible
-  - CPR
-  - epinephrine
+    - Hs and Ts
+    - reversible
+    - CPR
+    - epinephrine
   must_not_contain:
-  - defibrillation
+    - defibrillation
+  scoring_rubric:
+    critical_items:
+      - "Identifies PEA as non-shockable"
+      - "Includes CPR and epinephrine"
+      - "Directs the user to evaluate Hs and Ts / reversible causes"
+    important_items:
+      - "Mentions pulse or rhythm reassessment"
+      - "Keeps defibrillation out of the plan"
+    nice_to_have:
+      - "Names at least one example reversible cause"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

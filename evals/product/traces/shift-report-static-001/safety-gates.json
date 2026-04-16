@@ -1,0 +1,12 @@
+[
+  {
+    "gate_name": "context-ratio",
+    "result": "fail",
+    "detail": "Context ratio 0.584 exceeds the 0.40 budget ceiling."
+  },
+  {
+    "gate_name": "hitl-category-ii",
+    "result": "pass",
+    "detail": "Output remains draft clinical decision support requiring human review."
+  }
+]

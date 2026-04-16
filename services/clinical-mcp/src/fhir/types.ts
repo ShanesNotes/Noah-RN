@@ -16,6 +16,7 @@ export interface FhirResource {
 export interface Meta {
   versionId?: string;
   lastUpdated?: string;
+  tag?: Coding[];
 }
 
 export interface BundleEntry<T = FhirResource> {
@@ -163,6 +164,7 @@ export interface Encounter extends FhirResource {
 
 export interface DocumentReference extends FhirResource {
   resourceType: 'DocumentReference';
+  identifier?: Identifier[];
   status?: string;
   docStatus?: string;
   type?: CodeableConcept;

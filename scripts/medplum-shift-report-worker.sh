@@ -5,8 +5,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 FHIR_BASE_URL="${FHIR_BASE_URL:-http://10.0.0.184:8103/fhir/R4}"
 TOKEN_ENDPOINT="${FHIR_TOKEN_ENDPOINT:-http://10.0.0.184:8103/oauth2/token}"
-FHIR_CLIENT_ID="${FHIR_CLIENT_ID:-3c3c4c3a-2993-424c-b46d-f58db0d7ca14}"
-FHIR_CLIENT_SECRET="${FHIR_CLIENT_SECRET:-be4fd047142ee6ed2a004a4a9cb98ff4c20f7c73d6082b3754dc9ae613083a34}"
+FHIR_CLIENT_ID="${FHIR_CLIENT_ID:-}"
+FHIR_CLIENT_SECRET="${FHIR_CLIENT_SECRET:-}"
 TASK_SYSTEM="${TASK_SYSTEM:-https://noah-rn.dev/workflows}"
 TASK_CODE="${TASK_CODE:-shift-report}"
 ARTIFACT_SYSTEM="${ARTIFACT_SYSTEM:-https://noah-rn.dev/artifacts}"
@@ -58,6 +58,17 @@ require_cmd() {
 require_cmd curl
 require_cmd jq
 require_cmd base64
+
+require_env() {
+  local name="$1"
+  if [[ -z "${!name:-}" ]]; then
+    echo "Missing required environment variable: $name" >&2
+    exit 1
+  fi
+}
+
+require_env FHIR_CLIENT_ID
+require_env FHIR_CLIENT_SECRET
 
 get_token() {
   curl -sf -X POST "$TOKEN_ENDPOINT" \

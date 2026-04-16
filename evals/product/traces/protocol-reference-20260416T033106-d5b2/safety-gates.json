@@ -1,0 +1,12 @@
+[
+  {
+    "gate_name": "context-ratio",
+    "result": "warn",
+    "detail": "Narrative-only path used without patient bundle context."
+  },
+  {
+    "gate_name": "hitl-category-ii",
+    "result": "pass",
+    "detail": "Output remains draft clinical decision support requiring human review."
+  }
+]

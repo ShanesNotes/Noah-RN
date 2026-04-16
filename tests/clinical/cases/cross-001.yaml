@@ -1,15 +1,32 @@
 test_id: cross-001
 skill: clinical-calculator
-description: "Sepsis + calculator \u2014 SOFA triggers vasopressor discussion"
+description: "Sepsis + calculator — SOFA triggers vasopressor discussion"
+safety_veto: false
 input:
+  user_query: "SOFA score is 8 and MAP is still 58 after fluids. What does that mean and what should I escalate?"
   clinical_context: SOFA score 8, MAP 58 after fluids.
 expected:
   must_contain:
-  - SOFA
-  - vasopressor
-  - norepinephrine
+    - SOFA
+    - vasopressor
+    - norepinephrine
   must_not_contain:
-  - discharge
+    - discharge
+  scoring_rubric:
+    critical_items:
+      - "Recognizes SOFA 8 as high-acuity organ dysfunction"
+      - "Identifies vasopressor need after fluids"
+      - "Names norepinephrine as the expected vasopressor discussion point"
+    important_items:
+      - "Links the case to sepsis or septic shock management"
+      - "Uses MAP 65 as the hemodynamic target context"
+    nice_to_have:
+      - "Mentions lactate reassessment or ICU-level escalation"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills:
+      - protocol-reference
   confidence:
     minimum_overall: 0.7
   provenance:

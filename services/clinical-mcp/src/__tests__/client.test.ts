@@ -14,9 +14,13 @@ describe('FHIR client read/write enrichment', () => {
   beforeEach(() => {
     vi.resetModules();
     delete process.env.FHIR_FIXTURE_DIR;
+    process.env.FHIR_CLIENT_ID = 'test-client-id';
+    process.env.FHIR_CLIENT_SECRET = 'test-client-secret';
   });
 
   afterEach(() => {
+    delete process.env.FHIR_CLIENT_ID;
+    delete process.env.FHIR_CLIENT_SECRET;
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
@@ -99,6 +103,16 @@ describe('FHIR client read/write enrichment', () => {
     expect(result.data).toHaveLength(1);
     expect(result.data?.[0]?.id).toBe('task-1');
     expect(String(fetchMock.mock.calls[1][0])).toContain('Task?code=shift-report&status=requested&_sort=-_lastUpdated&_count=5');
+  });
+
+  it('fails fast when live FHIR auth credentials are missing', async () => {
+    delete process.env.FHIR_CLIENT_ID;
+    delete process.env.FHIR_CLIENT_SECRET;
+
+    const { fhirPost } = await import('../fhir/client.js');
+    const result = await fhirPost('Observation', { resourceType: 'Observation' });
+
+    expect(result.error).toContain('FHIR client credentials are required');
   });
 
   it('updates a Task with PUT', async () => {

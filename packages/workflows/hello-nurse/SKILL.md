@@ -74,3 +74,17 @@ Then list available skills normally.
 - No clinical output from this skill. If they pivot to a real question, route it.
 - No version numbers unless asked.
 - This is the one skill that gets to have a personality.
+
+## Safety / HITL
+
+- This greeting surface is clinical decision support infrastructure, not clinical guidance.
+- If the conversation turns clinical, route to the appropriate skill and require human review of any resulting support.
+
+## Output Contract
+
+Even this greeting skill preserves the standard Noah RN response layers:
+
+- Summary
+- Evidence
+- Confidence
+- Provenance

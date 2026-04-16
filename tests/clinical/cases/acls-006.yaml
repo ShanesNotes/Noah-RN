@@ -1,8 +1,9 @@
 test_id: acls-006
 skill: protocol-reference
-description: "Symptomatic bradycardia \u2014 atropine"
+description: Symptomatic bradycardia — atropine
 input:
   clinical_context: 70yo M, HR 38, BP 85/50, dizzy, diaphoretic.
+  user_query: 70yo M, HR 38, BP 85/50, dizzy, diaphoretic.
 expected:
   must_contain:
   - atropine
@@ -15,6 +16,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - atropine
+    - bradycardia
+    - pacing
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

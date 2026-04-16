@@ -3,6 +3,7 @@ skill: clinical-calculator
 description: BMI calculation
 input:
   clinical_context: Patient 175cm, 95kg.
+  user_query: Patient 175cm, 95kg.
 expected:
   must_contain:
   - BMI
@@ -15,6 +16,18 @@ expected:
     minimum_overall: 0.5
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - BMI
+    - '31'
+    - obese
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 3
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
 severity: low
 author: shane
 date: '2026-03-31'
+safety_veto: false

@@ -1,0 +1,118 @@
+{
+  "trace_id": "shift-report-static-001",
+  "skill": "shift-report",
+  "candidate_id": null,
+  "timestamp": "2026-04-16T14:12:07Z",
+  "tags": {
+    "phi_risk": "de-identified",
+    "token_spend": {
+      "provider": "openrouter",
+      "model": "gpt-4o-mini",
+      "dry_run": true,
+      "input_tokens": 2531,
+      "output_tokens": 740,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0
+    },
+    "latency": {
+      "total_ms": 377,
+      "stages": {}
+    },
+    "clinical_safety": {
+      "status": "fail",
+      "veto_triggered": false,
+      "warnings": []
+    },
+    "user_action": "patient_id: patient-123",
+    "downstream_system": "medplum"
+  },
+  "context_assembly": {
+    "patient_bundle_tokens": 1383,
+    "knowledge_assets_selected": [
+      "cross-skill-triggers",
+      "disclaimers",
+      "four-layer-output",
+      "drug-ranges"
+    ],
+    "compression_strategy": "timeline-windowed",
+    "gap_markers": [
+      "Devices query failed: FHIR fetch failed: FHIR client credentials are required. Set FHIR_CLIENT_ID and FHIR_CLIENT_SECRET, or use FHIR_FIXTURE_DIR for fixture-backed reads.",
+      "[GAP: Lines/Access] No device data (IV lines, central lines, airway) found"
+    ],
+    "fhir_queries_fired": 9
+  },
+  "routing_decision": {
+    "input_classification": "moderate",
+    "candidates_considered": [
+      "shift-assessment",
+      "shift-report"
+    ],
+    "selected_workflow": "shift-report",
+    "confidence": 0.9,
+    "rationale": "Patient identifier enabled live context assembly and narrowed routing."
+  },
+  "safety_gates": [
+    {
+      "gate_name": "context-ratio",
+      "result": "fail",
+      "detail": "Context ratio 0.584 exceeds the 0.40 budget ceiling."
+    },
+    {
+      "gate_name": "hitl-category-ii",
+      "result": "pass",
+      "detail": "Output remains draft clinical decision support requiring human review."
+    }
+  ],
+  "eval_scores": {
+    "case_id": "shift-report-static-001",
+    "test_id": "shift-report-static-001",
+    "skill": "shift-report",
+    "severity": "high",
+    "status": "pass",
+    "failure_bucket": "pass",
+    "safety_veto_case": false,
+    "expected_confidence_tier": null,
+    "clinical_correctness": 1.0,
+    "completeness": 1.0,
+    "confidence_calibration": 0.0,
+    "format_compliance": 1.0,
+    "provenance_accuracy": 1.0,
+    "omission_detection": 1.0,
+    "weighted_score": 0.9,
+    "stated_confidence": 0.0,
+    "critical_missing": [],
+    "prohibited_hits": [],
+    "constraint_violations": []
+  },
+  "raw": {
+    "input": {
+      "skill": "shift-report",
+      "timestamp": "2026-04-16T14:12:07Z",
+      "context": {
+        "workflow": "shift-report",
+        "input_mode": "patient_id",
+        "patient_id": "patient-123",
+        "available_context": [
+          "clinical_narrative",
+          "patient_id"
+        ],
+        "raw_input": "patient_id: patient-123",
+        "context_assembled": true,
+        "phi_risk": "de-identified"
+      }
+    },
+    "hooks": {
+      "hooks_fired": [
+        "trace-only"
+      ],
+      "workflow": "shift-report",
+      "input_mode": "patient_id",
+      "context_assembled": true,
+      "service_surface_refs": [
+        "services/clinical-mcp/"
+      ],
+      "downstream_system": "medplum",
+      "veto_triggered": false
+    }
+  }
+}

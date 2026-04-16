@@ -1,0 +1,10 @@
+{
+  "input_classification": "simple",
+  "candidates_considered": [
+    "shift-assessment",
+    "shift-report"
+  ],
+  "selected_workflow": "shift-report",
+  "confidence": 0.84,
+  "rationale": "Narrative-only input matched the requested workflow directly."
+}

@@ -1,0 +1,86 @@
+{
+  "assess-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "cross-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "drug-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "drug-002": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "edge-007": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "edge-008": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "format-002": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "io-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "io-002": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "regression-002": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "regression-006": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "rsi-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "rsi-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "safety-005": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "sepsis-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "shift-report-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "shift-report-static-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "stroke-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "unit-001": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "unit-002": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ],
+  "unit-003": [
+    "candidate-20260416T033219Z",
+    "candidate-20260416T033957Z"
+  ]
+}

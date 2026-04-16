@@ -1,0 +1,15 @@
+{
+  "skill": "clinical-calculator",
+  "timestamp": "2026-04-16T14:07:34Z",
+  "context": {
+    "workflow": "clinical-calculator",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Braden score 14, patient has stage 2 pressure ulcer on sacrum",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

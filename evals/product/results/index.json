@@ -1,0 +1,334 @@
+{
+  "generated_at": "2026-04-16T14:12:28.613019+00:00",
+  "total_runs": 40,
+  "latest": {
+    "filename": "scores-20260416-101216-11.json",
+    "timestamp": "20260416-101216-11",
+    "health": "FAIL",
+    "pass_rate": 70.9,
+    "weighted_score": 0.5909,
+    "veto_triggered": true
+  },
+  "runs": [
+    {
+      "filename": "scores-20260331-214328.json",
+      "timestamp": "20260331-214328",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260404-051204.json",
+      "timestamp": "20260404-051204",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-112853.json",
+      "timestamp": "20260412-112853",
+      "health": "PASS",
+      "pass_rate": 200.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-112924.json",
+      "timestamp": "20260412-112924",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-112945.json",
+      "timestamp": "20260412-112945",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-113014.json",
+      "timestamp": "20260412-113014",
+      "health": "PASS",
+      "pass_rate": 200.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-115712.json",
+      "timestamp": "20260412-115712",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-115828.json",
+      "timestamp": "20260412-115828",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-120107.json",
+      "timestamp": "20260412-120107",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-120155.json",
+      "timestamp": "20260412-120155",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-120640.json",
+      "timestamp": "20260412-120640",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-120821.json",
+      "timestamp": "20260412-120821",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-122900.json",
+      "timestamp": "20260412-122900",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-122911.json",
+      "timestamp": "20260412-122911",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-123420.json",
+      "timestamp": "20260412-123420",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-123721.json",
+      "timestamp": "20260412-123721",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-123841.json",
+      "timestamp": "20260412-123841",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-124103.json",
+      "timestamp": "20260412-124103",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-130808.json",
+      "timestamp": "20260412-130808",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-131409.json",
+      "timestamp": "20260412-131409",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-131555.json",
+      "timestamp": "20260412-131555",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260412-131751.json",
+      "timestamp": "20260412-131751",
+      "health": "PASS",
+      "pass_rate": 100.0,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260415-231126.json",
+      "timestamp": "20260415-231126",
+      "health": "FAIL",
+      "pass_rate": 82.8,
+      "weighted_score": 0,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260415-232453.json",
+      "timestamp": "20260415-232453",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.375,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260415-233208.json",
+      "timestamp": "20260415-233208",
+      "health": "FAIL",
+      "pass_rate": 24.4,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-233342.json",
+      "timestamp": "20260415-233342",
+      "health": "FAIL",
+      "pass_rate": 24.4,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-234351.json",
+      "timestamp": "20260415-234351",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-234856-11.json",
+      "timestamp": "20260415-234856-11",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-235036-22.json",
+      "timestamp": "20260415-235036-22",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-235654-2.json",
+      "timestamp": "20260415-235654-2",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260415-235921-2.json",
+      "timestamp": "20260415-235921-2",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4697,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-092618-11.json",
+      "timestamp": "20260416-092618-11",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.4959,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-092618-22.json",
+      "timestamp": "20260416-092618-22",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.479,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-094824-2.json",
+      "timestamp": "20260416-094824-2",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.375,
+      "veto_triggered": false
+    },
+    {
+      "filename": "scores-20260416-095005-11.json",
+      "timestamp": "20260416-095005-11",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.3331,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-095440-11.json",
+      "timestamp": "20260416-095440-11",
+      "health": "FAIL",
+      "pass_rate": 0.0,
+      "weighted_score": 0.3413,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-100001-11.json",
+      "timestamp": "20260416-100001-11",
+      "health": "FAIL",
+      "pass_rate": 27.9,
+      "weighted_score": 0.3348,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-100453-2.json",
+      "timestamp": "20260416-100453-2",
+      "health": "FAIL",
+      "pass_rate": 27.9,
+      "weighted_score": 0.3348,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-100815-11.json",
+      "timestamp": "20260416-100815-11",
+      "health": "FAIL",
+      "pass_rate": 40.7,
+      "weighted_score": 0.47,
+      "veto_triggered": true
+    },
+    {
+      "filename": "scores-20260416-101216-11.json",
+      "timestamp": "20260416-101216-11",
+      "health": "FAIL",
+      "pass_rate": 70.9,
+      "weighted_score": 0.5909,
+      "veto_triggered": true
+    }
+  ]
+}

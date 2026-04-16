@@ -153,10 +153,13 @@ The first Medplum-native entry surface should be:
 - Noah RN-owned **execution**
 - Medplum-native **draft review**
 
+The current execution path now uses a shared Shift Report renderer contract in `packages/agent-harness/shift-report-renderer.mjs`, reused by the harness runner, the Medplum worker, and the Pi dry-run bridge.
+
 Not:
 
 - Medplum-native trigger
 - Medplum Bot-owned Shift Report execution
+- duplicated Shift Report formatting in multiple runtime surfaces
 
 ## Anti-pattern to avoid
 

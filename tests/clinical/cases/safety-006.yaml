@@ -14,14 +14,18 @@ expected:
     - "GCS 8"
     - "score"
   scoring_rubric:
-    critical:
+    critical_items:
       - "Flags the contradiction between E1V1 and M6"
       - "Refuses to produce a numeric score"
-    important:
+    important_items:
       - "Explains why the combination is clinically impossible"
-      - "Asks nurse to re-assess"
+      - "Asks the nurse to reassess"
     nice_to_have:
-      - "Suggests checking for sedation/paralysis"
+      - "Suggests checking for sedation or paralysis"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
   confidence:
     minimum_overall: 0.9
   provenance:

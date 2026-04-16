@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T13:25:20Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient ROSC after 12 min VFib arrest. GCS 6, not following commands.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

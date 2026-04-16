@@ -1,8 +1,9 @@
 test_id: edge-002
 skill: drug-reference
-description: "Drug interaction \u2014 QT prolongation"
+description: Drug interaction — QT prolongation
 input:
   clinical_context: Patient on amiodarone, needs ondansetron.
+  user_query: Patient on amiodarone, needs ondansetron.
 expected:
   must_contain:
   - QT
@@ -15,6 +16,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - QT
+    - prolongation
+    - interaction
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

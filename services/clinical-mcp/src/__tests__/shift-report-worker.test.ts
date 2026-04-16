@@ -44,6 +44,27 @@ describe('shift report worker', () => {
     vi.resetModules();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-04-13T00:00:00.000Z'));
+    vi.doMock('../../../../packages/agent-harness/invoke-workflow.mjs', () => ({
+      getWorkflowCandidate: vi.fn().mockReturnValue({ source_path: 'packages/workflows/shift-report/SKILL.md' }),
+    }));
+    vi.doMock('../../../../packages/agent-harness/shift-report-renderer.mjs', () => ({
+      buildShiftReportRendererInput: vi.fn().mockImplementation((candidate, patientId, context, options) => ({
+        candidate,
+        patientId,
+        context,
+        laneCoverage: options?.laneCoverage,
+      })),
+      renderShiftReportFromPatientContext: vi.fn().mockImplementation((input) => [
+        'Summary',
+        `Shift Report assembled from live Medplum context for patient ${input.patientId}.`,
+        '',
+        'PATIENT',
+        '- John Doe',
+        '',
+        'STORY',
+        '- No timeline events available',
+      ].join('\n')),
+    }));
   });
 
   afterEach(() => {
@@ -52,10 +73,12 @@ describe('shift report worker', () => {
     vi.doUnmock('../fhir/client.js');
     vi.doUnmock('../fhir/writes.js');
     vi.doUnmock('../context/assembler.js');
+    vi.doUnmock('../../../../packages/agent-harness/invoke-workflow.mjs');
+    vi.doUnmock('../../../../packages/agent-harness/shift-report-renderer.mjs');
   });
 
   it('exports pure helpers for Task transitions and truncates long failure reasons', async () => {
-    const { buildCompletedTask, buildFailedTask, truncateStatusReason, MAX_STATUS_REASON_TEXT } = await import('../worker/shift-report-worker.js');
+    const { buildCompletedTask, buildExecutionId, buildFailedTask, truncateStatusReason, MAX_STATUS_REASON_TEXT } = await import('../worker/shift-report-worker.js');
     const task = createRequestedTask();
 
     expect(buildCompletedTask(task, {
@@ -65,6 +88,10 @@ describe('shift report worker', () => {
       resourceType: 'Task',
       id: 'task-1',
       status: 'completed',
+      focus: {
+        reference: 'DocumentReference/doc-123',
+        display: 'Draft Shift Report',
+      },
       output: [{
         type: { text: 'shift-report-draft' },
         valueReference: {
@@ -73,6 +100,8 @@ describe('shift report worker', () => {
         },
       }],
     });
+
+    expect(buildExecutionId('task-1', 1776038400000)).toBe('shift-report:task-1:1776038400000');
 
     const longMessage = 'x'.repeat(MAX_STATUS_REASON_TEXT + 50);
     const truncated = truncateStatusReason(longMessage);
@@ -137,6 +166,7 @@ describe('shift report worker', () => {
         taskId: 'task-1',
         status: 'completed',
         documentReferenceId: 'doc-123',
+        executionId: 'shift-report:task-1:1776038400000',
       }],
     });
 
@@ -144,14 +174,21 @@ describe('shift report worker', () => {
     expect(createDraftShiftReport).toHaveBeenCalledWith({
       patientId: 'patient-123',
       encounterId: 'enc-456',
-      reportMarkdown: JSON.stringify(sampleContext, null, 2),
+      taskId: 'task-1',
+      executionId: 'shift-report:task-1:1776038400000',
+      reportMarkdown: expect.stringContaining('PATIENT'),
     });
+    expect(createDraftShiftReport.mock.calls[0]?.[0]?.reportMarkdown).toContain('Shift Report assembled from live Medplum context for patient patient-123.');
     expect(updateTask).toHaveBeenCalledWith(
       'task-1',
       expect.objectContaining({
         resourceType: 'Task',
         id: 'task-1',
         status: 'completed',
+        focus: {
+          reference: 'DocumentReference/doc-123',
+          display: 'Draft Shift Report',
+        },
         output: [{
           type: { text: 'shift-report-draft' },
           valueReference: {

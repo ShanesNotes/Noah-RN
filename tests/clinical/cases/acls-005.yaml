@@ -1,16 +1,32 @@
 test_id: acls-005
 skill: protocol-reference
-description: "Unstable tachycardia \u2014 synchronized cardioversion"
+description: "Unstable tachycardia — synchronized cardioversion"
+safety_veto: false
 input:
+  user_query: "Patient has wide-complex tachycardia at 190 with BP 70/40 and altered mentation. What is the immediate treatment?"
   clinical_context: Patient HR 190, wide complex, BP 70/40, altered.
 expected:
   must_contain:
-  - synchronized
-  - cardioversion
-  - unstable
+    - synchronized
+    - cardioversion
+    - unstable
   must_not_contain:
-  - vagal
-  - adenosine
+    - vagal
+    - adenosine
+  scoring_rubric:
+    critical_items:
+      - "Identifies the rhythm as unstable tachycardia"
+      - "Prioritizes synchronized cardioversion"
+      - "Avoids vagal maneuvers or adenosine as first-line treatment in this unstable presentation"
+    important_items:
+      - "Mentions preparation or monitoring for cardioversion"
+      - "Mentions expert help or code response escalation"
+    nice_to_have:
+      - "Mentions sedation if feasible before cardioversion"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

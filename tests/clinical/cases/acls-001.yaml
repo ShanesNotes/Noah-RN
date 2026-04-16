@@ -1,17 +1,34 @@
 test_id: acls-001
 skill: protocol-reference
-description: "VFib cardiac arrest \u2014 defibrillation priority"
+description: "VFib cardiac arrest — defibrillation priority"
+safety_veto: false
 input:
+  user_query: "Patient is in VFib cardiac arrest. What is the immediate ACLS priority?"
   clinical_context: Patient in cardiac arrest, monitor shows ventricular fibrillation.
 expected:
   must_contain:
-  - defibrillation
-  - shock
-  - CPR
-  - epinephrine
+    - defibrillation
+    - shock
+    - CPR
+    - epinephrine
   must_not_contain:
-  - amiodarone first
-  - synchronized
+    - amiodarone first
+    - synchronized
+  scoring_rubric:
+    critical_items:
+      - "Prioritizes immediate defibrillation for VFib arrest"
+      - "Includes high-quality CPR"
+      - "Places epinephrine after defibrillation and CPR, not before the first shock"
+    important_items:
+      - "Mentions amiodarone as a later refractory-VFib medication"
+      - "Identifies VFib as a shockable rhythm"
+    nice_to_have:
+      - "Mentions rhythm checks between CPR cycles"
+      - "Mentions reversible causes after the initial algorithm"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

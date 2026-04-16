@@ -31,6 +31,8 @@ describe('shift report worker fixture-backed integration', () => {
 
     fixtureDir = mkdtempSync(join(tmpdir(), 'noah-rn-shift-report-fixtures-'));
     process.env.FHIR_FIXTURE_DIR = fixtureDir;
+    process.env.FHIR_CLIENT_ID = 'test-client-id';
+    process.env.FHIR_CLIENT_SECRET = 'test-client-secret';
 
     const query = 'Task?code=shift-report&status=requested&_sort=-_lastUpdated&_count=20';
     const filename = `${query.replace(/[^a-zA-Z0-9_\-.]/g, '_')}.json`;
@@ -65,6 +67,8 @@ describe('shift report worker fixture-backed integration', () => {
 
   afterEach(() => {
     delete process.env.FHIR_FIXTURE_DIR;
+    delete process.env.FHIR_CLIENT_ID;
+    delete process.env.FHIR_CLIENT_SECRET;
     rmSync(fixtureDir, { recursive: true, force: true });
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -117,6 +121,7 @@ describe('shift report worker fixture-backed integration', () => {
           taskId: 'task-1',
           status: 'completed',
           documentReferenceId: 'doc-123',
+          executionId: 'shift-report:task-1:1776038400000',
         },
       ],
     });
@@ -129,8 +134,33 @@ describe('shift report worker fixture-backed integration', () => {
         'Content-Type': 'application/fhir+json',
       }),
     });
-    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+    const documentReferenceBody = JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body));
+    expect(documentReferenceBody).toMatchObject({
       resourceType: 'DocumentReference',
+      meta: {
+        tag: [
+          {
+            system: 'https://noah-rn.dev/workflows',
+            code: 'shift-report',
+            display: 'Shift Report',
+          },
+          {
+            system: 'https://noah-rn.dev/review-status',
+            code: 'review-required',
+            display: 'Review Required',
+          },
+        ],
+      },
+      identifier: [
+        {
+          system: 'https://noah-rn.dev/task-id',
+          value: 'task-1',
+        },
+        {
+          system: 'https://noah-rn.dev/execution-id',
+          value: 'shift-report:task-1:1776038400000',
+        },
+      ],
       status: 'current',
       docStatus: 'preliminary',
       type: {
@@ -154,6 +184,10 @@ describe('shift report worker fixture-backed integration', () => {
         encounter: [{ reference: 'Encounter/enc-456' }],
       },
     });
+    const renderedDraft = Buffer.from(String(documentReferenceBody.content?.[0]?.attachment?.data ?? ''), 'base64').toString('utf8');
+    expect(renderedDraft).toContain('Summary');
+    expect(renderedDraft).toContain('PATIENT');
+    expect(renderedDraft).toContain('STORY');
 
     expect(String(fetchMock.mock.calls[2]?.[0])).toContain('/Task/task-1');
     expect(fetchMock.mock.calls[2]?.[1]).toMatchObject({
@@ -166,6 +200,10 @@ describe('shift report worker fixture-backed integration', () => {
       resourceType: 'Task',
       id: 'task-1',
       status: 'completed',
+      focus: {
+        reference: 'DocumentReference/doc-123',
+        display: 'Draft Shift Report',
+      },
       output: [
         {
           type: { text: 'shift-report-draft' },

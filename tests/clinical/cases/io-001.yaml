@@ -1,9 +1,9 @@
 test_id: io-001
 skill: io-tracker
-description: "24h I&O \u2014 positive balance"
+description: 24h I&O — positive balance
 input:
-  clinical_context: 'Intake: NS 1000mL, D5W 500mL, PO 300mL. Output: UOP 800mL, NG
-    200mL.'
+  clinical_context: 'Intake: NS 1000mL, D5W 500mL, PO 300mL. Output: UOP 800mL, NG 200mL.'
+  user_query: 'Intake: NS 1000mL, D5W 500mL, PO 300mL. Output: UOP 800mL, NG 200mL.'
 expected:
   must_contain:
   - intake
@@ -17,6 +17,19 @@ expected:
     minimum_overall: 0.5
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - intake
+    - output
+    - balance
+    - positive
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: io-tracker
+    secondary_skills: []
 severity: medium
 author: shane
 date: '2026-03-31'
+safety_veto: false

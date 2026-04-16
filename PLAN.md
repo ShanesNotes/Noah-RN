@@ -51,7 +51,15 @@ Current direction:
 - Medplum remains the open-source EHR foundation and FHIR backbone.
 - MIMIC/Synthea provide static simulated patient data for chart-context seeding.
 - `services/clinical-mcp/` is the agent-facing context boundary.
-- `apps/nursing-station/` is the current Medplum-first clinician workspace surface.
+- `apps/nursing-station/` is the current Medplum-first clinician workspace surface. The currently landed spine is:
+  - work-first assignment/worklist entry
+  - route-driven chart shell
+  - persistent patient header
+  - overview page
+  - task-driven draft review detail
+  - explicit `reviewed` / `acknowledged` / `approved-finalized` progression
+  - results review
+  - trend-first vitals and labs
 - `apps/clinician-dashboard/` is the runtime-console sidecar for evals, traces, context inspection, skill visibility, and future sim observability. It is not the primary chart UI.
 - `services/sim-harness/` is the live-runtime workspace center for tickable patient state, waveform generation, and scenario direction. It wraps open-source clinical simulation engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) rather than reinventing physiology.
 - `apps/clinician-dashboard/` may later grow a waveform viewer for sim-harness output, but that is future runtime work, not the current landed role.
@@ -166,10 +174,13 @@ Do not drastically rewrite `research/` in this pass. Treat it as a source corpus
    - Noah RN remains execution owner
 5. Close the one remaining Medplum uncertainty with an empirical preliminary-resource visibility test.
 6. Harden the `Task -> clinical-mcp -> agent-harness -> shift-report -> DocumentReference` loop without widening write semantics prematurely.
+   - landed so far: draft review pane, review/acknowledge/finalize progression, work-first assignment entry, results review, trend-first vitals/labs
+   - next sequenced lane: `MAR-lite`
 7. Keep the nursing-station app Medplum-first and the dashboard narrow as a runtime console.
 8. Add only the memory/resource/tool pieces required by that first workflow loop.
-9. Instrument the workflow before deeper optimization or state-machine work.
-10. Keep the Clinical Simulation Harness scaffold ready as the runtime center for the first live-vitals workflow loop before any sim runtime code is written. See `docs/foundations/sim-harness-scaffold.md`.
+9. Keep the Pi bridge context-aware: route by workflow + context lanes, and keep the shared Shift Report renderer aligned across harness, worker, and dry-run bridge.
+10. Instrument the workflow before deeper optimization or state-machine work.
+11. Keep the Clinical Simulation Harness scaffold ready as the runtime center for the first live-vitals workflow loop before any sim runtime code is written. See `docs/foundations/sim-harness-scaffold.md`.
 
 ## Deferred Work
 
@@ -257,6 +268,24 @@ Consequence:
 - Medplum stays the primary chart/review surface.
 - The dashboard stays focused on observability, debug, traces, evals, and future sim visibility.
 - Future waveform-viewer work belongs to the dashboard only when the sim runtime exists and needs that surface.
+
+### 2026-04-15: Make Context-Lane Planning And Shared Rendering First-Class In The Pi Bridge
+
+Decision: the Pi bridge should not stop at workflow routing. It should also expose context-lane planning and share a single Shift Report renderer contract across the harness runner, the Medplum worker, and the Pi dry-run bridge.
+
+Why:
+
+- Noah RN patient context is explicitly multi-lane: EHR/chart, memory, clinical resources, and patient monitor/simulation. Routing without context-bundle planning leaves the bridge too shallow.
+- The first workflow path had begun to drift across multiple render surfaces: harness output, worker draft artifact body, and Pi dry-run scaffold.
+- A shared renderer contract is the cleanest way to keep the Shift Report loop boring while the rest of the harness evolves.
+
+Consequence:
+
+- `.noah-pi-runtime/extensions/noah-context/` is now part of the active bridge surface.
+- `.noah-pi-runtime/extensions/noah-router/` now surfaces renderer-ready lane coverage alongside routing/context planning output.
+- `packages/agent-harness/shift-report-renderer.mjs` is the shared Shift Report renderer surface.
+- `services/clinical-mcp/src/worker/shift-report-worker.ts` now builds a renderer input object and renders through that shared contract before writing the draft `DocumentReference`.
+- The bridge/runtime now has a stable lane vocabulary for rendering: `ehr/chart`, `memory`, `clinical-resources`, `patient-monitor/simulation`.
 
 ### 2026-04-12: Use FHIR-Queued Draft Review For The First Workflow
 

@@ -1,17 +1,34 @@
 test_id: stroke-002
 skill: protocol-reference
-description: "tPA contraindications \u2014 DOAC use"
+description: "tPA contraindications — DOAC use"
+safety_veto: false
 input:
+  user_query: "Patient has acute stroke symptoms but is taking apixaban. How does that affect tPA eligibility?"
   clinical_context: Patient on apixaban for AFib, stroke symptoms 2 hours ago.
 expected:
   must_contain:
-  - DOAC
-  - apixaban
-  - contraindication
-  - exclude
+    - DOAC
+    - apixaban
+    - contraindication
+    - exclude
   must_not_contain:
-  - tPA eligible
-  - administer
+    - tPA eligible
+    - administer
+  scoring_rubric:
+    critical_items:
+      - "Identifies apixaban as a DOAC"
+      - "States that the DOAC exposure is a tPA contraindication or exclusion here"
+      - "Avoids describing the patient as tPA eligible"
+    important_items:
+      - "Keeps the answer tied to stroke treatment implications"
+      - "Mentions alternative reperfusion evaluation if appropriate"
+    nice_to_have:
+      - "Mentions last-dose timing or thrombectomy considerations"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - drug-reference
   confidence:
     minimum_overall: 0.7
   provenance:

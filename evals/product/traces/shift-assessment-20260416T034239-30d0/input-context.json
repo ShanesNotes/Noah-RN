@@ -1,0 +1,15 @@
+{
+  "skill": "shift-assessment",
+  "timestamp": "2026-04-16T03:42:39Z",
+  "context": {
+    "workflow": "shift-assessment",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "47yo M, MICU. Right subclavian CVC placed 30 minutes ago by attending under ultrasound guidance.\nPatient currently on 35% venti-mask, SpO2 94%. Breath sounds equal bilaterally. No respiratory\ndistress noted. CXR pending. Site dressing intact, no bleeding. Line flushed, good blood return\non all ports.",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

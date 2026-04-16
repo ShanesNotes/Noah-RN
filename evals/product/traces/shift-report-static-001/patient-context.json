@@ -56,7 +56,7 @@
           "coding": [
             {
               "code": "8867-4",
-              "display": "Heart rate"
+              "display": "HR"
             }
           ]
         },
@@ -184,7 +184,7 @@
           "coding": [
             {
               "code": "8867-4",
-              "display": "Heart rate"
+              "display": "HR"
             }
           ]
         },
@@ -272,7 +272,7 @@
           "coding": [
             {
               "code": "8867-4",
-              "display": "Heart rate"
+              "display": "HR"
             }
           ]
         },
@@ -424,7 +424,7 @@
   "trends": [
     {
       "loincCode": "8867-4",
-      "name": "Heart rate",
+      "name": "HR",
       "direction": "rising",
       "values": [
         {
@@ -461,8 +461,11 @@
       ]
     }
   ],
-  "gaps": [],
-  "assembledAt": "2026-04-12T17:17:51.543Z",
+  "gaps": [
+    "Devices query failed: FHIR fetch failed: FHIR client credentials are required. Set FHIR_CLIENT_ID and FHIR_CLIENT_SECRET, or use FHIR_FIXTURE_DIR for fixture-backed reads.",
+    "[GAP: Lines/Access] No device data (IV lines, central lines, airway) found"
+  ],
+  "assembledAt": "2026-04-16T14:12:07.189Z",
   "sources": [
     "Patient",
     "Observation(vital-signs)",
@@ -471,7 +474,10 @@
     "MedicationRequest",
     "MedicationAdministration",
     "Encounter",
-    "DocumentReference"
+    "DocumentReference",
+    "Device"
   ],
-  "tokenEstimate": 1556
+  "tokenEstimate": 1549,
+  "budgetTruncated": false,
+  "truncatedCount": 0
 }

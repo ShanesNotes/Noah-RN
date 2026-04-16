@@ -1,18 +1,34 @@
 test_id: stroke-001
 skill: protocol-reference
-description: "Acute ischemic stroke \u2014 tPA window"
+description: "Acute ischemic stroke — tPA window"
+safety_veto: false
 input:
-  clinical_context: 68yo M, last known well 90 min ago. NIHSS 12. CT head negative
-    for bleed.
+  user_query: "Patient had stroke symptoms 90 minutes ago, NIHSS 12, and CT is negative for bleed. Is this patient in the alteplase window?"
+  clinical_context: 68yo M, last known well 90 min ago. NIHSS 12. CT head negative for bleed.
 expected:
   must_contain:
-  - tPA
-  - alteplase
-  - window
-  - '4.5'
+    - tPA
+    - alteplase
+    - window
+    - '4.5'
   must_not_contain:
-  - discharge
-  - aspirin alone
+    - discharge
+    - aspirin alone
+  scoring_rubric:
+    critical_items:
+      - "Recognizes the patient is within the alteplase window"
+      - "Keeps tPA or alteplase in the response"
+      - "Maintains the 4.5-hour treatment-window framing"
+    important_items:
+      - "Mentions stroke-team evaluation or exclusion checks"
+      - "Keeps hemorrhage exclusion visible"
+    nice_to_have:
+      - "Mentions thrombectomy evaluation if indicated"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills:
+      - clinical-calculator
   confidence:
     minimum_overall: 0.7
   provenance:

@@ -23,3 +23,10 @@ npm run test --workspace apps/clinician-dashboard
 Rule:
 - build UI work in `apps/nursing-station/` unless the work is explicitly sidecar/runtime-console scope
 - keep dashboard work narrow and operational
+
+## Read this next
+
+- `nursing-station/README.md` — main clinician-facing workspace
+- `clinician-dashboard/README.md` — runtime-console sidecar scope
+- `../docs/NAVIGATION.md` — task-oriented repo doc map
+- `../docs/ARCHITECTURE.md` — boundary map when UI work touches product lanes

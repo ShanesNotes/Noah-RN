@@ -1,31 +1,33 @@
 test_id: routing-001
 skill: clinical-calculator
-description: "Ambiguous query — router should request clarification"
+description: Ambiguous query — router should request clarification
 input:
-  user_query: "What score should I use for this patient?"
+  user_query: What score should I use for this patient?
   clinical_context: No clinical context provided — router cannot determine which calculator is needed
 expected:
   must_contain:
-    - "clarify"
-    - "which"
-    - "score"
+  - clarify
+  - which
+  - score
   must_not_contain:
-    - "GCS"
-    - "Wells"
-    - "NEWS2"
+  - GCS
+  - Wells
+  - NEWS2
   scoring_rubric:
     critical:
-      - "Does not guess which score to calculate"
-      - "Requests specific clinical context"
+    - Does not guess which score to calculate
+    - Requests specific clinical context
     important:
-      - "Lists available scoring options"
-      - "Asks for presenting complaint"
+    - Lists available scoring options
+    - Asks for presenting complaint
     nice_to_have:
-      - "Provides examples of what information is needed"
+    - Provides examples of what information is needed
   expected_routing:
     primary: clinical-router
     secondary: none
     cross_skill_triggers: []
+    primary_skill: clinical-calculator
+    secondary_skills: []
   confidence:
     minimum_overall: 0.9
   provenance:

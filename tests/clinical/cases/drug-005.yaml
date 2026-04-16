@@ -1,7 +1,9 @@
 test_id: drug-005
 skill: drug-reference
 description: "Insulin infusion — high-alert, units verification, concentration check, glucose monitoring"
+safety_veto: false
 input:
+  user_query: "Before starting a regular insulin infusion for DKA, what do I need to triple-check?"
   clinical_context: |
     28yo M with DKA. Glucose 542, bicarb 12, pH 7.22. Order received for regular insulin
     infusion. What do I need to triple-check before starting this drip?
@@ -18,6 +20,20 @@ expected:
     - routine
     - no special precautions
     - milligrams
+  scoring_rubric:
+    critical_items:
+      - "Identifies insulin as a high-alert medication"
+      - "Calls out units verification and concentration verification"
+      - "Includes double-checking and glucose or hypoglycemia monitoring"
+    important_items:
+      - "Mentions ongoing monitoring requirements"
+      - "Keeps the response specific to infusion safety rather than general insulin education"
+    nice_to_have:
+      - "Mentions infusion-pump or line-safety details"
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: drug-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.9
   provenance:

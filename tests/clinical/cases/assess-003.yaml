@@ -1,14 +1,43 @@
 test_id: assess-003
 skill: shift-assessment
-description: "Post-procedure assessment — central venous catheter placement, complication surveillance"
+description: Post-procedure assessment — central venous catheter placement, complication surveillance
 input:
-  clinical_context: |
-    47yo M, MICU. Right subclavian CVC placed 30 minutes ago by attending under ultrasound guidance.
+  clinical_context: '47yo M, MICU. Right subclavian CVC placed 30 minutes ago by attending under ultrasound guidance.
+
     Patient currently on 35% venti-mask, SpO2 94%. Breath sounds equal bilaterally. No respiratory
+
     distress noted. CXR pending. Site dressing intact, no bleeding. Line flushed, good blood return
+
     on all ports.
+
+    '
+  user_query: '47yo M, MICU. Right subclavian CVC placed 30 minutes ago by attending under ultrasound guidance.
+
+    Patient currently on 35% venti-mask, SpO2 94%. Breath sounds equal bilaterally. No respiratory
+
+    distress noted. CXR pending. Site dressing intact, no bleeding. Line flushed, good blood return
+
+    on all ports.
+
+    '
 expected:
   must_contain:
+  - chest X-ray
+  - pneumothorax
+  - site
+  - blood return
+  - position
+  - respiratory
+  - air embolism
+  must_not_contain:
+  - no follow-up needed
+  - line confirmed without imaging
+  confidence:
+    minimum_overall: 0.7
+  provenance:
+    must_cite_source: true
+  scoring_rubric:
+    critical_items:
     - chest X-ray
     - pneumothorax
     - site
@@ -16,13 +45,13 @@ expected:
     - position
     - respiratory
     - air embolism
-  must_not_contain:
-    - no follow-up needed
-    - line confirmed without imaging
-  confidence:
-    minimum_overall: 0.7
-  provenance:
-    must_cite_source: true
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: shift-assessment
+    secondary_skills: []
 severity: high
 author: dev
 date: '2026-04-01'
+safety_veto: false

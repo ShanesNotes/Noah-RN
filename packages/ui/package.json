@@ -1,0 +1,13 @@
+{
+  "name": "@noah-rn/ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@mantine/core": ">=7 <9",
+    "react": ">=19"
+  },
+  "dependencies": {
+    "@noah-rn/ui-tokens": "*"
+  }
+}

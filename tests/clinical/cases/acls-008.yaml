@@ -1,16 +1,32 @@
 test_id: acls-008
 skill: protocol-reference
-description: "Wide irregular tachycardia \u2014 both algorithms"
+description: "Wide irregular tachycardia — both algorithms"
+safety_veto: false
 input:
+  user_query: "Patient has stable wide irregular tachycardia. What rhythm concerns and ACLS medication cautions matter?"
   clinical_context: Patient with wide complex irregular tachycardia, stable BP.
 expected:
   must_contain:
-  - pre-excited
-  - AF
-  - procainamide
-  - amiodarone
+    - pre-excited
+    - AF
+    - procainamide
+    - amiodarone
   must_not_contain:
-  - adenosine
+    - adenosine
+  scoring_rubric:
+    critical_items:
+      - "Recognizes concern for pre-excited atrial fibrillation / wide irregular tachycardia"
+      - "Avoids adenosine"
+      - "Includes procainamide or amiodarone as part of the management discussion"
+    important_items:
+      - "Maintains rhythm-stability context"
+      - "Mentions escalation if instability develops"
+    nice_to_have:
+      - "Mentions expert consultation or defibrillation readiness"
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
   confidence:
     minimum_overall: 0.7
   provenance:

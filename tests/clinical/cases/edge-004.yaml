@@ -3,6 +3,7 @@ skill: clinical-calculator
 description: CHA2DS2-VASc for AFib
 input:
   clinical_context: 72yo F with AFib, HTN, DM2, prior stroke.
+  user_query: 72yo F with AFib, HTN, DM2, prior stroke.
 expected:
   must_contain:
   - CHA2DS2
@@ -16,6 +17,19 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - CHA2DS2
+    - VASc
+    - score
+    - anticoagulation
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: clinical-calculator
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

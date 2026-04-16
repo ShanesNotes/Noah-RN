@@ -1,22 +1,11 @@
 import type { SimulationEngine } from "./engine.js";
 import type { SimLiveVitalsSnapshot } from "./index.js";
+import { VITAL_LOINC } from "../../clinical-mcp/src/fhir/vital-loinc.js";
 
 /**
  * LOINC codes for vital sign parameters.
  * These match the codes in docs/FHIR-INTEGRATION.md and clinical-resources/mimic-mappings.json.
  */
-// Mirrors services/clinical-mcp/src/fhir/writes.ts VITAL_LOINC — kept in sync manually.
-const VITAL_LOINC: Record<string, { code: string; display: string; unit: string }> = {
-  hr: { code: "8867-4", display: "Heart rate", unit: "/min" },
-  rr: { code: "9279-1", display: "Respiratory rate", unit: "/min" },
-  spo2: { code: "2708-6", display: "Oxygen saturation in Arterial blood by Pulse oximetry", unit: "%" },
-  etco2: { code: "33437-5", display: "End tidal CO2", unit: "mmHg" },
-  sbp: { code: "8480-6", display: "Systolic blood pressure", unit: "mmHg" },
-  dbp: { code: "8462-4", display: "Diastolic blood pressure", unit: "mmHg" },
-  map: { code: "8478-0", display: "Mean blood pressure", unit: "mmHg" },
-  temp_c: { code: "8310-5", display: "Body temperature", unit: "Cel" },
-};
-
 /** Tag system for distinguishing device-stream vs nurse-charted observations. */
 export const OBSERVATION_ORIGIN_SYSTEM = "https://noah-rn.dev/observation-origin";
 export const DEVICE_ORIGIN_SYSTEM = "https://noah-rn.dev/device-origin";
@@ -182,8 +171,14 @@ export class DeviceBridge {
 
     if (!cadenceDue && !stateChanged) return false;
 
-    await this._writeVitals(vitals, simElapsedMs);
-    return true;
+    try {
+      await this._writeVitals(vitals, simElapsedMs);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`DeviceBridge maybeTick write failed: ${message}`);
+      return false;
+    }
   }
 
   /**

@@ -24,3 +24,10 @@ Current rule:
 - if work is about live vitals, live waveforms, scenario direction, or wrapping the Pulse Physiology Engine (locked 2026-04-13), start at `services/sim-harness/` — but do not widen runtime code until the deferred sim-harness runtime lanes (B–F) in `TASKS.md` are intentionally pulled forward from the current queue
 - agents never talk to `services/sim-harness/` directly; agent-facing tools register through `services/clinical-mcp/`
 - read the service-local README before changing code
+
+## Read this next
+
+- `clinical-mcp/README.md` — patient-context assembly and the agent-facing clinical boundary
+- `sim-harness/README.md` — live-runtime / simulation boundary
+- `../docs/NAVIGATION.md` — task-oriented repo doc map
+- `../docs/ARCHITECTURE.md` — boundary map across services and runtime lanes

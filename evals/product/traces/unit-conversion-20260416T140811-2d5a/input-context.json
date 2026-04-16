@@ -1,0 +1,15 @@
+{
+  "skill": "unit-conversion",
+  "timestamp": "2026-04-16T14:08:11Z",
+  "context": {
+    "workflow": "unit-conversion",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Dose 5 mcg/kg/min for 70kg patient. What is mL/hr if concentration is 200mg/250mL?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

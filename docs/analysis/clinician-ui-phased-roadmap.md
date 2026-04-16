@@ -44,6 +44,11 @@ Primary doctrine files:
 
 ## Phase B: first code-facing implementation wave
 
+Status note:
+
+- Landed: persistent patient header, stronger chart shell/nav, overview page, assignment/worklist, task-driven draft review detail, review-vs-acknowledge state model, results review, trend-first vitals/labs, and fixture-backed Playwright shell coverage.
+- Current next sequenced lane: `MAR-lite`.
+
 ### B1. P0.1 persistent patient header
 
 Goal: first real professional clinician-workspace primitive in `apps/nursing-station/`.
@@ -119,6 +124,18 @@ Goal: after P0.1–P0.3 have shipped, close the acceptance gaps that surface onl
 
 Plan: `docs/plans/p0-optimization-pass.md`. Formally supersedes P0.3 Decision #4 (no-shared-fetch) in favor of a single `usePatientChartData` hook, with per-card loading isolation preserved via skeletons.
 
+### B5. Review and review-velocity completion
+
+Landed after the original P0 notes:
+
+- task-driven draft review pane
+- review-required / reviewed / acknowledged / finalized workflow visibility
+- assignment/worklist-first entry
+- results review panel
+- trend-first vitals/labs cues
+
+These are now baseline workspace behavior, not future sketches.
+
 ## Phase C: Playwright maturity
 
 ### C1. Make Playwright doctrine operational
@@ -147,6 +164,8 @@ Minimum target set:
 - worklist render
 - review/acknowledge visibility
 - draft/final review states
+- trend-first vitals and labs cues
+- results review state transitions
 
 ### C3. Standardize artifact paths
 
@@ -221,9 +240,8 @@ After P0 is stable:
 
 ## Recommended next tasks
 
-1. Tighten the Epic report using the existing triage doc.
-2. Implement the persistent patient header.
-3. Implement the stronger chart shell.
-4. Make Playwright workflow verification operational.
-5. Build the Overview page after the shell is stable.
-6. Run the P0 optimization pass (`docs/plans/p0-optimization-pass.md`) once B1–B3 are all landed.
+1. Implement `MAR-lite`.
+2. Keep Playwright coverage expanding with each workflow lane.
+3. Decide whether the P0 optimization pass should run before or after `MAR-lite`.
+4. Build the handoff surface after meds.
+5. Tighten the Epic report using the existing triage doc.

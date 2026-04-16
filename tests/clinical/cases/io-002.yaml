@@ -1,8 +1,9 @@
 test_id: io-002
 skill: io-tracker
-description: "I&O \u2014 negative balance concern"
+description: I&O — negative balance concern
 input:
   clinical_context: 'Intake: 500mL PO. Output: UOP 1500mL, emesis 300mL.'
+  user_query: 'Intake: 500mL PO. Output: UOP 1500mL, emesis 300mL.'
 expected:
   must_contain:
   - negative
@@ -16,6 +17,19 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - negative
+    - deficit
+    - intake
+    - output
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 2
+  expected_routing:
+    primary_skill: io-tracker
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

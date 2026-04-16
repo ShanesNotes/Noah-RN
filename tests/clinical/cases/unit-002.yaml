@@ -2,7 +2,8 @@ test_id: unit-002
 skill: unit-conversion
 description: Temperature conversion
 input:
-  clinical_context: "Convert 39.5\xB0C to \xB0F."
+  clinical_context: Convert 39.5°C to °F.
+  user_query: Convert 39.5°C to °F.
 expected:
   must_contain:
   - '103.1'
@@ -13,6 +14,17 @@ expected:
     minimum_overall: 0.5
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - '103.1'
+    - '39.5'
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: unit-conversion
+    secondary_skills: []
 severity: low
 author: shane
 date: '2026-03-31'
+safety_veto: false

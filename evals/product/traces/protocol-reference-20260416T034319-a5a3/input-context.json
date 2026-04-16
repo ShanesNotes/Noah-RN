@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T03:43:19Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Patient needs RSI and the potassium is 6.2. Which paralytic should I use or avoid?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

@@ -2,56 +2,42 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DASHBOARD_PUBLIC="$REPO_ROOT/apps/clinician-dashboard/public"
+RESULTS_DIR="$REPO_ROOT/evals/product/results"
 
-mkdir -p "$DASHBOARD_PUBLIC/evals" "$DASHBOARD_PUBLIC/traces"
+mkdir -p "$RESULTS_DIR"
 
-# Build eval scores index
-ls "$REPO_ROOT/evals/product/results"/scores-*.json 2>/dev/null \
-  | xargs -I{} basename {} \
+find "$RESULTS_DIR" -maxdepth 1 -type f -name 'scores-*.json' -printf '%f\n' \
   | sort \
-  > "$DASHBOARD_PUBLIC/evals/index.txt"
+  > "$RESULTS_DIR/index.txt"
 
-# Copy score files (small JSON, safe to copy)
-cp "$REPO_ROOT/evals/product/results"/scores-*.json "$DASHBOARD_PUBLIC/evals/" 2>/dev/null || true
+python3 - <<'PY' "$RESULTS_DIR"
+import json, os, sys
+results_dir = sys.argv[1]
+files = sorted(name for name in os.listdir(results_dir) if name.startswith("scores-") and name.endswith(".json"))
+runs = []
+for name in files:
+    path = os.path.join(results_dir, name)
+    try:
+        with open(path) as f:
+            payload = json.load(f)
+    except Exception:
+        continue
+    runs.append({
+        "filename": name,
+        "timestamp": name.replace("scores-", "").replace(".json", ""),
+        "health": payload.get("health", "UNKNOWN"),
+        "pass_rate": payload.get("pass_rate", 0),
+        "weighted_score": payload.get("weighted_score", 0),
+        "veto_triggered": payload.get("veto_triggered", False),
+    })
 
-# Build trace index with metadata
-echo "[" > "$DASHBOARD_PUBLIC/traces/index.json"
-first=true
-for dir in "$REPO_ROOT/evals/product/traces"/*/; do
-  [ -d "$dir" ] || continue
-  id=$(basename "$dir")
-  status="UNKNOWN"
-  [ -f "$dir/hook-results.json" ] && status=$(head -1 "$dir/hook-results.json" 2>/dev/null || echo "UNKNOWN")
-  skill="unknown"
-  # Try timing.json first, fall back to input-context.json
-  if [ -f "$dir/timing.json" ]; then
-    skill=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['skill'])" "$dir/timing.json" 2>/dev/null || echo "unknown")
-  fi
-  if [ "$skill" = "unknown" ] && [ -f "$dir/input-context.json" ]; then
-    skill=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('skill','unknown'))" "$dir/input-context.json" 2>/dev/null || echo "unknown")
-  fi
-  duration="null"
-  [ -f "$dir/timing.json" ] && duration=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('duration_ms','null'))" "$dir/timing.json" 2>/dev/null || echo "null")
-  start=""
-  [ -f "$dir/timing.json" ] && start=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('start',''))" "$dir/timing.json" 2>/dev/null || echo "")
-  has_output=false
-  [ -f "$dir/skill-output.txt" ] && has_output=true
-
-  if [ "$first" = true ]; then first=false; else echo "," >> "$DASHBOARD_PUBLIC/traces/index.json"; fi
-  cat >> "$DASHBOARD_PUBLIC/traces/index.json" <<ENTRY
-  {"id":"$id","status":"$status","skill":"$skill","duration_ms":$duration,"started_at":"$start","has_output":$has_output}
-ENTRY
-done
-echo "]" >> "$DASHBOARD_PUBLIC/traces/index.json"
-
-# Copy trace files for detail views
-for dir in "$REPO_ROOT/evals/product/traces"/*/; do
-  [ -d "$dir" ] || continue
-  id=$(basename "$dir")
-  mkdir -p "$DASHBOARD_PUBLIC/traces/$id"
-  cp "$dir"/*.json "$DASHBOARD_PUBLIC/traces/$id/" 2>/dev/null || true
-  cp "$dir"/skill-output.txt "$DASHBOARD_PUBLIC/traces/$id/" 2>/dev/null || true
-done
-
-echo "Eval index built: $(wc -l < "$DASHBOARD_PUBLIC/evals/index.txt") score files, $(python3 -c "import json; print(len(json.load(open('$DASHBOARD_PUBLIC/traces/index.json'))))" 2>/dev/null || echo '?') traces"
+summary = {
+    "generated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+    "total_runs": len(runs),
+    "latest": runs[-1] if runs else None,
+    "runs": runs,
+}
+with open(os.path.join(results_dir, "index.json"), "w") as f:
+    json.dump(summary, f, indent=2)
+print(json.dumps(summary, indent=2))
+PY

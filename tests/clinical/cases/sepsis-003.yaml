@@ -1,8 +1,9 @@
 test_id: sepsis-003
 skill: protocol-reference
-description: "Sepsis qSOFA screening \u2014 qSOFA \u22652"
+description: Sepsis qSOFA screening — qSOFA ≥2
 input:
   clinical_context: 68yo M, RR 22, altered mental status, SBP 100. Suspected infection.
+  user_query: 68yo M, RR 22, altered mental status, SBP 100. Suspected infection.
 expected:
   must_contain:
   - qSOFA
@@ -15,6 +16,18 @@ expected:
     minimum_overall: 0.7
   provenance:
     must_cite_source: true
+  scoring_rubric:
+    critical_items:
+    - qSOFA
+    - altered
+    - respiratory
+    important_items: []
+    nice_to_have: []
+  expected_confidence_tier: 1
+  expected_routing:
+    primary_skill: protocol-reference
+    secondary_skills: []
 severity: high
 author: shane
 date: '2026-03-31'
+safety_veto: false

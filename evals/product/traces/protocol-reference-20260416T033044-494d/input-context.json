@@ -1,0 +1,15 @@
+{
+  "skill": "protocol-reference",
+  "timestamp": "2026-04-16T03:30:44Z",
+  "context": {
+    "workflow": "protocol-reference",
+    "input_mode": "clinical_narrative",
+    "patient_id": null,
+    "available_context": [
+      "clinical_narrative"
+    ],
+    "raw_input": "Acute stroke patient, last known well 1.5 hours ago, on apixaban for AFib. tPA candidate?",
+    "context_assembled": false,
+    "phi_risk": "none"
+  }
+}

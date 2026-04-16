@@ -4,9 +4,9 @@
 
 body {
   margin: 0;
-  background: #09090b;
-  color: #fafafa;
-  font-family: 'Outfit', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -21,32 +21,51 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--color-surface-hover);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: var(--color-border-light);
 }
 
 ::selection {
-  background: rgba(14, 165, 233, 0.3);
+  background: var(--alpha-accent-muted);
+}
+
+button,
+input,
+textarea,
+select,
+[role='tab'] {
+  min-height: 44px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role='tab']:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--alpha-accent-soft);
 }
 
 input::placeholder {
-  color: #71717a;
+  color: var(--color-text-secondary);
 }
 
 input:focus {
   outline: none;
-  border-color: #0ea5e9 !important;
+  border-color: var(--color-accent) !important;
   box-shadow: none !important;
 }
 
-/* Base resets for minimal design */
 .minimal-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #27272a transparent;
+  scrollbar-color: var(--color-surface-hover) transparent;
 }
 
 a {

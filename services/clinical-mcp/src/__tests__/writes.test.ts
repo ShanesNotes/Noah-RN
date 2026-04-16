@@ -30,6 +30,8 @@ describe("FHIR draft write scaffolds", () => {
     const result = await createDraftShiftReport({
       patientId: "patient-123",
       encounterId: "enc-456",
+      taskId: "task-789",
+      executionId: "shift-report:task-789:1776024000000",
       reportMarkdown: "# Shift Report",
     });
 
@@ -44,6 +46,30 @@ describe("FHIR draft write scaffolds", () => {
       "DocumentReference",
       expect.objectContaining({
         resourceType: "DocumentReference",
+        meta: {
+          tag: [
+            {
+              system: "https://noah-rn.dev/workflows",
+              code: "shift-report",
+              display: "Shift Report",
+            },
+            {
+              system: "https://noah-rn.dev/review-status",
+              code: "review-required",
+              display: "Review Required",
+            },
+          ],
+        },
+        identifier: [
+          {
+            system: "https://noah-rn.dev/task-id",
+            value: "task-789",
+          },
+          {
+            system: "https://noah-rn.dev/execution-id",
+            value: "shift-report:task-789:1776024000000",
+          },
+        ],
         status: "current",
         docStatus: "preliminary",
         type: {
@@ -66,7 +92,7 @@ describe("FHIR draft write scaffolds", () => {
         content: [{
           attachment: expect.objectContaining({
             contentType: "text/markdown",
-            title: "shift-report-draft-1776024000000",
+            title: "shift-report-draft-task-789-1776024000000",
             data: Buffer.from("# Shift Report", "utf-8").toString("base64"),
           }),
         }],

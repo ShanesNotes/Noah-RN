@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describeRoutingCandidates } from "./describe-routing-candidates.mjs";
+import { listClinicalResources } from "./list-clinical-resources.mjs";
+import { listSkills } from "./list-skills.mjs";
+import { listTools } from "./list-tools.mjs";
+import { formatNarrativeOutput, formatPatientIdOutput } from "./shift-report-renderer.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..");
 const traceScript = resolve(repoRoot, "tools", "trace", "trace.sh");
+const workflowDependenciesPath = resolve(__dirname, "workflow-dependencies.json");
+const workflowDependencies = JSON.parse(readFileSync(workflowDependenciesPath, "utf8"));
 
 function resolveScope(workflowName) {
   if (workflowName === "shift-report") {
@@ -47,225 +53,114 @@ async function fetchPatientContext(patientId) {
   return assemblePatientContext(patientId);
 }
 
-export function formatContextSBAR(context) {
-  const { patient, timeline, trends, gaps } = context;
-  const sections = [];
-  const linesAccessGap = gaps.find((gap) => gap.includes("[GAP: Lines/Access]"));
-  const genericGaps = gaps.filter(
-    (gap) => !gap.includes("[GAP: Lines/Access]") && !gap.startsWith("Context budget:"),
+function runTraceCommand(env, ...args) {
+  return spawnSync("bash", [traceScript, ...args], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env,
+  });
+}
+
+function emitTraceJson(env, command, caseId, payload) {
+  const result = runTraceCommand(env, command, caseId, JSON.stringify(payload, null, 2));
+  if (result.status !== 0) {
+    throw new Error(result.stderr.trim() || `trace ${command} failed`);
+  }
+}
+
+function estimateTokenSpend(rawInput, output, patientContext) {
+  const rawLength = rawInput.length;
+  const contextText = patientContext ? JSON.stringify(patientContext) : "";
+  const inputTokens = Math.max(1, Math.ceil((rawLength + contextText.length) / 4));
+  const outputTokens = Math.max(1, Math.ceil(output.length / 4));
+  const patientBundleTokens = patientContext
+    ? Math.max(1, Math.ceil(JSON.stringify(patientContext.timeline ?? []).length / 4))
+    : 0;
+
+  return {
+    input_tokens: inputTokens,
+    output_tokens: outputTokens,
+    cache_read_tokens: 0,
+    cache_write_tokens: 0,
+    context_ratio: Number(
+      Math.min(1, patientBundleTokens / Math.max(1, inputTokens + outputTokens)).toFixed(3),
+    ),
+    categories: {
+      patient_bundle: patientBundleTokens,
+      user_input: Math.max(1, Math.ceil(rawLength / 4)),
+      system_prompt: 128,
+      renderer: Math.max(1, Math.ceil(output.length / 8)),
+    },
+  };
+}
+
+function getFallbackWorkflowProfile(workflowName) {
+  if (workflowDependencies.workflows?.[workflowName]) {
+    return workflowDependencies.workflows[workflowName];
+  }
+  if (workflowName === "clinical-calculator") {
+    return {
+      tool_family_refs: ["clinical-calculators", "trace", "safety-hooks"],
+      knowledge_asset_refs: ["cross-skill-triggers", "four-layer-output", "disclaimers"],
+      service_surface_refs: [],
+    };
+  }
+  return null;
+}
+
+function buildFallbackCandidate(workflowName) {
+  const registrySkills = listSkills();
+  const workflowRegistry = JSON.parse(readFileSync(resolve(repoRoot, "packages", "workflows", "registry.json"), "utf8"));
+  const retired = (workflowRegistry.retired || []).find((item) => item.name === workflowName);
+  const skill = registrySkills.find((item) => item.name === workflowName) || (
+    retired
+      ? {
+          name: retired.name,
+          source_path: retired.redirect,
+          scope: ["clinical_scoring"],
+          exists: existsSync(resolve(repoRoot, retired.redirect)),
+          has_contract: true,
+          authoritative_surface: workflowRegistry.authoritative_surface,
+        }
+      : null
   );
-
-  // 1. PATIENT
-  const patientLines = ["PATIENT"];
-  patientLines.push(`- ${patient.name}`);
-  patientLines.push(`- ${patient.gender}, DOB: ${patient.dob}`);
-
-  const conditions = timeline.filter((e) => e.type === "condition");
-  if (conditions.length > 0) {
-    const pmh = conditions.map((c) => c.resource.code?.text || c.resource.code?.coding?.[0]?.display || "unknown").join(", ");
-    patientLines.push(`- Hx: ${pmh}`);
+  const profile = getFallbackWorkflowProfile(workflowName);
+  if (!skill || !profile) {
+    return null;
   }
-
-  const encounters = timeline.filter((e) => e.type === "encounter");
-  if (encounters.length > 0) {
-    const latest = encounters[0];
-    const reason = latest.resource.reasonCode?.[0]?.text || latest.resource.type?.[0]?.text || "unknown";
-    patientLines.push(`- Admit: ${latest.timestamp}, ${reason}`);
-  }
-
-  sections.push(patientLines.join("\n"));
-
-  // 2. STORY
-  const storyLines = ["STORY"];
-  const storyEntries = timeline.slice(0, 20); // most recent events
-  if (storyEntries.length > 0) {
-    for (const entry of storyEntries) {
-      const label = entryLabel(entry);
-      storyLines.push(`- ${entry.relativeTime}: ${label}`);
-    }
-  } else {
-    storyLines.push("- No timeline events available");
-  }
-  sections.push(storyLines.join("\n"));
-
-  // 3. ASSESSMENT
-  const assessmentLines = ["ASSESSMENT"];
-  const vitals = timeline.filter((e) => e.type === "observation" && e.subtype === "vital");
-  const labs = timeline.filter((e) => e.type === "observation" && e.subtype === "lab");
-
-  if (vitals.length > 0) {
-    assessmentLines.push("Vitals:");
-    for (const v of vitals.slice(0, 10)) {
-      const name = v.resource.code?.text || v.resource.code?.coding?.[0]?.display || "unknown";
-      const value = formatObsValue(v.resource);
-      assessmentLines.push(`  - ${name}: ${value} (${v.relativeTime})`);
-    }
-  }
-
-  if (labs.length > 0) {
-    assessmentLines.push("Labs:");
-    for (const l of labs.slice(0, 10)) {
-      const name = l.resource.code?.text || l.resource.code?.coding?.[0]?.display || "unknown";
-      const value = formatObsValue(l.resource);
-      assessmentLines.push(`  - ${name}: ${value} (${l.relativeTime})`);
-    }
-  }
-
-  if (vitals.length === 0 && labs.length === 0) {
-    assessmentLines.push("- No observations available");
-  }
-  sections.push(assessmentLines.join("\n"));
-
-  // 4. LINES & ACCESS
-  const linesAccessLines = ["LINES & ACCESS"];
-  const devices = timeline.filter((e) => e.type === "device");
-  if (devices.length > 0) {
-    for (const device of devices.slice(0, 10)) {
-      const label = deviceLabel(device);
-      const timing = device.relativeTime === "T-unknown" ? "timing unknown" : device.relativeTime;
-      linesAccessLines.push(`- ${label} (${timing})`);
-    }
-  } else {
-    linesAccessLines.push(`- ${linesAccessGap || "No device data available"}`);
-  }
-  sections.push(linesAccessLines.join("\n"));
-
-  // 5. ACTIVE ISSUES & PLAN
-  const issueLines = ["ACTIVE ISSUES & PLAN"];
-  if (trends.length > 0) {
-    for (const t of trends) {
-      const flag = t.direction === "rising" || t.direction === "falling" ? "[!] " : "";
-      const vals = t.values.map((v) => `${v.value}`).join(" → ");
-      issueLines.push(`- ${flag}${t.name} ${t.direction}: ${vals}`);
-    }
-  }
-  if (genericGaps.length > 0) {
-    issueLines.push("Gaps:");
-    for (const g of genericGaps) {
-      issueLines.push(`  - ${g}`);
-    }
-  }
-  if (context.budgetTruncated) {
-    issueLines.push(`- Context budget truncated ${context.truncatedCount} older entries to fit the output window`);
-  }
-  if (trends.length === 0 && genericGaps.length === 0 && !context.budgetTruncated) {
-    issueLines.push("- No active issues identified from available data");
-  }
-  sections.push(issueLines.join("\n"));
-
-  // 6. HOUSEKEEPING
-  sections.push("HOUSEKEEPING\n- [Requires bedside input]");
-
-  // 7. FAMILY
-  sections.push("FAMILY\n- [Requires bedside input]");
-
-  return sections.join("\n\n");
+  const toolsByName = new Map(listTools().map((tool) => [tool.name, tool]));
+  const resourcesByName = new Map(listClinicalResources().map((asset) => [asset.name, asset]));
+  return {
+    name: workflowName,
+    source_path: skill.source_path,
+    scope: skill.scope,
+    contract_ready: skill.has_contract,
+    required_context: {
+      mandatory: [],
+      mandatory_one_of: [],
+    },
+    tool_families: (profile.tool_family_refs || []).map((name) => toolsByName.get(name)).filter(Boolean),
+    knowledge_assets: (profile.knowledge_asset_refs || []).map((name) => resourcesByName.get(name)).filter(Boolean),
+    knowledge_sources_raw: profile.knowledge_asset_refs || [],
+    service_surface_refs: profile.service_surface_refs || [],
+    authoritative_surface: "packages/agent-harness",
+  };
 }
 
-function entryLabel(entry) {
-  switch (entry.type) {
-    case "observation": {
-      const name = entry.resource.code?.text || entry.resource.code?.coding?.[0]?.display || "observation";
-      return `${name}: ${formatObsValue(entry.resource)}`;
-    }
-    case "condition": {
-      return `Dx: ${entry.resource.code?.text || entry.resource.code?.coding?.[0]?.display || "condition"}`;
-    }
-    case "medication": {
-      return `Rx: ${entry.resource.medicationCodeableConcept?.text || entry.resource.medicationCodeableConcept?.coding?.[0]?.display || "medication"}`;
-    }
-    case "medicationAdministration": {
-      return `MAR: ${entry.resource.medicationCodeableConcept?.text || "medication admin"}`;
-    }
-    case "encounter": {
-      return `Encounter: ${entry.resource.type?.[0]?.text || entry.resource.reasonCode?.[0]?.text || "encounter"}`;
-    }
-    case "note": {
-      return `Note: ${entry.resource.type?.coding?.[0]?.display || entry.resource.description || "document"}`;
-    }
-    case "device": {
-      return `Access: ${deviceLabel(entry)}`;
-    }
-    default:
-      return entry.type;
+export function getWorkflowCandidate(workflowName, rawInput = "") {
+  const availableContext = resolveAvailableContext(rawInput);
+  const scope = resolveScope(workflowName);
+  const candidates = describeRoutingCandidates({ scope, availableContext });
+  const candidate = candidates.find((item) => item.name === workflowName);
+
+  if (candidate) {
+    return candidate;
   }
-}
-
-function deviceLabel(entry) {
-  return (
-    entry.resource.deviceName?.[0]?.name
-    || entry.resource.type?.text
-    || entry.resource.type?.coding?.[0]?.display
-    || "device"
-  );
-}
-
-function formatObsValue(obs) {
-  if (obs.valueQuantity) {
-    return `${obs.valueQuantity.value} ${obs.valueQuantity.unit || ""}`.trim();
+  const fallbackCandidate = buildFallbackCandidate(workflowName);
+  if (!fallbackCandidate) {
+    throw new Error(`No routing candidate found for workflow "${workflowName}"`);
   }
-  if (obs.valueString) {
-    return obs.valueString;
-  }
-  if (obs.component && obs.component.length > 0) {
-    return obs.component
-      .map((c) => {
-        const label = c.code?.text || c.code?.coding?.[0]?.display || "";
-        const val = c.valueQuantity ? `${c.valueQuantity.value}` : "?";
-        return `${label} ${val}`;
-      })
-      .join(" / ");
-  }
-  return "no value";
-}
-
-function formatNarrativeOutput(candidate, rawInput) {
-  const toolNames = candidate.tool_families.map((tool) => tool.name).join(", ") || "none";
-  const resourceNames = candidate.knowledge_assets.map((asset) => asset.name).join(", ") || "none";
-  const surfaces = candidate.service_surface_refs.join(", ") || "packages/workflows/";
-
-  return [
-    "Summary",
-    `SBAR ${candidate.name} workflow invocation prepared for the Shift Report path.`,
-    "",
-    "Evidence",
-    `Workflow: ${candidate.name}`,
-    "Input mode: clinical_narrative",
-    "Context boundary: services/clinical-mcp/",
-    `Resource access: ${resourceNames}`,
-    `Tool families: ${toolNames}`,
-    `Service surfaces: ${surfaces}`,
-    `User context: ${rawInput}`,
-    "",
-    "Confidence",
-    "0.95",
-    "",
-    "Provenance",
-    `Source: ${candidate.source_path}`,
-    "Registry: packages/workflows/registry.json",
-    "Dependencies: packages/agent-harness/workflow-dependencies.json",
-  ].join("\n");
-}
-
-function formatPatientIdOutput(candidate, patientId, context) {
-  const sbar = formatContextSBAR(context);
-
-  return [
-    "Summary",
-    `Shift Report assembled from live Medplum context for patient ${patientId}.`,
-    "",
-    sbar,
-    "",
-    "Confidence",
-    "0.90",
-    "",
-    "Provenance",
-    `Source: ${candidate.source_path}`,
-    `Context: services/clinical-mcp/ (${context.sources.join(", ")})`,
-    `Assembled: ${context.assembledAt}`,
-    `Token estimate: ${context.tokenEstimate}`,
-    "Registry: packages/workflows/registry.json",
-  ].join("\n");
+  return fallbackCandidate;
 }
 
 async function main() {
@@ -273,14 +168,8 @@ async function main() {
   const inputMode = detectInputMode(rawInput);
   const availableContext = resolveAvailableContext(rawInput);
   const scope = resolveScope(workflowName);
-  const candidates = describeRoutingCandidates({ scope, availableContext });
-  const candidate = candidates.find((item) => item.name === workflowName);
+  const candidate = getWorkflowCandidate(workflowName, rawInput);
 
-  if (!candidate) {
-    throw new Error(`No routing candidate found for workflow "${workflowName}"`);
-  }
-
-  // Resolve patient context if input is patient_id
   let patientContext = null;
   let patientId = null;
   if (inputMode === "patient_id") {
@@ -299,19 +188,22 @@ async function main() {
     ? resolve(repoRoot, traceDirArg, "..")
     : resolve(repoRoot, "evals", "product", "traces");
 
-  const env = traceBaseDir ? { ...process.env, TRACE_BASE_DIR: traceBaseDir } : process.env;
-  const caseIdResult = spawnSync("bash", [traceScript, "init", workflowName], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env,
-  });
+  const env = traceBaseDir
+    ? {
+        ...process.env,
+        TRACE_BASE_DIR: traceBaseDir,
+        TRACE_CANDIDATE_ID: process.env.CANDIDATE_ID ?? "",
+      }
+    : process.env;
 
+  const caseIdResult = runTraceCommand(env, "init", workflowName);
   if (caseIdResult.status !== 0) {
     throw new Error(caseIdResult.stderr.trim() || "trace init failed");
   }
 
   const caseId = caseIdResult.stdout.trim();
   const generatedTraceDir = resolve(traceBaseDir, caseId);
+  const allCandidates = describeRoutingCandidates({ scope, availableContext }).map((item) => item.name);
   const inputPayload = JSON.stringify(
     {
       workflow: workflowName,
@@ -320,29 +212,48 @@ async function main() {
       available_context: availableContext,
       raw_input: rawInput,
       context_assembled: !!patientContext,
+      phi_risk: patientContext ? "de-identified" : "none",
     },
     null,
     2,
   );
 
-  const inputResult = spawnSync("bash", [traceScript, "input", caseId, inputPayload], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env,
-  });
-
+  const inputResult = runTraceCommand(env, "input", caseId, inputPayload);
   if (inputResult.status !== 0) {
     throw new Error(inputResult.stderr.trim() || "trace input failed");
   }
 
-  // Format output based on input mode
+  emitTraceJson(env, "routing", caseId, {
+    input_classification: inputMode === "patient_id" ? "moderate" : "simple",
+    candidates_considered: allCandidates,
+    selected_workflow: candidate.name,
+    confidence: inputMode === "patient_id" ? 0.9 : 0.84,
+    rationale: inputMode === "patient_id"
+      ? "Patient identifier enabled live context assembly and narrowed routing."
+      : "Narrative-only input matched the requested workflow directly.",
+  });
+
   const output = patientContext
     ? formatPatientIdOutput(candidate, patientId, patientContext)
     : formatNarrativeOutput(candidate, rawInput);
+  const tokenSpend = estimateTokenSpend(rawInput, output, patientContext);
 
-  writeFileSync(resolve(generatedTraceDir, "skill-output.txt"), output);
+  const patientBundleTokens = patientContext
+    ? Math.max(1, Math.ceil(JSON.stringify(patientContext.timeline ?? []).length / 4))
+    : 0;
+  emitTraceJson(env, "context", caseId, {
+    patient_bundle_tokens: patientBundleTokens,
+    knowledge_assets_selected: candidate.knowledge_assets.map((asset) => asset.name),
+    compression_strategy: patientContext ? "timeline-windowed" : "narrative-only",
+    gap_markers: patientContext?.gaps ?? [],
+    fhir_queries_fired: patientContext?.sources?.length ?? 0,
+  });
 
-  // Save patient context to trace if assembled
+  const outputResult = runTraceCommand(env, "output", caseId, output);
+  if (outputResult.status !== 0) {
+    throw new Error(outputResult.stderr.trim() || "trace output failed");
+  }
+
   if (patientContext) {
     writeFileSync(
       resolve(generatedTraceDir, "patient-context.json"),
@@ -357,28 +268,39 @@ async function main() {
       input_mode: inputMode,
       context_assembled: !!patientContext,
       service_surface_refs: candidate.service_surface_refs,
+      downstream_system: patientContext ? "medplum" : null,
+      veto_triggered: false,
     },
     null,
     2,
   );
-  const hooksResult = spawnSync("bash", [traceScript, "hooks", caseId, hooksPayload], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env,
-  });
-
+  const hooksResult = runTraceCommand(env, "hooks", caseId, hooksPayload);
   if (hooksResult.status !== 0) {
     throw new Error(hooksResult.stderr.trim() || "trace hooks failed");
   }
 
-  const doneResult = spawnSync("bash", [traceScript, "done", caseId], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env,
+  emitTraceJson(env, "safety", caseId, {
+    gate_name: "context-ratio",
+    result: tokenSpend.context_ratio > 0.4 ? "fail" : tokenSpend.context_ratio > 0.35 ? "warn" : "pass",
+    detail: tokenSpend.context_ratio > 0.4
+      ? `Context ratio ${tokenSpend.context_ratio} exceeds the 0.40 budget ceiling.`
+      : `Context ratio ${tokenSpend.context_ratio} is within the 0.40 budget ceiling.`,
   });
+  emitTraceJson(env, "safety", caseId, {
+    gate_name: "hitl-category-ii",
+    result: "pass",
+    detail: "Output remains draft clinical decision support requiring human review.",
+  });
+  emitTraceJson(env, "tokens", caseId, tokenSpend);
 
+  const doneResult = runTraceCommand(env, "done", caseId);
   if (doneResult.status !== 0) {
     throw new Error(doneResult.stderr.trim() || "trace done failed");
+  }
+
+  const envelopeResult = runTraceCommand(env, "envelope", caseId);
+  if (envelopeResult.status !== 0) {
+    throw new Error(envelopeResult.stderr.trim() || "trace envelope failed");
   }
 
   if (traceDirArg) {

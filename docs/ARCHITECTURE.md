@@ -39,7 +39,13 @@ Live-runtime boundary center:
 
 Supporting surfaces:
 - `infrastructure/` — Medplum and local environment setup; the shared FHIR backbone that both centers read from and the sim-harness writes into.
-- `apps/nursing-station/` — Medplum-first clinician workspace surface for patient/task flows.
+- `apps/nursing-station/` — Medplum-first clinician workspace surface. Current maturity:
+  - work-first assignment/worklist root
+  - route-driven patient chart shell
+  - persistent patient header
+  - task-driven draft review/detail
+  - explicit review vs acknowledge vs finalize progression
+  - results review and trend-first vitals/labs
 - `apps/clinician-dashboard/` — runtime-console sidecar for evals, traces, context inspection, skills, terminal workflows, and future sim observability.
 
 Role of `services/clinical-mcp/`:
@@ -151,7 +157,7 @@ Deferred:
 
 ## Active Subsystems Summary
 
-- `apps/nursing-station/` - Medplum-first clinician workspace surface
+- `apps/nursing-station/` - Medplum-first clinician workspace surface with landed worklist, review, results, and trend-review spine
 - `apps/clinician-dashboard/` - runtime-console sidecar prototype for evals, traces, context inspection, skill visibility, and terminal/operator workflows
 - `services/clinical-mcp/` - patient-context and simulation-facing boundary
 - `services/sim-harness/` - clinical simulation harness center (scaffold only); wraps open-source physiology engines; drives live vitals, waveforms, and scenario timelines; writes FHIR back into Medplum
@@ -179,6 +185,7 @@ For more detail, read:
 - [foundations/execution-packet-simulation-architecture.md](foundations/execution-packet-simulation-architecture.md) — Lanes A–F
 - [foundations/first-bedside-workflow-spec.md](foundations/first-bedside-workflow-spec.md) — first bedside workflow (ICU respiratory decompensation)
 - [foundations/medplum-write-path-expansion.md](foundations/medplum-write-path-expansion.md) — Contract 5 charting write-path expansion
+- [analysis/agent-native-clinical-workspace-long-range-plan.md](analysis/agent-native-clinical-workspace-long-range-plan.md) — long-range clinician workspace sequencing
 - [foundations/sim-harness-waveform-vision-contract.md](foundations/sim-harness-waveform-vision-contract.md) — KEPT
 - [foundations/sim-harness-scaffold.md](foundations/sim-harness-scaffold.md) — historical pointer
 - [foundations/sim-harness-runtime-access-contract.md](foundations/sim-harness-runtime-access-contract.md) — working reference (superseded for authority)

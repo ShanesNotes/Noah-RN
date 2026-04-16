@@ -32,6 +32,23 @@ Legend:
 | Inline results explanation | D/P2 | nursing-station | useful but should follow explicit review model | agent-native direction note | custom | early-inline when enabled | explanation shown as draft/support, not fact |
 | Chat-like omnibox agent shell | D | undecided | tempting but high derail risk | pi.dev inspiration only | defer | n/a | do not build now |
 
+## Landed Status Snapshot
+
+Landed in `apps/nursing-station/`:
+
+- Persistent patient header
+- Chart shell / nav
+- Overview page
+- Assignment/worklist
+- Review vs acknowledge state model
+- Provenance + draft/final review surface
+- Results review panel
+- Trend-first vitals/labs
+
+Next sequenced lane:
+
+- `MAR-lite`
+
 ## Non-negotiables
 
 - no second chart in clinician-dashboard

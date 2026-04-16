@@ -13,3 +13,10 @@ Related boundaries:
 - `services/clinical-mcp/` — agent-facing context boundary (produces patient context used in traces)
 - `services/sim-harness/` — Clinical Sim Harness (live L0 physiology via Pulse); supplies simulated encounters for workflow evals
 - `tools/trace/` — trace tooling
+
+## Read this next
+
+- `../TASKS.md` — current observability/eval priorities
+- `../docs/NAVIGATION.md` — task-oriented repo doc map
+- `../docs/ARCHITECTURE.md` — meta-harness boundary map
+- `../tools/README.md` and `../tools/trace/` — trace tooling surfaces

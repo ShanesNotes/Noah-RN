@@ -4,6 +4,8 @@ This directory is the reference and architecture surface for Noah RN.
 
 It is **not** the project control plane.
 
+If you need a fast task-oriented map before diving into a specific folder, start with [NAVIGATION.md](NAVIGATION.md).
+
 The control plane remains:
 - [README.md](../README.md)
 - [PLAN.md](../PLAN.md)
@@ -19,6 +21,11 @@ Use this file when the question is:
 - where should a new doc live?
 - which docs are active vs historical?
 - which doc should I read first for a given topic?
+
+Use [NAVIGATION.md](NAVIGATION.md) when the question is:
+- I need the quickest path to the right doc for a coding task
+- I am about to edit a repo surface and want the minimum first-read set
+- I need the repo-wide map distilled for agents
 
 ## Directory Roles
 

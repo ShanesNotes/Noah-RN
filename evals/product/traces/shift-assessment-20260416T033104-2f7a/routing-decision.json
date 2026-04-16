@@ -1,0 +1,12 @@
+{
+  "input_classification": "simple",
+  "candidates_considered": [
+    "hello-nurse",
+    "protocol-reference",
+    "shift-assessment",
+    "shift-report"
+  ],
+  "selected_workflow": "shift-assessment",
+  "confidence": 0.84,
+  "rationale": "Narrative-only input matched the requested workflow directly."
+}
