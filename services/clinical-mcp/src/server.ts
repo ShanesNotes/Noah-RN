@@ -78,6 +78,23 @@ export function createServer(): McpServer {
     },
   );
 
+  // Tool: get_medication_list (clinical-MCP contract v1)
+  server.tool(
+    'get_medication_list',
+    'Assemble a MAR-style view for a patient: active MedicationRequests with scheduled/overdue/PRN/held state, recent MedicationAdministrations, and inline ISMP high-alert flags.',
+    {
+      patient_id: z.string().regex(/^[a-zA-Z0-9\-_.]+$/, 'Patient ID must be alphanumeric/UUID').describe('FHIR Patient resource ID'),
+      filter_status: z.enum(['active', 'held', 'all']).optional().describe('Filter for MedicationRequest status (default: active).'),
+    },
+    async ({ patient_id, filter_status }) => {
+      const { getMedicationList } = await import('./context/medication.js');
+      const list = await getMedicationList(patient_id, {
+        filter: filter_status ? { status: filter_status } : undefined,
+      });
+      return jsonToolResult(list);
+    },
+  );
+
   // Sim-harness tools register conditionally through registerSimTools().
   // See docs/foundations/sim-harness-runtime-access-contract.md (working reference)
   // and Contracts 4 + 6 in docs/foundations/foundational-contracts-simulation-architecture.md

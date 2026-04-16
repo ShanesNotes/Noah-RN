@@ -268,6 +268,25 @@ export interface Device extends FhirResource {
   }>;
 }
 
+export interface Procedure extends FhirResource {
+  resourceType: 'Procedure';
+  status?: string;
+  statusReason?: CodeableConcept;
+  category?: CodeableConcept;
+  code?: CodeableConcept;
+  subject?: Reference;
+  encounter?: Reference;
+  performedDateTime?: string;
+  performedPeriod?: Period;
+  performer?: Array<{
+    actor?: Reference;
+  }>;
+  reasonCode?: CodeableConcept[];
+  bodySite?: CodeableConcept[];
+  partOf?: Reference[];
+  note?: Annotation[];
+}
+
 export type ClinicalResource =
   | Observation
   | Condition
@@ -279,7 +298,8 @@ export type ClinicalResource =
   | Patient
   | Task
   | Provenance
-  | Device;
+  | Device
+  | Procedure;
 
 export interface FhirResult<T> {
   data: T | null;

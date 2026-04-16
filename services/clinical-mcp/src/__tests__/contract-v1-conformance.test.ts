@@ -12,12 +12,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ---------- Contract v1.0.0 tool inventory ----------
 // Keep this in sync with docs/standards/clinical-mcp-contract-v1.md#tool-inventory.
+// Only agent-callable MCP tools appear here; Product B internal writers
+// (chartMedicationAdministration, holdMedicationAdministration,
+// recordProcedure, recordHumanAttestedProvenance) are covered by
+// medication-list.test.ts.
 const CONTRACT_V1_TOOLS = {
   read: {
     get_patient_context: 'implemented',
     list_patients: 'implemented',
     inspect_context: 'implemented',
-    get_medication_list: 'planned',
+    get_medication_list: 'implemented',
   },
   write: {
     queue_draft_task: 'implemented',
@@ -25,9 +29,6 @@ const CONTRACT_V1_TOOLS = {
     queue_draft_medication_administration: 'implemented',
     record_provenance: 'implemented',
     finalize_draft_document: 'planned',
-    chart_medication_administration: 'planned',
-    hold_medication_administration: 'planned',
-    record_procedure: 'planned',
     lookup_drug: 'planned',
   },
 } as const;

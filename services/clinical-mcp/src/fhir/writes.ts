@@ -1,6 +1,7 @@
 import type {
   DocumentReference,
   MedicationAdministration,
+  Procedure,
   Provenance,
   Task,
 } from "./types.js";
@@ -408,6 +409,302 @@ export async function chartVitals(
   }
 
   return { created, errors };
+}
+
+// ----- Phase 4: MAR write path -----
+// Contract 5 + clinical-MCP contract v1 enforcement:
+//   - Agent-proposed drafts go through queueDraftMedicationAdministration
+//     (status=not-done, statusReason=draft-proposal).
+//   - Finalized / held / procedure writes require a human Practitioner
+//     performer reference. Agent attempts to finalize without human
+//     attestation are rejected at this boundary, NOT in the UI layer.
+
+const NOAH_AGENT_DISPLAY = "Noah RN Agent";
+const HUMAN_PERFORMER_PATTERN = /^Practitioner\/[^/]+$/;
+
+function assertHumanPerformer(performerRef: string, operation: string): void {
+  if (!HUMAN_PERFORMER_PATTERN.test(performerRef)) {
+    throw new Error(
+      `${operation} requires a human Practitioner performer reference (Practitioner/{id}). Received: "${performerRef}". Agent-authored finalized writes are not permitted by clinical-MCP contract v1; use queueDraftMedicationAdministration or queueDraftTask instead.`,
+    );
+  }
+  if (/noah.*agent/i.test(performerRef)) {
+    throw new Error(
+      `${operation} rejected: performer "${performerRef}" looks like an agent identifier. Finalized MARs require a human clinician.`,
+    );
+  }
+}
+
+export interface ChartMedicationAdministrationInput {
+  patientId: string;
+  encounterId?: string;
+  medicationName: string;
+  medicationRequestId?: string;
+  performerRef: string;
+  effectiveDateTime?: string;
+  dosageText?: string;
+  note?: string;
+}
+
+export async function chartMedicationAdministration(
+  input: ChartMedicationAdministrationInput,
+): Promise<MedicationAdministration> {
+  assertHumanPerformer(input.performerRef, "chartMedicationAdministration");
+
+  const effectiveDateTime = input.effectiveDateTime ?? new Date().toISOString();
+
+  const payload = {
+    resourceType: "MedicationAdministration" as const,
+    meta: {
+      tag: [
+        {
+          system: OBSERVATION_ORIGIN_SYSTEM,
+          code: "nurse-charted",
+          display: "Nurse Charted",
+        },
+        {
+          system: WORKFLOW_SYSTEM,
+          code: "medication-administration",
+          display: "Medication Administration",
+        },
+      ],
+    },
+    status: "completed",
+    medicationCodeableConcept: { text: input.medicationName },
+    subject: { reference: `Patient/${input.patientId}` },
+    ...(input.encounterId && {
+      context: { reference: `Encounter/${input.encounterId}` },
+    }),
+    ...(input.medicationRequestId && {
+      request: { reference: `MedicationRequest/${input.medicationRequestId}` },
+    }),
+    performer: [{ actor: { reference: input.performerRef } }],
+    effectiveDateTime,
+    ...(input.dosageText && { dosage: { text: input.dosageText } }),
+    ...(input.note && { note: [{ text: input.note }] }),
+  };
+
+  const medadmin = await postRequiredResource<MedicationAdministration>(
+    "MedicationAdministration",
+    payload,
+    "chartMedicationAdministration",
+  );
+
+  if (medadmin.id) {
+    await recordHumanAttestedProvenance(medadmin, input.performerRef);
+  }
+
+  return medadmin;
+}
+
+export interface HoldMedicationAdministrationInput {
+  patientId: string;
+  encounterId?: string;
+  medicationName: string;
+  medicationRequestId?: string;
+  performerRef: string;
+  reason: string;
+}
+
+export async function holdMedicationAdministration(
+  input: HoldMedicationAdministrationInput,
+): Promise<MedicationAdministration> {
+  assertHumanPerformer(input.performerRef, "holdMedicationAdministration");
+
+  const payload = {
+    resourceType: "MedicationAdministration" as const,
+    meta: {
+      tag: [
+        {
+          system: OBSERVATION_ORIGIN_SYSTEM,
+          code: "nurse-charted",
+          display: "Nurse Charted",
+        },
+        {
+          system: WORKFLOW_SYSTEM,
+          code: "medication-administration-hold",
+          display: "Medication Administration Hold",
+        },
+      ],
+    },
+    status: "not-done",
+    statusReason: {
+      coding: [
+        {
+          system: REVIEW_STATE_SYSTEM,
+          code: "held",
+          display: "Held",
+        },
+      ],
+      text: input.reason,
+    },
+    medicationCodeableConcept: { text: input.medicationName },
+    subject: { reference: `Patient/${input.patientId}` },
+    ...(input.encounterId && {
+      context: { reference: `Encounter/${input.encounterId}` },
+    }),
+    ...(input.medicationRequestId && {
+      request: { reference: `MedicationRequest/${input.medicationRequestId}` },
+    }),
+    performer: [{ actor: { reference: input.performerRef } }],
+    note: [{ text: input.reason }],
+  };
+
+  const medadmin = await postRequiredResource<MedicationAdministration>(
+    "MedicationAdministration",
+    payload,
+    "holdMedicationAdministration",
+  );
+
+  if (medadmin.id) {
+    await recordHumanAttestedProvenance(medadmin, input.performerRef);
+  }
+
+  return medadmin;
+}
+
+export interface RecordProcedureInput {
+  patientId: string;
+  encounterId?: string;
+  procedureCode: string;
+  procedureDisplay: string;
+  performerRef: string;
+  performedDateTime?: string;
+  note?: string;
+  /** References to MedicationAdministration resources linked to this procedure (e.g., RSI medication bundle). */
+  partOfMedAdminRefs?: string[];
+}
+
+export async function recordProcedure(
+  input: RecordProcedureInput,
+): Promise<Procedure> {
+  assertHumanPerformer(input.performerRef, "recordProcedure");
+
+  const performedDateTime = input.performedDateTime ?? new Date().toISOString();
+
+  const payload = {
+    resourceType: "Procedure" as const,
+    meta: {
+      tag: [
+        {
+          system: OBSERVATION_ORIGIN_SYSTEM,
+          code: "nurse-charted",
+          display: "Nurse Charted",
+        },
+        {
+          system: WORKFLOW_SYSTEM,
+          code: "procedure-record",
+          display: "Procedure Record",
+        },
+      ],
+    },
+    status: "completed",
+    code: {
+      coding: [
+        {
+          system: ARTIFACT_SYSTEM,
+          code: input.procedureCode,
+          display: input.procedureDisplay,
+        },
+      ],
+      text: input.procedureDisplay,
+    },
+    subject: { reference: `Patient/${input.patientId}` },
+    ...(input.encounterId && {
+      encounter: { reference: `Encounter/${input.encounterId}` },
+    }),
+    performer: [{ actor: { reference: input.performerRef } }],
+    performedDateTime,
+    ...(input.partOfMedAdminRefs && input.partOfMedAdminRefs.length > 0 && {
+      partOf: input.partOfMedAdminRefs.map((ref) => ({ reference: ref })),
+    }),
+    ...(input.note && { note: [{ text: input.note }] }),
+  };
+
+  const procedure = await postRequiredResource<Procedure>(
+    "Procedure",
+    payload,
+    "recordProcedure",
+  );
+
+  if (procedure.id) {
+    await recordHumanAttestedProvenance(procedure, input.performerRef);
+  }
+
+  return procedure;
+}
+
+export async function recordHumanAttestedProvenance(
+  target: DocumentReference | MedicationAdministration | Procedure | Task | Provenance,
+  performerRef: string,
+  attestationText?: string,
+): Promise<Provenance> {
+  if (!target.id) {
+    throw new Error(
+      "recordHumanAttestedProvenance requires a target resource with an id",
+    );
+  }
+  assertHumanPerformer(performerRef, "recordHumanAttestedProvenance");
+
+  const recorded = new Date().toISOString();
+  const payload = {
+    resourceType: "Provenance" as const,
+    meta: {
+      tag: [
+        {
+          system: WORKFLOW_SYSTEM,
+          code: "human-attested-provenance",
+          display: "Human Attested Provenance",
+        },
+      ],
+    },
+    target: [{ reference: `${target.resourceType}/${target.id}` }],
+    recorded,
+    occurredDateTime: recorded,
+    activity: {
+      coding: [
+        {
+          system: PROVENANCE_ACTIVITY_SYSTEM,
+          code: "record",
+          display: "Human Recorded",
+        },
+      ],
+      text: "record (human-attested)",
+    },
+    agent: [
+      {
+        type: {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+              code: "author",
+              display: "Author",
+            },
+          ],
+          text: "Author",
+        },
+        who: { reference: performerRef },
+      },
+    ],
+    ...(attestationText && {
+      entity: [
+        {
+          role: "source",
+          what: {
+            display: attestationText,
+          },
+        },
+      ],
+    }),
+    policy: [PROVENANCE_POLICY_URL],
+  };
+
+  return postRequiredResource<Provenance>(
+    "Provenance",
+    payload,
+    "recordHumanAttestedProvenance",
+  );
 }
 
 export function recordDraftProvenance(

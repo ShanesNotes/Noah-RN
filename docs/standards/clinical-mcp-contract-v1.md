@@ -23,21 +23,29 @@ Product C (Agent-Native Clinical Simulation) exposes a separate contract for sim
 
 ## Tool inventory
 
+Agent-callable MCP tools:
+
 | Tool | Direction | Status in Product B | Schema |
 |---|---|---|---|
 | `get_patient_context` | read | implemented | [schemas/patient-context-bundle.schema.json](schemas/patient-context-bundle.schema.json) |
 | `list_patients` | read | implemented | `PatientSummary[]` — see below |
 | `inspect_context` | read | implemented | `ContextAssemblyTrace` — see below |
-| `get_medication_list` | read | **planned (Phase 4)** | [schemas/medication-list-view.schema.json](schemas/medication-list-view.schema.json) |
+| `get_medication_list` | read | implemented | [schemas/medication-list-view.schema.json](schemas/medication-list-view.schema.json) |
 | `queue_draft_task` | write | implemented | [schemas/draft-task-write-input.schema.json](schemas/draft-task-write-input.schema.json) |
 | `create_draft_document` | write | implemented | [schemas/draft-document-write-input.schema.json](schemas/draft-document-write-input.schema.json) |
 | `queue_draft_medication_administration` | write | implemented | [schemas/draft-medication-administration-write-input.schema.json](schemas/draft-medication-administration-write-input.schema.json) |
 | `record_provenance` | write | implemented | [schemas/provenance-envelope.schema.json](schemas/provenance-envelope.schema.json) |
-| `finalize_draft_document` | write | **planned (Phase 4)** | `FinalizeDraftDocumentInput` — see below |
-| `chart_medication_administration` | write | **planned (Phase 4)** | Phase 4 |
-| `hold_medication_administration` | write | **planned (Phase 4)** | Phase 4 |
-| `record_procedure` | write | **planned (Phase 4)** | Phase 4 |
+| `finalize_draft_document` | write | **planned (Phase 4b)** | `FinalizeDraftDocumentInput` — see below |
 | `lookup_drug` | read | **planned (Phase 5)** | Phase 5 (resource-lane tool, exposed here for agent convenience) |
+
+Product B internal write functions (NOT agent-callable MCP tools — called by the nursing-station UI or the Medplum worker on behalf of a human Practitioner; the write path rejects agent performer references):
+
+| Function | Purpose | Status | Backing code |
+|---|---|---|---|
+| `chartMedicationAdministration` | Finalize a human-attested medication administration | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
+| `holdMedicationAdministration` | Hold a scheduled medication with documented reason | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
+| `recordProcedure` | Record a completed procedure with optional MedAdmin `partOf` links (e.g. RSI) | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
+| `recordHumanAttestedProvenance` | Human-authored Provenance (`activity=record`, Practitioner agent) | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
 
 Implementations must mark each tool `implemented`, `planned`, or `unsupported` in their conformance manifest. A tool that is neither exposed nor marked `unsupported` is a contract violation.
 
@@ -219,16 +227,21 @@ Standard codes:
 | `get_patient_context` | implemented | `services/clinical-mcp/src/context/assembler.ts` |
 | `list_patients` | implemented | `services/clinical-mcp/src/fhir/client.ts#listPatients` |
 | `inspect_context` | implemented | `services/clinical-mcp/src/tools/inspector.ts` |
-| `get_medication_list` | planned (Phase 4) | `services/clinical-mcp/src/context/medication.ts` (new) |
+| `get_medication_list` | implemented | `services/clinical-mcp/src/context/medication.ts#getMedicationList` |
 | `queue_draft_task` | implemented | `services/clinical-mcp/src/fhir/writes.ts#queueDraftTask` |
-| `create_draft_document` | implemented | `services/clinical-mcp/src/fhir/writes.ts#createDraftShiftReport` (specialization; generic variant lands Phase 4) |
+| `create_draft_document` | implemented | `services/clinical-mcp/src/fhir/writes.ts#createDraftShiftReport` (specialization; generic variant lands Phase 4b) |
 | `queue_draft_medication_administration` | implemented | `services/clinical-mcp/src/fhir/writes.ts#queueDraftMedicationAdministration` |
-| `record_provenance` | implemented | `services/clinical-mcp/src/fhir/writes.ts#recordDraftProvenance` |
-| `finalize_draft_document` | planned (Phase 4) | n/a |
-| `chart_medication_administration` | planned (Phase 4) | `services/clinical-mcp/src/fhir/writes.ts` |
-| `hold_medication_administration` | planned (Phase 4) | `services/clinical-mcp/src/fhir/writes.ts` |
-| `record_procedure` | planned (Phase 4) | `services/clinical-mcp/src/fhir/writes.ts` |
+| `record_provenance` | implemented | `services/clinical-mcp/src/fhir/writes.ts#recordDraftProvenance` + `recordHumanAttestedProvenance` |
+| `finalize_draft_document` | planned (Phase 4b) | n/a |
 | `lookup_drug` | planned (Phase 5) | routed through `clinical-resources/drug-reference/` |
+
+Product B internal writers (not agent-callable):
+
+| Function | Status | Backing code |
+|---|---|---|
+| `chartMedicationAdministration` | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
+| `holdMedicationAdministration` | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
+| `recordProcedure` | implemented | `services/clinical-mcp/src/fhir/writes.ts` |
 
 Conformance is enforced in `services/clinical-mcp/src/__tests__/contract-v1-conformance.test.ts`.
 
