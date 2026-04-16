@@ -2,6 +2,43 @@
 
 > **Status.** Approved 2026-04-16. This is the canonical execution record for the three-product alignment. Phase progress updates land back into this document; architectural decisions warrant new entries in `PLAN.md` Decision Log. Source scratchpad: `/home/ark/.claude/plans/snoopy-swinging-creek.md`.
 
+## Execution log
+
+Tracks phase-level landing status. Individual commits carry the fine-grained history.
+
+| Phase | Scope | Status | Commit |
+|---|---|---|---|
+| 0 | Control-plane reconciliation (docs) | ✅ landed 2026-04-16 | `a6cc25a` |
+| 1 | Gate-zero renderer inversion | ✅ landed 2026-04-16 | `e77e3b9` |
+| 2 | Clinical-MCP Contract v1.0.0 publication | ✅ landed 2026-04-16 | `7c26e89` |
+| 3 | `@noah-rn/contracts` shared types package | ✅ landed 2026-04-16 | `1dbe3ae` |
+| 4a | Product B MAR backend (read view + human-attested writers) | ✅ landed 2026-04-16 | `ce5fcaa` |
+| 4b | Product B MAR chart section (read view in nursing-station) | ✅ landed 2026-04-16 | `8158c3d` |
+| 4c | Write actions in MAR UI + "Verify with Noah" bridge | ⏳ deferred (needs browser-to-harness tool-invocation bridge) | — |
+| 5 | Drug reference scaffold (Lexicomp-mirror v0, 10 entries) | ✅ landed 2026-04-16 | `911f37b` |
+| 6 | `five-rights-verification` workflow contract | ✅ landed 2026-04-16 | `eaafb68` |
+| 7 | Shared `TraceEnvelopeV1` observability contract | ✅ landed 2026-04-16 | `6c38a28` |
+| 8a | Sim-harness MCP server skeleton (5 tools + stub store) | ✅ landed 2026-04-16 | `3320937` |
+| 8b | Real sim physiology wiring (Lanes B–D, scenario controller unification, Pulse REST sidecar) | ⏳ deferred | — |
+| 9 | ICU respiratory decompensation E2E | ⏳ deferred (depends on 4c + 8b) | — |
+
+**What's running at end of session 2026-04-16:**
+
+- `services/clinical-mcp`: 76 tests green. Agent-callable contract v1 tools all registered: `get_patient_context`, `list_patients`, `inspect_context`, `get_medication_list`, `queue_draft_task`, `create_draft_document`, `queue_draft_medication_administration`, `record_provenance`, `lookup_drug`. Internal writers: `chartMedicationAdministration`, `holdMedicationAdministration`, `recordProcedure`, `recordHumanAttestedProvenance` (all agent-rejection guarded).
+- `services/sim-harness`: 6 new MCP-server tests green. Tool surface exposes `sim_list_scenarios`, `sim_load_scenario`, `sim_get_vitals_snapshot`, `sim_advance_clock`, `sim_set_clock_mode`. Scaffold-level stub store; real physiology lands in Phase 8b. 5 pre-existing scenario-controller tests continue to fail (real-time tick flakiness from the earlier sim-harness expansion commit — orthogonal to 8a).
+- `packages/agent-harness`: tsc clean; registers `five-rights-verification` and re-exports shared telemetry types from `@noah-rn/contracts`.
+- `packages/workflows`: 11 skills (five-rights-verification added to the existing 10).
+- `packages/contracts`: tsc clean. Subpath exports for lane-coverage / context-bundle / provenance-envelope / trace-envelope / mcp-tool-types / renderer-input / drug-reference.
+- `apps/nursing-station`: builds clean; new `/Patient/:id/mar` chart section landed; MAR read view with high-alert flags + 24h administration history.
+- `docs/standards/`: `clinical-mcp-contract-v1.md` + 6 JSON schemas.
+- `clinical-resources/drug-reference/`: 10 ICU-relevant entries + schema + FRESHNESS.md.
+
+**What remains for the next session:**
+
+- Phase 4c: MAR write actions (chart / hold / skip) and the "Verify with Noah" button routing through a browser-compatible harness-client transport.
+- Phase 8b: unify the sim-harness scenario loader, fix the 5 scenario-controller test failures, land the monitor bridge + alarm classifier, stand up the Pulse REST sidecar per the 2026-04-16 decision.
+- Phase 9: 9-beat ICU respiratory decompensation E2E verification.
+
 ## Context
 
 Noah RN's core mission is a pi-native agentic clinical workspace harness for critical care nursing — conceptually similar to NemoClaw/OpenClaw but clinically specialized. Over the last two weeks the repo grew three large surfaces simultaneously: the Medplum-backed chart (`apps/nursing-station/`), the sim-harness runtime center (`services/sim-harness/`), and the Pi bridge (`.noah-pi-runtime/extensions/`). The control-plane documentation describes a single integrated system; the actual code is growing into three distinct products that must connect through contracts rather than imports.

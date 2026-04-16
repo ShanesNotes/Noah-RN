@@ -86,7 +86,7 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - **Lane A partial landed**: simulation clock (`src/clock.ts`) with wall/accelerated/frozen/skip-ahead modes, engine-adapter boundary, reference pharmacokinetics.
    - **Lane B partial**: scenario controller exists but competing JSON vs TypeScript loaders require unification; static Map of three fixture scenarios (pressor-titration, fluid-responsive, hyporesponsive); SAC-1 authoring contract not yet implemented.
    - **Lanes C–F deferred**: monitor bridge with IEC alarm classification, charting authority surface, obligation runtime, eval recorder, and E2E integration all pending.
-   - **No MCP surface** on the sim-harness side; clinical-mcp currently reaches sim via direct function imports (boundary violation to be fixed in alignment plan Phase 8).
+   - **MCP surface skeleton landed 2026-04-16 (alignment plan Phase 8a)**: `services/sim-harness/src/mcp/server.ts` exposes `sim_list_scenarios`, `sim_load_scenario`, `sim_get_vitals_snapshot`, `sim_advance_clock`, `sim_set_clock_mode`. Backed by a deterministic stub store; real physiology wiring lands in Phase 8b. Cross-product rule enforced: clinical-mcp `registerSimTools()` seam remains a no-op; any bridge must use MCP transport, not imports.
    - Runtime promotion now sequenced through `docs/plans/three-product-alignment-2026-04-16.md` Phase 8. See also `services/sim-harness/README.md` and `docs/foundations/execution-packet-simulation-architecture.md`.
 
 ## Later
