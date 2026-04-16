@@ -14,18 +14,28 @@ function jsonToolResult(data: unknown): {
 /**
  * Conditional sim-tool registration seam.
  *
- * The clinical-mcp server is the single agent-facing MCP boundary. Per the
- * invariant kernel, agents never talk to services/sim-harness/ directly —
- * sim tools register here and only when a sim-harness runtime is present.
+ * Under the three-product topology (docs/plans/three-product-alignment-2026-04-16.md):
  *
- * This function is intentionally a no-op today. Runtime wiring for live
- * vitals, waveform vision, medication administration, intervention, scenario
- * control, charting authority, and obligation tools lands in execution-packet
- * Lane F per docs/foundations/execution-packet-simulation-architecture.md,
- * shaped by Contracts 4, 5, 6, 7 in the foundational contracts document.
+ *   - Product C (sim-harness) has its OWN MCP server at
+ *     services/sim-harness/src/mcp/server.ts (createSimMcpServer()).
+ *     Agents normally reach sim tools via that server directly.
+ *
+ *   - This seam remains as a compatibility hook: when Product B is bundled
+ *     with Product C (single-process deployments, local dev), sim tools
+ *     may optionally be proxied through this Product B server by an
+ *     explicit wiring step that imports createSimMcpServer from
+ *     @noah-rn/sim-harness and bridges its tools here.
+ *
+ *   - This file remains no-op by default to preserve the product boundary.
+ *     A direct import from @noah-rn/sim-harness here would be a Product B
+ *     → Product C boundary violation; the bridge (when wired) must use
+ *     MCP transport, not imports.
+ *
+ * Phase 8b will formalize the bridge pattern. Until then, the Product C
+ * MCP server runs standalone.
  */
 function registerSimTools(_server: McpServer): void {
-  // no-op until Lane F
+  // no-op: Product C runs its own MCP server; cross-product imports forbidden.
 }
 
 export function createServer(): McpServer {
