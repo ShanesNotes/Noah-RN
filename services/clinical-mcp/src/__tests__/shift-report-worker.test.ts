@@ -44,26 +44,27 @@ describe('shift report worker', () => {
     vi.resetModules();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-04-13T00:00:00.000Z'));
-    vi.doMock('../../../../packages/agent-harness/invoke-workflow.mjs', () => ({
-      getWorkflowCandidate: vi.fn().mockReturnValue({ source_path: 'packages/workflows/shift-report/SKILL.md' }),
-    }));
-    vi.doMock('../../../../packages/agent-harness/shift-report-renderer.mjs', () => ({
-      buildShiftReportRendererInput: vi.fn().mockImplementation((candidate, patientId, context, options) => ({
-        candidate,
-        patientId,
-        context,
-        laneCoverage: options?.laneCoverage,
-      })),
-      renderShiftReportFromPatientContext: vi.fn().mockImplementation((input) => [
-        'Summary',
-        `Shift Report assembled from live Medplum context for patient ${input.patientId}.`,
-        '',
-        'PATIENT',
-        '- John Doe',
-        '',
-        'STORY',
-        '- No timeline events available',
-      ].join('\n')),
+    // Mock the Product A ↔ Product B boundary via the harness-client adapter
+    // instead of reaching across into the agent-harness internals directly.
+    // This preserves the three-product boundary in tests.
+    vi.doMock('../adapters/harness-client.js', () => ({
+      callHarnessTool: vi.fn().mockImplementation(async (tool: string, args: { patientId: string }) => {
+        if (tool !== 'render_shift_report') {
+          throw new Error(`unexpected tool call in test: ${tool}`);
+        }
+        return {
+          markdown: [
+            'Summary',
+            `Shift Report assembled from live Medplum context for patient ${args.patientId}.`,
+            '',
+            'PATIENT',
+            '- John Doe',
+            '',
+            'STORY',
+            '- No timeline events available',
+          ].join('\n'),
+        };
+      }),
     }));
   });
 
@@ -73,8 +74,7 @@ describe('shift report worker', () => {
     vi.doUnmock('../fhir/client.js');
     vi.doUnmock('../fhir/writes.js');
     vi.doUnmock('../context/assembler.js');
-    vi.doUnmock('../../../../packages/agent-harness/invoke-workflow.mjs');
-    vi.doUnmock('../../../../packages/agent-harness/shift-report-renderer.mjs');
+    vi.doUnmock('../adapters/harness-client.js');
   });
 
   it('exports pure helpers for Task transitions and truncates long failure reasons', async () => {

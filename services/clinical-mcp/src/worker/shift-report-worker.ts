@@ -1,4 +1,5 @@
 import { assemblePatientContext } from '../context/assembler.js';
+import { callHarnessTool } from '../adapters/harness-client.js';
 import { createDraftShiftReport } from '../fhir/writes.js';
 import { getRequestedShiftReportTasks, updateTask } from '../fhir/client.js';
 import type { DocumentReference, Task } from '../fhir/types.js';
@@ -51,20 +52,9 @@ export async function processTask(task: Task): Promise<ShiftReportTaskResult> {
     const encounterId = extractEncounterId(task);
     const executionId = buildExecutionId(task.id);
     const context = await assemblePatientContext(patientId);
-    const invokeWorkflowModulePath = '../../../../packages/agent-harness/invoke-workflow.mjs';
-    const shiftReportRendererModulePath = '../../../../packages/agent-harness/shift-report-renderer.mjs';
-    const { getWorkflowCandidate } = (await import(invokeWorkflowModulePath)) as {
-      getWorkflowCandidate: (workflowName: string, rawInput?: string) => any;
-    };
-    const {
-      buildShiftReportRendererInput,
-      renderShiftReportFromPatientContext,
-    } = (await import(shiftReportRendererModulePath)) as {
-      buildShiftReportRendererInput: (candidate: any, patientId: string, context: unknown, options?: { laneCoverage?: Record<string, string> }) => any;
-      renderShiftReportFromPatientContext: (input: any) => string;
-    };
-    const workflowCandidate = getWorkflowCandidate('shift-report', `patient_id: ${patientId}`);
-    const rendererInput = buildShiftReportRendererInput(workflowCandidate, patientId, context, {
+    const { markdown: reportMarkdown } = await callHarnessTool('render_shift_report', {
+      patientId,
+      context,
       laneCoverage: {
         'ehr/chart': 'present',
         memory: 'not assembled in current worker path',
@@ -72,7 +62,6 @@ export async function processTask(task: Task): Promise<ShiftReportTaskResult> {
         'patient-monitor/simulation': 'not assembled in current worker path',
       },
     });
-    const reportMarkdown = renderShiftReportFromPatientContext(rendererInput);
     const draft = await createDraftShiftReport({
       patientId,
       encounterId,

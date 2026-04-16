@@ -23,6 +23,7 @@
     "./select-workflows": "./select-workflows.mjs",
     "./list-skills": "./list-skills.mjs",
     "./list-tools": "./list-tools.mjs",
-    "./list-clinical-resources": "./list-clinical-resources.mjs"
+    "./list-clinical-resources": "./list-clinical-resources.mjs",
+    "./tools/render-shift-report": "./tools/render-shift-report.mjs"
   }
 }
