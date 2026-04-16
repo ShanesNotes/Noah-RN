@@ -1,0 +1,41 @@
+services:
+  pulse-sidecar:
+    build:
+      context: ./pulse-sidecar
+    image: noah-rn/pulse-sidecar:0.1.0
+    container_name: noah-rn-pulse-sidecar
+    restart: unless-stopped
+    ports:
+      - "${PULSE_PORT:-8104}:8104"
+    environment:
+      PULSE_STATE_FILE: /usr/local/share/pulse/states/StandardMale@0s.json
+      PULSE_TICK_SECONDS: "0.02"
+      PULSE_ECG_BUFFER_SECONDS: "10"
+    networks:
+      - noah-sim-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8104/healthz',timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
+
+  vitals-display-web:
+    build:
+      context: ./vitals-display-web
+    image: noah-rn/vitals-display-web:0.1.0
+    container_name: noah-rn-vitals-display-web
+    restart: unless-stopped
+    depends_on:
+      pulse-sidecar:
+        condition: service_healthy
+    ports:
+      - "${DISPLAY_PORT:-5173}:5173"
+    environment:
+      VITE_PULSE_URL: http://pulse-sidecar:8104
+    networks:
+      - noah-sim-net
+
+networks:
+  noah-sim-net:
+    driver: bridge

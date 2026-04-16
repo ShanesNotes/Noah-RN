@@ -1,0 +1,14 @@
+{
+  "name": "@noah-rn/bootstrap-vitals-display-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Terminal dashboard for the Noah RN Pulse sidecar. blessed + blessed-contrib.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node dashboard.js"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0"
+  }
+}
