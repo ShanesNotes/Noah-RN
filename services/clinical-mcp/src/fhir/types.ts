@@ -10,6 +10,8 @@ export interface FhirBundle<T = FhirResource> {
 export interface FhirResource {
   resourceType: string;
   id?: string;
+  identifier?: Identifier[];
+  extension?: Extension[];
   meta?: Meta;
 }
 
@@ -70,6 +72,19 @@ export interface Attachment {
   creation?: string;
   url?: string;
   data?: string;
+}
+
+export interface Annotation {
+  text?: string;
+}
+
+export interface Extension {
+  url: string;
+  valueBoolean?: boolean;
+  valueCode?: string;
+  valueReference?: Reference;
+  valueString?: string;
+  valueUrl?: string;
 }
 
 export interface Quantity {
@@ -135,12 +150,15 @@ export interface Medication extends FhirResource {
 export interface MedicationAdministration extends FhirResource {
   resourceType: 'MedicationAdministration';
   status?: string;
+  statusReason?: CodeableConcept;
   medicationCodeableConcept?: CodeableConcept;
   medicationReference?: Reference;
+  request?: Reference;
   subject?: Reference;
   context?: Reference;
   effectiveDateTime?: string;
   effectivePeriod?: Period;
+  note?: Annotation[];
   dosage?: {
     text?: string;
     route?: CodeableConcept;
@@ -188,10 +206,17 @@ export interface TaskOutput {
   valueReference?: Reference;
 }
 
+export interface TaskInput {
+  type?: CodeableConcept;
+  valueReference?: Reference;
+  valueString?: string;
+}
+
 export interface Task extends FhirResource {
   resourceType: 'Task';
   status?: string;
   intent?: string;
+  priority?: string;
   code?: CodeableConcept;
   for?: Reference;
   encounter?: Reference;
@@ -200,18 +225,36 @@ export interface Task extends FhirResource {
   owner?: Reference;
   authoredOn?: string;
   description?: string;
+  businessStatus?: CodeableConcept;
+  input?: TaskInput[];
   statusReason?: CodeableConcept;
   output?: TaskOutput[];
+}
+
+export interface ProvenanceAgent {
+  who?: Reference;
+  onBehalfOf?: Reference;
+  type?: CodeableConcept;
+}
+
+export interface ProvenanceEntity {
+  role?: string;
+  what?: {
+    identifier?: Identifier;
+    reference?: string;
+    display?: string;
+  };
 }
 
 export interface Provenance extends FhirResource {
   resourceType: 'Provenance';
   target?: Reference[];
   recorded?: string;
-  agent?: Array<{
-    who?: Reference;
-    type?: CodeableConcept;
-  }>;
+  occurredDateTime?: string;
+  activity?: CodeableConcept;
+  agent?: ProvenanceAgent[];
+  entity?: ProvenanceEntity[];
+  policy?: string[];
 }
 
 export interface Device extends FhirResource {

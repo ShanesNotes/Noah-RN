@@ -9,18 +9,97 @@ import { VITAL_LOINC } from "./vital-loinc.js";
 
 // --- Resolved: volatile-draft-vs-fhir-queuing → Option A (FHIR-queued) ---
 // PLAN.md Decision Log 2026-04-12: preliminary DocumentReference as first review artifact.
-// Only createDraftShiftReport is implemented. Other writes remain stubs until needed.
+// Replay-scoped Task / MedicationAdministration / Provenance draft writes are now implemented.
 
-function deferredWrite(operation: string): Promise<never> {
-  return Promise.reject(
-    new Error(
-      `${operation} is deferred — not required by the current first-workflow forcing path.`,
-    ),
-  );
+const WORKFLOW_SYSTEM = "https://noah-rn.dev/workflows";
+const REVIEW_STATUS_SYSTEM = "https://noah-rn.dev/review-status";
+const REVIEW_STATE_SYSTEM = "https://noah-rn.dev/review-state";
+const ARTIFACT_SYSTEM = "https://noah-rn.dev/artifacts";
+const TASK_ID_SYSTEM = "https://noah-rn.dev/task-id";
+const EXECUTION_ID_SYSTEM = "https://noah-rn.dev/execution-id";
+const PROVENANCE_ACTIVITY_SYSTEM =
+  "https://noah-rn.dev/provenance-activity";
+const PROVENANCE_POLICY_URL =
+  "https://noah-rn.dev/charting-policy/replay-scoped-draft-review";
+const SOURCE_LAYER_SYSTEM = "https://noah-rn.dev/source-layer";
+const FHIR_EXTENSION_SYSTEM =
+  "https://noah-rn.dev/fhir/StructureDefinition";
+
+function buildDraftIdentifiers(
+  taskId?: string,
+  executionId?: string,
+) {
+  const identifiers = [
+    ...(taskId
+      ? [
+          {
+            system: TASK_ID_SYSTEM,
+            value: taskId,
+          },
+        ]
+      : []),
+    ...(executionId
+      ? [
+          {
+            system: EXECUTION_ID_SYSTEM,
+            value: executionId,
+          },
+        ]
+      : []),
+  ];
+
+  return identifiers.length > 0 ? identifiers : undefined;
 }
 
-function createDeferredWrite<TInput>(operation: string) {
-  return (_input: TInput): Promise<never> => deferredWrite(operation);
+function findExecutionId(
+  identifiers?: Array<{ system?: string; value?: string }>,
+) {
+  return identifiers?.find((identifier) => identifier.system === EXECUTION_ID_SYSTEM)
+    ?.value;
+}
+
+function buildDraftTags(
+  workflowCode: string,
+  workflowDisplay: string,
+  artifactCode: string,
+  artifactDisplay: string,
+) {
+  return [
+    {
+      system: WORKFLOW_SYSTEM,
+      code: workflowCode,
+      display: workflowDisplay,
+    },
+    {
+      system: REVIEW_STATUS_SYSTEM,
+      code: "review-required",
+      display: "Review Required",
+    },
+    {
+      system: WORKFLOW_SYSTEM,
+      code: "replay-scoped",
+      display: "Replay Scoped",
+    },
+    {
+      system: ARTIFACT_SYSTEM,
+      code: artifactCode,
+      display: artifactDisplay,
+    },
+  ];
+}
+
+async function postRequiredResource<T>(
+  resourceType: string,
+  payload: unknown,
+  operation: string,
+): Promise<T> {
+  const result = await fhirPost<T>(resourceType, payload);
+
+  if (result.error || !result.data) {
+    throw new Error(`${operation} failed: ${result.error}`);
+  }
+
+  return result.data;
 }
 
 export interface DraftShiftReportWriteInput {
@@ -35,50 +114,43 @@ export interface DraftTaskWriteInput {
   patientId: string;
   encounterId?: string;
   description: string;
+  executionId?: string;
+  focusReference?: string;
+  ownerDisplay?: string;
+  priority?: "routine" | "urgent" | "asap" | "stat";
+  taskCode?: string;
 }
 
 export interface DraftMedicationAdministrationWriteInput {
   patientId: string;
   encounterId?: string;
   medicationName: string;
+  executionId?: string;
+  medicationRequestId?: string;
   note?: string;
 }
 
 export async function createDraftShiftReport(
   input: DraftShiftReportWriteInput,
 ): Promise<DocumentReference> {
+  const identifiers = buildDraftIdentifiers(input.taskId, input.executionId);
   const payload = {
     resourceType: "DocumentReference" as const,
     meta: {
       tag: [
         {
-          system: "https://noah-rn.dev/workflows",
+          system: WORKFLOW_SYSTEM,
           code: "shift-report",
           display: "Shift Report",
         },
         {
-          system: "https://noah-rn.dev/review-status",
+          system: REVIEW_STATUS_SYSTEM,
           code: "review-required",
           display: "Review Required",
         },
       ],
     },
-    ...(input.taskId && {
-      identifier: [
-        {
-          system: "https://noah-rn.dev/task-id",
-          value: input.taskId,
-        },
-        ...(input.executionId
-          ? [
-              {
-                system: "https://noah-rn.dev/execution-id",
-                value: input.executionId,
-              },
-            ]
-          : []),
-      ],
-    }),
+    ...(identifiers && { identifier: identifiers }),
     status: "current",
     docStatus: "preliminary",
     type: {
@@ -114,22 +186,147 @@ export async function createDraftShiftReport(
     }),
   };
 
-  const result = await fhirPost<DocumentReference>("DocumentReference", payload);
-
-  if (result.error || !result.data) {
-    throw new Error(`createDraftShiftReport failed: ${result.error}`);
-  }
-
-  return result.data;
+  return postRequiredResource<DocumentReference>(
+    "DocumentReference",
+    payload,
+    "createDraftShiftReport",
+  );
 }
 
-export const queueDraftTask =
-  createDeferredWrite<DraftTaskWriteInput>("queueDraftTask(Task)");
+export async function queueDraftTask(
+  input: DraftTaskWriteInput,
+): Promise<Task> {
+  const payload = {
+    resourceType: "Task" as const,
+    ...(input.executionId && {
+      identifier: buildDraftIdentifiers(undefined, input.executionId),
+    }),
+    meta: {
+      tag: buildDraftTags(
+        "draft-review-queue",
+        "Draft Review Queue",
+        "review-task-draft",
+        "Draft Review Task",
+      ),
+    },
+    status: "requested",
+    intent: "order",
+    priority: input.priority ?? "routine",
+    code: {
+      coding: [
+        {
+          system: ARTIFACT_SYSTEM,
+          code: input.taskCode ?? "draft-review",
+          display: "Draft Review",
+        },
+      ],
+      text: "Draft Review",
+    },
+    businessStatus: {
+      coding: [
+        {
+          system: REVIEW_STATE_SYSTEM,
+          code: "pending-review",
+          display: "Pending Review",
+        },
+      ],
+      text: "Pending review",
+    },
+    for: { reference: `Patient/${input.patientId}` },
+    ...(input.encounterId && {
+      encounter: { reference: `Encounter/${input.encounterId}` },
+    }),
+    ...(input.focusReference && {
+      focus: { reference: input.focusReference },
+    }),
+    requester: { display: "Noah RN Agent" },
+    owner: { display: input.ownerDisplay ?? "Nurse Review Queue" },
+    authoredOn: new Date().toISOString(),
+    description: input.description,
+    input: [
+      {
+        type: {
+          coding: [
+            {
+              system: ARTIFACT_SYSTEM,
+              code: "review-context",
+              display: "Review Context",
+            },
+          ],
+          text: "Review Context",
+        },
+        valueString: input.description,
+      },
+    ],
+  };
 
-export const queueDraftMedicationAdministration =
-  createDeferredWrite<DraftMedicationAdministrationWriteInput>(
-    "queueDraftMedicationAdministration(MedicationAdministration)",
+  return postRequiredResource<Task>("Task", payload, "queueDraftTask");
+}
+
+export async function queueDraftMedicationAdministration(
+  input: DraftMedicationAdministrationWriteInput,
+): Promise<MedicationAdministration> {
+  const payload = {
+    resourceType: "MedicationAdministration" as const,
+    ...(input.executionId && {
+      identifier: buildDraftIdentifiers(undefined, input.executionId),
+    }),
+    meta: {
+      tag: buildDraftTags(
+        "medication-review",
+        "Medication Review",
+        "draft-medication-administration",
+        "Draft Medication Administration",
+      ),
+    },
+    // MedicationAdministration has no preliminary status in FHIR R4. We keep
+    // replay drafts unmistakably non-final via review tags plus a draft reason.
+    status: "not-done",
+    statusReason: {
+      coding: [
+        {
+          system: REVIEW_STATE_SYSTEM,
+          code: "draft-proposal",
+          display: "Draft Proposal",
+        },
+      ],
+      text: "Draft medication administration — requires nurse review",
+    },
+    extension: [
+      {
+        url: `${FHIR_EXTENSION_SYSTEM}/review-state`,
+        valueCode: "pending-review",
+      },
+    ],
+    medicationCodeableConcept: {
+      text: input.medicationName,
+    },
+    subject: { reference: `Patient/${input.patientId}` },
+    ...(input.encounterId && {
+      context: { reference: `Encounter/${input.encounterId}` },
+    }),
+    ...(input.medicationRequestId && {
+      request: {
+        reference: `MedicationRequest/${input.medicationRequestId}`,
+      },
+    }),
+    performer: [{ actor: { display: "Noah RN Agent" } }],
+    dosage: {
+      text:
+        input.note ??
+        "Draft medication proposal queued for nurse review",
+    },
+    ...(input.note && {
+      note: [{ text: input.note }],
+    }),
+  };
+
+  return postRequiredResource<MedicationAdministration>(
+    "MedicationAdministration",
+    payload,
+    "queueDraftMedicationAdministration",
   );
+}
 
 // --- Tier 2: Nurse-charted vitals ---
 // Per docs/foundations/sim-harness-vitals-data-flow.md:
@@ -214,11 +411,87 @@ export async function chartVitals(
 }
 
 export function recordDraftProvenance(
-  _target:
+  target:
     | DocumentReference
     | MedicationAdministration
     | Task
     | Provenance,
-): Promise<never> {
-  return deferredWrite("recordDraftProvenance(Provenance)");
+  executionId?: string,
+): Promise<Provenance> {
+  if (!target.id) {
+    return Promise.reject(
+      new Error(
+        "recordDraftProvenance requires a target resource with an id",
+      ),
+    );
+  }
+
+  const recorded = new Date().toISOString();
+  const resolvedExecutionId = executionId ?? findExecutionId(target.identifier);
+  const payload = {
+    resourceType: "Provenance" as const,
+    ...(resolvedExecutionId && {
+      identifier: buildDraftIdentifiers(undefined, resolvedExecutionId),
+    }),
+    meta: {
+      tag: buildDraftTags(
+        "draft-provenance",
+        "Draft Provenance",
+        "draft-provenance",
+        "Draft Provenance",
+      ),
+    },
+    target: [
+      {
+        reference: `${target.resourceType}/${target.id}`,
+      },
+    ],
+    recorded,
+    occurredDateTime: recorded,
+    activity: {
+      coding: [
+        {
+          system: PROVENANCE_ACTIVITY_SYSTEM,
+          code: "propose",
+          display: "Agent Proposed",
+        },
+      ],
+      text: "propose (L3-original)",
+    },
+    agent: [
+      {
+        type: {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+              code: "author",
+              display: "Author",
+            },
+          ],
+          text: "Author",
+        },
+        who: { display: "Noah RN Agent" },
+      },
+    ],
+    entity: [
+      {
+        role: "source",
+        what: {
+          identifier: {
+            system: SOURCE_LAYER_SYSTEM,
+            value: "L3-original",
+          },
+          display: "Replay-scoped draft source",
+        },
+      },
+    ],
+    policy: [PROVENANCE_POLICY_URL],
+  };
+
+  return postRequiredResource<Provenance>(
+    "Provenance",
+    payload,
+    "recordDraftProvenance",
+  );
 }
