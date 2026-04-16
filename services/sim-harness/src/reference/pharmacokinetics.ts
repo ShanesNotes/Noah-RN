@@ -57,7 +57,7 @@ export function ar1Noise(previousNoise: number, rng: () => number): number {
 // Baroreceptor heart rate compensation
 export function baroReflexHR(baseHR: number, currentMAP: number): number {
   const { baroReflexGain, setpoint, baselineMin, baselineMax } = pk.heartRate;
-  const deviation = currentMAP - setpoint;
+  const deviation = setpoint - currentMAP;
   const hr = baseHR + baroReflexGain * deviation;
   return Math.max(baselineMin, Math.min(baselineMax, Math.round(hr)));
 }

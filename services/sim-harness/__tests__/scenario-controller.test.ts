@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getScenario, getScenarioWaveformSamples, advanceScenario, resetScenario } from '../src/scenario/controller.js';
+import {
+  getScenario,
+  getScenarioAuthorityState,
+  getScenarioWaveformSamples,
+  advanceScenario,
+  resetScenario,
+} from '../src/scenario/controller.js';
 import { hillEquation } from '../src/reference/pharmacokinetics.js';
 
 describe('Scenario Controller', () => {
@@ -56,11 +62,9 @@ describe('Scenario Controller', () => {
       expect(after.currentState.map).toBeGreaterThan(before.currentState.map - 3);
     });
 
-    it('shows visible future events before release and releases them on schedule', async () => {
+    it('does not leak future in-shift events before release and releases them on schedule', async () => {
       const before = await getScenario('fluid-responsive');
-      expect(before.upcomingVisibleEvents).toEqual([
-        { minute: 15, event: 'Basic metabolic panel resulted' },
-      ]);
+      expect(before.upcomingVisibleEvents).toEqual([]);
       expect(before.releasedEvents).toEqual([]);
 
       await advanceScenario('fluid-responsive', { action: 'bolus', volume_ml: 500 });
@@ -174,6 +178,55 @@ describe('Scenario Controller', () => {
     expect(s.currentState.minutesElapsed).toBe(20);
     expect(s.releasedEvents.map(event => event.event)).toEqual(['Lactate 4.2 mmol/L resulted']);
     expect(s.upcomingVisibleEvents).toEqual([]);
+  });
+
+  it('keeps withheld facts off the agent-facing response but exposes them in authority state', async () => {
+    const before = await getScenario('pressor-titration');
+    const authority = await getScenarioAuthorityState('pressor-titration');
+
+    expect(before.releasedEvents).toEqual([]);
+    expect(before.upcomingVisibleEvents).toEqual([]);
+    expect(authority.withheldInShiftArtifacts.map(event => event.key)).toContain('pressor-titration-lactate');
+    expect(authority.withheldInShiftArtifacts[0]).toMatchObject({
+      authoredBy: 'provider',
+      chartState: 'withheld',
+      sourcePhase: 'in-shift',
+    });
+  });
+
+  it('tracks obligation state transitions alongside release state', async () => {
+    const initial = await getScenarioAuthorityState('fluid-responsive');
+    expect(initial.obligations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'fluid-responsive-reassess-map',
+          status: 'active',
+        }),
+        expect.objectContaining({
+          key: 'fluid-responsive-review-cmp',
+          status: 'scheduled',
+        }),
+      ]),
+    );
+
+    await advanceScenario('fluid-responsive', { action: 'bolus', volume_ml: 500 });
+    await advanceScenario('fluid-responsive', { action: 'bolus', volume_ml: 250 });
+    await advanceScenario('fluid-responsive', { action: 'bolus', volume_ml: 250 });
+
+    const authority = await getScenarioAuthorityState('fluid-responsive');
+    expect(authority.releasedArtifacts.map(event => event.key)).toContain('fluid-responsive-cmp');
+    expect(authority.obligations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'fluid-responsive-reassess-map',
+          status: 'resolved',
+        }),
+        expect.objectContaining({
+          key: 'fluid-responsive-review-cmp',
+          status: 'resolved',
+        }),
+      ]),
+    );
   });
 
   it('retains at least 60 seconds of waveform history in the monitor-side buffer', async () => {

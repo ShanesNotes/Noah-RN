@@ -9,6 +9,18 @@
  */
 import type { ActiveDrug, PhysiologyState } from '../reference/pharmacokinetics.js';
 
+export type ScenarioArtifactPhase = 'pre-shift' | 'in-shift';
+export type ScenarioAuthoredBy =
+  | 'historical-seed'
+  | 'device-auto'
+  | 'nurse'
+  | 'provider'
+  | 'noah'
+  | 'scenario-director';
+export type ScenarioChartState = 'seeded-final' | 'withheld' | 'preliminary' | 'final';
+export type ScenarioObligationPriority = 'high' | 'medium' | 'low';
+export type ScenarioObligationStatus = 'scheduled' | 'active' | 'overdue' | 'resolved';
+
 export interface ScenarioScheduledEvent {
   key: string;
   minute: number;
@@ -17,6 +29,55 @@ export interface ScenarioScheduledEvent {
   event: string;
   visibleToAgent?: boolean;
   payload?: Record<string, unknown>;
+  sourcePhase?: ScenarioArtifactPhase;
+  authoredBy?: ScenarioAuthoredBy;
+  chartState?: ScenarioChartState;
+  releaseChannel?: 'monitor' | 'chart' | 'task';
+  preliminary?: boolean;
+}
+
+export interface ScenarioObligationDefinition {
+  key: string;
+  label: string;
+  startMinute: number;
+  dueMinute: number;
+  priority: ScenarioObligationPriority;
+  ownedBy: 'nurse' | 'provider' | 'noah';
+  resolveByActions?: AdvanceAction['action'][];
+  triggeredByEventKey?: string;
+}
+
+export interface ScenarioAuthorityArtifact {
+  key: string;
+  event: string;
+  minute: number;
+  releaseMinute: number;
+  sourcePhase: ScenarioArtifactPhase;
+  authoredBy: ScenarioAuthoredBy;
+  chartState: ScenarioChartState;
+  preliminary: boolean;
+}
+
+export interface ScenarioObligation {
+  key: string;
+  label: string;
+  priority: ScenarioObligationPriority;
+  ownedBy: 'nurse' | 'provider' | 'noah';
+  status: ScenarioObligationStatus;
+  startMinute: number;
+  dueMinute: number;
+  triggeredByEventKey?: string;
+  resolvedAtMinute?: number;
+  resolvedByAction?: string;
+}
+
+export interface ScenarioAuthoritySnapshot {
+  scenarioId: string;
+  currentMinute: number;
+  preShiftSeededArtifacts: ScenarioAuthorityArtifact[];
+  withheldInShiftArtifacts: ScenarioAuthorityArtifact[];
+  releasedArtifacts: ScenarioAuthorityArtifact[];
+  obligations: ScenarioObligation[];
 }
 
 export interface ScenarioDefinition {
@@ -27,6 +88,7 @@ export interface ScenarioDefinition {
   patientWeight: number;
   initialState: Omit<PhysiologyState, 'rng'>;
   scheduledEvents?: ScenarioScheduledEvent[];
+  obligations?: ScenarioObligationDefinition[];
 }
 
 export interface ScenarioHistoryEntry {
@@ -43,6 +105,10 @@ export interface ScenarioReleasedEvent {
   kind: string;
   event: string;
   payload: Record<string, unknown>;
+  sourcePhase: ScenarioArtifactPhase;
+  authoredBy: ScenarioAuthoredBy;
+  chartState: ScenarioChartState;
+  preliminary: boolean;
 }
 
 export interface AdvanceAction {

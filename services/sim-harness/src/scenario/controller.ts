@@ -15,8 +15,11 @@ import { ReferencePkEngineAdapter } from '../reference/adapter.js';
 import type { SimulationEngine } from '../engine-adapter.js';
 import type { ReferencePkSerializedState } from '../reference/adapter.js';
 import type {
+  ScenarioAuthorityArtifact,
+  ScenarioAuthoritySnapshot,
   ScenarioDefinition,
   ScenarioHistoryEntry,
+  ScenarioObligation,
   AdvanceAction,
   ScenarioReleasedEvent,
   ScenarioResponse,
@@ -51,6 +54,7 @@ interface ScenarioRuntime {
   waveformBuffer: WaveformRingBuffer;
   releasedEvents: ScenarioReleasedEvent[];
   eligibleKeys: Set<string>;
+  resolvedObligations: Map<string, { resolvedAtMinute: number; resolvedByAction: string }>;
 }
 
 function initRuntime(definition: ScenarioDefinition): ScenarioRuntime {
@@ -94,6 +98,7 @@ function initRuntime(definition: ScenarioDefinition): ScenarioRuntime {
     waveformBuffer,
     releasedEvents: [],
     eligibleKeys: new Set(),
+    resolvedObligations: new Map(),
   };
 
   refreshEventState(runtime);
@@ -139,10 +144,86 @@ function buildScenarioResponse(runtime: ScenarioRuntime): ScenarioResponse {
     },
     history: runtime.history,
     releasedEvents: runtime.releasedEvents,
-    upcomingVisibleEvents: (runtime.definition.scheduledEvents ?? [])
-      .filter(event => event.visibleToAgent && event.releaseMinute > projection.timeMs / 60_000)
-      .map(event => ({ minute: event.releaseMinute, event: event.event })),
+    // Agent-facing responses must not reveal unreleased in-shift facts. Release and
+    // obligation state stay on the authority snapshot surface until artifacts are live.
+    upcomingVisibleEvents: [],
   };
+}
+
+function buildAuthorityArtifact(definition: ScenarioDefinition, eventKey: string): ScenarioAuthorityArtifact | null {
+  const event = definition.scheduledEvents?.find(candidate => candidate.key === eventKey);
+  if (!event) return null;
+  const metadata = getEventAuthorityMetadata(event);
+
+  return {
+    key: event.key,
+    event: event.event,
+    minute: event.minute,
+    releaseMinute: event.releaseMinute,
+    ...metadata,
+  };
+}
+
+function getEventAuthorityMetadata(event: NonNullable<ScenarioDefinition['scheduledEvents']>[number]) {
+  return {
+    sourcePhase: event.sourcePhase ?? 'in-shift',
+    authoredBy: event.authoredBy ?? 'scenario-director',
+    chartState: event.chartState ?? (event.visibleToAgent ? 'final' : 'withheld'),
+    preliminary: event.preliminary ?? false,
+  };
+}
+
+function buildObligationState(runtime: ScenarioRuntime): ScenarioObligation[] {
+  const currentMinute = runtime.clock.getTime() / 60_000;
+
+  return (runtime.definition.obligations ?? []).map(definition => {
+    const resolution = runtime.resolvedObligations.get(definition.key);
+    const triggerSatisfied = !definition.triggeredByEventKey
+      || runtime.releasedEvents.some(event => event.key === definition.triggeredByEventKey);
+
+    let status: ScenarioObligation['status'];
+    if (resolution) {
+      status = 'resolved';
+    } else if (!triggerSatisfied || currentMinute < definition.startMinute) {
+      status = 'scheduled';
+    } else if (currentMinute > definition.dueMinute) {
+      status = 'overdue';
+    } else {
+      status = 'active';
+    }
+
+    return {
+      key: definition.key,
+      label: definition.label,
+      priority: definition.priority,
+      ownedBy: definition.ownedBy,
+      status,
+      startMinute: definition.startMinute,
+      dueMinute: definition.dueMinute,
+      triggeredByEventKey: definition.triggeredByEventKey,
+      resolvedAtMinute: resolution?.resolvedAtMinute,
+      resolvedByAction: resolution?.resolvedByAction,
+    };
+  });
+}
+
+function resolveMatchingObligations(runtime: ScenarioRuntime, action: AdvanceAction): void {
+  const currentMinute = runtime.clock.getTime() / 60_000;
+  for (const obligation of buildObligationState(runtime)) {
+    if (obligation.status !== 'active' && obligation.status !== 'overdue') {
+      continue;
+    }
+
+    const definition = runtime.definition.obligations?.find(candidate => candidate.key === obligation.key);
+    if (!definition?.resolveByActions?.includes(action.action)) {
+      continue;
+    }
+
+    runtime.resolvedObligations.set(obligation.key, {
+      resolvedAtMinute: currentMinute,
+      resolvedByAction: actionLabel(action),
+    });
+  }
 }
 
 function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
@@ -166,6 +247,7 @@ function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
         dose: action.new_dose,
         unit: activeDrug.unit,
       });
+      resolveMatchingObligations(runtime, action);
       return;
     }
 
@@ -174,6 +256,7 @@ function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
         kind: 'fluid-bolus',
         volumeMl: action.volume_ml ?? 500,
       });
+      resolveMatchingObligations(runtime, action);
       return;
     }
 
@@ -194,6 +277,7 @@ function applyAction(runtime: ScenarioRuntime, action: AdvanceAction): void {
         dose: action.new_dose ?? 0.01,
         unit,
       });
+      resolveMatchingObligations(runtime, action);
     }
   }
 }
@@ -230,6 +314,7 @@ function refreshEventState(runtime: ScenarioRuntime): void {
       kind: definition.kind,
       event: definition.event,
       payload: event.payload,
+      ...getEventAuthorityMetadata(definition),
     });
   }
 }
@@ -247,6 +332,7 @@ export async function advanceScenario(scenarioId: string, action: AdvanceAction)
   applyAction(runtime, action);
   runtime.clock.advanceBy(ADVANCE_MINUTES * 60_000);
   refreshEventState(runtime);
+  resolveMatchingObligations(runtime, action);
 
   runtime.history.push({
     action: actionLabel(action),
@@ -279,4 +365,31 @@ export async function resetScenario(scenarioId: string): Promise<void> {
   if (!scenarios.has(scenarioId)) {
     throw new Error(`Unknown scenario: ${scenarioId}`);
   }
+}
+
+export async function getScenarioAuthorityState(scenarioId: string): Promise<ScenarioAuthoritySnapshot> {
+  const runtime = getOrInitRuntime(scenarioId);
+  refreshEventState(runtime);
+
+  const releasedKeys = new Set(runtime.releasedEvents.map(event => event.key));
+  const currentMinute = runtime.clock.getTime() / 60_000;
+
+  return {
+    scenarioId: runtime.definition.id,
+    currentMinute,
+    preShiftSeededArtifacts: (runtime.definition.scheduledEvents ?? [])
+      .filter(event => (event.sourcePhase ?? 'in-shift') === 'pre-shift')
+      .map(event => buildAuthorityArtifact(runtime.definition, event.key))
+      .filter((event): event is ScenarioAuthorityArtifact => event !== null),
+    withheldInShiftArtifacts: (runtime.definition.scheduledEvents ?? [])
+      .filter(event => (event.sourcePhase ?? 'in-shift') === 'in-shift')
+      .filter(event => !releasedKeys.has(event.key))
+      .filter(event => event.releaseMinute > currentMinute || event.visibleToAgent === false)
+      .map(event => buildAuthorityArtifact(runtime.definition, event.key))
+      .filter((event): event is ScenarioAuthorityArtifact => event !== null),
+    releasedArtifacts: runtime.releasedEvents
+      .map(event => buildAuthorityArtifact(runtime.definition, event.key))
+      .filter((event): event is ScenarioAuthorityArtifact => event !== null),
+    obligations: buildObligationState(runtime),
+  };
 }
