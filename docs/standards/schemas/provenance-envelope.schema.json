@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/provenance-envelope.schema.json",
+  "title": "ProvenanceEnvelope",
+  "description": "Shape of the FHIR Provenance resource produced by any write tool in the clinical-MCP v1 contract. Distinguishes agent-authored vs human-authored vs device-authored writes.",
+  "type": "object",
+  "required": ["resourceType", "target", "recorded", "activity", "agent"],
+  "additionalProperties": true,
+  "properties": {
+    "resourceType": { "const": "Provenance" },
+    "id": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "system": { "type": "string" },
+              "code": { "type": "string" },
+              "display": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "target": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["reference"],
+        "properties": {
+          "reference": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]+/.+$" }
+        }
+      }
+    },
+    "recorded": { "type": "string", "format": "date-time" },
+    "occurredDateTime": { "type": "string", "format": "date-time" },
+    "activity": {
+      "type": "object",
+      "properties": {
+        "coding": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["system", "code"],
+            "properties": {
+              "system": { "type": "string" },
+              "code": { "type": "string" },
+              "display": { "type": "string" }
+            }
+          }
+        },
+        "text": { "type": "string" }
+      }
+    },
+    "agent": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": { "type": "object" }
+              },
+              "text": { "type": "string" }
+            }
+          },
+          "who": {
+            "type": "object",
+            "properties": {
+              "display": {
+                "type": "string",
+                "description": "Closed-set v1 values: 'Noah RN Agent', Practitioner/{id}, Device/{deviceId}, 'historical-seed', 'device-auto'. Extensions require v1.minor + namespace."
+              },
+              "reference": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "entity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": { "type": "string" },
+          "what": {
+            "type": "object",
+            "properties": {
+              "identifier": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "const": "https://noah-rn.dev/source-layer",
+                    "description": "Marks source layer: L0-history, L1-device-stream, L2-events, L3-original, L4-obligation."
+                  },
+                  "value": {
+                    "type": "string",
+                    "enum": ["L0-history", "L1-device-stream", "L2-events", "L3-original", "L4-obligation"]
+                  }
+                }
+              },
+              "display": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" }
+    }
+  }
+}

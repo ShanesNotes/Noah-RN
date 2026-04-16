@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/draft-medication-administration-write-input.schema.json",
+  "title": "DraftMedicationAdministrationWriteInput",
+  "description": "Input to queue_draft_medication_administration. Creates a FHIR MedicationAdministration(status=not-done, statusReason.code=draft-proposal) per Contract 5. Finalized administrations require chart_medication_administration (Phase 4) with human attestation.",
+  "type": "object",
+  "required": ["patientId", "medicationName"],
+  "additionalProperties": false,
+  "properties": {
+    "patientId": { "type": "string", "pattern": "^[a-zA-Z0-9\\-_.]+$" },
+    "encounterId": { "type": "string" },
+    "medicationName": { "type": "string", "minLength": 1 },
+    "executionId": { "type": "string" },
+    "medicationRequestId": { "type": "string" },
+    "note": { "type": "string" }
+  }
+}

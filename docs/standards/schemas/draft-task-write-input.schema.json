@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/draft-task-write-input.schema.json",
+  "title": "DraftTaskWriteInput",
+  "description": "Input to queue_draft_task. Creates a FHIR Task(status=requested) review primitive per Contract 5.",
+  "type": "object",
+  "required": ["patientId", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "patientId": { "type": "string", "pattern": "^[a-zA-Z0-9\\-_.]+$" },
+    "encounterId": { "type": "string" },
+    "description": { "type": "string", "minLength": 1, "maxLength": 2048 },
+    "executionId": { "type": "string" },
+    "focusReference": {
+      "type": "string",
+      "description": "FHIR reference string, e.g. MedicationAdministration/{id}"
+    },
+    "ownerDisplay": { "type": "string" },
+    "priority": { "type": "string", "enum": ["routine", "urgent", "asap", "stat"] },
+    "taskCode": { "type": "string" }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/medication-list-view.schema.json",
+  "title": "MedicationListView",
+  "description": "Clinical-MCP contract v1 output of get_medication_list. MAR-style view assembled from active MedicationRequests plus recent MedicationAdministrations. Planned for Phase 4 of the three-product alignment plan.",
+  "type": "object",
+  "required": ["patientId", "assembledAt", "active", "recentAdministrations"],
+  "additionalProperties": true,
+  "properties": {
+    "patientId": { "type": "string", "pattern": "^[a-zA-Z0-9\\-_.]+$" },
+    "encounterId": { "type": "string" },
+    "assembledAt": { "type": "string", "format": "date-time" },
+    "active": {
+      "type": "array",
+      "description": "Active MedicationRequests with computed administration state.",
+      "items": {
+        "type": "object",
+        "required": ["medicationRequestId", "medicationName", "state"],
+        "properties": {
+          "medicationRequestId": { "type": "string" },
+          "medicationName": { "type": "string" },
+          "medicationReference": { "type": "string" },
+          "dosageText": { "type": "string" },
+          "route": { "type": "string" },
+          "frequency": { "type": "string" },
+          "state": {
+            "type": "string",
+            "enum": ["scheduled", "overdue", "prn", "held"]
+          },
+          "nextDueAt": { "type": "string", "format": "date-time" },
+          "lastAdministeredAt": { "type": "string", "format": "date-time" },
+          "highAlert": { "type": "boolean" },
+          "highAlertReason": { "type": "string" }
+        }
+      }
+    },
+    "recentAdministrations": {
+      "type": "array",
+      "description": "Recent MedicationAdministration events (default window 24h).",
+      "items": {
+        "type": "object",
+        "required": ["id", "medicationName", "effectiveDateTime", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "medicationName": { "type": "string" },
+          "effectiveDateTime": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["completed", "not-done", "in-progress", "on-hold", "stopped", "unknown"]
+          },
+          "performerDisplay": { "type": "string" },
+          "dosageText": { "type": "string" },
+          "reviewState": {
+            "type": "string",
+            "enum": ["final", "draft-proposal", "pending-review"]
+          }
+        }
+      }
+    }
+  }
+}

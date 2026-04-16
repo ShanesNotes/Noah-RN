@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/draft-document-write-input.schema.json",
+  "title": "DraftDocumentWriteInput",
+  "description": "Input to create_draft_document. Creates a FHIR DocumentReference(status=current, docStatus=preliminary) review artifact per Contract 5. The Shift Report specialization is the first landed variant; generic variants land in Phase 4 of the three-product alignment plan.",
+  "type": "object",
+  "required": ["patientId", "reportMarkdown"],
+  "additionalProperties": false,
+  "properties": {
+    "patientId": { "type": "string", "pattern": "^[a-zA-Z0-9\\-_.]+$" },
+    "encounterId": { "type": "string" },
+    "taskId": { "type": "string" },
+    "executionId": { "type": "string" },
+    "reportMarkdown": { "type": "string", "minLength": 1 },
+    "artifactCode": { "type": "string", "description": "Artifact type code (e.g. shift-report-draft)" },
+    "artifactDisplay": { "type": "string" },
+    "workflowCode": { "type": "string", "description": "Originating workflow (e.g. shift-report, five-rights-verification)" }
+  }
+}

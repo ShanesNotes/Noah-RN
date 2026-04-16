@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-mcp-v1/patient-context-bundle.schema.json",
+  "title": "PatientContextBundle",
+  "description": "Clinical-MCP contract v1.0.0 output of get_patient_context. The normative context bundle any agent-native EHR returns to an agent harness.",
+  "type": "object",
+  "required": [
+    "patient",
+    "timeline",
+    "trends",
+    "gaps",
+    "assembledAt",
+    "sources",
+    "tokenEstimate",
+    "budgetTruncated",
+    "truncatedCount"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "patient": {
+      "type": "object",
+      "required": ["id", "name", "dob", "gender"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9\\-_.]+$" },
+        "name": { "type": "string" },
+        "dob": { "type": "string" },
+        "gender": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "timeline": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TimelineEntry" }
+    },
+    "trends": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TrendSummary" }
+    },
+    "gaps": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "assembledAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "tokenEstimate": { "type": "number", "minimum": 0 },
+    "budgetTruncated": { "type": "boolean" },
+    "truncatedCount": { "type": "integer", "minimum": 0 },
+    "laneCoverage": {
+      "type": "object",
+      "description": "Optional in v1.0.0; recommended. Maps each canonical lane to its coverage state.",
+      "properties": {
+        "ehr/chart": { "$ref": "#/$defs/LaneCoverage" },
+        "memory": { "$ref": "#/$defs/LaneCoverage" },
+        "clinical-resources": { "$ref": "#/$defs/LaneCoverage" },
+        "patient-monitor/simulation": { "$ref": "#/$defs/LaneCoverage" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "LaneCoverage": {
+      "type": "string",
+      "enum": ["present", "partial", "missing", "not-assembled"]
+    },
+    "TimelineEntry": {
+      "oneOf": [
+        { "$ref": "#/$defs/ObservationEntry" },
+        { "$ref": "#/$defs/ConditionEntry" },
+        { "$ref": "#/$defs/MedicationEntry" },
+        { "$ref": "#/$defs/MedicationAdministrationEntry" },
+        { "$ref": "#/$defs/EncounterEntry" },
+        { "$ref": "#/$defs/NoteEntry" },
+        { "$ref": "#/$defs/DeviceEntry" }
+      ]
+    },
+    "BaseEntryFields": {
+      "type": "object",
+      "required": ["type", "resource", "timestamp", "relativeTime", "relativeMinutes"],
+      "properties": {
+        "type": { "type": "string" },
+        "resource": { "type": "object" },
+        "timestamp": { "type": "string" },
+        "relativeTime": { "type": "string" },
+        "relativeMinutes": { "type": "number" }
+      }
+    },
+    "ObservationEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": {
+        "type": { "const": "observation" },
+        "subtype": { "type": "string", "enum": ["vital", "lab", "survey", "unknown"] }
+      },
+      "required": ["subtype"]
+    },
+    "ConditionEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "condition" } }
+    },
+    "MedicationEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "medication" } }
+    },
+    "MedicationAdministrationEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "medicationAdministration" } }
+    },
+    "EncounterEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "encounter" } }
+    },
+    "NoteEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "note" } }
+    },
+    "DeviceEntry": {
+      "allOf": [{ "$ref": "#/$defs/BaseEntryFields" }],
+      "properties": { "type": { "const": "device" } }
+    },
+    "TrendSummary": {
+      "type": "object",
+      "required": ["loincCode", "name", "direction", "values"],
+      "properties": {
+        "loincCode": { "type": "string" },
+        "name": { "type": "string" },
+        "direction": { "type": "string", "enum": ["rising", "falling", "stable"] },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["value", "relativeTime"],
+            "properties": {
+              "value": { "type": "number" },
+              "relativeTime": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
