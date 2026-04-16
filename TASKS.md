@@ -82,12 +82,12 @@ This is the active execution queue. Keep it short, ordered, and concrete. Histor
    - Decide minimum metrics for quality, safety, cost, and latency.
    - Connect evaluation traces to future eval harness work.
 
-12. ~~**Land the Clinical Simulation Harness runtime only when needed**~~ — **Runtime landed 2026-04-14.**
-   - Layers 1–4 implemented: SimulationClock, Scenario Director, WaveformGeneration, DeviceBridge.
-   - Two rhythm templates (NSR, VTach), two scenarios (baseline, tension pneumothorax).
-   - DeviceBridge writes device-stream Observations to Medplum on cadence.
-   - Two-tier vitals architecture modeled: device-stream (preliminary) vs nurse-charted (final).
-   - See `docs/foundations/sim-harness-vitals-data-flow.md` for architecture spec.
+12. **Clinical Simulation Harness runtime state** — *superseded by three-product alignment plan.*
+   - **Lane A partial landed**: simulation clock (`src/clock.ts`) with wall/accelerated/frozen/skip-ahead modes, engine-adapter boundary, reference pharmacokinetics.
+   - **Lane B partial**: scenario controller exists but competing JSON vs TypeScript loaders require unification; static Map of three fixture scenarios (pressor-titration, fluid-responsive, hyporesponsive); SAC-1 authoring contract not yet implemented.
+   - **Lanes C–F deferred**: monitor bridge with IEC alarm classification, charting authority surface, obligation runtime, eval recorder, and E2E integration all pending.
+   - **No MCP surface** on the sim-harness side; clinical-mcp currently reaches sim via direct function imports (boundary violation to be fixed in alignment plan Phase 8).
+   - Runtime promotion now sequenced through `docs/plans/three-product-alignment-2026-04-16.md` Phase 8. See also `services/sim-harness/README.md` and `docs/foundations/execution-packet-simulation-architecture.md`.
 
 ## Later
 

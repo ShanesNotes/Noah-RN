@@ -22,6 +22,35 @@ Add a component only when a current workflow has a specific unmet requirement.
 Record the reason before adopting it.
 ```
 
+## Three-Product Architecture
+
+Noah RN is structured as three modular products plus shared subordinate lanes. The core mission remains the pi-native agent harness; the EHR and simulation products exist to create realistic, observable operating context for that harness, but each is strong enough to ship independently.
+
+```text
+Product A (Noah RN Agent Harness) ──── MCP ────▶ Product B (Agent-Native Nursing EHR)
+                │                                        │
+                │                                      FHIR
+                │                                        │
+                └────── MCP ────▶ Product C (Agent-Native Clinical Sim) ──── FHIR
+```
+
+- **Product A — Noah RN Agent Harness (core deliverable).** pi.dev runtime + executable workflow task functions + MCP client. Centers: `packages/agent-harness/` + `packages/workflows/`. Drops into any clinical-MCP-compliant EHR (Medplum, Epic, Cerner) with no changes to workflows or harness code.
+- **Product B — Agent-Native Nursing EHR.** `apps/nursing-station/` + Medplum (`infrastructure/`) + the EHR-side MCP server currently inside `services/clinical-mcp/`. Standalone-shippable full EHR. Gold-standard trajectory: Epic. Houses MAR, orders, documentation, results, vitals.
+- **Product C — Agent-Native Clinical Simulation.** `services/sim-harness/` + wrapped Pulse Physiology Engine (REST sidecar at `infrastructure/pulse/`) + L0–L4 projection + its own MCP surface. Code-standalone; FHIR-coupled at the operational level (requires some EHR backbone to be clinically useful).
+- **Clinical-MCP Contract (the standard).** Published at `docs/standards/clinical-mcp-contract-v1.md`. The schema any EHR implements to be agent-ready. Implemented by Product B today; implementable by any third-party EHR bridge tomorrow.
+
+**Subordinate resource lanes** (shared substrate, not products):
+- `clinical-resources/` — guidelines, protocols, Lexicomp-mirror drug reference, pocket manuals, publication feeds.
+- Memory layer (`docs/foundations/memory-layer-scaffold.md`) — five-tier spec, runtime deferred until a workflow demands it.
+- Meta-harness observability — telemetry envelope + `apps/clinician-dashboard/` runtime console. Telemetry pipeline landed 2026-04-16.
+
+**Boundary rules:**
+- No product imports code from another product. Products communicate via the clinical-MCP contract (A↔B, A↔C) and FHIR (C→B).
+- `packages/agent-harness/` + `packages/workflows/*/SKILL.md` are the authoritative contract surface. `.noah-pi-runtime/extensions/*` is the live execution surface and is subordinate; on conflict, the contract wins and the extension updates in the same change.
+- Subordinate lanes may be consumed by any product through their declared contracts. They do not import from products.
+
+Active execution plan: [docs/plans/three-product-alignment-2026-04-16.md](docs/plans/three-product-alignment-2026-04-16.md).
+
 ## Active Subprojects
 
 ### 1. Agent Harness
@@ -307,3 +336,39 @@ Consequence:
 - the default first-workflow draft posture is no longer an open architectural contradiction
 - the remaining open gate is empirical: verify how preliminary artifacts appear in Medplum UI before wider rollout
 - non-document/action-authoritative resources still default to `Task.input` proposals rather than direct draft writes when they lack safe preliminary semantics
+
+### 2026-04-16: Adopt Three-Product Topology
+
+Decision: Noah RN is structured as three modular products — Product A (the agent harness, core mission), Product B (agent-native nursing EHR), Product C (agent-native clinical simulation) — connected by the clinical-MCP contract and FHIR. Subordinate resource lanes (`clinical-resources/`, memory, observability) are shared substrate, not products.
+
+Why:
+
+- The repo has been growing three large surfaces simultaneously; without modularity, clinical-mcp, nursing-station, and sim-harness risk fusing into one integrated system that cannot ship its pieces independently.
+- The core mission remains the pi-native agent harness. Epic/Cerner portability requires the harness speak a standard contract, not Medplum-specific APIs.
+- The nursing-station EHR and the sim-harness simulator are each strong enough to be standalone products with research value — an agent-native EHR and an agent-native clinical simulation are novel concepts in their own right.
+- A published clinical-MCP contract is a third novel contribution: any EHR can implement it to be agent-ready.
+
+Consequence:
+
+- New "Three-Product Architecture" section added above the subproject list.
+- No product may import code from another product. Cross-product communication goes through MCP (A↔B, A↔C) or FHIR (C→B).
+- `docs/standards/clinical-mcp-contract-v1.md` becomes the published standard (Phase 2 of alignment plan).
+- Execution plan: `docs/plans/three-product-alignment-2026-04-16.md`.
+- The one active cross-product import (`services/clinical-mcp/src/worker/shift-report-worker.ts` → `packages/agent-harness/shift-report-renderer.mjs`) inverts in Phase 1 of the alignment plan.
+- Renaming of `services/clinical-mcp/` (to reflect its Product B allegiance) is deferred; revisit after Phase 6.
+
+### 2026-04-16: Pulse Physiology Engine Bound via REST Sidecar
+
+Decision: Product C's L0 substrate (Pulse Physiology Engine, Apache-2.0, Kitware) is wrapped via REST sidecar in docker-compose. Adapter: `services/sim-harness/src/pulse/adapter.ts`. Sidecar: `infrastructure/pulse/` FastAPI on port 8104. Pre-baked `.pbb` state files per scenario to avoid 1–3 minute cold stabilization.
+
+Why:
+
+- REST matches existing OAuth2 fetch patterns in the codebase; no sticky-session complexity.
+- No official Pulse Docker image; Python binding is PyPI-published (`pulse-physiology-engine`) on `python:3.11-slim-bookworm`.
+- Consensus plan at `docs/plans/sim-harness-bedside-workflow.md` locked these decisions in the 2026-04-16 deep-interview session; this entry promotes them from exploratory plan to binding Decision Log.
+
+Consequence:
+
+- `infrastructure/pulse/` docker service added during Phase 8 of the alignment plan.
+- `services/sim-harness/src/pulse/` adapter added; selectable alongside `ReferencePkEngineAdapter` via scenario `initial_engine_state.engine`.
+- Pre-baked states committed under `infrastructure/pulse/states/<scenario-id>.pbb` (verify PhysioNet DUA before any public push).

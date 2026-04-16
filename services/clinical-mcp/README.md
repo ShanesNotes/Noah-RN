@@ -4,6 +4,8 @@ This folder is the clinical workspace center for Noah RN.
 
 It is the agent-facing boundary between workflow/harness code and chart/simulation-derived patient context.
 
+**Product role.** This service is **Product B (Agent-Native Nursing EHR) server side** — the sole agent-facing boundary for chart data, MAR, orders, documentation, and the Contract 5 draft write path. Sim tools (Product C) reach agents through the `registerSimTools()` seam only. See [docs/plans/three-product-alignment-2026-04-16.md](../../docs/plans/three-product-alignment-2026-04-16.md) for the three-product topology.
+
 ## What this folder owns
 
 - MCP server surface for clinical tools

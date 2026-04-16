@@ -21,13 +21,24 @@ The project exists to help a nurse build, test, and refine decomposable clinical
 
 ## Current Shape
 
-Noah RN has five active subprojects:
+Noah RN is structured as **one core product, two subordinate products, and three subordinate lanes** (see [docs/plans/three-product-alignment-2026-04-16.md](docs/plans/three-product-alignment-2026-04-16.md) for the active alignment plan).
 
-1. **Agent harness** - `pi.dev` foundation, workflow orchestration, specialized agents, `SKILLS.md`, `TOOLS.md`, and deterministic tool contracts.
-2. **Clinical workspace** - Medplum-backed EHR development environment with Medplum-first clinician workflows, a nursing-station app at `apps/nursing-station/`, a runtime-console sidecar at `apps/clinician-dashboard/`, and a **Clinical Simulation Harness** named scope at `services/sim-harness/` that wraps open-source physiology engines (Pulse, BioGears, Infirmary Integrated, rohySimulator, Auto-ALS) to produce live vitals, waveforms, and scenario-directed patient state for the agent to operate in.
-3. **Memory layer** - longitudinal patient H&P, mutable present encounter canvas, provider session memory, provider persistent memory, and task-local agent memory.
-4. **Clinical resources** - guidelines, protocols, pocket manuals, publication feeds, and an agent-centric Lexicomp-like drug reference.
-5. **Meta-harness optimization** - observability, eval traces, metrics, and continuous improvement loops for the harness itself.
+**Core product:**
+
+1. **Noah RN Agent Harness (Product A)** — `pi.dev` foundation, workflow orchestration, specialized agents, `SKILLS.md`, `TOOLS.md`, deterministic tool contracts. The core deliverable. Drops into any clinical-MCP-compliant EHR (Medplum, Epic, Cerner) without changes to harness or workflow code.
+
+**Subordinate products (each standalone-shippable):**
+
+2. **Agent-Native Nursing EHR (Product B)** — `apps/nursing-station/` + Medplum (`infrastructure/`) + the EHR-side MCP server currently inside `services/clinical-mcp/`. Houses the MAR, orders, documentation, results, vitals. Gold-standard trajectory: Epic.
+3. **Agent-Native Clinical Simulation (Product C)** — `services/sim-harness/` wrapping the Pulse Physiology Engine (Apache-2.0) per Contract 9. Produces live vitals, waveforms, and scenario-directed patient state per the L0–L4 projection kernel. Code-standalone; requires any FHIR-capable EHR at runtime.
+
+**Subordinate lanes (shared substrate, not products):**
+
+4. **Clinical resources** — curated guidelines, protocols, Lexicomp-mirror drug reference, pocket manuals, publication feeds.
+5. **Memory layer** — longitudinal patient H&P, mutable encounter canvas, provider session memory, provider persistent memory, task-local agent memory. Spec-only today.
+6. **Meta-harness observability** — telemetry pipeline, eval traces, metrics, runtime console in `apps/clinician-dashboard/`.
+
+Products communicate through the clinical-MCP contract (A↔B, A↔C) and FHIR (C→B). **No product imports code from another product.** The authoritative contract surface is `packages/agent-harness/` + `packages/workflows/*/SKILL.md`; `.noah-pi-runtime/extensions/*` is the live execution surface, subordinate to the contract surface.
 
 ## Current Clinician Workspace Status
 

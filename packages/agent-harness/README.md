@@ -41,6 +41,10 @@ Those live in:
 
 Treat `.noah-pi-runtime/` as conceptually subordinate to this lane.
 
+**Authority rule (binding).** `packages/agent-harness/` and `packages/workflows/*/SKILL.md` are the authoritative contract surface. `.noah-pi-runtime/extensions/*` is the live execution surface and is subordinate. On any conflict between a contract and an extension, the contract wins; the extension updates within the same change.
+
+**Product boundary rule.** No product imports code from another product. This package (Product A — Noah RN Agent Harness) reaches Product B (agent-native nursing EHR) and Product C (agent-native clinical simulation) only through the clinical-MCP and sim-harness MCP contracts. Cross-product in-process imports are boundary violations. See [../../docs/plans/three-product-alignment-2026-04-16.md](../../docs/plans/three-product-alignment-2026-04-16.md).
+
 Current rule:
 - `packages/agent-harness/` is the authoritative harness/routing source of truth
 - `.noah-pi-runtime/` is the repo-hosted pi.dev-facing bridge surface
