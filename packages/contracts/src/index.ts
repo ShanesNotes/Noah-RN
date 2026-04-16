@@ -4,3 +4,4 @@ export * from './provenance-envelope.js';
 export * from './trace-envelope.js';
 export * from './mcp-tool-types.js';
 export * from './renderer-input.js';
+export * from './drug-reference.js';

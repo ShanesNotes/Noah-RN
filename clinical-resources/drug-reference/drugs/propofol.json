@@ -1,0 +1,38 @@
+{
+  "generic_name": "propofol",
+  "brand_names": ["Diprivan"],
+  "drug_class": ["sedative-hypnotic", "GABA-agonist"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: sedative infusion. Dose-dependent hypotension and respiratory depression. Propofol infusion syndrome (PRIS) at high or prolonged doses.",
+  "routes": ["IV push", "IV infusion"],
+  "adult_dose": "Induction (intubation): 1–2.5 mg/kg IV push. Sedation infusion: 5–50 mcg/kg/min, titrate to RASS target.",
+  "pediatric_dose": "Induction 2.5–3.5 mg/kg; avoid prolonged infusions (PRIS risk elevated).",
+  "renal_adjustment": "No direct adjustment; monitor for hypotension in volume-depleted patients.",
+  "hepatic_adjustment": "Prolonged elimination; consider lower maintenance rate.",
+  "max_dose": "Sedation infusion typically ≤ 80 mcg/kg/min; prolonged rates > 60 mcg/kg/min > 48h raise PRIS concern. Reevaluate rather than escalate.",
+  "indications": [
+    "Induction for intubation (RSI sedative partner)",
+    "Continuous sedation in intubated ICU patients",
+    "Procedural sedation (anesthesia-trained providers)",
+    "Refractory status epilepticus"
+  ],
+  "contraindications": [
+    "Hypersensitivity to egg/soy (lipid emulsion formulation)",
+    "Severe hemodynamic instability without concurrent vasopressor support (relative)"
+  ],
+  "key_monitoring": [
+    "MAP / BP during induction and infusion (precipitous drop is common)",
+    "RASS score q1–2h",
+    "Triglycerides (PRIS surveillance) after 48–72 hours of infusion",
+    "CPK, lactate, metabolic acidosis (PRIS triad)",
+    "Strict aseptic handling — lipid emulsion supports bacterial growth (change tubing q12h)"
+  ],
+  "lasa_pairs": ["etomidate"],
+  "iv_incompatibilities": ["most drugs — dedicated line preferred", "alkaline solutions"],
+  "provenance": {
+    "source": "SCCM PAD guidelines + Lexicomp summary",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline"
+  }
+}

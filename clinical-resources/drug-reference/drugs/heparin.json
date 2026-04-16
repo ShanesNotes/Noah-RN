@@ -1,0 +1,38 @@
+{
+  "generic_name": "heparin (unfractionated)",
+  "brand_names": ["Heparin", "UFH"],
+  "drug_class": ["anticoagulant", "indirect-thrombin-inhibitor"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: anticoagulant. Dose errors cause major bleeding or therapeutic failure. Requires independent two-nurse verification on initiation, bag change, and bolus.",
+  "routes": ["IV push", "IV infusion", "SQ"],
+  "adult_dose": "DVT/PE: bolus 80 units/kg (max 10,000 units), infusion 18 units/kg/hr, titrate to aPTT 1.5–2.5× control per institutional nomogram. ACS: bolus 60 units/kg (max 4,000 units), infusion 12 units/kg/hr.",
+  "pediatric_dose": "Bolus 75 units/kg, infusion 20 units/kg/hr (age < 1yr) or 18 units/kg/hr (≥1yr); titrate per institutional nomogram.",
+  "renal_adjustment": "No adjustment required (cleared hepatically + RES).",
+  "max_dose": "Initial bolus typically capped at 10,000 units; individual infusion rates titrated to aPTT, not to a fixed maximum.",
+  "indications": [
+    "Venous thromboembolism treatment",
+    "Acute coronary syndrome",
+    "Atrial fibrillation with unstable presentation",
+    "Extracorporeal circuit anticoagulation (CRRT, ECMO)"
+  ],
+  "contraindications": [
+    "Active major bleeding",
+    "History of HIT (heparin-induced thrombocytopenia) — absolute",
+    "Severe thrombocytopenia (platelets < 50)",
+    "Recent neurosurgery or uncontrolled severe hypertension"
+  ],
+  "key_monitoring": [
+    "aPTT q6h until two consecutive therapeutic values, then q24h",
+    "Platelet count q48h for HIT surveillance",
+    "Hemoglobin / hematocrit daily",
+    "Clinical bleeding assessment (gums, urine, stool, IV sites, neuro exam)"
+  ],
+  "lasa_pairs": ["Hep-Lock (flush)", "enoxaparin"],
+  "iv_incompatibilities": ["gentamicin", "vancomycin (concentration-dependent)", "diltiazem"],
+  "provenance": {
+    "source": "CHEST anticoagulation guidelines + ISMP high-alert list + Lexicomp summary",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline"
+  }
+}

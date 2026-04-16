@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noah-rn.dev/standards/clinical-resources-v1/drug-entry.schema.json",
+  "title": "DrugReferenceEntry",
+  "description": "Single drug entry in the Noah RN Lexicomp-mirror scaffold. v0 shape — focused on the fields the five-rights-verification workflow needs. Expand in later phases without breaking consumers (additive).",
+  "type": "object",
+  "required": [
+    "generic_name",
+    "drug_class",
+    "high_alert",
+    "routes",
+    "adult_dose",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "generic_name": { "type": "string" },
+    "brand_names": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "drug_class": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "controlled_substance": {
+      "type": "string",
+      "enum": ["none", "schedule-II", "schedule-III", "schedule-IV", "schedule-V"]
+    },
+    "high_alert": { "type": "boolean" },
+    "high_alert_reason": { "type": "string" },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["PO", "SL", "IV push", "IV infusion", "IV piggyback", "IM", "SQ", "PR", "inhaled", "topical", "nasal", "buccal"]
+      },
+      "minItems": 1
+    },
+    "adult_dose": { "type": "string" },
+    "pediatric_dose": { "type": "string" },
+    "renal_adjustment": { "type": "string" },
+    "hepatic_adjustment": { "type": "string" },
+    "max_dose": { "type": "string" },
+    "indications": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contraindications": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "key_monitoring": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lasa_pairs": {
+      "type": "array",
+      "description": "Look-Alike / Sound-Alike medication names that require verification.",
+      "items": { "type": "string" }
+    },
+    "iv_incompatibilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source", "last_reviewed", "confidence_tier"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Primary source citation — e.g. Lexicomp, AHA guideline, ACLS algorithm. Keep this honest; the scaffold is a mirror, not an authoritative pharmacy database."
+        },
+        "last_reviewed": { "type": "string", "format": "date" },
+        "confidence_tier": {
+          "type": "string",
+          "enum": ["tier-1-national-guideline", "tier-2-established-reference", "tier-3-consensus"]
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

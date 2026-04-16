@@ -1,0 +1,37 @@
+{
+  "generic_name": "norepinephrine",
+  "brand_names": ["Levophed"],
+  "drug_class": ["vasopressor", "alpha-agonist", "catecholamine"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: adrenergic agonist infusion. Dose errors produce severe hypertension or end-organ hypoperfusion.",
+  "routes": ["IV infusion"],
+  "adult_dose": "Start 0.01–0.05 mcg/kg/min; titrate q5min to MAP ≥ 65 mmHg. Typical range 0.05–0.5 mcg/kg/min; doses >1 mcg/kg/min suggest refractory shock.",
+  "pediatric_dose": "0.05–0.1 mcg/kg/min, titrate to MAP goal per weight-based PICU protocol.",
+  "max_dose": "No absolute ceiling; high doses (>1 mcg/kg/min) warrant second vasopressor.",
+  "indications": [
+    "Septic shock after adequate fluid resuscitation",
+    "Cardiogenic shock",
+    "Refractory hypotension during induction"
+  ],
+  "contraindications": [
+    "Uncorrected hypovolemia (fluid-resuscitate first)",
+    "Mesenteric or peripheral vascular thrombosis (relative)",
+    "Extravasation risk — infuse through central line when possible; peripheral >4h requires large-bore IV + monitoring"
+  ],
+  "key_monitoring": [
+    "MAP q5min during titration",
+    "Peripheral perfusion, capillary refill, skin mottling",
+    "Extravasation site (peripheral infusion)",
+    "Lactate trend",
+    "Urine output"
+  ],
+  "lasa_pairs": ["epinephrine", "phenylephrine"],
+  "iv_incompatibilities": ["alkaline solutions (sodium bicarbonate)"],
+  "provenance": {
+    "source": "AHA/ACCF Sepsis guidelines + Lexicomp summary",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline",
+    "note": "Scaffold entry for five-rights-verification workflow. Verify against facility infusion protocol before administration."
+  }
+}

@@ -95,6 +95,20 @@ export function createServer(): McpServer {
     },
   );
 
+  // Tool: lookup_drug (clinical-MCP contract v1)
+  // Routes through the clinical-resources/drug-reference/ subordinate lane.
+  server.tool(
+    'lookup_drug',
+    'Look up a drug in the Noah RN Lexicomp-mirror scaffold by generic name, brand name, or drug class. Returns matching entries plus staleness warnings for entries older than 12 months.',
+    {
+      query: z.string().min(1).describe('Drug name, brand name, or drug class (e.g. "norepinephrine", "Levophed", "vasopressor").'),
+    },
+    async ({ query }) => {
+      const { lookupDrug } = await import('./tools/drug-reference.js');
+      return jsonToolResult(lookupDrug(query));
+    },
+  );
+
   // Sim-harness tools register conditionally through registerSimTools().
   // See docs/foundations/sim-harness-runtime-access-contract.md (working reference)
   // and Contracts 4 + 6 in docs/foundations/foundational-contracts-simulation-architecture.md

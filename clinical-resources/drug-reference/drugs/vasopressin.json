@@ -1,0 +1,34 @@
+{
+  "generic_name": "vasopressin",
+  "brand_names": ["Pitressin"],
+  "drug_class": ["vasopressor", "antidiuretic-hormone-analog"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: vasopressor infusion. Narrow therapeutic window; non-titratable in most adult septic-shock protocols.",
+  "routes": ["IV infusion"],
+  "adult_dose": "Fixed dose 0.03 units/min (or 0.04 units/min per Surviving Sepsis Campaign) as adjunct to norepinephrine. Not titrated for hemodynamics.",
+  "pediatric_dose": "0.0003–0.002 units/kg/min per PICU protocol (much narrower range than adult).",
+  "max_dose": "Do not exceed 0.04 units/min in septic shock unless directed by attending; higher doses risk mesenteric / digital ischemia.",
+  "indications": [
+    "Adjunct vasopressor in septic shock on norepinephrine ≥ 0.25 mcg/kg/min",
+    "Vasodilatory shock after cardiac surgery",
+    "DI diagnostic/therapeutic (separate dosing)"
+  ],
+  "contraindications": [
+    "Hypersensitivity",
+    "Relative: severe peripheral or coronary vascular disease"
+  ],
+  "key_monitoring": [
+    "MAP trend",
+    "Serum sodium (can cause hyponatremia with prolonged use)",
+    "Peripheral and mesenteric perfusion (ischemia risk)",
+    "Hourly urine output"
+  ],
+  "lasa_pairs": ["desmopressin"],
+  "iv_incompatibilities": ["furosemide", "phenytoin"],
+  "provenance": {
+    "source": "Surviving Sepsis Campaign 2021 + Lexicomp summary",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline"
+  }
+}

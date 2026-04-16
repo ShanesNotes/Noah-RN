@@ -22,6 +22,7 @@ const CONTRACT_V1_TOOLS = {
     list_patients: 'implemented',
     inspect_context: 'implemented',
     get_medication_list: 'implemented',
+    lookup_drug: 'implemented',
   },
   write: {
     queue_draft_task: 'implemented',
@@ -29,7 +30,6 @@ const CONTRACT_V1_TOOLS = {
     queue_draft_medication_administration: 'implemented',
     record_provenance: 'implemented',
     finalize_draft_document: 'planned',
-    lookup_drug: 'planned',
   },
 } as const;
 

@@ -1,0 +1,38 @@
+{
+  "generic_name": "rocuronium",
+  "brand_names": ["Zemuron"],
+  "drug_class": ["neuromuscular-blocker", "non-depolarizing-paralytic", "aminosteroid"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: paralyzing agent. Administration without adequate sedation causes awake paralysis. Must be paired with induction sedative; airway management and mechanical ventilation must be ready.",
+  "routes": ["IV push"],
+  "adult_dose": "RSI: 1.0–1.2 mg/kg IV push. Maintenance: 0.1–0.2 mg/kg q20–30min or infusion 0.01 mg/kg/min.",
+  "pediatric_dose": "RSI: 0.6–1.2 mg/kg IV push.",
+  "renal_adjustment": "Duration prolonged in renal failure; reduce frequency of maintenance doses.",
+  "hepatic_adjustment": "Duration prolonged in severe hepatic dysfunction (primary hepatic elimination).",
+  "max_dose": "Per-dose: 1.2 mg/kg RSI. No absolute ceiling on total; titrate to response.",
+  "indications": [
+    "Rapid-sequence intubation",
+    "Maintenance of paralysis during mechanical ventilation",
+    "Surgical paralysis"
+  ],
+  "contraindications": [
+    "Inadequate sedation plan (absolute — must have induction sedative and post-intubation sedation ready)",
+    "Hypersensitivity to aminosteroid paralytics",
+    "Airway and ventilation equipment not immediately available"
+  ],
+  "key_monitoring": [
+    "Train-of-four (TOF) monitoring during continuous infusion (target 1–2/4 twitches)",
+    "End-tidal CO2 and SpO2 post-intubation",
+    "Depth of sedation (RASS, BIS if available) — must not paralyze an awake patient",
+    "Eye protection and repositioning while paralyzed"
+  ],
+  "lasa_pairs": ["vecuronium", "cisatracurium"],
+  "iv_incompatibilities": ["alkaline solutions", "diazepam"],
+  "provenance": {
+    "source": "ACLS RSI algorithm + ISMP high-alert list + Lexicomp summary",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline",
+    "note": "Preferred over succinylcholine in hyperkalemia and in patients at risk for malignant hyperthermia."
+  }
+}

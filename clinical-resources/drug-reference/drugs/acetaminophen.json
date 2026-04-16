@@ -1,0 +1,33 @@
+{
+  "generic_name": "acetaminophen",
+  "brand_names": ["Tylenol", "Ofirmev (IV)"],
+  "drug_class": ["analgesic", "antipyretic"],
+  "controlled_substance": "none",
+  "high_alert": false,
+  "routes": ["PO", "PR", "IV infusion"],
+  "adult_dose": "PO/PR: 325–1000 mg q4–6h; max 4 g/day (3 g/day in chronic alcohol use or hepatic impairment). IV: 1 g q6h.",
+  "pediatric_dose": "10–15 mg/kg PO q4–6h, max 75 mg/kg/day (not to exceed adult max).",
+  "hepatic_adjustment": "Reduce max to 2–3 g/day in chronic liver disease; avoid in acute hepatic failure.",
+  "max_dose": "Adult: 4 g/day (2–3 g/day in at-risk populations).",
+  "indications": [
+    "Fever",
+    "Mild-to-moderate pain",
+    "Component of multimodal analgesia to spare opioids"
+  ],
+  "contraindications": [
+    "Severe hepatic impairment",
+    "Hypersensitivity"
+  ],
+  "key_monitoring": [
+    "Total daily dose (all routes combined — easy to exceed with PRN + scheduled + combo products)",
+    "LFTs in prolonged administration or at-risk patients",
+    "Patient history for concurrent acetaminophen-containing products (e.g., Percocet, Norco, cold remedies)"
+  ],
+  "lasa_pairs": ["amoxicillin (shared shelf position in some pyxis layouts)"],
+  "provenance": {
+    "source": "Lexicomp summary + FDA labeling",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-2-established-reference",
+    "note": "Included as a non-high-alert control entry for the scaffold."
+  }
+}

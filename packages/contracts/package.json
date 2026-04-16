@@ -32,6 +32,10 @@
     "./renderer-input": {
       "types": "./src/renderer-input.ts",
       "default": "./src/renderer-input.ts"
+    },
+    "./drug-reference": {
+      "types": "./src/drug-reference.ts",
+      "default": "./src/drug-reference.ts"
     }
   },
   "scripts": {

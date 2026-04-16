@@ -1,0 +1,39 @@
+{
+  "generic_name": "fentanyl",
+  "brand_names": ["Sublimaze", "Duragesic"],
+  "drug_class": ["opioid", "mu-agonist"],
+  "controlled_substance": "schedule-II",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: opioid. Respiratory depression and accidental overdose (100× more potent than morphine by weight). Requires double-check on continuous infusion and any bolus.",
+  "routes": ["IV push", "IV infusion", "IM", "topical", "buccal"],
+  "adult_dose": "RSI analgesia/sedation: 1–3 mcg/kg IV push over 1–2 min. ICU infusion: 25–200 mcg/hr, titrate to CPOT / behavioral pain scale. Bolus for breakthrough: 25–100 mcg.",
+  "pediatric_dose": "1–2 mcg/kg IV; infusion 1–3 mcg/kg/hr.",
+  "renal_adjustment": "Minimal accumulation (hepatic metabolism) but prolonged context-sensitive half-life in prolonged infusion.",
+  "hepatic_adjustment": "Reduce in severe hepatic impairment.",
+  "max_dose": "No absolute ceiling in ICU infusion; escalation > 200 mcg/hr warrants reevaluation (tolerance, alternate analgesia).",
+  "indications": [
+    "Analgesia in intubated ICU patients",
+    "RSI sedative/analgesic partner",
+    "Procedural analgesia",
+    "Transdermal chronic pain (outpatient; not for opioid-naive)"
+  ],
+  "contraindications": [
+    "Known hypersensitivity",
+    "Paralytic ileus (relative)",
+    "Severe respiratory depression without ventilatory support"
+  ],
+  "key_monitoring": [
+    "Respiratory rate and SpO2 (when not mechanically ventilated)",
+    "Pain score (CPOT in intubated, 0–10 NRS in communicative)",
+    "Level of sedation (RASS)",
+    "Blood pressure (hypotension with rapid IV push)",
+    "Chest wall rigidity (rare but can prevent ventilation with rapid high-dose push)"
+  ],
+  "lasa_pairs": ["sufentanil", "remifentanil"],
+  "iv_incompatibilities": ["thiopental", "phenytoin"],
+  "provenance": {
+    "source": "SCCM PAD guidelines + DEA scheduling + ISMP high-alert list",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline"
+  }
+}

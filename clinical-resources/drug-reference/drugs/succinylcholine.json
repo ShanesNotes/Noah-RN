@@ -1,0 +1,38 @@
+{
+  "generic_name": "succinylcholine",
+  "brand_names": ["Anectine", "Quelicin"],
+  "drug_class": ["neuromuscular-blocker", "depolarizing-paralytic"],
+  "controlled_substance": "none",
+  "high_alert": true,
+  "high_alert_reason": "ISMP high-alert: depolarizing paralytic. Black-box risk of hyperkalemic arrest in at-risk patients (burns, crush injury, denervation, prolonged immobility, rhabdomyolysis). Malignant hyperthermia trigger.",
+  "routes": ["IV push", "IM"],
+  "adult_dose": "RSI: 1.0–1.5 mg/kg IV push. Onset 30–60 sec; duration 5–10 min.",
+  "pediatric_dose": "Infants: 2 mg/kg IV. Children: 1–2 mg/kg IV.",
+  "max_dose": "Single RSI dose: 150 mg (total body weight).",
+  "indications": [
+    "Rapid-sequence intubation when a short-duration paralytic is preferred (e.g., difficult-airway reassessment)"
+  ],
+  "contraindications": [
+    "Hyperkalemia (absolute — even suspected)",
+    "History of malignant hyperthermia (personal or family)",
+    "Burns > 24–48 hours old",
+    "Crush injury, major trauma, rhabdomyolysis",
+    "Prolonged immobility (paralysis, stroke > 48h, severe myopathy)",
+    "Hyperkalemia-precipitating conditions: acute renal failure with K+ elevation, denervation injuries",
+    "Neuromuscular disease (muscular dystrophy, ALS)"
+  ],
+  "key_monitoring": [
+    "Continuous ECG (hyperkalemic arrhythmia)",
+    "SpO2 and end-tidal CO2 post-intubation",
+    "Core temperature (MH early signs: masseter rigidity, tachycardia, rising etCO2)",
+    "Train-of-four returning to 4/4 before re-dosing or alternative paralytic"
+  ],
+  "lasa_pairs": ["rocuronium", "vecuronium"],
+  "iv_incompatibilities": ["alkaline solutions (sodium bicarbonate)", "barbiturates"],
+  "provenance": {
+    "source": "ACLS RSI algorithm + FDA black-box warning + ISMP high-alert list",
+    "last_reviewed": "2026-04-16",
+    "confidence_tier": "tier-1-national-guideline",
+    "note": "Rocuronium preferred when any hyperkalemia or MH concern exists."
+  }
+}

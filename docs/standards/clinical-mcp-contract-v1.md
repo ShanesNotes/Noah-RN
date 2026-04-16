@@ -36,7 +36,7 @@ Agent-callable MCP tools:
 | `queue_draft_medication_administration` | write | implemented | [schemas/draft-medication-administration-write-input.schema.json](schemas/draft-medication-administration-write-input.schema.json) |
 | `record_provenance` | write | implemented | [schemas/provenance-envelope.schema.json](schemas/provenance-envelope.schema.json) |
 | `finalize_draft_document` | write | **planned (Phase 4b)** | `FinalizeDraftDocumentInput` — see below |
-| `lookup_drug` | read | **planned (Phase 5)** | Phase 5 (resource-lane tool, exposed here for agent convenience) |
+| `lookup_drug` | read | implemented | Resource-lane tool routed through `clinical-resources/drug-reference/`. See `@noah-rn/contracts/drug-reference`. |
 
 Product B internal write functions (NOT agent-callable MCP tools — called by the nursing-station UI or the Medplum worker on behalf of a human Practitioner; the write path rejects agent performer references):
 
@@ -233,7 +233,7 @@ Standard codes:
 | `queue_draft_medication_administration` | implemented | `services/clinical-mcp/src/fhir/writes.ts#queueDraftMedicationAdministration` |
 | `record_provenance` | implemented | `services/clinical-mcp/src/fhir/writes.ts#recordDraftProvenance` + `recordHumanAttestedProvenance` |
 | `finalize_draft_document` | planned (Phase 4b) | n/a |
-| `lookup_drug` | planned (Phase 5) | routed through `clinical-resources/drug-reference/` |
+| `lookup_drug` | implemented | `services/clinical-mcp/src/tools/drug-reference.ts` reads `clinical-resources/drug-reference/drugs/*.json` |
 
 Product B internal writers (not agent-callable):
 
