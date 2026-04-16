@@ -1,0 +1,43 @@
+{
+  "name": "@noah-rn/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared cross-product types for Noah RN. Consumed by Product A (harness), Product B (nursing EHR), Product C (clinical simulation), and subordinate lanes. Type-only exports; no runtime dependencies.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./lane-coverage": {
+      "types": "./src/lane-coverage.ts",
+      "default": "./src/lane-coverage.ts"
+    },
+    "./context-bundle": {
+      "types": "./src/context-bundle.ts",
+      "default": "./src/context-bundle.ts"
+    },
+    "./provenance-envelope": {
+      "types": "./src/provenance-envelope.ts",
+      "default": "./src/provenance-envelope.ts"
+    },
+    "./trace-envelope": {
+      "types": "./src/trace-envelope.ts",
+      "default": "./src/trace-envelope.ts"
+    },
+    "./mcp-tool-types": {
+      "types": "./src/mcp-tool-types.ts",
+      "default": "./src/mcp-tool-types.ts"
+    },
+    "./renderer-input": {
+      "types": "./src/renderer-input.ts",
+      "default": "./src/renderer-input.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  }
+}

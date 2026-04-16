@@ -8,17 +8,14 @@
 //
 // All cross-product calls from Product B into Product A MUST go through this
 // adapter. Direct imports from packages/agent-harness/** elsewhere in this
-// service are a boundary violation.
+// service are a boundary violation. Shared types come from @noah-rn/contracts.
 
-export interface RenderShiftReportArgs {
-  patientId: string;
-  context: unknown;
-  laneCoverage?: Record<string, string>;
-}
+import type {
+  RenderShiftReportArgs,
+  RenderShiftReportResult,
+} from '@noah-rn/contracts/mcp-tool-types';
 
-export interface RenderShiftReportResult {
-  markdown: string;
-}
+export type { RenderShiftReportArgs, RenderShiftReportResult };
 
 type ToolArgsByName = {
   render_shift_report: RenderShiftReportArgs;
