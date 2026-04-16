@@ -15,6 +15,7 @@ import { TaskWorklist } from '../components/TaskWorklist';
 import { VitalsPanel } from '../components/VitalsPanel';
 import { LabResultsPanel } from '../components/LabResultsPanel';
 import { MedicationList } from '../components/MedicationList';
+import { MarPanel } from '../components/MarPanel';
 import {
   isShellFixtureMode,
   shellFixtureAllergies,
@@ -35,6 +36,7 @@ const SECTION_ITEMS: ChartSectionItem[] = [
   { id: 'vitals', label: 'VITALS', detail: 'Recent physiologic state with quick trend cues.' },
   { id: 'labs', label: 'RESULTS', detail: 'Recent lab values and abnormal result review.' },
   { id: 'meds', label: 'MEDICATIONS', detail: 'Current medication orders and status.' },
+  { id: 'mar', label: 'MAR', detail: 'Medication administration record — scheduled, high-alert flags, and recent administrations.' },
   { id: 'tasks', label: 'TASKS', detail: 'Patient-scoped workflow tasks and requests.' },
 ];
 
@@ -56,6 +58,7 @@ function LivePatientChartPage(): JSX.Element {
   const [vitals] = useSearchResources('Observation', { patient: `Patient/${id}`, category: 'vital-signs', _sort: '-date', _count: '50' });
   const [labs] = useSearchResources('Observation', { patient: `Patient/${id}`, category: 'laboratory', _sort: '-date', _count: '50' });
   const [meds] = useSearchResources('MedicationRequest', { patient: `Patient/${id}`, _sort: '-date', _count: '50' });
+  const [admins] = useSearchResources('MedicationAdministration', { patient: `Patient/${id}`, _sort: '-date', _count: '50' });
 
   const isKnownSection = SECTION_ITEMS.some((item) => item.id === section);
   const activeSection = isKnownSection ? (section ?? 'overview') : 'overview';
@@ -119,6 +122,8 @@ function LivePatientChartPage(): JSX.Element {
           {activeSection === 'labs' && <SectionFrame sectionId="labs"><ErrorBoundary panel="Results"><LabResultsPanel observations={labs ?? []} /></ErrorBoundary></SectionFrame>}
 
           {activeSection === 'meds' && <SectionFrame sectionId="meds"><ErrorBoundary panel="Medications"><MedicationList medications={meds ?? []} /></ErrorBoundary></SectionFrame>}
+
+          {activeSection === 'mar' && <SectionFrame sectionId="mar"><ErrorBoundary panel="MAR"><MarPanel medications={meds ?? []} administrations={admins ?? []} /></ErrorBoundary></SectionFrame>}
 
           {activeSection === 'tasks' && (
             <SectionFrame sectionId="tasks">
@@ -237,6 +242,12 @@ function FixturePatientChartPage(): JSX.Element {
           {activeSection === 'meds' && (
             <SectionFrame sectionId="meds">
               <MedicationList medications={shellFixtureMedications} />
+            </SectionFrame>
+          )}
+
+          {activeSection === 'mar' && (
+            <SectionFrame sectionId="mar">
+              <MarPanel medications={shellFixtureMedications} administrations={[]} />
             </SectionFrame>
           )}
 
