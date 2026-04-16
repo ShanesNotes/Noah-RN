@@ -10,6 +10,9 @@
     "select-workflows": "node ./select-workflows.mjs",
     "invoke": "node ./invoke-workflow.mjs"
   },
+  "dependencies": {
+    "@noah-rn/contracts": "*"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

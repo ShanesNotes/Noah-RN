@@ -1,5 +1,19 @@
+// Product A (Noah RN Agent Harness) trace schema.
+// Extends the cross-product envelope from @noah-rn/contracts/trace-envelope
+// with harness-specific fields (skill, routing decision, eval scores).
+//
+// Every harness invocation SHOULD emit both a TraceEnvelope (harness
+// schema) and a cross-product TraceEnvelopeV1 for the dashboard to render
+// cross-product call chains. The two shapes are structurally compatible —
+// the harness envelope is a superset of the v1 envelope's required fields.
+
+import type { TraceTokenSpend, TraceLatency } from '@noah-rn/contracts/trace-envelope';
+
+export type { TraceEnvelopeV1, TraceProduct, PhiRisk, TraceSafetyGate } from '@noah-rn/contracts/trace-envelope';
+
 export interface TraceEnvelope {
   trace_id: string;
+  parent_trace_id?: string; // cross-product lineage (v1 envelope alignment)
   skill: string;
   candidate_id?: string;
   timestamp: string;
@@ -17,7 +31,10 @@ export interface TraceEnvelope {
   eval_scores?: EvalScoreTrace;
 }
 
-export interface TokenSpend {
+// Harness-local aliases for the cross-product shapes from @noah-rn/contracts.
+// Kept as interfaces rather than type aliases so existing code that widens
+// them (e.g. adding required fields) continues to work.
+export interface TokenSpend extends TraceTokenSpend {
   input_tokens: number;
   output_tokens: number;
   cache_read_tokens: number;
@@ -26,7 +43,7 @@ export interface TokenSpend {
   categories: Record<string, number>;
 }
 
-export interface LatencyBreakdown {
+export interface LatencyBreakdown extends TraceLatency {
   total_ms: number;
   stages: Record<string, number>;
 }
