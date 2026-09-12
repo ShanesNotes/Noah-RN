@@ -38,11 +38,11 @@ Purpose:
 
 Current root docs:
 - [ARCHITECTURE.md](ARCHITECTURE.md) — short technical boundary map
-- [FHIR-INTEGRATION.md](FHIR-INTEGRATION.md) — FHIR/Medplum integration reference
-- [REGULATORY.md](REGULATORY.md) — regulatory posture reference
-- [LIMITATIONS.md](LIMITATIONS.md) — known system limits
 - [DEGRADATION.md](DEGRADATION.md) — fallback/degradation behavior
 - [DEMO.md](DEMO.md) — demo/reference flow
+- [FHIR-INTEGRATION.md](FHIR-INTEGRATION.md) — FHIR/Medplum integration reference
+- [LIMITATIONS.md](LIMITATIONS.md) — known system limits
+- [REGULATORY.md](REGULATORY.md) — regulatory posture reference
 
 Rule:
 - if a doc is stable and broadly useful, it may live at `docs/` root
@@ -55,11 +55,11 @@ Use this status map when deciding whether a root doc is first-read material or d
 | Doc | Status | Intended use |
 |---|---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | active root reference | quick boundary map |
-| [FHIR-INTEGRATION.md](FHIR-INTEGRATION.md) | active root reference | Medplum/FHIR technical reference |
-| [REGULATORY.md](REGULATORY.md) | active root reference | regulatory posture and boundary conditions |
-| [LIMITATIONS.md](LIMITATIONS.md) | active root reference | current limits and non-goals |
 | [DEGRADATION.md](DEGRADATION.md) | active root reference | fallback behavior |
 | [DEMO.md](DEMO.md) | active root reference | reproducible walkthrough/demo |
+| [FHIR-INTEGRATION.md](FHIR-INTEGRATION.md) | active root reference | Medplum/FHIR technical reference |
+| [LIMITATIONS.md](LIMITATIONS.md) | active root reference | current limits and non-goals |
+| [REGULATORY.md](REGULATORY.md) | active root reference | regulatory posture and boundary conditions |
 
 ### `docs/topology/`
 
@@ -74,11 +74,11 @@ Read first when:
 - checking the approved target repo shape
 
 Key docs:
-- [topology/subproject-workspace-map.md](topology/subproject-workspace-map.md)
-- [topology/repo-topology-target.md](topology/repo-topology-target.md)
 - [topology/graph-refresh-policy.md](topology/graph-refresh-policy.md)
-- [topology/workspace-orchestration.md](topology/workspace-orchestration.md)
+- [topology/repo-topology-target.md](topology/repo-topology-target.md)
 - [topology/root-classification.md](topology/root-classification.md)
+- [topology/subproject-workspace-map.md](topology/subproject-workspace-map.md)
+- [topology/workspace-orchestration.md](topology/workspace-orchestration.md)
 
 ### `docs/foundations/`
 
@@ -94,20 +94,20 @@ Read first when:
 - narrowing a high-level plan into implementation-ready artifacts
 
 Key docs:
-- [foundations/invariant-kernel-simulation-architecture.md](foundations/invariant-kernel-simulation-architecture.md) — canonical sim authority (kernel)
-- [foundations/foundational-contracts-simulation-architecture.md](foundations/foundational-contracts-simulation-architecture.md) — canonical sim authority (9 contracts, Contract 9 locks Pulse)
-- [foundations/first-bedside-workflow-spec.md](foundations/first-bedside-workflow-spec.md) — first bedside workflow (ICU respiratory decompensation)
-- [foundations/medplum-write-path-expansion.md](foundations/medplum-write-path-expansion.md) — Contract 5 charting write-path
-- [foundations/scaffolding-alignment.md](foundations/scaffolding-alignment.md)
-- [foundations/first-scaffold-batch.md](foundations/first-scaffold-batch.md)
-- [foundations/patient-context-bundle-contract.md](foundations/patient-context-bundle-contract.md)
 - [foundations/agent-harness-runtime-contract.md](foundations/agent-harness-runtime-contract.md)
 - [foundations/clinical-resources-runtime-access-contract.md](foundations/clinical-resources-runtime-access-contract.md)
-- [foundations/memory-tier-boundary.md](foundations/memory-tier-boundary.md)
+- [foundations/first-bedside-workflow-spec.md](foundations/first-bedside-workflow-spec.md) — first bedside workflow (ICU respiratory decompensation)
+- [foundations/first-scaffold-batch.md](foundations/first-scaffold-batch.md)
+- [foundations/foundational-contracts-simulation-architecture.md](foundations/foundational-contracts-simulation-architecture.md) — canonical sim authority (9 contracts, Contract 9 locks Pulse)
+- [foundations/invariant-kernel-simulation-architecture.md](foundations/invariant-kernel-simulation-architecture.md) — canonical sim authority (kernel)
 - [foundations/medplum-primary-workspace-note.md](foundations/medplum-primary-workspace-note.md)
 - [foundations/medplum-rails-noah-runtime.md](foundations/medplum-rails-noah-runtime.md)
 - [foundations/medplum-shift-report-contract.md](foundations/medplum-shift-report-contract.md)
+- [foundations/medplum-write-path-expansion.md](foundations/medplum-write-path-expansion.md) — Contract 5 charting write-path
+- [foundations/memory-tier-boundary.md](foundations/memory-tier-boundary.md)
+- [foundations/patient-context-bundle-contract.md](foundations/patient-context-bundle-contract.md)
 - [foundations/pi-dev-runtime-lane-checkpoint-1.md](foundations/pi-dev-runtime-lane-checkpoint-1.md)
+- [foundations/scaffolding-alignment.md](foundations/scaffolding-alignment.md)
 
 `Shift Report` workflow-specific artifacts also currently live here because they are still boundary/contract docs rather than implementation docs.
 
@@ -130,17 +130,17 @@ Purpose:
 - promoted implementation-planning syntheses when they are analysis-heavy rather than contract docs
 
 Current docs:
-- [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)
-- [analysis/ehr-ui-ux-hidden-surface-map.md](analysis/ehr-ui-ux-hidden-surface-map.md)
-- [analysis/clinician-ui-phased-roadmap.md](analysis/clinician-ui-phased-roadmap.md)
+- [analysis/2026-04-12-session-closeout-audit.md](analysis/2026-04-12-session-closeout-audit.md)
 - [analysis/clinician-ui-feature-matrix.md](analysis/clinician-ui-feature-matrix.md)
-- [analysis/ui-ux-foundations-caveman.md](analysis/ui-ux-foundations-caveman.md)
-- [analysis/ui-resource-ledger.md](analysis/ui-resource-ledger.md)
+- [analysis/clinician-ui-phased-roadmap.md](analysis/clinician-ui-phased-roadmap.md)
+- [analysis/distillation-cross-reference.md](analysis/distillation-cross-reference.md)
+- [analysis/ehr-ui-ux-hidden-surface-map.md](analysis/ehr-ui-ux-hidden-surface-map.md)
+- [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)
 - [analysis/epic-source-triage.md](analysis/epic-source-triage.md)
 - [analysis/hidden-docs-reconciliation-note-2026-04-14.md](analysis/hidden-docs-reconciliation-note-2026-04-14.md)
-- [analysis/distillation-cross-reference.md](analysis/distillation-cross-reference.md)
 - [analysis/safety-compliance-report.md](analysis/safety-compliance-report.md)
-- [analysis/2026-04-12-session-closeout-audit.md](analysis/2026-04-12-session-closeout-audit.md)
+- [analysis/ui-resource-ledger.md](analysis/ui-resource-ledger.md)
+- [analysis/ui-ux-foundations-caveman.md](analysis/ui-ux-foundations-caveman.md)
 
 Read first for current clinician workspace planning:
 - [analysis/ehr-ui-ux-start-here.md](analysis/ehr-ui-ux-start-here.md)

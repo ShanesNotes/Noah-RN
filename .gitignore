@@ -26,6 +26,18 @@ apps/nursing-station/dist/
 services/clinical-mcp/dist/
 *.tsbuildinfo
 
+# Generated build/test/coverage/logs/turbo/env (for agent scans + clean git)
+build/
+coverage/
+*.log
+.turbo/
+.env*.local
+
+# Python caches (tooling/scripts)
+__pycache__/
+*.py[cod]
+*.pyo
+
 # Downloaded binaries
 *.tar.gz
 gh_*/
@@ -77,4 +89,5 @@ docs/analysis/browser-control-skill-template.SKILL.md
 apps/clinician-dashboard/public/evals/
 apps/clinician-dashboard/public/traces/
 .dmux/
+optimization/
 artifacts/

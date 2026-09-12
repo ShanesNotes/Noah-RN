@@ -22,16 +22,18 @@ Those belong in:
 ## Current subareas
 
 - `agents/` — bridge, routing, and workflow contract tests
-- `clinical-calculators/` — deterministic calculator tests
 - `clinical/` — clinical golden-test harness surface
+- `clinical-calculators/` — deterministic calculator tests
 - `clinical-scenarios/` — scenario corpus and manifest
 - `drug-lookup/` — OpenFDA lookup tests
+- `e2e/` — end-to-end test surface
 - `fhir/` — FHIR helper tests
 - `hooks/` — safety hook tests
 - `infrastructure/` — infrastructure shell suites (e.g., Medplum `test_load_mimic.sh` — POST + OAuth contract)
 - `integration/` — cross-tool integration tests
 - `io-tracker/` — I&O tool tests
 - `knowledge/` — clinical resource correctness tests (legacy folder name; targets `clinical-resources/`)
+- `skills/` — skill contract tests
 - `trace/` — trace tool tests
 - `unit-conversions/` — conversion tests
 

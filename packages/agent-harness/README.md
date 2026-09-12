@@ -5,14 +5,21 @@ This lane is the current harness/routing center for Noah RN.
 It is the canonical workspace center for the agent harness subproject.
 
 Current contents:
-- `router/clinical-router.md`
+- `describe-routing-candidates.mjs`
+- `index.mjs`
+- `invoke-workflow.mjs`
+- `list-clinical-resources.mjs`
 - `list-skills.mjs`
 - `list-tools.mjs`
-- `list-clinical-resources.mjs`
-- `select-workflows.mjs`
-- `describe-routing-candidates.mjs`
-- `workflow-dependencies.json`
+- `MODEL-SELECTION-NOTES.md`
 - `REGISTRY-CONSUMER.md`
+- `router/`
+- `SELECTION-POLICY.md`
+- `select-workflows.mjs`
+- `shift-report-renderer.mjs`
+- `src/`
+- `tools/`
+- `workflow-dependencies.json`
 
 Planned build-time harness addition:
 - headless subagent delegation for developer workflows, owned here rather than in `.noah-pi-runtime/`

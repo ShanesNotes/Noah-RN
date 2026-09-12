@@ -10,17 +10,25 @@ Use this folder for:
 These docs are useful, but they are not control-plane docs and should not be treated as first-read implementation guidance.
 
 Current contents:
-- `ehr-ui-ux-start-here.md`
-- `ehr-ui-ux-hidden-surface-map.md`
-- `clinician-ui-phased-roadmap.md`
-- `clinician-ui-feature-matrix.md`
-- `ui-ux-foundations-caveman.md`
-- `ui-resource-ledger.md`
-- `epic-source-triage.md`
-- `hidden-docs-reconciliation-note-2026-04-14.md`
-- `distillation-cross-reference.md`
-- `safety-compliance-report.md`
 - `2026-04-12-session-closeout-audit.md`
+- `agent-native-clinical-workspace-long-range-plan.md`
+- `browser-control-skill-template.SKILL.md`
+- `clinical-workspace-architecture-improvement-plan.md`
+- `clinician-ui-feature-matrix.md`
+- `clinician-ui-phased-roadmap.md`
+- `distillation-cross-reference.md`
+- `ehr-ui-ux-hidden-surface-map.md`
+- `ehr-ui-ux-start-here.md`
+- `epic-source-triage.md`
+- `feature-matrix-seeds.md`
+- `hidden-docs-reconciliation-note-2026-04-14.md`
+- `memory-layer-gap-analysis.md`
+- `meta-harness-optimization-strategy.md`
+- `meta-harness-research-report.md`
+- `safety-compliance-report.md`
+- `ui-resource-ledger.md`
+- `ui-ux-foundations-caveman.md`
+- `ui-ux-playwright-research-prompt.md`
 
 Recommended entrypoint for clinician workspace planning:
 - `ehr-ui-ux-start-here.md`

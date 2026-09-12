@@ -11,10 +11,10 @@ This folder holds environment and platform bring-up material for Noah RN.
 
 Current contents:
 - `docker-compose.yml` — active Medplum local stack
-- `medplum/` — Medplum operator scripts and app config for the current Shift Report lane
-- `pi/` — pi-runtime environment scaffolding for the tower/operator lane (`pi.dev` is the active agent harness foundation per 2026-04-10 decision)
 - `load-mimic.sh` — legacy MIMIC-IV dataset loading helper (current active dataset is Synthea; MIMIC migration is future)
+- `medplum/` — Medplum operator scripts and app config for the current Shift Report lane
 - `nemoclaw/` — **legacy** exploratory NemoClaw/OpenClaw sandbox material; not the active foundation
+- `pi/` — pi-runtime environment scaffolding for the tower/operator lane (`pi.dev` is the active agent harness foundation per 2026-04-10 decision)
 
 ## What this folder does not own
 

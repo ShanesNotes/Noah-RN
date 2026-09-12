@@ -18,11 +18,13 @@ Current subareas:
 - `fhir/`
 - `graphify/`
 - `io-tracker/`
+- `model-invoke.sh`
+- `registry.json`
 - `safety-hooks/`
 - `trace/`
 - `unit-conversions/`
-- `youtube-poll/`
-- `registry.json`
+- `utf8-smoke-test.sh`
+- `youtube-poll/` (gitignored local-only; see .gitignore)
 
 ## What this folder does not own
 

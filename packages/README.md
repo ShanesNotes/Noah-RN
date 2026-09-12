@@ -4,6 +4,9 @@ Reusable internal contracts and subsystems live here.
 
 Current package lanes:
 - `agent-harness/` — router/harness material
+- `contracts/` — shared type contracts (context bundles, provenance, mcp, traces, etc.)
+- `ui/` — shared UI primitives
+- `ui-tokens/` — shared design tokens
 - `workflows/` — migrated workflow contracts
 
 ## What `packages/` is for

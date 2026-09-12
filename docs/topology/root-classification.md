@@ -18,24 +18,31 @@ Every current root item must have an explicit class during the restructure.
 | `README.md` | Control-plane | stays root |
 | `PLAN.md` | Control-plane | stays root |
 | `TASKS.md` | Control-plane | stays root |
+| `AGENTS.md` | Control-plane | repo-local agent navigation guide |
 | `package.json` | Control-plane / runtime anchor | stays root as npm workspace orchestrator |
+| `package-lock.json` | Control-plane / runtime anchor | root npm lockfile |
+| `tsconfig.json` | Control-plane / runtime anchor | root tsconfig for workspaces |
 | `apps/` | Deliverable | contains `clinician-dashboard/` |
 | `services/` | Deliverable | contains `clinical-mcp/` |
-| `packages/` | Deliverable | harness + workflows + future memory/safety packages |
+| `packages/` | Deliverable | harness + workflows + contracts + ui-tokens + ui |
 | `plugin/` | Local-only leftover / archive target | ignored legacy plugin remnants only; not part of active topology |
 | `clinical-resources/` | Deliverable | stays root |
 | `infrastructure/` | Deliverable | stays root |
 | `tests/` | Deliverable | stays root |
 | `tools/` | Deliverable | stays root |
+| `scripts/` | Deliverable | operational/launch/playwright/tower/optimize scripts (package.json roots) |
 | `docs/` | Deliverable | stays root |
 | `evals/` | Deliverable | meta-harness traces, candidates, and evaluation assets |
 | `local/` | Deliverable support / local boundary anchor | stays root as the intended home for non-deliverable local material |
+| `memory/` | Deliverable support | memory architecture placeholder surface |
+| `optimization/` | Generated/local | optimization artifacts, candidates, logs (script output) |
+| `artifacts/` | Generated/local | playwright captures/reports (gitignored) |
 | `wiki/` | Local grounding | `local/grounding/wiki/` target |
 | `research/` | Local grounding | `local/grounding/research/` target |
 | `notes/` | Local grounding | `local/grounding/notes/` target |
 | `graphify-out/` | Generated/local | canonical full-project graph artifact; `local/graphify/` target when safe |
 | `local/graphify/legacy/graphify-out-full-project-20260411/` | Generated/local | archived legacy/custom merged graph artifact |
-| `graphify-out.bak-20260411/` | Generated/local | backup artifact; move under `local/graphify/` or delete after review |
+| `graphify-out.bak-*` (historical) | Generated/local | past backup artifacts; cleaned or under local/graphify/ per evolution |
 | `.obsidian/` | Runtime exception | keep at root or move only with wiki/link audit |
 | `.omx/` | Runtime exception | keep at root |
 | `.omc/` | Runtime exception | keep at root |
@@ -52,6 +59,7 @@ Every current root item must have an explicit class during the restructure.
 | `.graphify_chunks.json` | Generated/local | move to `local/scratch/` or regenerate as needed |
 | `codex` | Runtime exception | local launcher/tooling script; review before moving |
 | `.codex` | Generated/local | local state artifact |
+| `AGENTS.md.disabled-20260414-235921` | Archive candidate / retained | historical feeder per TASKS.md + hidden-docs-reconciliation; do not bulk delete |
 
 ## Notes
 

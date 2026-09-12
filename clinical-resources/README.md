@@ -11,12 +11,13 @@ This folder is the canonical clinical resource surface for Noah RN.
 - the clinical resources registry
 
 Current contents:
-- `protocols/` — bedside protocol references
-- `templates/` — output and routing support templates
 - `drug-ranges.json` — deterministic dosage support data
-- `mimic-mappings.json` — mapping/reference data for current FHIR context work
+- `drug-reference/` — OpenFDA drug facts + reference layer
 - `FRESHNESS.md` — review/freshness manifest
+- `mimic-mappings.json` — mapping/reference data for current FHIR context work
+- `protocols/` — bedside protocol references
 - `registry.json` — runtime-facing clinical resource registry
+- `templates/` — output and routing support templates
 
 ## What this folder does not own
 

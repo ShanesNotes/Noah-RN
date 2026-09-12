@@ -29,7 +29,7 @@ tools/graphify/set-profile.sh canonical-project
 tools/graphify/set-profile.sh full-context
 ```
 
-This copies the chosen profile into repo-root `/.graphifyignore` and backs up the previous file into `local/graphify/backups/`.
+This copies the chosen profile into repo-root `.graphifyignore` and backs up the previous file into `local/graphify/backups/`.
 
 ## Recommended default
 

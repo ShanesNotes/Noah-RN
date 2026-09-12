@@ -4,6 +4,7 @@ Deterministic hook scripts and manifest live here.
 
 Current contents:
 - `hooks.json`
+- `scripts/common.sh`
 - `scripts/sanitize-input.sh`
 - `scripts/validate-calculator.sh`
 - `scripts/validate-dosage.sh`

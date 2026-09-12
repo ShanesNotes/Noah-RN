@@ -75,13 +75,18 @@ Use these before wandering the tree:
 
 ```text
 apps/            Runnable applications
-services/        Runnable services
 clinical-resources/  Curated protocols, drug ranges, templates, provenance
-infrastructure/  Medplum and related local environment setup
-packages/        Shared harness, workflow, and safety contracts
-evals/           Meta-harness evaluation traces and optimization artifacts
 docs/            Reference docs plus archive
+evals/           Meta-harness evaluation traces and optimization artifacts
+infrastructure/  Medplum and related local environment setup
 local/           Gitignored local/private/generated workspace area
+memory/          Memory architecture placeholder
+optimization/    Generated optimization artifacts/candidates
+packages/        Shared harness, workflow, and safety contracts
+scripts/         Operational/launch/playwright/tower/optimize scripts
+services/        Runnable services
+tests/           Verification and contract tests
+tools/           Deterministic tools and operational helpers
 ```
 
 Local grounding surfaces such as `wiki/`, `research/`, `notes/`, `docs/local/`, Graphify outputs, and hidden planning directories like `.omx/` / `.hermes/` are intentionally outside the deliverable topology even when they still exist at repo root during the migration.
