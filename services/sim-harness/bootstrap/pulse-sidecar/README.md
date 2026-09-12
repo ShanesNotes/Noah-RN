@@ -33,7 +33,7 @@ First build pulls `kitware/pulse:4.3.1` (~1.3 GB). Subsequent builds are cached.
 
 | Variable                   | Default                                                  | Purpose                                                 |
 |----------------------------|----------------------------------------------------------|---------------------------------------------------------|
-| `PULSE_STATE_FILE`         | `/usr/local/share/pulse/states/StandardMale@0s.json`     | Path to pre-stabilized Pulse state file inside container |
+| `PULSE_STATE_FILE`         | `/pulse/bin/states/StandardMale@0s.json`     | Path to pre-stabilized Pulse state file inside container |
 | `PULSE_LOG_FILE`           | `/tmp/pulse.log`                                         | Pulse engine log destination                            |
 | `PULSE_TICK_SECONDS`       | `0.02`                                                   | Engine tick (seconds). 0.02 = 50 Hz.                    |
 | `PULSE_ECG_BUFFER_SECONDS` | `10`                                                     | Size of the rolling ECG buffer                          |
@@ -52,7 +52,7 @@ First build pulls `kitware/pulse:4.3.1` (~1.3 GB). Subsequent builds are cached.
 ## State file path
 
 If the base image layout differs from the hardcoded
-`/usr/local/share/pulse/states/StandardMale@0s.json`, find the actual path once
+`/pulse/bin/states/StandardMale@0s.json`, find the actual path once
 during first build:
 
 ```bash

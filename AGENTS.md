@@ -3,6 +3,8 @@
 Use this file as the fast repo-local navigation layer.
 It does **not** replace the control plane.
 
+Session boot overlay: `CLAUDE.md` (`@AGENTS.md` plus the root install/test/typecheck/lint and CI bash commands).
+
 ## Control plane first
 
 When directions conflict, use this order:
@@ -17,6 +19,7 @@ When directions conflict, use this order:
 
 | If you are doing... | Read this first | Then read |
 |---|---|---|
+| install, test, typecheck, lint, CI bash suites | `CLAUDE.md` | `package.json`, `.github/workflows/ci.yml` |
 | any substantial repo work | `README.md` | `PLAN.md`, `TASKS.md`, `docs/NAVIGATION.md` |
 | repo/file placement decisions | `docs/topology/subproject-workspace-map.md` | `docs/topology/root-classification.md` |
 | implementation planning | `docs/plans/` relevant plan | `TASKS.md` |

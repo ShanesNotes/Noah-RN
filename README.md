@@ -12,6 +12,7 @@ The project exists to help a nurse build, test, and refine decomposable clinical
 - [PLAN.md](PLAN.md) is the canonical project plan and architecture control plane.
 - [TASKS.md](TASKS.md) is the current execution queue for coding agents.
 - [AGENTS.md](AGENTS.md) is the fast repo-local agent guide.
+- [CLAUDE.md](CLAUDE.md) is the session boot overlay (`@AGENTS.md` plus install/test/typecheck/lint and CI bash suites).
 - [docs/NAVIGATION.md](docs/NAVIGATION.md) is the task-oriented docs map.
 - [docs/](docs/) holds product/reference material plus intentional archive history.
 - `research/` is a local-only source corpus and is intentionally not part of the product repo.

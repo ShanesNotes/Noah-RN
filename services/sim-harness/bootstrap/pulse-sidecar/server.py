@@ -59,7 +59,7 @@ logging.basicConfig(level=logging.INFO)
 
 STATE_FILE_DEFAULT = os.environ.get(
     "PULSE_STATE_FILE",
-    "/usr/local/share/pulse/states/StandardMale@0s.json",
+    "/pulse/bin/states/StandardMale@0s.json",
 )
 LOG_FILE = os.environ.get("PULSE_LOG_FILE", "/tmp/pulse.log")
 TICK_SECONDS = float(os.environ.get("PULSE_TICK_SECONDS", "0.02"))  # 50 Hz
@@ -128,9 +128,9 @@ def _build_data_request_manager() -> Any:
         "ecg": SEDataRequest.create_ecg_request("Lead3ElectricPotential"),
     }
     state.dr = dr
-    # Preserve dict order when passing to SEDataRequestManager so we know which
-    # slot each value occupies in the returned tuple.
-    return SEDataRequestManager(list(dr.values()))
+    manager = SEDataRequestManager()
+    manager.set_data_requests(list(dr.values()))
+    return manager
 
 
 def _load_engine(patient_state: Optional[str] = None) -> str:
@@ -147,8 +147,7 @@ def _load_engine(patient_state: Optional[str] = None) -> str:
 
     engine = PulseEngine()
     engine.set_log_filename(LOG_FILE)
-    engine.data_req_mgr = _build_data_request_manager()
-    engine.serialize_from_file(path)
+    engine.serialize_from_file(path, data_request_mgr=_build_data_request_manager())
 
     state.engine = engine
     state.engine_id = str(uuid.uuid4())
@@ -173,11 +172,12 @@ def _tick_once_sync() -> None:
     engine.advance_time_s(TICK_SECONDS)
     values = engine.pull_data()
 
-    # pull_data returns one value per registered request, in the order the
-    # requests were added. We held that order in state.dr.
+    # Pulse prepends simulation time as element 0; requested data follows in
+    # the same order as state.dr.
     keys: List[str] = list(state.dr.keys())
+    series = values[1:] if len(values) == len(keys) + 1 else values
     mapped: Dict[str, float] = {}
-    for key, value in zip(keys, values):
+    for key, value in zip(keys, series):
         try:
             mapped[key] = float(value)
         except (TypeError, ValueError):
